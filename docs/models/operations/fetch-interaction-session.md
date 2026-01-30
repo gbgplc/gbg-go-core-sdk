@@ -1,0 +1,21 @@
+# FetchInteractionSession
+
+## Example Usage
+
+```typescript
+import { FetchInteractionSession } from "@gbg/go-core/models/operations";
+
+let value: FetchInteractionSession = {};
+```
+
+## Fields
+
+| Field                                                                                                   | Type                                                                                                    | Required                                                                                                | Description                                                                                             |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `user`                                                                                                  | [operations.FetchInteractionUser](../../models/operations/fetch-interaction-user.md)                    | :heavy_minus_sign:                                                                                      | N/A                                                                                                     |
+| `client`                                                                                                | [operations.FetchInteractionClient](../../models/operations/fetch-interaction-client.md)                | :heavy_minus_sign:                                                                                      | N/A                                                                                                     |
+| `device`                                                                                                | [operations.FetchInteractionSessionDevice](../../models/operations/fetch-interaction-session-device.md) | :heavy_minus_sign:                                                                                      | N/A                                                                                                     |
+| `trace`                                                                                                 | [operations.FetchInteractionTrace](../../models/operations/fetch-interaction-trace.md)                  | :heavy_minus_sign:                                                                                      | N/A                                                                                                     |
+| `span`                                                                                                  | [operations.FetchInteractionSpan](../../models/operations/fetch-interaction-span.md)                    | :heavy_minus_sign:                                                                                      | N/A                                                                                                     |
+| `transaction`                                                                                           | [operations.FetchInteractionTransaction](../../models/operations/fetch-interaction-transaction.md)      | :heavy_minus_sign:                                                                                      | N/A                                                                                                     |
+| `auth`                                                                                                  | [operations.FetchInteractionSessionAuth](../../models/operations/fetch-interaction-session-auth.md)[]   | :heavy_minus_sign:                                                                                      | N/A                                                                                                     |

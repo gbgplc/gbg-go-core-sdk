@@ -1,0 +1,21 @@
+# SubmitInteractionSession
+
+## Example Usage
+
+```typescript
+import { SubmitInteractionSession } from "@gbg/go-core/models/operations";
+
+let value: SubmitInteractionSession = {};
+```
+
+## Fields
+
+| Field                                                                                                     | Type                                                                                                      | Required                                                                                                  | Description                                                                                               |
+| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `user`                                                                                                    | [operations.SubmitInteractionUser](../../models/operations/submit-interaction-user.md)                    | :heavy_minus_sign:                                                                                        | N/A                                                                                                       |
+| `client`                                                                                                  | [operations.SubmitInteractionClient](../../models/operations/submit-interaction-client.md)                | :heavy_minus_sign:                                                                                        | N/A                                                                                                       |
+| `device`                                                                                                  | [operations.SubmitInteractionSessionDevice](../../models/operations/submit-interaction-session-device.md) | :heavy_minus_sign:                                                                                        | N/A                                                                                                       |
+| `trace`                                                                                                   | [operations.SubmitInteractionTrace](../../models/operations/submit-interaction-trace.md)                  | :heavy_minus_sign:                                                                                        | N/A                                                                                                       |
+| `span`                                                                                                    | [operations.SubmitInteractionSpan](../../models/operations/submit-interaction-span.md)                    | :heavy_minus_sign:                                                                                        | N/A                                                                                                       |
+| `transaction`                                                                                             | [operations.SubmitInteractionTransaction](../../models/operations/submit-interaction-transaction.md)      | :heavy_minus_sign:                                                                                        | N/A                                                                                                       |
+| `auth`                                                                                                    | [operations.SubmitInteractionSessionAuth](../../models/operations/submit-interaction-session-auth.md)[]   | :heavy_minus_sign:                                                                                        | N/A                                                                                                       |

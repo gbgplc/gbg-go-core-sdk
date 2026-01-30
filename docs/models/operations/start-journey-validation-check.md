@@ -1,0 +1,30 @@
+# StartJourneyValidationCheck
+
+## Example Usage
+
+```typescript
+import { StartJourneyValidationCheck } from "@gbg/go-core/models/operations";
+
+let value: StartJourneyValidationCheck = {
+  name: "<value>",
+  title: "<value>",
+  info: "<value>",
+  validationResult: "<value>",
+  resultInfo: "<value>",
+  weight: "<value>",
+  type: "<value>",
+};
+```
+
+## Fields
+
+| Field                                                                                                                                    | Type                                                                                                                                     | Required                                                                                                                                 | Description                                                                                                                              |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                                                                                                                                   | *string*                                                                                                                                 | :heavy_check_mark:                                                                                                                       | N/A                                                                                                                                      |
+| `title`                                                                                                                                  | *string*                                                                                                                                 | :heavy_check_mark:                                                                                                                       | N/A                                                                                                                                      |
+| `info`                                                                                                                                   | *string*                                                                                                                                 | :heavy_check_mark:                                                                                                                       | N/A                                                                                                                                      |
+| `validationResult`                                                                                                                       | *string*                                                                                                                                 | :heavy_check_mark:                                                                                                                       | N/A                                                                                                                                      |
+| `resultInfo`                                                                                                                             | *string*                                                                                                                                 | :heavy_check_mark:                                                                                                                       | N/A                                                                                                                                      |
+| `weight`                                                                                                                                 | *string*                                                                                                                                 | :heavy_check_mark:                                                                                                                       | N/A                                                                                                                                      |
+| `regionOfInterests`                                                                                                                      | [operations.StartJourneyValidationCheckRegionOfInterest](../../models/operations/start-journey-validation-check-region-of-interest.md)[] | :heavy_minus_sign:                                                                                                                       | N/A                                                                                                                                      |
+| `type`                                                                                                                                   | *string*                                                                                                                                 | :heavy_check_mark:                                                                                                                       | N/A                                                                                                                                      |

@@ -1,0 +1,129 @@
+overlay: 1.0.0
+x-speakeasy-jsonpath: rfc9535
+info:
+  title: Speakeasy Modifications
+  version: 0.0.2
+  x-speakeasy-metadata:
+    after: ""
+    before: ""
+    type: speakeasy-modifications
+actions:
+  - target: $["paths"]["/journey/state/fetch"]["post"]
+    update:
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: getState
+    x-speakeasy-metadata:
+      after: sdk.journeys.getState()
+      before: sdk.Customer APIs.getJourneyState()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/task/update"]["post"]
+    update:
+      x-speakeasy-group: tasks
+      x-speakeasy-name-override: update
+    x-speakeasy-metadata:
+      after: sdk.tasks.update()
+      before: sdk.End User APIs.updateTask()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/task/list"]["post"]
+    update:
+      x-speakeasy-group: tasks
+      x-speakeasy-name-override: list
+    x-speakeasy-metadata:
+      after: sdk.tasks.list()
+      before: sdk.End User APIs.getTasks()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/task/schema"]["post"]
+    update:
+      x-speakeasy-group: tasks
+      x-speakeasy-name-override: getSchema
+    x-speakeasy-metadata:
+      after: sdk.tasks.getSchema()
+      before: sdk.Customer APIs.getTaskSchema()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/device/start"]["post"]
+    update:
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: add
+    x-speakeasy-metadata:
+      after: sdk.devices.add()
+      before: sdk.Customer APIs.addDevice()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/device/connect"]["post"]
+    update:
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: connect
+    x-speakeasy-metadata:
+      after: sdk.devices.connect()
+      before: sdk.End User APIs.deviceConnect()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/state/delete"]["post"]
+    update:
+      x-speakeasy-group: instances
+      x-speakeasy-name-override: delete
+    x-speakeasy-metadata:
+      after: sdk.instances.delete()
+      before: sdk.Customer APIs.deleteInstance()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/task/list/schema"]["post"]
+    update:
+      x-speakeasy-group: tasks
+      x-speakeasy-name-override: listSchema
+    x-speakeasy-metadata:
+      after: sdk.tasks.listSchema()
+      before: sdk.Customer APIs.getTasksSchema()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/health"]["get"]
+    update:
+      x-speakeasy-name-override: get
+    x-speakeasy-metadata:
+      after: sdk.health.get()
+      before: sdk.Health.health()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/interaction/submit"]["post"]
+    update:
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: submit
+    x-speakeasy-metadata:
+      after: sdk.interactions.submit()
+      before: sdk.Interaction Service.submitInteraction()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/interaction/fetch"]["post"]
+    update:
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: fetch
+    x-speakeasy-metadata:
+      after: sdk.interactions.fetch()
+      before: sdk.Interaction Service.fetchInteraction()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name
+  - target: $["paths"]["/journey/start"]["post"]
+    update:
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: start
+    x-speakeasy-metadata:
+      after: sdk.journeys.start()
+      before: sdk.Customer APIs.startJourney()
+      created_at: 1769785998660
+      reviewed_at: 1769786014866
+      type: method-name

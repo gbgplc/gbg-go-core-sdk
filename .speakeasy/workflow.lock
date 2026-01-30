@@ -1,0 +1,37 @@
+speakeasyVersion: 1.700.2
+sources:
+    GO-OAS:
+        sourceNamespace: go-oas
+        sourceRevisionDigest: sha256:665553d2e1aafce7f248597dd7abc43d8b6762e569d5fbbdf3767a45a60310a8
+        sourceBlobDigest: sha256:efc5bedd4bf7260c2eb8381da334fa4eb8d99cb7c9e268f16915f999dd8a0e9d
+        tags:
+            - latest
+            - 1.0.0
+targets:
+    go:
+        source: GO-OAS
+        sourceNamespace: go-oas
+        sourceRevisionDigest: sha256:665553d2e1aafce7f248597dd7abc43d8b6762e569d5fbbdf3767a45a60310a8
+        sourceBlobDigest: sha256:efc5bedd4bf7260c2eb8381da334fa4eb8d99cb7c9e268f16915f999dd8a0e9d
+workflow:
+    workflowVersion: 1.0.0
+    speakeasyVersion: latest
+    sources:
+        GO-OAS:
+            inputs:
+                - location: ./.spec/spec.yaml
+            overlays:
+                - location: .speakeasy/speakeasy-modifications-overlay.yaml
+            output: .speakeasy/out.openapi.yaml
+            registry:
+                location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas
+    targets:
+        go:
+            target: typescript
+            source: GO-OAS
+            codeSamples:
+                registry:
+                    location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas-typescript-code-samples
+                labelOverride:
+                    fixedValue: Typescript (SDK)
+                blocking: false
