@@ -1,6 +1,6 @@
 {
   "name": "@gbg/go-core",
-  "version": "0.1.1",
+  "version": "0.0.1-beta.1",
   "author": "Speakeasy",
   "type": "module",
   "tshy": {
@@ -19,6 +19,10 @@
     }
   },
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gbgplc/gbg-go-core-sdk.git"
+  },
   "scripts": {
     "lint": "eslint --cache --max-warnings=0 src",
     "build": "tshy",
