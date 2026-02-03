@@ -78,7 +78,7 @@ typescript:
   moduleFormat: dual
   multipartArrayFormat: standard
   outputModelSuffix: output
-  packageName: "@gbg/go-core"
+  packageName: '@gbg/go-core'
   preApplyUnionDiscriminators: true
   preserveModelFieldNames: false
   responseFormat: flat

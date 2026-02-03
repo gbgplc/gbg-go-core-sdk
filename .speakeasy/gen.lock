@@ -5,12 +5,14 @@ management:
   docVersion: 1.0.0
   speakeasyVersion: 1.700.2
   generationVersion: 2.801.2
-  releaseVersion: 0.1.1
-  configChecksum: a1121656d1be22a2fa57448c5731e01d
+  releaseVersion: 0.0.1-alpha.1
+  configChecksum: ef6d6a433ee857b898409cdd68e16bf4
+  repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
+  installationURL: https://github.com/gbgplc/gbg-go-core-sdk
 persistentEdits:
-  generation_id: c9f21fb1-8ad0-4d43-8018-a7194a7856ab
-  pristine_commit_hash: 1e1563a9cae3943861775c32f2b0742c7ad71526
-  pristine_tree_hash: 7b84df8f0eddcf9a6ec9371d9eed0a8b0000a9dc
+  generation_id: 381a1b36-a040-4e27-8b09-61a4513515dd
+  pristine_commit_hash: 809d2b00a75af7b86a6b4f787fb540d9aa05c575
+  pristine_tree_hash: c7156922db08f7ea8a264ee104162c30f1839072
 features:
   typescript:
     additionalDependencies: 0.1.0
@@ -36,8 +38,8 @@ features:
 trackedFiles:
   .devcontainer/README.md:
     id: b170c0f184ac
-    last_write_checksum: sha1:b6564d2a7c8ae764fff6d1b4666dcd787210a000
-    pristine_git_object: cdef18c30e383534a868742e1b9148f2670606f9
+    last_write_checksum: sha1:fbd26ffdd2efeaa2ae1fdc75196bff01e3e5e26a
+    pristine_git_object: e294d27d327b02941ac91d8c41883d6abe0a8331
   .devcontainer/devcontainer.json:
     id: b34062a34eb1
     last_write_checksum: sha1:d0b15193202c961e7d1875864ddb15f9d17c84dd
@@ -1860,12 +1862,12 @@ trackedFiles:
     pristine_git_object: d5dc74b688899badec476aa7e914d3783b8baf78
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:efd2d587bec33b917d6b654deda17d32ebf8a303
-    pristine_git_object: 88bdc05d725192d54cf0e4bb6b17c9d1694e70bc
+    last_write_checksum: sha1:78dd16ee044d05798498fab26a021398474b40ca
+    pristine_git_object: 1c22e56428406e839c9d00622c9dfeea4f0c3eb8
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:a0467c9f6d453bf8da89b1e0e3006ece6e230bbf
-    pristine_git_object: 35c4337cfc1a65fc32a72afba82148734bebb92e
+    last_write_checksum: sha1:e85d4fb90c976952b799f53c90bb52933e774228
+    pristine_git_object: e7ab9a59e2752a77a7a14d8e15a7a0a82c0a36cf
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -1940,8 +1942,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:511bb582c10decd2751f74b6aa56b087dd4dbd10
-    pristine_git_object: 39ee33843b467ad456483e0b2ad01a5cbcb4790c
+    last_write_checksum: sha1:655aef5ffcf600ab69dbf6742b552a6fefc58111
+    pristine_git_object: 4d317bd8ee769c626886bcd1c2ee03037d1ca05e
   src/lib/dlv.ts:
     id: b1988214835a
     last_write_checksum: sha1:1dd3e3fbb4550c4bf31f5ef997faff355d6f3250
