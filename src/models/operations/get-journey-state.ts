@@ -1233,7 +1233,7 @@ export type GetJourneyStateResponse = {
    */
   instanceId: string;
   status: GetJourneyStateStatus;
-  metaData: MetaData;
+  metaData?: MetaData | undefined;
   context?: GetJourneyStateContext | undefined;
   data?: { [k: string]: any } | undefined;
 };
@@ -3136,7 +3136,7 @@ export const GetJourneyStateResponse$inboundSchema: z.ZodMiniType<
 > = z.object({
   instanceId: types.string(),
   status: GetJourneyStateStatus$inboundSchema,
-  metaData: z.lazy(() => MetaData$inboundSchema),
+  metaData: types.optional(z.lazy(() => MetaData$inboundSchema)),
   context: types.optional(z.lazy(() => GetJourneyStateContext$inboundSchema)),
   data: types.optional(z.record(z.string(), z.any())),
 });

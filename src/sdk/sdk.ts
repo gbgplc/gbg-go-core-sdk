@@ -9,8 +9,14 @@ import { Instances } from "./instances.js";
 import { Interactions } from "./interactions.js";
 import { Journeys } from "./journeys.js";
 import { Tasks } from "./tasks.js";
+import { Tokens } from "./tokens.js";
 
 export class Go extends ClientSDK {
+  private _tokens?: Tokens;
+  get tokens(): Tokens {
+    return (this._tokens ??= new Tokens(this._options));
+  }
+
   private _health?: Health;
   get health(): Health {
     return (this._health ??= new Health(this._options));
