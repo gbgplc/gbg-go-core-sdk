@@ -7,3 +7,13 @@ Based on:
 - Speakeasy CLI 1.701.3 (2.803.3) https://github.com/speakeasy-api/speakeasy
 ### Generated
 - [typescript v0.0.1-alpha.6] .
+
+## 2026-02-04 14:20:24
+### Changes
+Based on:
+- OpenAPI Doc  
+- Speakeasy CLI 1.701.3 (2.803.3) https://github.com/speakeasy-api/speakeasy
+### Generated
+- [typescript v0.0.1-alpha.7] .
+### Releases
+- [NPM v0.0.1-alpha.7] https://www.npmjs.com/package/@gbg/go-core/v/0.0.1-alpha.7 - .
