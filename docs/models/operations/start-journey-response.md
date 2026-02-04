@@ -1,20 +1,21 @@
 # StartJourneyResponse
 
-Start Response contains the Journey Instance Id
 
-## Example Usage
+## Supported Types
+
+### `operations.StartJourneyResponseBody1`
 
 ```typescript
-import { StartJourneyResponse } from "@gbg/go-core/models/operations";
-
-let value: StartJourneyResponse = {
+const value: operations.StartJourneyResponseBody1 = {
   instanceId: "<id>",
 };
 ```
 
-## Fields
+### `operations.StartJourneyResponseBody2`
 
-| Field                                                                    | Type                                                                     | Required                                                                 | Description                                                              |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| `instanceId`                                                             | *string*                                                                 | :heavy_check_mark:                                                       | Journey Instance Id, a unique identifier for a started journey instance. |
-| `additionalProperties`                                                   | Record<string, *any*>                                                    | :heavy_minus_sign:                                                       | N/A                                                                      |
+```typescript
+const value: operations.StartJourneyResponseBody2 = {
+  instanceId: "<id>",
+};
+```
+

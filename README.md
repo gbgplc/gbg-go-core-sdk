@@ -49,25 +49,25 @@ The SDK can be installed with either [npm](https://www.npmjs.com/), [pnpm](https
 ### NPM
 
 ```bash
-npm add <UNSET>
+npm add https://github.com/gbgplc/gbg-go-core-sdk
 ```
 
 ### PNPM
 
 ```bash
-pnpm add <UNSET>
+pnpm add https://github.com/gbgplc/gbg-go-core-sdk
 ```
 
 ### Bun
 
 ```bash
-bun add <UNSET>
+bun add https://github.com/gbgplc/gbg-go-core-sdk
 ```
 
 ### Yarn
 
 ```bash
-yarn add <UNSET>
+yarn add https://github.com/gbgplc/gbg-go-core-sdk
 ```
 
 > [!NOTE]
@@ -88,12 +88,16 @@ For supported JavaScript runtimes, please consult [RUNTIMES.md](RUNTIMES.md).
 ```typescript
 import { Go } from "@gbg/go-core";
 
-const go = new Go({
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
-});
+const go = new Go();
 
 async function run() {
-  const result = await go.health.get();
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  });
 
   console.log(result);
 }
@@ -123,7 +127,13 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.health.get();
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  });
 
   console.log(result);
 }
@@ -196,6 +206,10 @@ run();
 * [getSchema](docs/sdks/tasks/README.md#getschema) - Get Task Schema
 * [listSchema](docs/sdks/tasks/README.md#listschema) - Get Tasks Schema
 
+### [Tokens](docs/sdks/tokens/README.md)
+
+* [generate](docs/sdks/tokens/README.md#generate) - Generate access token
+
 </details>
 <!-- End Available Resources and Operations [operations] -->
 
@@ -226,6 +240,7 @@ To read more about standalone functions, check [FUNCTIONS.md](./FUNCTIONS.md).
 - [`tasksList`](docs/sdks/tasks/README.md#list) - Get End User Tasks
 - [`tasksListSchema`](docs/sdks/tasks/README.md#listschema) - Get Tasks Schema
 - [`tasksUpdate`](docs/sdks/tasks/README.md#update) - Put End User Data
+- [`tokensGenerate`](docs/sdks/tokens/README.md#generate) - Generate access token
 
 </details>
 <!-- End Standalone functions [standalone-funcs] -->
@@ -239,12 +254,16 @@ To change the default retry strategy for a single API call, simply provide a ret
 ```typescript
 import { Go } from "@gbg/go-core";
 
-const go = new Go({
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
-});
+const go = new Go();
 
 async function run() {
-  const result = await go.health.get({
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  }, {
     retries: {
       strategy: "backoff",
       backoff: {
@@ -279,11 +298,16 @@ const go = new Go({
     },
     retryConnectionErrors: false,
   },
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
 });
 
 async function run() {
-  const result = await go.health.get();
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  });
 
   console.log(result);
 }
@@ -311,13 +335,17 @@ run();
 import { Go } from "@gbg/go-core";
 import * as errors from "@gbg/go-core/models/errors";
 
-const go = new Go({
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
-});
+const go = new Go();
 
 async function run() {
   try {
-    const result = await go.health.get();
+    const result = await go.tokens.generate({
+      clientId: "your-client-id",
+      clientSecret: "your-client-secret",
+      username: "api-user@example.com",
+      password: "your-secure-password",
+      grantType: "password",
+    });
 
     console.log(result);
   } catch (error) {
@@ -363,10 +391,11 @@ run();
 
 You can override the default server globally by passing a server index to the `serverIdx: number` optional parameter when initializing the SDK client instance. The selected server will then be used as the default on the operations that use it. This table lists the indexes associated with the available servers:
 
-| #   | Server                  | Description |
-| --- | ----------------------- | ----------- |
-| 0   | `http://localhost:8000` |             |
-| 1   | `http://localhost:4011` |             |
+| #   | Server                                         | Description |
+| --- | ---------------------------------------------- | ----------- |
+| 0   | `https://eu.platform.go.gbgplc.com/v2/captain` |             |
+| 1   | `https://us.platform.go.gbgplc.com/v2/captain` |             |
+| 2   | `https://au.platform.go.gbgplc.com/v2/captain` |             |
 
 #### Example
 
@@ -375,11 +404,16 @@ import { Go } from "@gbg/go-core";
 
 const go = new Go({
   serverIdx: 0,
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
 });
 
 async function run() {
-  const result = await go.health.get();
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  });
 
   console.log(result);
 }
@@ -395,12 +429,43 @@ The default server can also be overridden globally by passing a URL to the `serv
 import { Go } from "@gbg/go-core";
 
 const go = new Go({
-  serverURL: "http://localhost:4011",
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
+  serverURL: "https://au.platform.go.gbgplc.com/v2/captain",
 });
 
 async function run() {
-  const result = await go.health.get();
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  });
+
+  console.log(result);
+}
+
+run();
+
+```
+
+### Override Server URL Per-Operation
+
+The server URL can also be overridden on a per-operation basis, provided a server list was specified for the operation. For example:
+```typescript
+import { Go } from "@gbg/go-core";
+
+const go = new Go();
+
+async function run() {
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  }, {
+    serverURL: "https://gbggo4-dev.nonprod.fabric.gbgplatforms.com",
+  });
 
   console.log(result);
 }
