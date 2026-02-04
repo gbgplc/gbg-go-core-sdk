@@ -20,21 +20,25 @@ specific category of applications.
 
 ```typescript
 import { GoCore } from "@gbg/go-core/core.js";
-import { healthGet } from "@gbg/go-core/funcs/health-get.js";
+import { tokensGenerate } from "@gbg/go-core/funcs/tokens-generate.js";
 
 // Use `GoCore` for best tree-shaking performance.
 // You can create one instance of it to use across an application.
-const go = new GoCore({
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
-});
+const go = new GoCore();
 
 async function run() {
-  const res = await healthGet(go);
+  const res = await tokensGenerate(go, {
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  });
   if (res.ok) {
     const { value: result } = res;
     console.log(result);
   } else {
-    console.log("healthGet failed:", res.error);
+    console.log("tokensGenerate failed:", res.error);
   }
 }
 

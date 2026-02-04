@@ -1213,13 +1213,28 @@ export type StartJourneyRequest = {
 /**
  * Start Response contains the Journey Instance Id
  */
-export type StartJourneyResponse = {
+export type StartJourneyResponseBody2 = {
   /**
    * Journey Instance Id, a unique identifier for a started journey instance.
    */
   instanceId: string;
   [additionalProperties: string]: unknown;
 };
+
+/**
+ * Start Response contains the Journey Instance Id
+ */
+export type StartJourneyResponseBody1 = {
+  /**
+   * Journey Instance Id, a unique identifier for a started journey instance.
+   */
+  instanceId: string;
+  [additionalProperties: string]: unknown;
+};
+
+export type StartJourneyResponse =
+  | StartJourneyResponseBody1
+  | StartJourneyResponseBody2;
 
 /** @internal */
 export type StartJourneyIdentityAlias$Outbound = {
@@ -3704,8 +3719,8 @@ export function startJourneyRequestToJSON(
 }
 
 /** @internal */
-export const StartJourneyResponse$inboundSchema: z.ZodMiniType<
-  StartJourneyResponse,
+export const StartJourneyResponseBody2$inboundSchema: z.ZodMiniType<
+  StartJourneyResponseBody2,
   unknown
 > = z.catchall(
   z.object({
@@ -3713,6 +3728,46 @@ export const StartJourneyResponse$inboundSchema: z.ZodMiniType<
   }),
   z.any(),
 );
+
+export function startJourneyResponseBody2FromJSON(
+  jsonString: string,
+): SafeParseResult<StartJourneyResponseBody2, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => StartJourneyResponseBody2$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'StartJourneyResponseBody2' from JSON`,
+  );
+}
+
+/** @internal */
+export const StartJourneyResponseBody1$inboundSchema: z.ZodMiniType<
+  StartJourneyResponseBody1,
+  unknown
+> = z.catchall(
+  z.object({
+    instanceId: types.string(),
+  }),
+  z.any(),
+);
+
+export function startJourneyResponseBody1FromJSON(
+  jsonString: string,
+): SafeParseResult<StartJourneyResponseBody1, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => StartJourneyResponseBody1$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'StartJourneyResponseBody1' from JSON`,
+  );
+}
+
+/** @internal */
+export const StartJourneyResponse$inboundSchema: z.ZodMiniType<
+  StartJourneyResponse,
+  unknown
+> = smartUnion([
+  z.lazy(() => StartJourneyResponseBody1$inboundSchema),
+  z.lazy(() => StartJourneyResponseBody2$inboundSchema),
+]);
 
 export function startJourneyResponseFromJSON(
   jsonString: string,

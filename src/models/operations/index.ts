@@ -11,6 +11,7 @@ export * from "./get-task-schema.js";
 export * from "./get-tasks-schema.js";
 export * from "./get-tasks.js";
 export * from "./health.js";
+export * from "./post-auth-realms-go-protocol-openid-connect-token.js";
 export * from "./start-journey.js";
 export * from "./submit-interaction.js";
 export * from "./update-task.js";

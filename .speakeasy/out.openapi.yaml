@@ -8,9 +8,84 @@ info:
     url: https://gbgplc.com
     email: tbd@gbg.com
 servers:
-  - url: http://localhost:8000
-  - url: http://localhost:4011
+  - url: https://eu.platform.go.gbgplc.com/v2/captain
+  - url: https://us.platform.go.gbgplc.com/v2/captain
+  - url: https://au.platform.go.gbgplc.com/v2/captain
 paths:
+  /auth/realms/go/protocol/openid-connect/token:
+    post:
+      summary: Generate access token
+      description: >-
+        Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/developer-integration/execute-customer-journeys/authenticate) for more details.
+      security: []
+      servers:
+        - url: https://gbggo4-dev.nonprod.fabric.gbgplatforms.com
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  description: The client ID assigned to your organization.
+                  example: your_client_id
+                client_secret:
+                  type: string
+                  description: The client secret assigned to your organization.
+                  example: your_client_secret
+                username:
+                  type: string
+                  description: The username for API authentication.
+                  example: your_username
+                password:
+                  type: string
+                  description: The password for API authentication.
+                  example: your_password
+                grant_type:
+                  type: string
+                  enum:
+                    - password
+                  description: Must always be set to 'password'.
+                  example: password
+              required:
+                - client_id
+                - client_secret
+                - username
+                - password
+                - grant_type
+              example:
+                client_id: your-client-id
+                client_secret: your-client-secret
+                username: api-user@example.com
+                password: your-secure-password
+                grant_type: password
+      responses:
+        "200":
+          description: Successfully retrieved access token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: The access token used for authentication.
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  expires_in:
+                    type: integer
+                    description: Token expiration time in seconds.
+                    example: 3600
+                  token_type:
+                    type: string
+                    description: The type of token, usually 'Bearer'.
+                    example: Bearer
+        "400":
+          description: Invalid request. Check your credentials.
+        "401":
+          description: Unauthorized request. Invalid username or password.
+      x-speakeasy-group: tokens
+      x-speakeasy-name-override: generate
   "/journey/health":
     get:
       operationId: health
@@ -3535,6 +3610,26 @@ paths:
                 Default:
                   value:
                     instanceId: PiIuACmx8Q8R7qPnAkLAqBAT
+        "201":
+          description: Start Response contains the Journey Instance Id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  instanceId:
+                    type: string
+                    minLength: 16
+                    maxLength: 64
+                    description: Journey Instance Id, a unique identifier for a started journey instance.
+                required:
+                  - instanceId
+                additionalProperties: true
+                description: Start Response contains the Journey Instance Id
+              examples:
+                Default:
+                  value:
+                    instanceId: PiIuACmx8Q8R7qPnAkLAqBAT
         "400":
           description: Bad Request
           content:
@@ -5300,7 +5395,6 @@ paths:
                 required:
                   - instanceId
                   - status
-                  - metaData
                 additionalProperties: false
               examples:
                 InProgress:

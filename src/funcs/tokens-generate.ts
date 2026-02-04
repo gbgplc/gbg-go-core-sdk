@@ -4,12 +4,11 @@
 
 import * as z from "zod/v4-mini";
 import { GoCore } from "../core.js";
-import { encodeJSON } from "../lib/encodings.js";
+import { encodeBodyForm } from "../lib/encodings.js";
 import * as M from "../lib/matchers.js";
 import { compactMap } from "../lib/primitives.js";
 import { safeParse } from "../lib/schemas.js";
 import { RequestOptions } from "../lib/sdks.js";
-import { extractSecurity, resolveGlobalSecurity } from "../lib/security.js";
 import { pathToFunc } from "../lib/url.js";
 import { GoError } from "../models/errors/go-error.js";
 import {
@@ -22,22 +21,25 @@ import {
 import { ResponseValidationError } from "../models/errors/response-validation-error.js";
 import { SDKValidationError } from "../models/errors/sdk-validation-error.js";
 import * as operations from "../models/operations/index.js";
+import { PostAuthRealmsGoProtocolOpenidConnectTokenServerList } from "../models/operations/post-auth-realms-go-protocol-openid-connect-token.js";
 import { APICall, APIPromise } from "../types/async.js";
 import { Result } from "../types/fp.js";
 
 /**
- * Start Journey
+ * Generate access token
  *
  * @remarks
- * Start Journey
+ * Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/developer-integration/execute-customer-journeys/authenticate) for more details.
  */
-export function journeysStart(
+export function tokensGenerate(
   client: GoCore,
-  request?: operations.StartJourneyRequest | undefined,
+  request?:
+    | operations.PostAuthRealmsGoProtocolOpenidConnectTokenRequest
+    | undefined,
   options?: RequestOptions,
 ): APIPromise<
   Result<
-    operations.StartJourneyResponse,
+    operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse,
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -57,12 +59,14 @@ export function journeysStart(
 
 async function $do(
   client: GoCore,
-  request?: operations.StartJourneyRequest | undefined,
+  request?:
+    | operations.PostAuthRealmsGoProtocolOpenidConnectTokenRequest
+    | undefined,
   options?: RequestOptions,
 ): Promise<
   [
     Result<
-      operations.StartJourneyResponse,
+      operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse,
       | GoError
       | ResponseValidationError
       | ConnectionError
@@ -78,37 +82,45 @@ async function $do(
   const parsed = safeParse(
     request,
     (value) =>
-      z.parse(z.optional(operations.StartJourneyRequest$outboundSchema), value),
+      z.parse(
+        z.optional(
+          operations
+            .PostAuthRealmsGoProtocolOpenidConnectTokenRequest$outboundSchema,
+        ),
+        value,
+      ),
     "Input validation failed",
   );
   if (!parsed.ok) {
     return [parsed, { status: "invalid" }];
   }
   const payload = parsed.value;
-  const body = payload === undefined
-    ? null
-    : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/journey/start")();
+  const body = Object.entries(payload || {}).map(([k, v]) => {
+    return encodeBodyForm(k, v, { charEncoding: "percent" });
+  }).join("&");
+
+  const baseURL = options?.serverURL
+    || pathToFunc(PostAuthRealmsGoProtocolOpenidConnectTokenServerList[0], {
+      charEncoding: "percent",
+    })();
+
+  const path = pathToFunc("/auth/realms/go/protocol/openid-connect/token")();
 
   const headers = new Headers(compactMap({
-    "Content-Type": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded",
     Accept: "application/json",
   }));
 
-  const secConfig = await extractSecurity(client._options.customerAccess);
-  const securityInput = secConfig == null ? {} : { customerAccess: secConfig };
-  const requestSecurity = resolveGlobalSecurity(securityInput);
-
   const context = {
     options: client._options,
-    baseURL: options?.serverURL ?? client._baseURL ?? "",
-    operationID: "startJourney",
+    baseURL: baseURL ?? "",
+    operationID: "post_/auth/realms/go/protocol/openid-connect/token",
     oAuth2Scopes: null,
 
-    resolvedSecurity: requestSecurity,
+    resolvedSecurity: null,
 
-    securitySource: client._options.customerAccess,
+    securitySource: null,
     retryConfig: options?.retries
       || client._options.retryConfig
       || { strategy: "none" },
@@ -116,9 +128,8 @@ async function $do(
   };
 
   const requestRes = client._createRequest(context, {
-    security: requestSecurity,
     method: "POST",
-    baseURL: options?.serverURL,
+    baseURL: baseURL,
     path: path,
     headers: headers,
     body: body,
@@ -132,7 +143,7 @@ async function $do(
 
   const doResult = await client._do(req, {
     context,
-    errorCodes: ["400", "401", "403", "404", "405", "4XX", "500", "503", "5XX"],
+    errorCodes: ["400", "401", "4XX", "5XX"],
     retryConfig: context.retryConfig,
     retryCodes: context.retryCodes,
   });
@@ -142,7 +153,7 @@ async function $do(
   const response = doResult.value;
 
   const [result] = await M.match<
-    operations.StartJourneyResponse,
+    operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse,
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -152,10 +163,13 @@ async function $do(
     | UnexpectedClientError
     | SDKValidationError
   >(
-    M.json(200, operations.StartJourneyResponse$inboundSchema),
-    M.json(201, operations.StartJourneyResponse$inboundSchema),
-    M.fail([400, 401, 403, 404, 405, "4XX"]),
-    M.fail([500, 503, "5XX"]),
+    M.json(
+      200,
+      operations
+        .PostAuthRealmsGoProtocolOpenidConnectTokenResponse$inboundSchema,
+    ),
+    M.fail([400, 401, "4XX"]),
+    M.fail("5XX"),
   )(response, req);
   if (!result.ok) {
     return [result, { status: "complete", request: req, response }];

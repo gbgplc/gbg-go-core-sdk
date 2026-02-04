@@ -8,17 +8,21 @@ dotenv.config();
  * Example usage of the @gbg/go-core SDK
  *
  * To run this example from the examples directory:
- * npm run build && npx tsx healthGet.example.ts
+ * npm run build && npx tsx tokensGenerate.example.ts
  */
 
 import { Go } from "@gbg/go-core";
 
-const go = new Go({
-  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
-});
+const go = new Go();
 
 async function main() {
-  const result = await go.health.get();
+  const result = await go.tokens.generate({
+    clientId: "your-client-id",
+    clientSecret: "your-client-secret",
+    username: "api-user@example.com",
+    password: "your-secure-password",
+    grantType: "password",
+  });
 
   console.log(result);
 }
