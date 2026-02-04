@@ -1,24 +1,24 @@
 workflowVersion: 1.0.0
 speakeasyVersion: latest
 sources:
-  GO-OAS:
-    inputs:
-      - location: ./.spec/spec.yaml
-    overlays:
-      - location: .speakeasy/speakeasy-modifications-overlay.yaml
-    output: .speakeasy/out.openapi.yaml
-    registry:
-      location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas
+    GO-OAS:
+        inputs:
+            - location: ./.spec/spec.yaml
+        overlays:
+            - location: .speakeasy/speakeasy-modifications-overlay.yaml
+        output: .speakeasy/out.openapi.yaml
+        registry:
+            location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas
 targets:
-  go:
-    target: typescript
-    source: GO-OAS
-    publish:
-      npm:
-        token: $npm_token
-    codeSamples:
-      registry:
-        location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas-typescript-code-samples
-      labelOverride:
-        fixedValue: Typescript (SDK)
-      blocking: false
+    go:
+        target: typescript
+        source: GO-OAS
+        publish:
+            npm:
+                token: $npm_token
+        codeSamples:
+            registry:
+                location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas-typescript-code-samples
+            labelOverride:
+                fixedValue: Typescript (SDK)
+            blocking: false
