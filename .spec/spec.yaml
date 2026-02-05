@@ -4229,6 +4229,9 @@ paths:
                     description:
                       Journey Instance Id, a unique identifier for a started
                       journey instance.
+                  instanceUrl:
+                    type: string
+                    description: URL to access the journey UI for no code journey implementations.
                 required:
                   - instanceId
                 additionalProperties: true
