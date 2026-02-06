@@ -222,6 +222,41 @@ paths:
                     endUserToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ8.eyJqdGkiOiJsRzlsZnZTVFVrcGNTTkVmSWx3amZXT1JRMkJwZEhGcCIsInNjb3BlIjpbImRlbW8zNCIsImF1dGgiXSwiaWF0IjoxNzEyMDc1OTMwLCJleHAiOjE3MTIwNzk1MzAsImF1ZCI6InVzLWVhc3QtMS5nYmdnby5jb20vI2RldmljZSJ9.Adn32WkNlhAlyFyHLH9EEVvFHk-FIhQn9Wiphb_BTRI
                     tokenType: end-user
                     expiresIn: 3600
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  endUserToken:
+                    type: string
+                    minLength: 8
+                    maxLength: 1024
+                    pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$"
+                    description: Token used for subsequent operations by the client
+                  tokenType:
+                    type: string
+                    enum:
+                      - Bearer
+                      - DPoP
+                      - N_A
+                      - end-user
+                    default: Bearer
+                  expiresIn:
+                    type: number
+                    exclusiveMinimum: true
+                    minimum: 0
+                    description: Seconds until the token expires
+                required:
+                  - expiresIn
+                additionalProperties: false
+              examples:
+                Default:
+                  value:
+                    endUserToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ8.eyJqdGkiOiJsRzlsZnZTVFVrcGNTTkVmSWx3amZXT1JRMkJwZEhGcCIsInNjb3BlIjpbImRlbW8zNCIsImF1dGgiXSwiaWF0IjoxNzEyMDc1OTMwLCJleHAiOjE3MTIwNzk1MzAsImF1ZCI6InVzLWVhc3QtMS5nYmdnby5jb20vI2RldmljZSJ9.Adn32WkNlhAlyFyHLH9EEVvFHk-FIhQn9Wiphb_BTRI
+                    tokenType: end-user
+                    expiresIn: 3600
         "400":
           description: Bad Request
           content:
@@ -3705,6 +3740,55 @@ paths:
       parameters: []
       responses:
         "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connectToken:
+                    type: string
+                    minLength: 8
+                    maxLength: 1024
+                    pattern: "^[A-Za-z0-9-_]+$"
+                    description: Token used for subsequent operations by the client
+                  tokenType:
+                    type: string
+                    enum:
+                      - Bearer
+                      - DPoP
+                      - N_A
+                      - connect
+                    default: Bearer
+                  expiresIn:
+                    type: number
+                    exclusiveMinimum: true
+                    minimum: 0
+                    description: Seconds until the token expires
+                  scope:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - mobile
+                        - desktop
+                        - "*"
+                        - any
+                        - ""
+                    description: Scopes granted to the client
+                required:
+                  - connectToken
+                  - expiresIn
+                additionalProperties: false
+              examples:
+                Default:
+                  value:
+                    connectToken: s4FUx8Ny8ijXRtFigz3x1_8rb9bd_5ZD
+                    tokenType: connect
+                    expiresIn: 120
+                    scope:
+                      - any
+        "201":
           description: Success
           content:
             application/json:

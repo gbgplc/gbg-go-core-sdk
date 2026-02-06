@@ -1,40 +1,39 @@
-speakeasyVersion: 1.704.0
+speakeasyVersion: 1.707.0
 sources:
-    GO-OAS:
-        sourceNamespace: go-oas
-        sourceRevisionDigest: sha256:68f1ff96b3b185421de3c8060ff9b122cca864e93df789e897f2a6b1177b379c
-        sourceBlobDigest: sha256:9bae211afa6ac5f4ff2e61814a2cd015cda8a28743f23fb5205548b8303f88aa
+    GBG GO Next Gen Flow Captain API:
+        sourceNamespace: gbg-go-next-gen-flow-captain-api
+        sourceRevisionDigest: sha256:5ac0de4f93bdc751f74bb52935ab6c064576dcbe5dd2317db63bcf69a8751e58
+        sourceBlobDigest: sha256:eb57ed2253babb2bcc3995106b0c41f04226a7e5c999636246a3795f1b017cbc
         tags:
             - latest
             - 1.0.0
 targets:
     go:
-        source: GO-OAS
-        sourceNamespace: go-oas
-        sourceRevisionDigest: sha256:68f1ff96b3b185421de3c8060ff9b122cca864e93df789e897f2a6b1177b379c
-        sourceBlobDigest: sha256:9bae211afa6ac5f4ff2e61814a2cd015cda8a28743f23fb5205548b8303f88aa
+        source: GBG GO Next Gen Flow Captain API
+        sourceNamespace: gbg-go-next-gen-flow-captain-api
+        sourceRevisionDigest: sha256:5ac0de4f93bdc751f74bb52935ab6c064576dcbe5dd2317db63bcf69a8751e58
+        sourceBlobDigest: sha256:eb57ed2253babb2bcc3995106b0c41f04226a7e5c999636246a3795f1b017cbc
+        codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
+        codeSamplesRevisionDigest: sha256:2bdd56b404d721df6d26bf3d343d50d6c4021b1247f5afab4ad5c7c36c749bb2
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest
     sources:
-        GO-OAS:
+        GBG GO Next Gen Flow Captain API:
             inputs:
                 - location: ./.spec/spec.yaml
             overlays:
                 - location: .speakeasy/speakeasy-modifications-overlay.yaml
             output: .speakeasy/out.openapi.yaml
             registry:
-                location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas
+                location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api
     targets:
         go:
             target: typescript
-            source: GO-OAS
-            publish:
-                npm:
-                    token: $npm_token
+            source: GBG GO Next Gen Flow Captain API
             codeSamples:
                 registry:
-                    location: registry.speakeasyapi.dev/a-6zk/gbg/go-oas-typescript-code-samples
+                    location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api-typescript-code-samples
                 labelOverride:
                     fixedValue: Typescript (SDK)
                 blocking: false
