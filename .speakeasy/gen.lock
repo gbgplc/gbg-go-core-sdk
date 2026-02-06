@@ -3,39 +3,40 @@ id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
   docChecksum: a3ca4e66d7c7bf0a59a5bdcdb77affc6
   docVersion: 1.0.0
-  speakeasyVersion: 1.707.0
-  generationVersion: 2.803.3
-  releaseVersion: 0.0.1-alpha.15
-  configChecksum: d5577184d6f86039b5106afb1fc77c78
+  speakeasyVersion: 1.707.1
+  generationVersion: 2.811.0
+  releaseVersion: 0.0.1-alpha.16
+  configChecksum: 845e09cfb47420292bb77ae967414f6e
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
+  published: true
 persistentEdits:
-  generation_id: 9366225d-9647-4cc6-9cdb-706912b988a5
-  pristine_commit_hash: 8daa5edc1dfe81b29371712569f732bc105be1a9
-  pristine_tree_hash: 1e7857f28540ec590dad057f40c1bce95bf500e2
+  generation_id: eea3c96e-a5f6-49e1-a47e-a9f72230f490
+  pristine_commit_hash: c0b697bf4d34a77fee9e67c2a424810d17597494
+  pristine_tree_hash: 49a870a95c1c3d6b8f0b4c225523ead78f5bc8fc
 features:
   typescript:
     additionalDependencies: 0.1.0
     additionalProperties: 0.1.3
-    constsAndDefaults: 0.1.12
-    core: 3.26.23
+    constsAndDefaults: 0.1.13
+    core: 3.26.27
     defaultEnabledRetries: 0.1.0
     devContainers: 2.90.1
     enumUnions: 0.1.0
     envVarSecurityUsage: 0.1.2
-    globalSecurity: 2.82.14
+    globalSecurity: 2.82.15
     globalSecurityCallbacks: 0.1.0
     globalSecurityFlattening: 0.1.0
     globalServerURLs: 2.83.0
     groups: 2.81.3
     methodArguments: 0.1.2
-    methodSecurity: 2.82.6
+    methodSecurity: 2.82.7
     methodServerURLs: 2.82.1
     nameOverrides: 2.81.2
     responseFormat: 0.3.0
     retries: 2.83.0
     sdkHooks: 0.4.0
-    unions: 2.86.3
+    unions: 2.86.4
 trackedFiles:
   .devcontainer/README.md:
     id: b170c0f184ac
@@ -1867,8 +1868,8 @@ trackedFiles:
     pristine_git_object: 9d8f9686a9a9832d1ffc96381983cf71f6ca4eee
   docs/sdks/devices/README.md:
     id: 205e305f3b19
-    last_write_checksum: sha1:464dee32ea899d5280aa5d85051d4c92570cc901
-    pristine_git_object: f43c9d7d9af4073512e36d0bf04675745f539088
+    last_write_checksum: sha1:68c373753c3faa4034a9f3c843ea2cd34606fd15
+    pristine_git_object: a220e7af00ce401e66666260b286549346629af1
   docs/sdks/health/README.md:
     id: 5082c50d5e82
     last_write_checksum: sha1:abd77f41b0fd8a1ba9e449dde5569e839d589704
@@ -1879,16 +1880,16 @@ trackedFiles:
     pristine_git_object: c20573ab60c4db8a33b635989e295ae1e6110248
   docs/sdks/interactions/README.md:
     id: 62bf658fbb6b
-    last_write_checksum: sha1:312ab2931f8868b01a9cca8395a2f5b36bb94254
-    pristine_git_object: bf203c5575316e4980c6b5c9112e946eb14af1ac
+    last_write_checksum: sha1:937c165b6c59e119fed28cbe5315a0fb587a14a1
+    pristine_git_object: 002df95b0dc7786e31279e7ccea485d332982b21
   docs/sdks/journeys/README.md:
     id: 482b85edae8a
-    last_write_checksum: sha1:5c223ea8540ddad381a363ece64a13c647f9f889
-    pristine_git_object: 2fe6fb96e1cf62fe0e3409f2e77e01a265e891b1
+    last_write_checksum: sha1:df534ebb8b367cbcd6fb2d08c2984921c46de6be
+    pristine_git_object: 0cc71561bde34d167e392b2f19d79f2d932b98da
   docs/sdks/tasks/README.md:
     id: 939441bde134
-    last_write_checksum: sha1:d0a193f7b92781280df6e012494b84af35d0acc6
-    pristine_git_object: d5ce17b41a548f70fbb7d8625f7f645d06e3c6d3
+    last_write_checksum: sha1:00a6959c6bec86bbd5482598018a6e47e1b9224a
+    pristine_git_object: 92276f23a157fc08874304d5ce775bcc237a6576
   docs/sdks/tokens/README.md:
     id: ca61030eb3e5
     last_write_checksum: sha1:becb0c1f2a8ec8f1b8203a615ad3d67b52797f57
@@ -1915,12 +1916,12 @@ trackedFiles:
     pristine_git_object: 4fceb9092a8858b31edba290f8d9f307c1785df1
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:6bab61db1c4f4fd1331ac14032637a755d739f0a
-    pristine_git_object: dafa7ae83db586b072612c2e0b744c98345dad56
+    last_write_checksum: sha1:6ff701b4cd098aef95abf601776684197f46e5fd
+    pristine_git_object: 2671f61bb3af337ef2caf648bafa64fecebdf230
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:d7ccc03edbebfd4e38c0bce5e733b2258373eaf2
-    pristine_git_object: 286027ea3f30af17c2e5745e30327dc9b69f3703
+    last_write_checksum: sha1:c4d231ed207171218b32c8c3f42622c6d4922d04
+    pristine_git_object: 9a1cf36960091a0eec0343e63325fb434f9f3ead
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -1999,8 +2000,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:f082871c907160ee7b6bb6e04acc8f962e2d8d26
-    pristine_git_object: df9f5215ec7edf5ba23d0234a17a472be990bdab
+    last_write_checksum: sha1:e15f84520cbaa0300faa11588c6929409641344b
+    pristine_git_object: 2a7f12962e0d4bd9f265310d9b92e4e11cdba0e4
   src/lib/dlv.ts:
     id: b1988214835a
     last_write_checksum: sha1:1dd3e3fbb4550c4bf31f5ef997faff355d6f3250
@@ -2227,8 +2228,8 @@ trackedFiles:
     pristine_git_object: c79b3f53a3dd922aa2ace5a4191c8652cf9a8e89
   src/types/smart-union.ts:
     id: 2e3af2ad4ea7
-    last_write_checksum: sha1:ae1574ecd384d1bffd08c13a75f3fe5b0edcfe35
-    pristine_git_object: effb82dab5687b9824e2129d4e618438bdc33c99
+    last_write_checksum: sha1:22fe9063528cadf94640a776df4cf762e2b681e0
+    pristine_git_object: 4809527f774cde50ea4153a9a56c1c0929906d0f
   src/types/streams.ts:
     id: f99be9c4bf14
     last_write_checksum: sha1:cc9ced2dd34a76c3a1bd7784ccda1cc3b37ab9a9

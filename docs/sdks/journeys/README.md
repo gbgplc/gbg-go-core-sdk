@@ -13,7 +13,7 @@ Start Journey
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="startJourney" method="post" path="/journey/start" -->
+<!-- UsageSnippet language="typescript" operationID="startJourney" method="post" path="/journey/start" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -22,14 +22,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start({
-    resourceId: "a4c68509c24789888eb466@latest",
-    context: {
-      subject: {
-        identity: {},
-      },
-    },
-  });
+  const result = await go.journeys.start();
 
   console.log(result);
 }
@@ -52,14 +45,7 @@ const go = new GoCore({
 });
 
 async function run() {
-  const res = await journeysStart(go, {
-    resourceId: "a4c68509c24789888eb466@latest",
-    context: {
-      subject: {
-        identity: {},
-      },
-    },
-  });
+  const res = await journeysStart(go);
   if (res.ok) {
     const { value: result } = res;
     console.log(result);
@@ -94,9 +80,9 @@ run();
 
 Get State Data
 
-### Example Usage
+### Example Usage: Completed
 
-<!-- UsageSnippet language="typescript" operationID="getJourneyState" method="post" path="/journey/state/fetch" -->
+<!-- UsageSnippet language="typescript" operationID="getJourneyState" method="post" path="/journey/state/fetch" example="Completed" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -105,12 +91,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.getState({
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
-    filterKeys: [
-      "/.*/",
-    ],
-  });
+  const result = await go.journeys.getState();
 
   console.log(result);
 }
@@ -133,12 +114,52 @@ const go = new GoCore({
 });
 
 async function run() {
-  const res = await journeysGetState(go, {
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
-    filterKeys: [
-      "/.*/",
-    ],
-  });
+  const res = await journeysGetState(go);
+  if (res.ok) {
+    const { value: result } = res;
+    console.log(result);
+  } else {
+    console.log("journeysGetState failed:", res.error);
+  }
+}
+
+run();
+```
+### Example Usage: InProgress
+
+<!-- UsageSnippet language="typescript" operationID="getJourneyState" method="post" path="/journey/state/fetch" example="InProgress" -->
+```typescript
+import { Go } from "@gbg/go-core";
+
+const go = new Go({
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
+});
+
+async function run() {
+  const result = await go.journeys.getState();
+
+  console.log(result);
+}
+
+run();
+```
+
+### Standalone function
+
+The standalone function version of this method:
+
+```typescript
+import { GoCore } from "@gbg/go-core/core.js";
+import { journeysGetState } from "@gbg/go-core/funcs/journeys-get-state.js";
+
+// Use `GoCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const go = new GoCore({
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
+});
+
+async function run() {
+  const res = await journeysGetState(go);
   if (res.ok) {
     const { value: result } = res;
     console.log(result);

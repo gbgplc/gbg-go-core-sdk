@@ -13,7 +13,7 @@ Connect or Refresh End User Device
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="deviceConnect" method="post" path="/journey/device/connect" -->
+<!-- UsageSnippet language="typescript" operationID="deviceConnect" method="post" path="/journey/device/connect" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -22,13 +22,6 @@ const go = new Go();
 async function run() {
   const result = await go.devices.connect({
     deviceConnect: process.env["GO_DEVICE_CONNECT"] ?? "",
-  }, {
-    connectToken: "s4FUx8Ny8ijXRtFigz3x1_8rb9bd_5ZD",
-    deviceInfo: {
-      deviceId: "exampleDeviceId123",
-      deviceName: "deviceName",
-      deviceType: "deviceType",
-    },
   });
 
   console.log(result);
@@ -52,13 +45,6 @@ const go = new GoCore();
 async function run() {
   const res = await devicesConnect(go, {
     deviceConnect: process.env["GO_DEVICE_CONNECT"] ?? "",
-  }, {
-    connectToken: "s4FUx8Ny8ijXRtFigz3x1_8rb9bd_5ZD",
-    deviceInfo: {
-      deviceId: "exampleDeviceId123",
-      deviceName: "deviceName",
-      deviceType: "deviceType",
-    },
   });
   if (res.ok) {
     const { value: result } = res;
@@ -97,7 +83,7 @@ Create Connect Secret
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="addDevice" method="post" path="/journey/device/start" -->
+<!-- UsageSnippet language="typescript" operationID="addDevice" method="post" path="/journey/device/start" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -106,12 +92,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.devices.add({
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
-    scope: [
-      "mobile",
-    ],
-  });
+  const result = await go.devices.add();
 
   console.log(result);
 }
@@ -134,12 +115,7 @@ const go = new GoCore({
 });
 
 async function run() {
-  const res = await devicesAdd(go, {
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
-    scope: [
-      "mobile",
-    ],
-  });
+  const res = await devicesAdd(go);
   if (res.ok) {
     const { value: result } = res;
     console.log(result);
