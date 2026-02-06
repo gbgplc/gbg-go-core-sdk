@@ -15,7 +15,7 @@ Get End User Tasks
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="getTasks" method="post" path="/journey/task/list" -->
+<!-- UsageSnippet language="typescript" operationID="getTasks" method="post" path="/journey/task/list" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -24,8 +24,6 @@ const go = new Go();
 async function run() {
   const result = await go.tasks.list({
     pingID: process.env["GO_PING_ID"] ?? "",
-  }, {
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
   });
 
   console.log(result);
@@ -49,8 +47,6 @@ const go = new GoCore();
 async function run() {
   const res = await tasksList(go, {
     pingID: process.env["GO_PING_ID"] ?? "",
-  }, {
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
   });
   if (res.ok) {
     const { value: result } = res;
@@ -89,7 +85,7 @@ Put End User Data
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="updateTask" method="post" path="/journey/task/update" -->
+<!-- UsageSnippet language="typescript" operationID="updateTask" method="post" path="/journey/task/update" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -98,17 +94,6 @@ const go = new Go();
 async function run() {
   const result = await go.tasks.update({
     pingID: process.env["GO_PING_ID"] ?? "",
-  }, {
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
-    taskId: "TkoviRO58Q8R7qPnAkLAqBAT",
-    intent: "Complete",
-    context: {
-      subject: {
-        identity: {
-          firstName: "test",
-        },
-      },
-    },
   });
 
   console.log(result);
@@ -132,17 +117,6 @@ const go = new GoCore();
 async function run() {
   const res = await tasksUpdate(go, {
     pingID: process.env["GO_PING_ID"] ?? "",
-  }, {
-    instanceId: "PiIuACmx8Q8R7qPnAkLAqBAT",
-    taskId: "TkoviRO58Q8R7qPnAkLAqBAT",
-    intent: "Complete",
-    context: {
-      subject: {
-        identity: {
-          firstName: "test",
-        },
-      },
-    },
   });
   if (res.ok) {
     const { value: result } = res;
@@ -181,7 +155,7 @@ Get Task Schema
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="getTaskSchema" method="post" path="/journey/task/schema" -->
+<!-- UsageSnippet language="typescript" operationID="getTaskSchema" method="post" path="/journey/task/schema" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -190,9 +164,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.tasks.getSchema({
-    taskId: "TkoviRO58Q8R7qPnAkLAqBAT",
-  });
+  const result = await go.tasks.getSchema();
 
   console.log(result);
 }
@@ -215,9 +187,7 @@ const go = new GoCore({
 });
 
 async function run() {
-  const res = await tasksGetSchema(go, {
-    taskId: "TkoviRO58Q8R7qPnAkLAqBAT",
-  });
+  const res = await tasksGetSchema(go);
   if (res.ok) {
     const { value: result } = res;
     console.log(result);
