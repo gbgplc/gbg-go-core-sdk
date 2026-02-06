@@ -6,6 +6,7 @@ sources:
         sourceBlobDigest: sha256:eb57ed2253babb2bcc3995106b0c41f04226a7e5c999636246a3795f1b017cbc
         tags:
             - latest
+            - speakeasy-sdk-regen-1770395054
             - 1.0.0
 targets:
     go:
@@ -14,7 +15,7 @@ targets:
         sourceRevisionDigest: sha256:5ac0de4f93bdc751f74bb52935ab6c064576dcbe5dd2317db63bcf69a8751e58
         sourceBlobDigest: sha256:eb57ed2253babb2bcc3995106b0c41f04226a7e5c999636246a3795f1b017cbc
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
-        codeSamplesRevisionDigest: sha256:2bdd56b404d721df6d26bf3d343d50d6c4021b1247f5afab4ad5c7c36c749bb2
+        codeSamplesRevisionDigest: sha256:9aea89a149aab0a4cbc145232909829596542d88a80a6c1f6a6ba543a0205b8c
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest

@@ -153,6 +153,7 @@ async function $do(
     | SDKValidationError
   >(
     M.json(200, operations.AddDeviceResponse$inboundSchema),
+    M.json(201, operations.AddDeviceResponse$inboundSchema),
     M.fail([400, 401, 403, 404, 405, "4XX"]),
     M.fail([500, 503, "5XX"]),
   )(response, req);
