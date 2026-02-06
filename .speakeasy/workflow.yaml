@@ -1,21 +1,24 @@
 workflowVersion: 1.0.0
 speakeasyVersion: latest
 sources:
-    GBG GO Next Gen Flow Captain API:
-        inputs:
-            - location: ./.spec/spec.yaml
-        overlays:
-            - location: .speakeasy/speakeasy-modifications-overlay.yaml
-        output: .speakeasy/out.openapi.yaml
-        registry:
-            location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api
+  GBG GO Next Gen Flow Captain API:
+    inputs:
+      - location: ./.spec/spec.yaml
+    overlays:
+      - location: .speakeasy/speakeasy-modifications-overlay.yaml
+    output: .speakeasy/out.openapi.yaml
+    registry:
+      location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api
 targets:
-    go:
-        target: typescript
-        source: GBG GO Next Gen Flow Captain API
-        codeSamples:
-            registry:
-                location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api-typescript-code-samples
-            labelOverride:
-                fixedValue: Typescript (SDK)
-            blocking: false
+  go:
+    target: typescript
+    source: GBG GO Next Gen Flow Captain API
+    publish:
+      npm:
+        token: $npm_token
+    codeSamples:
+      registry:
+        location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api-typescript-code-samples
+      labelOverride:
+        fixedValue: Typescript (SDK)
+      blocking: false
