@@ -1229,6 +1229,10 @@ export type StartJourneyResponseBody1 = {
    * Journey Instance Id, a unique identifier for a started journey instance.
    */
   instanceId: string;
+  /**
+   * URL to access the journey UI for no code journey implementations.
+   */
+  instanceUrl?: string | undefined;
   [additionalProperties: string]: unknown;
 };
 
@@ -3746,6 +3750,7 @@ export const StartJourneyResponseBody1$inboundSchema: z.ZodMiniType<
 > = z.catchall(
   z.object({
     instanceId: types.string(),
+    instanceUrl: types.optional(types.string()),
   }),
   z.any(),
 );

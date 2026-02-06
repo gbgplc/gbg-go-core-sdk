@@ -1,21 +1,21 @@
 # DeviceConnectResponse
 
-Success
 
-## Example Usage
+## Supported Types
+
+### `operations.DeviceConnectResponseBody1`
 
 ```typescript
-import { DeviceConnectResponse } from "@gbg/go-core/models/operations";
-
-let value: DeviceConnectResponse = {
-  expiresIn: 4500.78,
+const value: operations.DeviceConnectResponseBody1 = {
+  expiresIn: 707.02,
 };
 ```
 
-## Fields
+### `operations.DeviceConnectResponseBody2`
 
-| Field                                                                                     | Type                                                                                      | Required                                                                                  | Description                                                                               |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `endUserToken`                                                                            | *string*                                                                                  | :heavy_minus_sign:                                                                        | Token used for subsequent operations by the client                                        |
-| `tokenType`                                                                               | [operations.DeviceConnectTokenType](../../models/operations/device-connect-token-type.md) | :heavy_minus_sign:                                                                        | N/A                                                                                       |
-| `expiresIn`                                                                               | *number*                                                                                  | :heavy_check_mark:                                                                        | Seconds until the token expires                                                           |
+```typescript
+const value: operations.DeviceConnectResponseBody2 = {
+  expiresIn: 2005,
+};
+```
+

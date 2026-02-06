@@ -9,6 +9,7 @@ import * as openEnums from "../../types/enums.js";
 import { OpenEnum } from "../../types/enums.js";
 import { Result as SafeParseResult } from "../../types/fp.js";
 import * as types from "../../types/primitives.js";
+import { smartUnion } from "../../types/smart-union.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 
 export type DeviceConnectSecurity = {
@@ -32,28 +33,55 @@ export type DeviceConnectRequest = {
   deviceInfo: DeviceInfo;
 };
 
-export const DeviceConnectTokenType = {
+export const DeviceConnectTokenType2 = {
   Bearer: "Bearer",
   DPoP: "DPoP",
   NA: "N_A",
   EndUser: "end-user",
 } as const;
-export type DeviceConnectTokenType = OpenEnum<typeof DeviceConnectTokenType>;
+export type DeviceConnectTokenType2 = OpenEnum<typeof DeviceConnectTokenType2>;
 
 /**
  * Success
  */
-export type DeviceConnectResponse = {
+export type DeviceConnectResponseBody2 = {
   /**
    * Token used for subsequent operations by the client
    */
   endUserToken?: string | undefined;
-  tokenType: DeviceConnectTokenType;
+  tokenType: DeviceConnectTokenType2;
   /**
    * Seconds until the token expires
    */
   expiresIn: number;
 };
+
+export const DeviceConnectTokenType1 = {
+  Bearer: "Bearer",
+  DPoP: "DPoP",
+  NA: "N_A",
+  EndUser: "end-user",
+} as const;
+export type DeviceConnectTokenType1 = OpenEnum<typeof DeviceConnectTokenType1>;
+
+/**
+ * Success
+ */
+export type DeviceConnectResponseBody1 = {
+  /**
+   * Token used for subsequent operations by the client
+   */
+  endUserToken?: string | undefined;
+  tokenType: DeviceConnectTokenType1;
+  /**
+   * Seconds until the token expires
+   */
+  expiresIn: number;
+};
+
+export type DeviceConnectResponse =
+  | DeviceConnectResponseBody1
+  | DeviceConnectResponseBody2;
 
 /** @internal */
 export type DeviceConnectSecurity$Outbound = {
@@ -128,20 +156,65 @@ export function deviceConnectRequestToJSON(
 }
 
 /** @internal */
-export const DeviceConnectTokenType$inboundSchema: z.ZodMiniType<
-  DeviceConnectTokenType,
+export const DeviceConnectTokenType2$inboundSchema: z.ZodMiniType<
+  DeviceConnectTokenType2,
   unknown
-> = openEnums.inboundSchema(DeviceConnectTokenType);
+> = openEnums.inboundSchema(DeviceConnectTokenType2);
+
+/** @internal */
+export const DeviceConnectResponseBody2$inboundSchema: z.ZodMiniType<
+  DeviceConnectResponseBody2,
+  unknown
+> = z.object({
+  endUserToken: types.optional(types.string()),
+  tokenType: z._default(DeviceConnectTokenType2$inboundSchema, "Bearer"),
+  expiresIn: types.number(),
+});
+
+export function deviceConnectResponseBody2FromJSON(
+  jsonString: string,
+): SafeParseResult<DeviceConnectResponseBody2, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => DeviceConnectResponseBody2$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'DeviceConnectResponseBody2' from JSON`,
+  );
+}
+
+/** @internal */
+export const DeviceConnectTokenType1$inboundSchema: z.ZodMiniType<
+  DeviceConnectTokenType1,
+  unknown
+> = openEnums.inboundSchema(DeviceConnectTokenType1);
+
+/** @internal */
+export const DeviceConnectResponseBody1$inboundSchema: z.ZodMiniType<
+  DeviceConnectResponseBody1,
+  unknown
+> = z.object({
+  endUserToken: types.optional(types.string()),
+  tokenType: z._default(DeviceConnectTokenType1$inboundSchema, "Bearer"),
+  expiresIn: types.number(),
+});
+
+export function deviceConnectResponseBody1FromJSON(
+  jsonString: string,
+): SafeParseResult<DeviceConnectResponseBody1, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => DeviceConnectResponseBody1$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'DeviceConnectResponseBody1' from JSON`,
+  );
+}
 
 /** @internal */
 export const DeviceConnectResponse$inboundSchema: z.ZodMiniType<
   DeviceConnectResponse,
   unknown
-> = z.object({
-  endUserToken: types.optional(types.string()),
-  tokenType: z._default(DeviceConnectTokenType$inboundSchema, "Bearer"),
-  expiresIn: types.number(),
-});
+> = smartUnion([
+  z.lazy(() => DeviceConnectResponseBody1$inboundSchema),
+  z.lazy(() => DeviceConnectResponseBody2$inboundSchema),
+]);
 
 export function deviceConnectResponseFromJSON(
   jsonString: string,
