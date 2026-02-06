@@ -1,4 +1,4 @@
-speakeasyVersion: 1.704.0
+speakeasyVersion: 1.706.1
 sources:
     GO-OAS:
         sourceNamespace: go-oas
