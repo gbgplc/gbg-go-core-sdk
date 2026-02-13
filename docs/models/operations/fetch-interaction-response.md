@@ -24,7 +24,6 @@ const value: operations.ResponseBody = {
     ],
     grId: "<id>",
   },
-  context: {},
 };
 ```
 

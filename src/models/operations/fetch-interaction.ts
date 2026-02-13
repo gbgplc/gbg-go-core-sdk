@@ -1399,7 +1399,7 @@ export type ResponseBody = {
   interactionId: string;
   journey: Journey;
   interaction: Interaction;
-  context: FetchInteractionContext;
+  context?: FetchInteractionContext | undefined;
   instructions?: Array<string> | undefined;
   outstanding?: Array<string> | undefined;
 };
@@ -3648,7 +3648,9 @@ export const ResponseBody$inboundSchema: z.ZodMiniType<ResponseBody, unknown> =
     interactionId: types.string(),
     journey: z.lazy(() => Journey$inboundSchema),
     interaction: z.lazy(() => Interaction$inboundSchema),
-    context: z.lazy(() => FetchInteractionContext$inboundSchema),
+    context: types.optional(
+      z.lazy(() => FetchInteractionContext$inboundSchema),
+    ),
     instructions: types.optional(z.array(types.string())),
     outstanding: types.optional(z.array(types.string())),
   });
