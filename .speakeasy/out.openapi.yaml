@@ -9355,7 +9355,6 @@ paths:
                       - interactionId
                       - journey
                       - interaction
-                      - context
                     additionalProperties: false
                   - type: object
                     properties:

@@ -21,7 +21,6 @@ let value: ResponseBody = {
     ],
     grId: "<id>",
   },
-  context: {},
 };
 ```
 
@@ -33,6 +32,6 @@ let value: ResponseBody = {
 | `interactionId`                                                                            | *string*                                                                                   | :heavy_check_mark:                                                                         | Interaction identifier                                                                     |
 | `journey`                                                                                  | [operations.Journey](../../models/operations/journey.md)                                   | :heavy_check_mark:                                                                         | N/A                                                                                        |
 | `interaction`                                                                              | [operations.Interaction](../../models/operations/interaction.md)                           | :heavy_check_mark:                                                                         | N/A                                                                                        |
-| `context`                                                                                  | [operations.FetchInteractionContext](../../models/operations/fetch-interaction-context.md) | :heavy_check_mark:                                                                         | N/A                                                                                        |
+| `context`                                                                                  | [operations.FetchInteractionContext](../../models/operations/fetch-interaction-context.md) | :heavy_minus_sign:                                                                         | N/A                                                                                        |
 | `instructions`                                                                             | *string*[]                                                                                 | :heavy_minus_sign:                                                                         | N/A                                                                                        |
 | `outstanding`                                                                              | *string*[]                                                                                 | :heavy_minus_sign:                                                                         | N/A                                                                                        |

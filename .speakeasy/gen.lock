@@ -1,19 +1,19 @@
 lockVersion: 2.0.0
 id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
-  docChecksum: a3ca4e66d7c7bf0a59a5bdcdb77affc6
+  docChecksum: ab79c0e08c5677e51434168d571b8552
   docVersion: 1.0.0
-  speakeasyVersion: 1.707.1
-  generationVersion: 2.811.0
-  releaseVersion: 0.0.1-alpha.16
-  configChecksum: 845e09cfb47420292bb77ae967414f6e
+  speakeasyVersion: 1.715.0
+  generationVersion: 2.822.1
+  releaseVersion: 0.0.1-alpha.17
+  configChecksum: 783de3356f5cdf92cecae94a03dc7b6a
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: eea3c96e-a5f6-49e1-a47e-a9f72230f490
-  pristine_commit_hash: c0b697bf4d34a77fee9e67c2a424810d17597494
-  pristine_tree_hash: 49a870a95c1c3d6b8f0b4c225523ead78f5bc8fc
+  generation_id: 381a06b8-e936-4df1-b9d5-acf9892e54d5
+  pristine_commit_hash: 55e4362113fc5a66c2c15120cfad7513db0707f1
+  pristine_tree_hash: a20f0213342d196ee332038161ae4ec16ceb60ee
 features:
   typescript:
     additionalDependencies: 0.1.0
@@ -448,8 +448,8 @@ trackedFiles:
     pristine_git_object: a68cba9bff84f2899d0c3792180e83b08efc6cf7
   docs/models/operations/fetch-interaction-response.md:
     id: 913ccae7c656
-    last_write_checksum: sha1:a329328fc177b7f83ccae72986e1b8886bd9b386
-    pristine_git_object: 117546657ecb760da8ed433c88d6747b82388fc0
+    last_write_checksum: sha1:0dfb62c924b277e0177872c02491a29572633dd0
+    pristine_git_object: b505f0ed4f2f382b0f92b8889e0c805101bdb643
   docs/models/operations/fetch-interaction-result.md:
     id: 43310250decd
     last_write_checksum: sha1:72b5ee9db53c2c6d87f53cb50697c037f32a346e
@@ -916,8 +916,8 @@ trackedFiles:
     pristine_git_object: 42c697ce36b91fc3d75ae41f7e3f5d6fb64b9f45
   docs/models/operations/response-body.md:
     id: ebf6a53c8504
-    last_write_checksum: sha1:abc67ec4812374ca430b7d0883cb1ebc1631bee5
-    pristine_git_object: 52b155ecb467dd25da91dae78d609050dfac961b
+    last_write_checksum: sha1:909f3920c9f017948b9ca65c18cff08047cac7dc
+    pristine_git_object: 9a02bdb597de0af4eff4d3d84d54c641c1158d1b
   docs/models/operations/schema.md:
     id: ebff579e47e2
     last_write_checksum: sha1:e3909457eea8ca30d1d49148e7cf8694b2279abb
@@ -1916,12 +1916,12 @@ trackedFiles:
     pristine_git_object: 4fceb9092a8858b31edba290f8d9f307c1785df1
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:6ff701b4cd098aef95abf601776684197f46e5fd
-    pristine_git_object: 2671f61bb3af337ef2caf648bafa64fecebdf230
+    last_write_checksum: sha1:e4a1071d355047d5a26a9396aa62c92c20e0ad1f
+    pristine_git_object: 38cddc81272f7a5ee684ffeab4fbd276d6be0065
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:c4d231ed207171218b32c8c3f42622c6d4922d04
-    pristine_git_object: 9a1cf36960091a0eec0343e63325fb434f9f3ead
+    last_write_checksum: sha1:d5e3d4a6da96947978eefcbce537f9edcab7e75e
+    pristine_git_object: c1e0dce602efaa781dd6c8787457899c4274e67a
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -2000,8 +2000,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:e15f84520cbaa0300faa11588c6929409641344b
-    pristine_git_object: 2a7f12962e0d4bd9f265310d9b92e4e11cdba0e4
+    last_write_checksum: sha1:2d7af63f525ae7e34ab0635ecd3dada442a88295
+    pristine_git_object: 27c3f82bc8f8bae67129f0507fc1c0ccabd3f5cc
   src/lib/dlv.ts:
     id: b1988214835a
     last_write_checksum: sha1:1dd3e3fbb4550c4bf31f5ef997faff355d6f3250
@@ -2100,8 +2100,8 @@ trackedFiles:
     pristine_git_object: 4c4844d9d10f47743e8bfd5a80a202166e11d3f3
   src/models/operations/fetch-interaction.ts:
     id: 23ba73850efd
-    last_write_checksum: sha1:478b88038dbf7f6584834e1e8df13177101ff149
-    pristine_git_object: be4afd9dc07b34fa671c425a4712eb083481a8c8
+    last_write_checksum: sha1:aa3fbcdde6b8517cfcf64e8574fd8338ab7c14a6
+    pristine_git_object: 81be6697b1d05be3e553dc32783bcb5637ffa099
   src/models/operations/get-journey-state.ts:
     id: 8ed3b70735fd
     last_write_checksum: sha1:97bf22f64315e3c98244d0e904abe5191d966cee
@@ -2371,3 +2371,6 @@ examples:
         "200":
           application/json: {"status": "error", "code": 500, "message": "Internal server error"}
 examplesVersion: 1.0.2
+releaseNotes: |
+  ## Typescript SDK Changes:
+  * `go.interactions.fetch()`:  `response.union(class (0)).context` **Changed**
