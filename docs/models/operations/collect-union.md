@@ -18,13 +18,8 @@ const value: operations.Collect1 = {
 const value: operations.Collect2 = {
   ref: "<value>",
   spec: "required",
-  combinator: "<value>",
-  inputs: [
-    {
-      ref: "<value>",
-      spec: "required",
-    },
-  ],
+  combinator: "allOf",
+  inputs: [],
 };
 ```
 

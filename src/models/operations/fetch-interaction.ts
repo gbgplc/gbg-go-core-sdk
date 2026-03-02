@@ -101,6 +101,12 @@ export const CollectSpec2 = {
 } as const;
 export type CollectSpec2 = OpenEnum<typeof CollectSpec2>;
 
+export const CollectCombinator = {
+  OneOf: "oneOf",
+  AllOf: "allOf",
+} as const;
+export type CollectCombinator = OpenEnum<typeof CollectCombinator>;
+
 export const CollectInputSpec = {
   Required: "required",
   Optional: "optional",
@@ -118,7 +124,7 @@ export type Collect2 = {
   ref: string;
   spec: CollectSpec2;
   recommended?: boolean | undefined;
-  combinator: string;
+  combinator: CollectCombinator;
   inputs: Array<CollectInput>;
 };
 
@@ -144,6 +150,12 @@ export const ConsumeSpec2 = {
 } as const;
 export type ConsumeSpec2 = OpenEnum<typeof ConsumeSpec2>;
 
+export const ConsumeCombinator = {
+  OneOf: "oneOf",
+  AllOf: "allOf",
+} as const;
+export type ConsumeCombinator = OpenEnum<typeof ConsumeCombinator>;
+
 export const ConsumeInputSpec = {
   Required: "required",
   Optional: "optional",
@@ -161,7 +173,7 @@ export type Consume2 = {
   ref: string;
   spec: ConsumeSpec2;
   recommended?: boolean | undefined;
-  combinator: string;
+  combinator: ConsumeCombinator;
   inputs: Array<ConsumeInput>;
 };
 
@@ -1258,34 +1270,34 @@ export type FetchInteractionBiometric4 = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 export type FetchInteractionBiometric3 = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 export type FetchInteractionBiometric2 = {
+  id?: string | undefined;
+  type?: string | undefined;
+  selfieImage: string;
+  anchorImage: string;
+};
+
+export type FetchInteractionBiometric1 = {
   id?: string | undefined;
   type?: string | undefined;
   face1Image: string;
   face2Image: string;
 };
 
-export type FetchInteractionBiometric1 = {
-  id?: string | undefined;
-  type?: string | undefined;
-  faceImage: string;
-};
-
 export type FetchInteractionBiometricUnion =
-  | FetchInteractionBiometric2
-  | FetchInteractionBiometric4
   | FetchInteractionBiometric1
-  | FetchInteractionBiometric3;
+  | FetchInteractionBiometric2
+  | FetchInteractionBiometric3
+  | FetchInteractionBiometric4;
 
 export type FetchInteractionUser = {
   id: string;
@@ -1368,19 +1380,63 @@ export type FetchInteractionConsent = {
   signatory?: string | undefined;
 };
 
+export type FetchInteractionAccount = {
+  /**
+   * The type of account, e.g. Bank Account, Building Society
+   */
+  type: string;
+  /**
+   * Account number
+   */
+  accountNumber: string;
+  /**
+   * UK sort code
+   */
+  sortCode?: string | undefined;
+  /**
+   * US ABA routing number
+   */
+  routingNumber?: string | undefined;
+  /**
+   * International Bank Account Number
+   */
+  iban?: string | undefined;
+  /**
+   * BIC/SWIFT code
+   */
+  bic?: string | undefined;
+  /**
+   * Name on the account
+   */
+  accountHolderName?: string | undefined;
+  /**
+   * Name of the financial institution
+   */
+  bankName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  /**
+   * Account classification, e.g. current, savings
+   */
+  accountType?: string | undefined;
+};
+
 export type FetchInteractionSubject = {
   identity?: FetchInteractionIdentity | undefined;
   documents?: Array<FetchInteractionDocument> | undefined;
   biometrics?:
     | Array<
-      | FetchInteractionBiometric2
-      | FetchInteractionBiometric4
       | FetchInteractionBiometric1
+      | FetchInteractionBiometric2
       | FetchInteractionBiometric3
+      | FetchInteractionBiometric4
     >
     | undefined;
   sessions?: Array<FetchInteractionSession> | undefined;
   consent?: Array<FetchInteractionConsent> | undefined;
+  accounts?: Array<FetchInteractionAccount> | undefined;
   uid?: string | undefined;
 };
 
@@ -1583,6 +1639,12 @@ export const CollectSpec2$inboundSchema: z.ZodMiniType<CollectSpec2, unknown> =
   openEnums.inboundSchema(CollectSpec2);
 
 /** @internal */
+export const CollectCombinator$inboundSchema: z.ZodMiniType<
+  CollectCombinator,
+  unknown
+> = openEnums.inboundSchema(CollectCombinator);
+
+/** @internal */
 export const CollectInputSpec$inboundSchema: z.ZodMiniType<
   CollectInputSpec,
   unknown
@@ -1612,7 +1674,7 @@ export const Collect2$inboundSchema: z.ZodMiniType<Collect2, unknown> = z
     ref: types.string(),
     spec: CollectSpec2$inboundSchema,
     recommended: types.optional(types.boolean()),
-    combinator: types.string(),
+    combinator: CollectCombinator$inboundSchema,
     inputs: z.array(z.lazy(() => CollectInput$inboundSchema)),
   });
 
@@ -1670,6 +1732,12 @@ export const ConsumeSpec2$inboundSchema: z.ZodMiniType<ConsumeSpec2, unknown> =
   openEnums.inboundSchema(ConsumeSpec2);
 
 /** @internal */
+export const ConsumeCombinator$inboundSchema: z.ZodMiniType<
+  ConsumeCombinator,
+  unknown
+> = openEnums.inboundSchema(ConsumeCombinator);
+
+/** @internal */
 export const ConsumeInputSpec$inboundSchema: z.ZodMiniType<
   ConsumeInputSpec,
   unknown
@@ -1699,7 +1767,7 @@ export const Consume2$inboundSchema: z.ZodMiniType<Consume2, unknown> = z
     ref: types.string(),
     spec: ConsumeSpec2$inboundSchema,
     recommended: types.optional(types.boolean()),
-    combinator: types.string(),
+    combinator: ConsumeCombinator$inboundSchema,
     inputs: z.array(z.lazy(() => ConsumeInput$inboundSchema)),
   });
 
@@ -3263,7 +3331,7 @@ export const FetchInteractionBiometric4$inboundSchema: z.ZodMiniType<
   id: types.optional(types.string()),
   type: types.optional(types.string()),
   selfieImage: types.string(),
-  anchorImage: types.string(),
+  selfieImageEncryption: types.optional(types.boolean()),
 });
 
 export function fetchInteractionBiometric4FromJSON(
@@ -3283,8 +3351,7 @@ export const FetchInteractionBiometric3$inboundSchema: z.ZodMiniType<
 > = z.object({
   id: types.optional(types.string()),
   type: types.optional(types.string()),
-  selfieImage: types.string(),
-  selfieImageEncryption: types.optional(types.boolean()),
+  faceImage: types.string(),
 });
 
 export function fetchInteractionBiometric3FromJSON(
@@ -3304,8 +3371,8 @@ export const FetchInteractionBiometric2$inboundSchema: z.ZodMiniType<
 > = z.object({
   id: types.optional(types.string()),
   type: types.optional(types.string()),
-  face1Image: types.string(),
-  face2Image: types.string(),
+  selfieImage: types.string(),
+  anchorImage: types.string(),
 });
 
 export function fetchInteractionBiometric2FromJSON(
@@ -3325,7 +3392,8 @@ export const FetchInteractionBiometric1$inboundSchema: z.ZodMiniType<
 > = z.object({
   id: types.optional(types.string()),
   type: types.optional(types.string()),
-  faceImage: types.string(),
+  face1Image: types.string(),
+  face2Image: types.string(),
 });
 
 export function fetchInteractionBiometric1FromJSON(
@@ -3343,10 +3411,10 @@ export const FetchInteractionBiometricUnion$inboundSchema: z.ZodMiniType<
   FetchInteractionBiometricUnion,
   unknown
 > = smartUnion([
-  z.lazy(() => FetchInteractionBiometric2$inboundSchema),
-  z.lazy(() => FetchInteractionBiometric4$inboundSchema),
   z.lazy(() => FetchInteractionBiometric1$inboundSchema),
+  z.lazy(() => FetchInteractionBiometric2$inboundSchema),
   z.lazy(() => FetchInteractionBiometric3$inboundSchema),
+  z.lazy(() => FetchInteractionBiometric4$inboundSchema),
 ]);
 
 export function fetchInteractionBiometricUnionFromJSON(
@@ -3584,6 +3652,33 @@ export function fetchInteractionConsentFromJSON(
 }
 
 /** @internal */
+export const FetchInteractionAccount$inboundSchema: z.ZodMiniType<
+  FetchInteractionAccount,
+  unknown
+> = z.object({
+  type: types.string(),
+  accountNumber: types.string(),
+  sortCode: types.optional(types.string()),
+  routingNumber: types.optional(types.string()),
+  iban: types.optional(types.string()),
+  bic: types.optional(types.string()),
+  accountHolderName: types.optional(types.string()),
+  bankName: types.optional(types.string()),
+  country: types.optional(types.string()),
+  accountType: types.optional(types.string()),
+});
+
+export function fetchInteractionAccountFromJSON(
+  jsonString: string,
+): SafeParseResult<FetchInteractionAccount, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => FetchInteractionAccount$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'FetchInteractionAccount' from JSON`,
+  );
+}
+
+/** @internal */
 export const FetchInteractionSubject$inboundSchema: z.ZodMiniType<
   FetchInteractionSubject,
   unknown
@@ -3596,12 +3691,12 @@ export const FetchInteractionSubject$inboundSchema: z.ZodMiniType<
   ),
   biometrics: types.optional(
     z.array(smartUnion([
-      z.lazy(() => FetchInteractionBiometric2$inboundSchema),
-      z.lazy(() =>
-        FetchInteractionBiometric4$inboundSchema
-      ),
       z.lazy(() => FetchInteractionBiometric1$inboundSchema),
+      z.lazy(() =>
+        FetchInteractionBiometric2$inboundSchema
+      ),
       z.lazy(() => FetchInteractionBiometric3$inboundSchema),
+      z.lazy(() => FetchInteractionBiometric4$inboundSchema),
     ])),
   ),
   sessions: types.optional(
@@ -3609,6 +3704,9 @@ export const FetchInteractionSubject$inboundSchema: z.ZodMiniType<
   ),
   consent: types.optional(
     z.array(z.lazy(() => FetchInteractionConsent$inboundSchema)),
+  ),
+  accounts: types.optional(
+    z.array(z.lazy(() => FetchInteractionAccount$inboundSchema)),
   ),
   uid: types.optional(types.string()),
 });

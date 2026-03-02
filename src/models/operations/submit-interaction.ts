@@ -1098,34 +1098,34 @@ export type SubmitInteractionBiometric4 = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 export type SubmitInteractionBiometric3 = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 export type SubmitInteractionBiometric2 = {
+  id?: string | undefined;
+  type?: string | undefined;
+  selfieImage: string;
+  anchorImage: string;
+};
+
+export type SubmitInteractionBiometric1 = {
   id?: string | undefined;
   type?: string | undefined;
   face1Image: string;
   face2Image: string;
 };
 
-export type SubmitInteractionBiometric1 = {
-  id?: string | undefined;
-  type?: string | undefined;
-  faceImage: string;
-};
-
 export type SubmitInteractionBiometricUnion =
-  | SubmitInteractionBiometric2
-  | SubmitInteractionBiometric4
   | SubmitInteractionBiometric1
-  | SubmitInteractionBiometric3;
+  | SubmitInteractionBiometric2
+  | SubmitInteractionBiometric3
+  | SubmitInteractionBiometric4;
 
 export type SubmitInteractionUser = {
   id: string;
@@ -1208,19 +1208,63 @@ export type SubmitInteractionConsent = {
   signatory?: string | undefined;
 };
 
+export type SubmitInteractionAccount = {
+  /**
+   * The type of account, e.g. Bank Account, Building Society
+   */
+  type: string;
+  /**
+   * Account number
+   */
+  accountNumber: string;
+  /**
+   * UK sort code
+   */
+  sortCode?: string | undefined;
+  /**
+   * US ABA routing number
+   */
+  routingNumber?: string | undefined;
+  /**
+   * International Bank Account Number
+   */
+  iban?: string | undefined;
+  /**
+   * BIC/SWIFT code
+   */
+  bic?: string | undefined;
+  /**
+   * Name on the account
+   */
+  accountHolderName?: string | undefined;
+  /**
+   * Name of the financial institution
+   */
+  bankName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  /**
+   * Account classification, e.g. current, savings
+   */
+  accountType?: string | undefined;
+};
+
 export type SubmitInteractionSubject = {
   identity?: SubmitInteractionIdentity | undefined;
   documents?: Array<SubmitInteractionDocument> | undefined;
   biometrics?:
     | Array<
-      | SubmitInteractionBiometric2
-      | SubmitInteractionBiometric4
       | SubmitInteractionBiometric1
+      | SubmitInteractionBiometric2
       | SubmitInteractionBiometric3
+      | SubmitInteractionBiometric4
     >
     | undefined;
   sessions?: Array<SubmitInteractionSession> | undefined;
   consent?: Array<SubmitInteractionConsent> | undefined;
+  accounts?: Array<SubmitInteractionAccount> | undefined;
   uid?: string | undefined;
 };
 
@@ -3393,7 +3437,7 @@ export type SubmitInteractionBiometric4$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 /** @internal */
@@ -3404,7 +3448,7 @@ export const SubmitInteractionBiometric4$outboundSchema: z.ZodMiniType<
   id: z.optional(z.string()),
   type: z.optional(z.string()),
   selfieImage: z.string(),
-  anchorImage: z.string(),
+  selfieImageEncryption: z.optional(z.boolean()),
 });
 
 export function submitInteractionBiometric4ToJSON(
@@ -3421,8 +3465,7 @@ export function submitInteractionBiometric4ToJSON(
 export type SubmitInteractionBiometric3$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 /** @internal */
@@ -3432,8 +3475,7 @@ export const SubmitInteractionBiometric3$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  selfieImage: z.string(),
-  selfieImageEncryption: z.optional(z.boolean()),
+  faceImage: z.string(),
 });
 
 export function submitInteractionBiometric3ToJSON(
@@ -3450,8 +3492,8 @@ export function submitInteractionBiometric3ToJSON(
 export type SubmitInteractionBiometric2$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  face1Image: string;
-  face2Image: string;
+  selfieImage: string;
+  anchorImage: string;
 };
 
 /** @internal */
@@ -3461,8 +3503,8 @@ export const SubmitInteractionBiometric2$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  face1Image: z.string(),
-  face2Image: z.string(),
+  selfieImage: z.string(),
+  anchorImage: z.string(),
 });
 
 export function submitInteractionBiometric2ToJSON(
@@ -3479,7 +3521,8 @@ export function submitInteractionBiometric2ToJSON(
 export type SubmitInteractionBiometric1$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  faceImage: string;
+  face1Image: string;
+  face2Image: string;
 };
 
 /** @internal */
@@ -3489,7 +3532,8 @@ export const SubmitInteractionBiometric1$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  faceImage: z.string(),
+  face1Image: z.string(),
+  face2Image: z.string(),
 });
 
 export function submitInteractionBiometric1ToJSON(
@@ -3504,20 +3548,20 @@ export function submitInteractionBiometric1ToJSON(
 
 /** @internal */
 export type SubmitInteractionBiometricUnion$Outbound =
-  | SubmitInteractionBiometric2$Outbound
-  | SubmitInteractionBiometric4$Outbound
   | SubmitInteractionBiometric1$Outbound
-  | SubmitInteractionBiometric3$Outbound;
+  | SubmitInteractionBiometric2$Outbound
+  | SubmitInteractionBiometric3$Outbound
+  | SubmitInteractionBiometric4$Outbound;
 
 /** @internal */
 export const SubmitInteractionBiometricUnion$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometricUnion$Outbound,
   SubmitInteractionBiometricUnion
 > = smartUnion([
-  z.lazy(() => SubmitInteractionBiometric2$outboundSchema),
-  z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
+  z.lazy(() => SubmitInteractionBiometric2$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
+  z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
 ]);
 
 export function submitInteractionBiometricUnionToJSON(
@@ -3822,19 +3866,59 @@ export function submitInteractionConsentToJSON(
 }
 
 /** @internal */
+export type SubmitInteractionAccount$Outbound = {
+  type: string;
+  accountNumber: string;
+  sortCode?: string | undefined;
+  routingNumber?: string | undefined;
+  iban?: string | undefined;
+  bic?: string | undefined;
+  accountHolderName?: string | undefined;
+  bankName?: string | undefined;
+  country?: string | undefined;
+  accountType?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionAccount$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAccount$Outbound,
+  SubmitInteractionAccount
+> = z.object({
+  type: z.string(),
+  accountNumber: z.string(),
+  sortCode: z.optional(z.string()),
+  routingNumber: z.optional(z.string()),
+  iban: z.optional(z.string()),
+  bic: z.optional(z.string()),
+  accountHolderName: z.optional(z.string()),
+  bankName: z.optional(z.string()),
+  country: z.optional(z.string()),
+  accountType: z.optional(z.string()),
+});
+
+export function submitInteractionAccountToJSON(
+  submitInteractionAccount: SubmitInteractionAccount,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAccount$outboundSchema.parse(submitInteractionAccount),
+  );
+}
+
+/** @internal */
 export type SubmitInteractionSubject$Outbound = {
   identity?: SubmitInteractionIdentity$Outbound | undefined;
   documents?: Array<SubmitInteractionDocument$Outbound> | undefined;
   biometrics?:
     | Array<
-      | SubmitInteractionBiometric2$Outbound
-      | SubmitInteractionBiometric4$Outbound
       | SubmitInteractionBiometric1$Outbound
+      | SubmitInteractionBiometric2$Outbound
       | SubmitInteractionBiometric3$Outbound
+      | SubmitInteractionBiometric4$Outbound
     >
     | undefined;
   sessions?: Array<SubmitInteractionSession$Outbound> | undefined;
   consent?: Array<SubmitInteractionConsent$Outbound> | undefined;
+  accounts?: Array<SubmitInteractionAccount$Outbound> | undefined;
   uid?: string | undefined;
 };
 
@@ -3849,12 +3933,12 @@ export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
   ),
   biometrics: z.optional(
     z.array(smartUnion([
-      z.lazy(() => SubmitInteractionBiometric2$outboundSchema),
-      z.lazy(() =>
-        SubmitInteractionBiometric4$outboundSchema
-      ),
       z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
+      z.lazy(() =>
+        SubmitInteractionBiometric2$outboundSchema
+      ),
       z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
+      z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
     ])),
   ),
   sessions: z.optional(
@@ -3862,6 +3946,9 @@ export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
   ),
   consent: z.optional(
     z.array(z.lazy(() => SubmitInteractionConsent$outboundSchema)),
+  ),
+  accounts: z.optional(
+    z.array(z.lazy(() => SubmitInteractionAccount$outboundSchema)),
   ),
   uid: z.optional(z.string()),
 });

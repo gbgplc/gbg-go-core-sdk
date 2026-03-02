@@ -400,16 +400,11 @@ import { Go } from "@gbg/go-core";
 
 const go = new Go({
   serverIdx: 0,
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
 });
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const result = await go.health.get();
 
   console.log(result);
 }
@@ -426,16 +421,11 @@ import { Go } from "@gbg/go-core";
 
 const go = new Go({
   serverURL: "https://au.platform.go.gbgplc.com/v2/captain",
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
 });
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const result = await go.health.get();
 
   console.log(result);
 }

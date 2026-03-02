@@ -7,7 +7,8 @@
 
 ```typescript
 const value: operations.UpdateTaskBiometric1 = {
-  faceImage: "<value>",
+  face1Image: "<value>",
+  face2Image: "<value>",
 };
 ```
 
@@ -15,8 +16,8 @@ const value: operations.UpdateTaskBiometric1 = {
 
 ```typescript
 const value: operations.UpdateTaskBiometric2 = {
-  face1Image: "<value>",
-  face2Image: "<value>",
+  selfieImage: "<value>",
+  anchorImage: "<value>",
 };
 ```
 
@@ -24,7 +25,7 @@ const value: operations.UpdateTaskBiometric2 = {
 
 ```typescript
 const value: operations.UpdateTaskBiometric3 = {
-  selfieImage: "<value>",
+  faceImage: "<value>",
 };
 ```
 
@@ -33,7 +34,6 @@ const value: operations.UpdateTaskBiometric3 = {
 ```typescript
 const value: operations.UpdateTaskBiometric4 = {
   selfieImage: "<value>",
-  anchorImage: "<value>",
 };
 ```
 

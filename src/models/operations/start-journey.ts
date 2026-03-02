@@ -10,6 +10,25 @@ import * as types from "../../types/primitives.js";
 import { smartUnion } from "../../types/smart-union.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 
+/**
+ * The method by which the End User will consume the journey.
+ */
+export const Delivery = {
+  Page: "page",
+  Api: "api",
+} as const;
+/**
+ * The method by which the End User will consume the journey.
+ */
+export type Delivery = ClosedEnum<typeof Delivery>;
+
+export type Config = {
+  /**
+   * The method by which the End User will consume the journey.
+   */
+  delivery: Delivery;
+};
+
 export type StartJourneyIdentityAlias = {
   /**
    * Title of an individual such as Mr, Mrs, Dr, Sir
@@ -1071,34 +1090,34 @@ export type StartJourneyBiometric4 = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 export type StartJourneyBiometric3 = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 export type StartJourneyBiometric2 = {
+  id?: string | undefined;
+  type?: string | undefined;
+  selfieImage: string;
+  anchorImage: string;
+};
+
+export type StartJourneyBiometric1 = {
   id?: string | undefined;
   type?: string | undefined;
   face1Image: string;
   face2Image: string;
 };
 
-export type StartJourneyBiometric1 = {
-  id?: string | undefined;
-  type?: string | undefined;
-  faceImage: string;
-};
-
 export type StartJourneyBiometricUnion =
-  | StartJourneyBiometric2
-  | StartJourneyBiometric4
   | StartJourneyBiometric1
-  | StartJourneyBiometric3;
+  | StartJourneyBiometric2
+  | StartJourneyBiometric3
+  | StartJourneyBiometric4;
 
 export type StartJourneyUser = {
   id: string;
@@ -1181,23 +1200,68 @@ export type StartJourneyConsent = {
   signatory?: string | undefined;
 };
 
+export type StartJourneyAccount = {
+  /**
+   * The type of account, e.g. Bank Account, Building Society
+   */
+  type: string;
+  /**
+   * Account number
+   */
+  accountNumber: string;
+  /**
+   * UK sort code
+   */
+  sortCode?: string | undefined;
+  /**
+   * US ABA routing number
+   */
+  routingNumber?: string | undefined;
+  /**
+   * International Bank Account Number
+   */
+  iban?: string | undefined;
+  /**
+   * BIC/SWIFT code
+   */
+  bic?: string | undefined;
+  /**
+   * Name on the account
+   */
+  accountHolderName?: string | undefined;
+  /**
+   * Name of the financial institution
+   */
+  bankName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  /**
+   * Account classification, e.g. current, savings
+   */
+  accountType?: string | undefined;
+};
+
 export type StartJourneySubject = {
   identity?: StartJourneyIdentity | undefined;
   documents?: Array<StartJourneyDocument> | undefined;
   biometrics?:
     | Array<
-      | StartJourneyBiometric2
-      | StartJourneyBiometric4
       | StartJourneyBiometric1
+      | StartJourneyBiometric2
       | StartJourneyBiometric3
+      | StartJourneyBiometric4
     >
     | undefined;
   sessions?: Array<StartJourneySession> | undefined;
   consent?: Array<StartJourneyConsent> | undefined;
+  accounts?: Array<StartJourneyAccount> | undefined;
   uid?: string | undefined;
 };
 
 export type StartJourneyContext = {
+  config: Config;
   subject: StartJourneySubject;
 };
 
@@ -1229,16 +1293,32 @@ export type StartJourneyResponseBody1 = {
    * Journey Instance Id, a unique identifier for a started journey instance.
    */
   instanceId: string;
-  /**
-   * URL to access the journey UI for no code journey implementations.
-   */
-  instanceUrl?: string | undefined;
   [additionalProperties: string]: unknown;
 };
 
 export type StartJourneyResponse =
   | StartJourneyResponseBody1
   | StartJourneyResponseBody2;
+
+/** @internal */
+export const Delivery$outboundSchema: z.ZodMiniEnum<typeof Delivery> = z.enum(
+  Delivery,
+);
+
+/** @internal */
+export type Config$Outbound = {
+  delivery: string;
+};
+
+/** @internal */
+export const Config$outboundSchema: z.ZodMiniType<Config$Outbound, Config> = z
+  .object({
+    delivery: Delivery$outboundSchema,
+  });
+
+export function configToJSON(config: Config): string {
+  return JSON.stringify(Config$outboundSchema.parse(config));
+}
 
 /** @internal */
 export type StartJourneyIdentityAlias$Outbound = {
@@ -3215,7 +3295,7 @@ export type StartJourneyBiometric4$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 /** @internal */
@@ -3226,7 +3306,7 @@ export const StartJourneyBiometric4$outboundSchema: z.ZodMiniType<
   id: z.optional(z.string()),
   type: z.optional(z.string()),
   selfieImage: z.string(),
-  anchorImage: z.string(),
+  selfieImageEncryption: z.optional(z.boolean()),
 });
 
 export function startJourneyBiometric4ToJSON(
@@ -3241,8 +3321,7 @@ export function startJourneyBiometric4ToJSON(
 export type StartJourneyBiometric3$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 /** @internal */
@@ -3252,8 +3331,7 @@ export const StartJourneyBiometric3$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  selfieImage: z.string(),
-  selfieImageEncryption: z.optional(z.boolean()),
+  faceImage: z.string(),
 });
 
 export function startJourneyBiometric3ToJSON(
@@ -3268,8 +3346,8 @@ export function startJourneyBiometric3ToJSON(
 export type StartJourneyBiometric2$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  face1Image: string;
-  face2Image: string;
+  selfieImage: string;
+  anchorImage: string;
 };
 
 /** @internal */
@@ -3279,8 +3357,8 @@ export const StartJourneyBiometric2$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  face1Image: z.string(),
-  face2Image: z.string(),
+  selfieImage: z.string(),
+  anchorImage: z.string(),
 });
 
 export function startJourneyBiometric2ToJSON(
@@ -3295,7 +3373,8 @@ export function startJourneyBiometric2ToJSON(
 export type StartJourneyBiometric1$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  faceImage: string;
+  face1Image: string;
+  face2Image: string;
 };
 
 /** @internal */
@@ -3305,7 +3384,8 @@ export const StartJourneyBiometric1$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  faceImage: z.string(),
+  face1Image: z.string(),
+  face2Image: z.string(),
 });
 
 export function startJourneyBiometric1ToJSON(
@@ -3318,20 +3398,20 @@ export function startJourneyBiometric1ToJSON(
 
 /** @internal */
 export type StartJourneyBiometricUnion$Outbound =
-  | StartJourneyBiometric2$Outbound
-  | StartJourneyBiometric4$Outbound
   | StartJourneyBiometric1$Outbound
-  | StartJourneyBiometric3$Outbound;
+  | StartJourneyBiometric2$Outbound
+  | StartJourneyBiometric3$Outbound
+  | StartJourneyBiometric4$Outbound;
 
 /** @internal */
 export const StartJourneyBiometricUnion$outboundSchema: z.ZodMiniType<
   StartJourneyBiometricUnion$Outbound,
   StartJourneyBiometricUnion
 > = smartUnion([
-  z.lazy(() => StartJourneyBiometric2$outboundSchema),
-  z.lazy(() => StartJourneyBiometric4$outboundSchema),
   z.lazy(() => StartJourneyBiometric1$outboundSchema),
+  z.lazy(() => StartJourneyBiometric2$outboundSchema),
   z.lazy(() => StartJourneyBiometric3$outboundSchema),
+  z.lazy(() => StartJourneyBiometric4$outboundSchema),
 ]);
 
 export function startJourneyBiometricUnionToJSON(
@@ -3624,19 +3704,59 @@ export function startJourneyConsentToJSON(
 }
 
 /** @internal */
+export type StartJourneyAccount$Outbound = {
+  type: string;
+  accountNumber: string;
+  sortCode?: string | undefined;
+  routingNumber?: string | undefined;
+  iban?: string | undefined;
+  bic?: string | undefined;
+  accountHolderName?: string | undefined;
+  bankName?: string | undefined;
+  country?: string | undefined;
+  accountType?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyAccount$outboundSchema: z.ZodMiniType<
+  StartJourneyAccount$Outbound,
+  StartJourneyAccount
+> = z.object({
+  type: z.string(),
+  accountNumber: z.string(),
+  sortCode: z.optional(z.string()),
+  routingNumber: z.optional(z.string()),
+  iban: z.optional(z.string()),
+  bic: z.optional(z.string()),
+  accountHolderName: z.optional(z.string()),
+  bankName: z.optional(z.string()),
+  country: z.optional(z.string()),
+  accountType: z.optional(z.string()),
+});
+
+export function startJourneyAccountToJSON(
+  startJourneyAccount: StartJourneyAccount,
+): string {
+  return JSON.stringify(
+    StartJourneyAccount$outboundSchema.parse(startJourneyAccount),
+  );
+}
+
+/** @internal */
 export type StartJourneySubject$Outbound = {
   identity?: StartJourneyIdentity$Outbound | undefined;
   documents?: Array<StartJourneyDocument$Outbound> | undefined;
   biometrics?:
     | Array<
-      | StartJourneyBiometric2$Outbound
-      | StartJourneyBiometric4$Outbound
       | StartJourneyBiometric1$Outbound
+      | StartJourneyBiometric2$Outbound
       | StartJourneyBiometric3$Outbound
+      | StartJourneyBiometric4$Outbound
     >
     | undefined;
   sessions?: Array<StartJourneySession$Outbound> | undefined;
   consent?: Array<StartJourneyConsent$Outbound> | undefined;
+  accounts?: Array<StartJourneyAccount$Outbound> | undefined;
   uid?: string | undefined;
 };
 
@@ -3651,12 +3771,12 @@ export const StartJourneySubject$outboundSchema: z.ZodMiniType<
   ),
   biometrics: z.optional(
     z.array(smartUnion([
-      z.lazy(() => StartJourneyBiometric2$outboundSchema),
-      z.lazy(() =>
-        StartJourneyBiometric4$outboundSchema
-      ),
       z.lazy(() => StartJourneyBiometric1$outboundSchema),
+      z.lazy(() =>
+        StartJourneyBiometric2$outboundSchema
+      ),
       z.lazy(() => StartJourneyBiometric3$outboundSchema),
+      z.lazy(() => StartJourneyBiometric4$outboundSchema),
     ])),
   ),
   sessions: z.optional(
@@ -3664,6 +3784,9 @@ export const StartJourneySubject$outboundSchema: z.ZodMiniType<
   ),
   consent: z.optional(
     z.array(z.lazy(() => StartJourneyConsent$outboundSchema)),
+  ),
+  accounts: z.optional(
+    z.array(z.lazy(() => StartJourneyAccount$outboundSchema)),
   ),
   uid: z.optional(z.string()),
 });
@@ -3678,6 +3801,7 @@ export function startJourneySubjectToJSON(
 
 /** @internal */
 export type StartJourneyContext$Outbound = {
+  config: Config$Outbound;
   subject: StartJourneySubject$Outbound;
 };
 
@@ -3686,6 +3810,7 @@ export const StartJourneyContext$outboundSchema: z.ZodMiniType<
   StartJourneyContext$Outbound,
   StartJourneyContext
 > = z.object({
+  config: z.lazy(() => Config$outboundSchema),
   subject: z.lazy(() => StartJourneySubject$outboundSchema),
 });
 
@@ -3750,7 +3875,6 @@ export const StartJourneyResponseBody1$inboundSchema: z.ZodMiniType<
 > = z.catchall(
   z.object({
     instanceId: types.string(),
-    instanceUrl: types.optional(types.string()),
   }),
   z.any(),
 );

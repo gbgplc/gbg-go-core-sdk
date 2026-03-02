@@ -18,7 +18,7 @@ const value: operations.Consume1 = {
 const value: operations.Consume2 = {
   ref: "<value>",
   spec: "required",
-  combinator: "<value>",
+  combinator: "oneOf",
   inputs: [],
 };
 ```
