@@ -7,7 +7,8 @@
 
 ```typescript
 const value: operations.GetJourneyStateBiometric1 = {
-  faceImage: "<value>",
+  face1Image: "<value>",
+  face2Image: "<value>",
 };
 ```
 
@@ -15,8 +16,8 @@ const value: operations.GetJourneyStateBiometric1 = {
 
 ```typescript
 const value: operations.GetJourneyStateBiometric2 = {
-  face1Image: "<value>",
-  face2Image: "<value>",
+  selfieImage: "<value>",
+  anchorImage: "<value>",
 };
 ```
 
@@ -24,7 +25,7 @@ const value: operations.GetJourneyStateBiometric2 = {
 
 ```typescript
 const value: operations.GetJourneyStateBiometric3 = {
-  selfieImage: "<value>",
+  faceImage: "<value>",
 };
 ```
 
@@ -33,7 +34,6 @@ const value: operations.GetJourneyStateBiometric3 = {
 ```typescript
 const value: operations.GetJourneyStateBiometric4 = {
   selfieImage: "<value>",
-  anchorImage: "<value>",
 };
 ```
 

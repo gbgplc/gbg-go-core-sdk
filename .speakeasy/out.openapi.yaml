@@ -86,7 +86,7 @@ paths:
           description: Unauthorized request. Invalid username or password.
       x-speakeasy-group: tokens
       x-speakeasy-name-override: generate
-  "/journey/health":
+  /journey/health:
     get:
       operationId: health
       summary: Obtain the flow-captain health status
@@ -138,7 +138,7 @@ paths:
           content:
             application/json: {}
       x-speakeasy-name-override: get
-  "/journey/device/connect":
+  /journey/device/connect:
     post:
       operationId: deviceConnect
       summary: Connect or Refresh End User Device
@@ -158,7 +158,7 @@ paths:
                   type: string
                   minLength: 8
                   maxLength: 1024
-                  pattern: "^[A-Za-z0-9-_]+$"
+                  pattern: ^[A-Za-z0-9-_]+$
                   description: Bearer Token credential for a connection.
                 deviceInfo:
                   type: object
@@ -198,7 +198,7 @@ paths:
                     type: string
                     minLength: 8
                     maxLength: 1024
-                    pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$"
+                    pattern: ^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$
                     description: Token used for subsequent operations by the client
                   tokenType:
                     type: string
@@ -233,7 +233,7 @@ paths:
                     type: string
                     minLength: 8
                     maxLength: 1024
-                    pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$"
+                    pattern: ^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$
                     description: Token used for subsequent operations by the client
                   tokenType:
                     type: string
@@ -287,7 +287,7 @@ paths:
             application/json: {}
       x-speakeasy-group: devices
       x-speakeasy-name-override: connect
-  "/journey/task/list":
+  /journey/task/list:
     post:
       operationId: getTasks
       summary: Get End User Tasks
@@ -389,7 +389,7 @@ paths:
             application/json: {}
       x-speakeasy-group: tasks
       x-speakeasy-name-override: list
-  "/journey/task/update":
+  /journey/task/update:
     post:
       operationId: updateTask
       summary: Put End User Data
@@ -518,7 +518,7 @@ paths:
                                 additionalProperties: false
                             dateOfBirth:
                               type: string
-                              pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                              pattern: ^\d{4}-\d{2}-\d{2}$
                               description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                             gender:
                               type: string
@@ -565,7 +565,7 @@ paths:
                                   description: This field contains the post box number associated with a particular delivery point, should one exist.
                                 country:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 superAdministrativeArea:
                                   type: string
@@ -634,7 +634,7 @@ paths:
                                     description: This field contains the post box number associated with a particular delivery point, should one exist.
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                   superAdministrativeArea:
                                     type: string
@@ -659,11 +659,11 @@ paths:
                                     additionalProperties: false
                                   fromDate:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   toDate:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                 required:
                                   - fromDate
@@ -712,7 +712,7 @@ paths:
                                   description: This field contains the post box number associated with a particular delivery point, should one exist.
                                 country:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 superAdministrativeArea:
                                   type: string
@@ -749,7 +749,7 @@ paths:
                                     description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 required:
                                   - type
@@ -887,7 +887,7 @@ paths:
                                 type: string
                               issueDate:
                                 type: string
-                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                pattern: ^\d{4}-\d{2}-\d{2}$
                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                               issuingAuthority:
                                 type: string
@@ -971,7 +971,7 @@ paths:
                                 type: string
                               issuerCountryCode:
                                 type: string
-                                pattern: "^[A-Z]{2,3}$"
+                                pattern: ^[A-Z]{2,3}$
                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                               id:
                                 type: string
@@ -1139,7 +1139,7 @@ paths:
                                               properties:
                                                 x:
                                                   type: number
-                                                "y":
+                                                y:
                                                   type: number
                                                 width:
                                                   type: number
@@ -1147,7 +1147,7 @@ paths:
                                                   type: number
                                               required:
                                                 - x
-                                                - "y"
+                                                - y
                                                 - width
                                                 - height
                                               additionalProperties: false
@@ -1194,7 +1194,7 @@ paths:
                                                     properties:
                                                       x:
                                                         type: number
-                                                      "y":
+                                                      y:
                                                         type: number
                                                       width:
                                                         type: number
@@ -1202,7 +1202,7 @@ paths:
                                                         type: number
                                                     required:
                                                       - x
-                                                      - "y"
+                                                      - y
                                                       - width
                                                       - height
                                                     additionalProperties: false
@@ -1272,7 +1272,7 @@ paths:
                                                 properties:
                                                   x:
                                                     type: number
-                                                  "y":
+                                                  y:
                                                     type: number
                                                   width:
                                                     type: number
@@ -1280,7 +1280,7 @@ paths:
                                                     type: number
                                                 required:
                                                   - x
-                                                  - "y"
+                                                  - y
                                                   - width
                                                   - height
                                                 additionalProperties: false
@@ -1331,7 +1331,7 @@ paths:
                                                 properties:
                                                   x:
                                                     type: number
-                                                  "y":
+                                                  y:
                                                     type: number
                                                   width:
                                                     type: number
@@ -1339,7 +1339,7 @@ paths:
                                                     type: number
                                                 required:
                                                   - x
-                                                  - "y"
+                                                  - y
                                                   - width
                                                   - height
                                                 additionalProperties: false
@@ -1370,7 +1370,7 @@ paths:
                                 type: string
                               expiryDate:
                                 type: string
-                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                pattern: ^\d{4}-\d{2}-\d{2}$
                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                               subject:
                                 type: object
@@ -1463,7 +1463,7 @@ paths:
                                       additionalProperties: false
                                   dateOfBirth:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   gender:
                                     type: string
@@ -1510,7 +1510,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -1579,7 +1579,7 @@ paths:
                                           description: This field contains the post box number associated with a particular delivery point, should one exist.
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                         superAdministrativeArea:
                                           type: string
@@ -1604,11 +1604,11 @@ paths:
                                           additionalProperties: false
                                         fromDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                         toDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                       required:
                                         - fromDate
@@ -1657,7 +1657,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -1694,7 +1694,7 @@ paths:
                                           description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       required:
                                         - type
@@ -1751,24 +1751,13 @@ paths:
                                 additionalProperties: false
                               country:
                                 type: string
-                                pattern: "^[A-Z]{2,3}$"
+                                pattern: ^[A-Z]{2,3}$
                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                             additionalProperties: false
                         biometrics:
                           type: array
                           items:
                             anyOf:
-                              - type: object
-                                properties:
-                                  id:
-                                    type: string
-                                  type:
-                                    type: string
-                                  faceImage:
-                                    type: string
-                                required:
-                                  - faceImage
-                                additionalProperties: false
                               - type: object
                                 properties:
                                   id:
@@ -1791,10 +1780,22 @@ paths:
                                     type: string
                                   selfieImage:
                                     type: string
-                                  selfieImageEncryption:
-                                    type: boolean
+                                  anchorImage:
+                                    type: string
                                 required:
                                   - selfieImage
+                                  - anchorImage
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  type:
+                                    type: string
+                                  faceImage:
+                                    type: string
+                                required:
+                                  - faceImage
                                 additionalProperties: false
                               - type: object
                                 properties:
@@ -1804,11 +1805,10 @@ paths:
                                     type: string
                                   selfieImage:
                                     type: string
-                                  anchorImage:
-                                    type: string
+                                  selfieImageEncryption:
+                                    type: boolean
                                 required:
                                   - selfieImage
-                                  - anchorImage
                                 additionalProperties: false
                         sessions:
                           type: array
@@ -1962,6 +1962,46 @@ paths:
                                 required:
                                   - url
                                 additionalProperties: false
+                        accounts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              type:
+                                type: string
+                                description: The type of account, e.g. Bank Account, Building Society
+                              accountNumber:
+                                type: string
+                                description: Account number
+                              sortCode:
+                                type: string
+                                description: UK sort code
+                              routingNumber:
+                                type: string
+                                description: US ABA routing number
+                              iban:
+                                type: string
+                                description: International Bank Account Number
+                              bic:
+                                type: string
+                                description: BIC/SWIFT code
+                              accountHolderName:
+                                type: string
+                                description: Name on the account
+                              bankName:
+                                type: string
+                                description: Name of the financial institution
+                              country:
+                                type: string
+                                pattern: ^[A-Z]{2,3}$
+                                description: Country the address is in. It must be a valid ISO2 or ISO3 country code
+                              accountType:
+                                type: string
+                                description: Account classification, e.g. current, savings
+                            required:
+                              - type
+                              - accountNumber
+                            additionalProperties: false
                         uid:
                           type: string
                       additionalProperties: false
@@ -2043,7 +2083,7 @@ paths:
             application/json: {}
       x-speakeasy-group: tasks
       x-speakeasy-name-override: update
-  "/journey/start":
+  /journey/start:
     post:
       operationId: startJourney
       summary: Start Journey
@@ -2067,6 +2107,17 @@ paths:
                 context:
                   type: object
                   properties:
+                    config:
+                      type: object
+                      properties:
+                        delivery:
+                          type: string
+                          description: The method by which the End User will consume the journey.
+                          enum:
+                            - page
+                            - api
+                      required:
+                        - delivery
                     subject:
                       type: object
                       properties:
@@ -2161,7 +2212,7 @@ paths:
                                 additionalProperties: false
                             dateOfBirth:
                               type: string
-                              pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                              pattern: ^\d{4}-\d{2}-\d{2}$
                               description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                             gender:
                               type: string
@@ -2208,7 +2259,7 @@ paths:
                                   description: This field contains the post box number associated with a particular delivery point, should one exist.
                                 country:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 superAdministrativeArea:
                                   type: string
@@ -2277,7 +2328,7 @@ paths:
                                     description: This field contains the post box number associated with a particular delivery point, should one exist.
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                   superAdministrativeArea:
                                     type: string
@@ -2302,11 +2353,11 @@ paths:
                                     additionalProperties: false
                                   fromDate:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   toDate:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                 required:
                                   - fromDate
@@ -2355,7 +2406,7 @@ paths:
                                   description: This field contains the post box number associated with a particular delivery point, should one exist.
                                 country:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 superAdministrativeArea:
                                   type: string
@@ -2392,7 +2443,7 @@ paths:
                                     description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 required:
                                   - type
@@ -2530,7 +2581,7 @@ paths:
                                 type: string
                               issueDate:
                                 type: string
-                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                pattern: ^\d{4}-\d{2}-\d{2}$
                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                               issuingAuthority:
                                 type: string
@@ -2614,7 +2665,7 @@ paths:
                                 type: string
                               issuerCountryCode:
                                 type: string
-                                pattern: "^[A-Z]{2,3}$"
+                                pattern: ^[A-Z]{2,3}$
                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                               id:
                                 type: string
@@ -2782,7 +2833,7 @@ paths:
                                               properties:
                                                 x:
                                                   type: number
-                                                "y":
+                                                y:
                                                   type: number
                                                 width:
                                                   type: number
@@ -2790,7 +2841,7 @@ paths:
                                                   type: number
                                               required:
                                                 - x
-                                                - "y"
+                                                - y
                                                 - width
                                                 - height
                                               additionalProperties: false
@@ -2837,7 +2888,7 @@ paths:
                                                     properties:
                                                       x:
                                                         type: number
-                                                      "y":
+                                                      y:
                                                         type: number
                                                       width:
                                                         type: number
@@ -2845,7 +2896,7 @@ paths:
                                                         type: number
                                                     required:
                                                       - x
-                                                      - "y"
+                                                      - y
                                                       - width
                                                       - height
                                                     additionalProperties: false
@@ -2915,7 +2966,7 @@ paths:
                                                 properties:
                                                   x:
                                                     type: number
-                                                  "y":
+                                                  y:
                                                     type: number
                                                   width:
                                                     type: number
@@ -2923,7 +2974,7 @@ paths:
                                                     type: number
                                                 required:
                                                   - x
-                                                  - "y"
+                                                  - y
                                                   - width
                                                   - height
                                                 additionalProperties: false
@@ -2974,7 +3025,7 @@ paths:
                                                 properties:
                                                   x:
                                                     type: number
-                                                  "y":
+                                                  y:
                                                     type: number
                                                   width:
                                                     type: number
@@ -2982,7 +3033,7 @@ paths:
                                                     type: number
                                                 required:
                                                   - x
-                                                  - "y"
+                                                  - y
                                                   - width
                                                   - height
                                                 additionalProperties: false
@@ -3013,7 +3064,7 @@ paths:
                                 type: string
                               expiryDate:
                                 type: string
-                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                pattern: ^\d{4}-\d{2}-\d{2}$
                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                               subject:
                                 type: object
@@ -3106,7 +3157,7 @@ paths:
                                       additionalProperties: false
                                   dateOfBirth:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   gender:
                                     type: string
@@ -3153,7 +3204,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -3222,7 +3273,7 @@ paths:
                                           description: This field contains the post box number associated with a particular delivery point, should one exist.
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                         superAdministrativeArea:
                                           type: string
@@ -3247,11 +3298,11 @@ paths:
                                           additionalProperties: false
                                         fromDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                         toDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                       required:
                                         - fromDate
@@ -3300,7 +3351,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -3337,7 +3388,7 @@ paths:
                                           description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       required:
                                         - type
@@ -3394,24 +3445,13 @@ paths:
                                 additionalProperties: false
                               country:
                                 type: string
-                                pattern: "^[A-Z]{2,3}$"
+                                pattern: ^[A-Z]{2,3}$
                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                             additionalProperties: false
                         biometrics:
                           type: array
                           items:
                             anyOf:
-                              - type: object
-                                properties:
-                                  id:
-                                    type: string
-                                  type:
-                                    type: string
-                                  faceImage:
-                                    type: string
-                                required:
-                                  - faceImage
-                                additionalProperties: false
                               - type: object
                                 properties:
                                   id:
@@ -3434,10 +3474,22 @@ paths:
                                     type: string
                                   selfieImage:
                                     type: string
-                                  selfieImageEncryption:
-                                    type: boolean
+                                  anchorImage:
+                                    type: string
                                 required:
                                   - selfieImage
+                                  - anchorImage
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  type:
+                                    type: string
+                                  faceImage:
+                                    type: string
+                                required:
+                                  - faceImage
                                 additionalProperties: false
                               - type: object
                                 properties:
@@ -3447,11 +3499,10 @@ paths:
                                     type: string
                                   selfieImage:
                                     type: string
-                                  anchorImage:
-                                    type: string
+                                  selfieImageEncryption:
+                                    type: boolean
                                 required:
                                   - selfieImage
-                                  - anchorImage
                                 additionalProperties: false
                         sessions:
                           type: array
@@ -3605,11 +3656,52 @@ paths:
                                 required:
                                   - url
                                 additionalProperties: false
+                        accounts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              type:
+                                type: string
+                                description: The type of account, e.g. Bank Account, Building Society
+                              accountNumber:
+                                type: string
+                                description: Account number
+                              sortCode:
+                                type: string
+                                description: UK sort code
+                              routingNumber:
+                                type: string
+                                description: US ABA routing number
+                              iban:
+                                type: string
+                                description: International Bank Account Number
+                              bic:
+                                type: string
+                                description: BIC/SWIFT code
+                              accountHolderName:
+                                type: string
+                                description: Name on the account
+                              bankName:
+                                type: string
+                                description: Name of the financial institution
+                              country:
+                                type: string
+                                pattern: ^[A-Z]{2,3}$
+                                description: Country the address is in. It must be a valid ISO2 or ISO3 country code
+                              accountType:
+                                type: string
+                                description: Account classification, e.g. current, savings
+                            required:
+                              - type
+                              - accountNumber
+                            additionalProperties: false
                         uid:
                           type: string
                       additionalProperties: false
                   required:
                     - subject
+                    - config
                   additionalProperties: false
                 data:
                   type: object
@@ -3637,9 +3729,6 @@ paths:
                     minLength: 16
                     maxLength: 64
                     description: Journey Instance Id, a unique identifier for a started journey instance.
-                  instanceUrl:
-                    type: string
-                    description: URL to access the journey UI for no code journey implementations.
                 required:
                   - instanceId
                 additionalProperties: true
@@ -3698,7 +3787,7 @@ paths:
             application/json: {}
       x-speakeasy-group: journeys
       x-speakeasy-name-override: start
-  "/journey/device/start":
+  /journey/device/start:
     post:
       operationId: addDevice
       summary: Create Connect Secret
@@ -3750,7 +3839,7 @@ paths:
                     type: string
                     minLength: 8
                     maxLength: 1024
-                    pattern: "^[A-Za-z0-9-_]+$"
+                    pattern: ^[A-Za-z0-9-_]+$
                     description: Token used for subsequent operations by the client
                   tokenType:
                     type: string
@@ -3799,7 +3888,7 @@ paths:
                     type: string
                     minLength: 8
                     maxLength: 1024
-                    pattern: "^[A-Za-z0-9-_]+$"
+                    pattern: ^[A-Za-z0-9-_]+$
                     description: Token used for subsequent operations by the client
                   tokenType:
                     type: string
@@ -3867,7 +3956,7 @@ paths:
             application/json: {}
       x-speakeasy-group: devices
       x-speakeasy-name-override: add
-  "/journey/state/fetch":
+  /journey/state/fetch:
     post:
       operationId: getJourneyState
       summary: Get State Data
@@ -3898,7 +3987,7 @@ paths:
             example:
               instanceId: PiIuACmx8Q8R7qPnAkLAqBAT
               filterKeys:
-                - "/.*/"
+                - /.*/
       parameters: []
       responses:
         "200":
@@ -4025,7 +4114,7 @@ paths:
                                   additionalProperties: false
                               dateOfBirth:
                                 type: string
-                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                pattern: ^\d{4}-\d{2}-\d{2}$
                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                               gender:
                                 type: string
@@ -4072,7 +4161,7 @@ paths:
                                     description: This field contains the post box number associated with a particular delivery point, should one exist.
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                   superAdministrativeArea:
                                     type: string
@@ -4141,7 +4230,7 @@ paths:
                                       description: This field contains the post box number associated with a particular delivery point, should one exist.
                                     country:
                                       type: string
-                                      pattern: "^[A-Z]{2,3}$"
+                                      pattern: ^[A-Z]{2,3}$
                                       description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                     superAdministrativeArea:
                                       type: string
@@ -4166,11 +4255,11 @@ paths:
                                       additionalProperties: false
                                     fromDate:
                                       type: string
-                                      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                      pattern: ^\d{4}-\d{2}-\d{2}$
                                       description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                     toDate:
                                       type: string
-                                      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                      pattern: ^\d{4}-\d{2}-\d{2}$
                                       description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   required:
                                     - fromDate
@@ -4219,7 +4308,7 @@ paths:
                                     description: This field contains the post box number associated with a particular delivery point, should one exist.
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                   superAdministrativeArea:
                                     type: string
@@ -4256,7 +4345,7 @@ paths:
                                       description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                     country:
                                       type: string
-                                      pattern: "^[A-Z]{2,3}$"
+                                      pattern: ^[A-Z]{2,3}$
                                       description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                   required:
                                     - type
@@ -4394,7 +4483,7 @@ paths:
                                   type: string
                                 issueDate:
                                   type: string
-                                  pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                  pattern: ^\d{4}-\d{2}-\d{2}$
                                   description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                 issuingAuthority:
                                   type: string
@@ -4478,7 +4567,7 @@ paths:
                                   type: string
                                 issuerCountryCode:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 id:
                                   type: string
@@ -4646,7 +4735,7 @@ paths:
                                                 properties:
                                                   x:
                                                     type: number
-                                                  "y":
+                                                  y:
                                                     type: number
                                                   width:
                                                     type: number
@@ -4654,7 +4743,7 @@ paths:
                                                     type: number
                                                 required:
                                                   - x
-                                                  - "y"
+                                                  - y
                                                   - width
                                                   - height
                                                 additionalProperties: false
@@ -4701,7 +4790,7 @@ paths:
                                                       properties:
                                                         x:
                                                           type: number
-                                                        "y":
+                                                        y:
                                                           type: number
                                                         width:
                                                           type: number
@@ -4709,7 +4798,7 @@ paths:
                                                           type: number
                                                       required:
                                                         - x
-                                                        - "y"
+                                                        - y
                                                         - width
                                                         - height
                                                       additionalProperties: false
@@ -4779,7 +4868,7 @@ paths:
                                                   properties:
                                                     x:
                                                       type: number
-                                                    "y":
+                                                    y:
                                                       type: number
                                                     width:
                                                       type: number
@@ -4787,7 +4876,7 @@ paths:
                                                       type: number
                                                   required:
                                                     - x
-                                                    - "y"
+                                                    - y
                                                     - width
                                                     - height
                                                   additionalProperties: false
@@ -4838,7 +4927,7 @@ paths:
                                                   properties:
                                                     x:
                                                       type: number
-                                                    "y":
+                                                    y:
                                                       type: number
                                                     width:
                                                       type: number
@@ -4846,7 +4935,7 @@ paths:
                                                       type: number
                                                   required:
                                                     - x
-                                                    - "y"
+                                                    - y
                                                     - width
                                                     - height
                                                   additionalProperties: false
@@ -4877,7 +4966,7 @@ paths:
                                   type: string
                                 expiryDate:
                                   type: string
-                                  pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                  pattern: ^\d{4}-\d{2}-\d{2}$
                                   description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                 subject:
                                   type: object
@@ -4970,7 +5059,7 @@ paths:
                                         additionalProperties: false
                                     dateOfBirth:
                                       type: string
-                                      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                      pattern: ^\d{4}-\d{2}-\d{2}$
                                       description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                     gender:
                                       type: string
@@ -5017,7 +5106,7 @@ paths:
                                           description: This field contains the post box number associated with a particular delivery point, should one exist.
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                         superAdministrativeArea:
                                           type: string
@@ -5086,7 +5175,7 @@ paths:
                                             description: This field contains the post box number associated with a particular delivery point, should one exist.
                                           country:
                                             type: string
-                                            pattern: "^[A-Z]{2,3}$"
+                                            pattern: ^[A-Z]{2,3}$
                                             description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                           superAdministrativeArea:
                                             type: string
@@ -5111,11 +5200,11 @@ paths:
                                             additionalProperties: false
                                           fromDate:
                                             type: string
-                                            pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                            pattern: ^\d{4}-\d{2}-\d{2}$
                                             description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                           toDate:
                                             type: string
-                                            pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                            pattern: ^\d{4}-\d{2}-\d{2}$
                                             description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                         required:
                                           - fromDate
@@ -5164,7 +5253,7 @@ paths:
                                           description: This field contains the post box number associated with a particular delivery point, should one exist.
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                         superAdministrativeArea:
                                           type: string
@@ -5201,7 +5290,7 @@ paths:
                                             description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                           country:
                                             type: string
-                                            pattern: "^[A-Z]{2,3}$"
+                                            pattern: ^[A-Z]{2,3}$
                                             description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                         required:
                                           - type
@@ -5258,24 +5347,13 @@ paths:
                                   additionalProperties: false
                                 country:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                               additionalProperties: false
                           biometrics:
                             type: array
                             items:
                               anyOf:
-                                - type: object
-                                  properties:
-                                    id:
-                                      type: string
-                                    type:
-                                      type: string
-                                    faceImage:
-                                      type: string
-                                  required:
-                                    - faceImage
-                                  additionalProperties: false
                                 - type: object
                                   properties:
                                     id:
@@ -5298,10 +5376,22 @@ paths:
                                       type: string
                                     selfieImage:
                                       type: string
-                                    selfieImageEncryption:
-                                      type: boolean
+                                    anchorImage:
+                                      type: string
                                   required:
                                     - selfieImage
+                                    - anchorImage
+                                  additionalProperties: false
+                                - type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                    type:
+                                      type: string
+                                    faceImage:
+                                      type: string
+                                  required:
+                                    - faceImage
                                   additionalProperties: false
                                 - type: object
                                   properties:
@@ -5311,11 +5401,10 @@ paths:
                                       type: string
                                     selfieImage:
                                       type: string
-                                    anchorImage:
-                                      type: string
+                                    selfieImageEncryption:
+                                      type: boolean
                                   required:
                                     - selfieImage
-                                    - anchorImage
                                   additionalProperties: false
                           sessions:
                             type: array
@@ -5469,6 +5558,46 @@ paths:
                                   required:
                                     - url
                                   additionalProperties: false
+                          accounts:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: The type of account, e.g. Bank Account, Building Society
+                                accountNumber:
+                                  type: string
+                                  description: Account number
+                                sortCode:
+                                  type: string
+                                  description: UK sort code
+                                routingNumber:
+                                  type: string
+                                  description: US ABA routing number
+                                iban:
+                                  type: string
+                                  description: International Bank Account Number
+                                bic:
+                                  type: string
+                                  description: BIC/SWIFT code
+                                accountHolderName:
+                                  type: string
+                                  description: Name on the account
+                                bankName:
+                                  type: string
+                                  description: Name of the financial institution
+                                country:
+                                  type: string
+                                  pattern: ^[A-Z]{2,3}$
+                                  description: Country the address is in. It must be a valid ISO2 or ISO3 country code
+                                accountType:
+                                  type: string
+                                  description: Account classification, e.g. current, savings
+                              required:
+                                - type
+                                - accountNumber
+                              additionalProperties: false
                           uid:
                             type: string
                         additionalProperties: false
@@ -5482,6 +5611,7 @@ paths:
                 required:
                   - instanceId
                   - status
+                  - metaData
                 additionalProperties: false
               examples:
                 InProgress:
@@ -5489,7 +5619,7 @@ paths:
                     instanceId: PiIuACmx8Q8R7qPnAkLAqBAT
                     status: InProgress
                     metaData:
-                      createdTime: "2024-02-15T22:16:33.213Z"
+                      createdTime: 2024-02-15T22:16:33.213Z
                       completedTime: ""
                     data:
                       initiator: admin
@@ -5502,8 +5632,8 @@ paths:
                     instanceId: PiIuACmx8Q8R7qPnAkLAqBAT
                     status: Completed
                     metaData:
-                      createdTime: "2024-02-15T22:16:33.213Z"
-                      completedTime: "2024-02-17T22:16:33.213Z"
+                      createdTime: 2024-02-15T22:16:33.213Z
+                      completedTime: 2024-02-17T22:16:33.213Z
                     data:
                       initiator: admin
                       userIp: 1.1.1.1
@@ -5540,7 +5670,7 @@ paths:
             application/json: {}
       x-speakeasy-group: journeys
       x-speakeasy-name-override: getState
-  "/journey/task/schema":
+  /journey/task/schema:
     post:
       operationId: getTaskSchema
       summary: Get Task Schema
@@ -5575,7 +5705,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  "$schema":
+                  $schema:
                     type: string
                   type:
                     type: string
@@ -5587,7 +5717,7 @@ paths:
                     items:
                       type: string
                 required:
-                  - "$schema"
+                  - $schema
                   - type
                   - properties
                   - required
@@ -5595,7 +5725,7 @@ paths:
               examples:
                 Default:
                   value:
-                    "$schema": http://json-schema.org/draft-07/schema#
+                    $schema: http://json-schema.org/draft-07/schema#
                     type: object
                     properties:
                       context:
@@ -5649,7 +5779,7 @@ paths:
             application/json: {}
       x-speakeasy-group: tasks
       x-speakeasy-name-override: getSchema
-  "/journey/task/list/schema":
+  /journey/task/list/schema:
     post:
       operationId: getTasksSchema
       summary: Get Tasks Schema
@@ -5709,10 +5839,10 @@ paths:
                         schema:
                           type: object
                           properties:
-                            "$ref":
+                            $ref:
                               type: string
                           required:
-                            - "$ref"
+                            - $ref
                           additionalProperties: false
                       required:
                         - taskId
@@ -5723,7 +5853,7 @@ paths:
                     additionalProperties:
                       type: object
                       properties:
-                        "$schema":
+                        $schema:
                           type: string
                         type:
                           type: string
@@ -5735,7 +5865,7 @@ paths:
                           items:
                             type: string
                       required:
-                        - "$schema"
+                        - $schema
                         - type
                         - properties
                         - required
@@ -5746,35 +5876,35 @@ paths:
                   - tasks
                   - schemas
                 additionalProperties: false
-                # examples:
-                #   Default:
-                #     value:
-                #       status: InProgress
-                #       instanceId: PiIuACmx8Q8R7qPnAkLAqBAT
-                #       tasks:
-                #         - taskId: TkoviRO58Q8R7qPnAkLAqBAT
-                #           schema:
-                #             "$ref": "#/schemas/lo0698Ug9ziO7ZbrEXxjfZxHNaMiK0mn"
-                #       schemas:
-                #         lo0698Ug9ziO7ZbrEXxjfZxHNaMiK0mn:
-                #           "$schema": http://json-schema.org/draft-07/schema#
-                #           type: object
-                #           properties:
-                #             context:
-                #               type: object
-                #               properties:
-                #                 subject:
-                #                   type: object
-                #                   properties:
-                #                     identity:
-                #                       type: object
-                #                       properties:
-                #                         firstName:
-                #                           type: string
-                #                           minLength: 1
-                #                           maxLength: 64
-                #           required:
-                #             - context
+              examples:
+                Default:
+                  value:
+                    status: InProgress
+                    instanceId: PiIuACmx8Q8R7qPnAkLAqBAT
+                    tasks:
+                      - taskId: TkoviRO58Q8R7qPnAkLAqBAT
+                        schema:
+                          $ref: "#/schemas/lo0698Ug9ziO7ZbrEXxjfZxHNaMiK0mn"
+                    schemas:
+                      lo0698Ug9ziO7ZbrEXxjfZxHNaMiK0mn:
+                        $schema: http://json-schema.org/draft-07/schema#
+                        type: object
+                        properties:
+                          context:
+                            type: object
+                            properties:
+                              subject:
+                                type: object
+                                properties:
+                                  identity:
+                                    type: object
+                                    properties:
+                                      firstName:
+                                        type: string
+                                        minLength: 1
+                                        maxLength: 64
+                        required:
+                          - context
         "400":
           description: Bad Request
           content:
@@ -5805,7 +5935,7 @@ paths:
             application/json: {}
       x-speakeasy-group: tasks
       x-speakeasy-name-override: listSchema
-  "/journey/state/delete":
+  /journey/state/delete:
     post:
       operationId: deleteInstance
       summary: Delete instance
@@ -5881,7 +6011,7 @@ paths:
             application/json: {}
       x-speakeasy-group: instances
       x-speakeasy-name-override: delete
-  "/journey/interaction/submit":
+  /journey/interaction/submit:
     post:
       operationId: submitInteraction
       summary: Submit Interaction
@@ -6011,7 +6141,7 @@ paths:
                                 additionalProperties: false
                             dateOfBirth:
                               type: string
-                              pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                              pattern: ^\d{4}-\d{2}-\d{2}$
                               description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                             gender:
                               type: string
@@ -6058,7 +6188,7 @@ paths:
                                   description: This field contains the post box number associated with a particular delivery point, should one exist.
                                 country:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 superAdministrativeArea:
                                   type: string
@@ -6127,7 +6257,7 @@ paths:
                                     description: This field contains the post box number associated with a particular delivery point, should one exist.
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                   superAdministrativeArea:
                                     type: string
@@ -6152,11 +6282,11 @@ paths:
                                     additionalProperties: false
                                   fromDate:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   toDate:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                 required:
                                   - fromDate
@@ -6205,7 +6335,7 @@ paths:
                                   description: This field contains the post box number associated with a particular delivery point, should one exist.
                                 country:
                                   type: string
-                                  pattern: "^[A-Z]{2,3}$"
+                                  pattern: ^[A-Z]{2,3}$
                                   description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 superAdministrativeArea:
                                   type: string
@@ -6242,7 +6372,7 @@ paths:
                                     description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                   country:
                                     type: string
-                                    pattern: "^[A-Z]{2,3}$"
+                                    pattern: ^[A-Z]{2,3}$
                                     description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                 required:
                                   - type
@@ -6380,7 +6510,7 @@ paths:
                                 type: string
                               issueDate:
                                 type: string
-                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                pattern: ^\d{4}-\d{2}-\d{2}$
                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                               issuingAuthority:
                                 type: string
@@ -6464,7 +6594,7 @@ paths:
                                 type: string
                               issuerCountryCode:
                                 type: string
-                                pattern: "^[A-Z]{2,3}$"
+                                pattern: ^[A-Z]{2,3}$
                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                               id:
                                 type: string
@@ -6632,7 +6762,7 @@ paths:
                                               properties:
                                                 x:
                                                   type: number
-                                                "y":
+                                                y:
                                                   type: number
                                                 width:
                                                   type: number
@@ -6640,7 +6770,7 @@ paths:
                                                   type: number
                                               required:
                                                 - x
-                                                - "y"
+                                                - y
                                                 - width
                                                 - height
                                               additionalProperties: false
@@ -6687,7 +6817,7 @@ paths:
                                                     properties:
                                                       x:
                                                         type: number
-                                                      "y":
+                                                      y:
                                                         type: number
                                                       width:
                                                         type: number
@@ -6695,7 +6825,7 @@ paths:
                                                         type: number
                                                     required:
                                                       - x
-                                                      - "y"
+                                                      - y
                                                       - width
                                                       - height
                                                     additionalProperties: false
@@ -6765,7 +6895,7 @@ paths:
                                                 properties:
                                                   x:
                                                     type: number
-                                                  "y":
+                                                  y:
                                                     type: number
                                                   width:
                                                     type: number
@@ -6773,7 +6903,7 @@ paths:
                                                     type: number
                                                 required:
                                                   - x
-                                                  - "y"
+                                                  - y
                                                   - width
                                                   - height
                                                 additionalProperties: false
@@ -6824,7 +6954,7 @@ paths:
                                                 properties:
                                                   x:
                                                     type: number
-                                                  "y":
+                                                  y:
                                                     type: number
                                                   width:
                                                     type: number
@@ -6832,7 +6962,7 @@ paths:
                                                     type: number
                                                 required:
                                                   - x
-                                                  - "y"
+                                                  - y
                                                   - width
                                                   - height
                                                 additionalProperties: false
@@ -6863,7 +6993,7 @@ paths:
                                 type: string
                               expiryDate:
                                 type: string
-                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                pattern: ^\d{4}-\d{2}-\d{2}$
                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                               subject:
                                 type: object
@@ -6956,7 +7086,7 @@ paths:
                                       additionalProperties: false
                                   dateOfBirth:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   gender:
                                     type: string
@@ -7003,7 +7133,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -7072,7 +7202,7 @@ paths:
                                           description: This field contains the post box number associated with a particular delivery point, should one exist.
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                         superAdministrativeArea:
                                           type: string
@@ -7097,11 +7227,11 @@ paths:
                                           additionalProperties: false
                                         fromDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                         toDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                       required:
                                         - fromDate
@@ -7150,7 +7280,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -7187,7 +7317,7 @@ paths:
                                           description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       required:
                                         - type
@@ -7244,24 +7374,13 @@ paths:
                                 additionalProperties: false
                               country:
                                 type: string
-                                pattern: "^[A-Z]{2,3}$"
+                                pattern: ^[A-Z]{2,3}$
                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                             additionalProperties: false
                         biometrics:
                           type: array
                           items:
                             anyOf:
-                              - type: object
-                                properties:
-                                  id:
-                                    type: string
-                                  type:
-                                    type: string
-                                  faceImage:
-                                    type: string
-                                required:
-                                  - faceImage
-                                additionalProperties: false
                               - type: object
                                 properties:
                                   id:
@@ -7284,10 +7403,22 @@ paths:
                                     type: string
                                   selfieImage:
                                     type: string
-                                  selfieImageEncryption:
-                                    type: boolean
+                                  anchorImage:
+                                    type: string
                                 required:
                                   - selfieImage
+                                  - anchorImage
+                                additionalProperties: false
+                              - type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  type:
+                                    type: string
+                                  faceImage:
+                                    type: string
+                                required:
+                                  - faceImage
                                 additionalProperties: false
                               - type: object
                                 properties:
@@ -7297,11 +7428,10 @@ paths:
                                     type: string
                                   selfieImage:
                                     type: string
-                                  anchorImage:
-                                    type: string
+                                  selfieImageEncryption:
+                                    type: boolean
                                 required:
                                   - selfieImage
-                                  - anchorImage
                                 additionalProperties: false
                         sessions:
                           type: array
@@ -7455,6 +7585,46 @@ paths:
                                 required:
                                   - url
                                 additionalProperties: false
+                        accounts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              type:
+                                type: string
+                                description: The type of account, e.g. Bank Account, Building Society
+                              accountNumber:
+                                type: string
+                                description: Account number
+                              sortCode:
+                                type: string
+                                description: UK sort code
+                              routingNumber:
+                                type: string
+                                description: US ABA routing number
+                              iban:
+                                type: string
+                                description: International Bank Account Number
+                              bic:
+                                type: string
+                                description: BIC/SWIFT code
+                              accountHolderName:
+                                type: string
+                                description: Name on the account
+                              bankName:
+                                type: string
+                                description: Name of the financial institution
+                              country:
+                                type: string
+                                pattern: ^[A-Z]{2,3}$
+                                description: Country the address is in. It must be a valid ISO2 or ISO3 country code
+                              accountType:
+                                type: string
+                                description: Account classification, e.g. current, savings
+                            required:
+                              - type
+                              - accountNumber
+                            additionalProperties: false
                         uid:
                           type: string
                       additionalProperties: false
@@ -7547,7 +7717,7 @@ paths:
             application/json: {}
       x-speakeasy-group: interactions
       x-speakeasy-name-override: submit
-  "/journey/interaction/fetch":
+  /journey/interaction/fetch:
     post:
       operationId: fetchInteraction
       summary: Fetch Interaction
@@ -7609,13 +7779,13 @@ paths:
                                 type: string
                               name:
                                 type: string
-                                pattern: "^.{1,128}$"
+                                pattern: ^.{1,128}$
                               hash:
                                 type: string
-                                pattern: "^[a-zA-Z0-9_/=+-]{1,128}$"
+                                pattern: ^[a-zA-Z0-9_/=+-]{1,128}$
                               version:
                                 type: string
-                                pattern: "^[a-zA-Z0-9_./=+-]{1,64}$"
+                                pattern: ^[a-zA-Z0-9_./=+-]{1,64}$
                               type:
                                 type: string
                                 enum:
@@ -7700,9 +7870,9 @@ paths:
                                       type: boolean
                                     combinator:
                                       type: string
-                                      # enum:
-                                      #   - "oneOf"
-                                      #   - "allOf"
+                                      enum:
+                                        - oneOf
+                                        - allOf
                                     inputs:
                                       type: array
                                       items:
@@ -7762,9 +7932,9 @@ paths:
                                       type: boolean
                                     combinator:
                                       type: string
-                                      # enum:
-                                      #   - oneOf
-                                      #   - allOf
+                                      enum:
+                                        - oneOf
+                                        - allOf
                                     inputs:
                                       type: array
                                       items:
@@ -7894,7 +8064,7 @@ paths:
                                       additionalProperties: false
                                   dateOfBirth:
                                     type: string
-                                    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                    pattern: ^\d{4}-\d{2}-\d{2}$
                                     description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                   gender:
                                     type: string
@@ -7941,7 +8111,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -8010,7 +8180,7 @@ paths:
                                           description: This field contains the post box number associated with a particular delivery point, should one exist.
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                         superAdministrativeArea:
                                           type: string
@@ -8035,11 +8205,11 @@ paths:
                                           additionalProperties: false
                                         fromDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                         toDate:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                       required:
                                         - fromDate
@@ -8088,7 +8258,7 @@ paths:
                                         description: This field contains the post box number associated with a particular delivery point, should one exist.
                                       country:
                                         type: string
-                                        pattern: "^[A-Z]{2,3}$"
+                                        pattern: ^[A-Z]{2,3}$
                                         description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       superAdministrativeArea:
                                         type: string
@@ -8125,7 +8295,7 @@ paths:
                                           description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                         country:
                                           type: string
-                                          pattern: "^[A-Z]{2,3}$"
+                                          pattern: ^[A-Z]{2,3}$
                                           description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                       required:
                                         - type
@@ -8263,7 +8433,7 @@ paths:
                                       type: string
                                     issueDate:
                                       type: string
-                                      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                      pattern: ^\d{4}-\d{2}-\d{2}$
                                       description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                     issuingAuthority:
                                       type: string
@@ -8347,7 +8517,7 @@ paths:
                                       type: string
                                     issuerCountryCode:
                                       type: string
-                                      pattern: "^[A-Z]{2,3}$"
+                                      pattern: ^[A-Z]{2,3}$
                                       description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                     id:
                                       type: string
@@ -8515,7 +8685,7 @@ paths:
                                                     properties:
                                                       x:
                                                         type: number
-                                                      "y":
+                                                      y:
                                                         type: number
                                                       width:
                                                         type: number
@@ -8523,7 +8693,7 @@ paths:
                                                         type: number
                                                     required:
                                                       - x
-                                                      - "y"
+                                                      - y
                                                       - width
                                                       - height
                                                     additionalProperties: false
@@ -8570,7 +8740,7 @@ paths:
                                                           properties:
                                                             x:
                                                               type: number
-                                                            "y":
+                                                            y:
                                                               type: number
                                                             width:
                                                               type: number
@@ -8578,7 +8748,7 @@ paths:
                                                               type: number
                                                           required:
                                                             - x
-                                                            - "y"
+                                                            - y
                                                             - width
                                                             - height
                                                           additionalProperties: false
@@ -8648,7 +8818,7 @@ paths:
                                                       properties:
                                                         x:
                                                           type: number
-                                                        "y":
+                                                        y:
                                                           type: number
                                                         width:
                                                           type: number
@@ -8656,7 +8826,7 @@ paths:
                                                           type: number
                                                       required:
                                                         - x
-                                                        - "y"
+                                                        - y
                                                         - width
                                                         - height
                                                       additionalProperties: false
@@ -8707,7 +8877,7 @@ paths:
                                                       properties:
                                                         x:
                                                           type: number
-                                                        "y":
+                                                        y:
                                                           type: number
                                                         width:
                                                           type: number
@@ -8715,7 +8885,7 @@ paths:
                                                           type: number
                                                       required:
                                                         - x
-                                                        - "y"
+                                                        - y
                                                         - width
                                                         - height
                                                       additionalProperties: false
@@ -8746,7 +8916,7 @@ paths:
                                       type: string
                                     expiryDate:
                                       type: string
-                                      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                      pattern: ^\d{4}-\d{2}-\d{2}$
                                       description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                     subject:
                                       type: object
@@ -8839,7 +9009,7 @@ paths:
                                             additionalProperties: false
                                         dateOfBirth:
                                           type: string
-                                          pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                          pattern: ^\d{4}-\d{2}-\d{2}$
                                           description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                         gender:
                                           type: string
@@ -8886,7 +9056,7 @@ paths:
                                               description: This field contains the post box number associated with a particular delivery point, should one exist.
                                             country:
                                               type: string
-                                              pattern: "^[A-Z]{2,3}$"
+                                              pattern: ^[A-Z]{2,3}$
                                               description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                             superAdministrativeArea:
                                               type: string
@@ -8955,7 +9125,7 @@ paths:
                                                 description: This field contains the post box number associated with a particular delivery point, should one exist.
                                               country:
                                                 type: string
-                                                pattern: "^[A-Z]{2,3}$"
+                                                pattern: ^[A-Z]{2,3}$
                                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                               superAdministrativeArea:
                                                 type: string
@@ -8980,11 +9150,11 @@ paths:
                                                 additionalProperties: false
                                               fromDate:
                                                 type: string
-                                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                                pattern: ^\d{4}-\d{2}-\d{2}$
                                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                               toDate:
                                                 type: string
-                                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                                pattern: ^\d{4}-\d{2}-\d{2}$
                                                 description: Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
                                             required:
                                               - fromDate
@@ -9033,7 +9203,7 @@ paths:
                                               description: This field contains the post box number associated with a particular delivery point, should one exist.
                                             country:
                                               type: string
-                                              pattern: "^[A-Z]{2,3}$"
+                                              pattern: ^[A-Z]{2,3}$
                                               description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                             superAdministrativeArea:
                                               type: string
@@ -9070,7 +9240,7 @@ paths:
                                                 description: ID number eg, National Insurance Number in UK, Social Securtiy Number in US
                                               country:
                                                 type: string
-                                                pattern: "^[A-Z]{2,3}$"
+                                                pattern: ^[A-Z]{2,3}$
                                                 description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                             required:
                                               - type
@@ -9127,24 +9297,13 @@ paths:
                                       additionalProperties: false
                                     country:
                                       type: string
-                                      pattern: "^[A-Z]{2,3}$"
+                                      pattern: ^[A-Z]{2,3}$
                                       description: Country the address is in. It must be a valid ISO2 or ISO3 country code
                                   additionalProperties: false
                               biometrics:
                                 type: array
                                 items:
                                   anyOf:
-                                    - type: object
-                                      properties:
-                                        id:
-                                          type: string
-                                        type:
-                                          type: string
-                                        faceImage:
-                                          type: string
-                                      required:
-                                        - faceImage
-                                      additionalProperties: false
                                     - type: object
                                       properties:
                                         id:
@@ -9167,10 +9326,22 @@ paths:
                                           type: string
                                         selfieImage:
                                           type: string
-                                        selfieImageEncryption:
-                                          type: boolean
+                                        anchorImage:
+                                          type: string
                                       required:
                                         - selfieImage
+                                        - anchorImage
+                                      additionalProperties: false
+                                    - type: object
+                                      properties:
+                                        id:
+                                          type: string
+                                        type:
+                                          type: string
+                                        faceImage:
+                                          type: string
+                                      required:
+                                        - faceImage
                                       additionalProperties: false
                                     - type: object
                                       properties:
@@ -9180,11 +9351,10 @@ paths:
                                           type: string
                                         selfieImage:
                                           type: string
-                                        anchorImage:
-                                          type: string
+                                        selfieImageEncryption:
+                                          type: boolean
                                       required:
                                         - selfieImage
-                                        - anchorImage
                                       additionalProperties: false
                               sessions:
                                 type: array
@@ -9338,6 +9508,46 @@ paths:
                                       required:
                                         - url
                                       additionalProperties: false
+                              accounts:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    type:
+                                      type: string
+                                      description: The type of account, e.g. Bank Account, Building Society
+                                    accountNumber:
+                                      type: string
+                                      description: Account number
+                                    sortCode:
+                                      type: string
+                                      description: UK sort code
+                                    routingNumber:
+                                      type: string
+                                      description: US ABA routing number
+                                    iban:
+                                      type: string
+                                      description: International Bank Account Number
+                                    bic:
+                                      type: string
+                                      description: BIC/SWIFT code
+                                    accountHolderName:
+                                      type: string
+                                      description: Name on the account
+                                    bankName:
+                                      type: string
+                                      description: Name of the financial institution
+                                    country:
+                                      type: string
+                                      pattern: ^[A-Z]{2,3}$
+                                      description: Country the address is in. It must be a valid ISO2 or ISO3 country code
+                                    accountType:
+                                      type: string
+                                      description: Account classification, e.g. current, savings
+                                  required:
+                                    - type
+                                    - accountNumber
+                                  additionalProperties: false
                               uid:
                                 type: string
                             additionalProperties: false

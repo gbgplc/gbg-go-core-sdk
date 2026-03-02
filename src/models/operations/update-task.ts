@@ -1083,34 +1083,34 @@ export type UpdateTaskBiometric4 = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 export type UpdateTaskBiometric3 = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 export type UpdateTaskBiometric2 = {
+  id?: string | undefined;
+  type?: string | undefined;
+  selfieImage: string;
+  anchorImage: string;
+};
+
+export type UpdateTaskBiometric1 = {
   id?: string | undefined;
   type?: string | undefined;
   face1Image: string;
   face2Image: string;
 };
 
-export type UpdateTaskBiometric1 = {
-  id?: string | undefined;
-  type?: string | undefined;
-  faceImage: string;
-};
-
 export type UpdateTaskBiometricUnion =
-  | UpdateTaskBiometric2
-  | UpdateTaskBiometric4
   | UpdateTaskBiometric1
-  | UpdateTaskBiometric3;
+  | UpdateTaskBiometric2
+  | UpdateTaskBiometric3
+  | UpdateTaskBiometric4;
 
 export type UpdateTaskUser = {
   id: string;
@@ -1191,19 +1191,63 @@ export type UpdateTaskConsent = {
   signatory?: string | undefined;
 };
 
+export type UpdateTaskAccount = {
+  /**
+   * The type of account, e.g. Bank Account, Building Society
+   */
+  type: string;
+  /**
+   * Account number
+   */
+  accountNumber: string;
+  /**
+   * UK sort code
+   */
+  sortCode?: string | undefined;
+  /**
+   * US ABA routing number
+   */
+  routingNumber?: string | undefined;
+  /**
+   * International Bank Account Number
+   */
+  iban?: string | undefined;
+  /**
+   * BIC/SWIFT code
+   */
+  bic?: string | undefined;
+  /**
+   * Name on the account
+   */
+  accountHolderName?: string | undefined;
+  /**
+   * Name of the financial institution
+   */
+  bankName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  /**
+   * Account classification, e.g. current, savings
+   */
+  accountType?: string | undefined;
+};
+
 export type UpdateTaskSubject = {
   identity?: UpdateTaskIdentity | undefined;
   documents?: Array<UpdateTaskDocument> | undefined;
   biometrics?:
     | Array<
-      | UpdateTaskBiometric2
-      | UpdateTaskBiometric4
       | UpdateTaskBiometric1
+      | UpdateTaskBiometric2
       | UpdateTaskBiometric3
+      | UpdateTaskBiometric4
     >
     | undefined;
   sessions?: Array<UpdateTaskSession> | undefined;
   consent?: Array<UpdateTaskConsent> | undefined;
+  accounts?: Array<UpdateTaskAccount> | undefined;
   uid?: string | undefined;
 };
 
@@ -3220,7 +3264,7 @@ export type UpdateTaskBiometric4$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 /** @internal */
@@ -3231,7 +3275,7 @@ export const UpdateTaskBiometric4$outboundSchema: z.ZodMiniType<
   id: z.optional(z.string()),
   type: z.optional(z.string()),
   selfieImage: z.string(),
-  anchorImage: z.string(),
+  selfieImageEncryption: z.optional(z.boolean()),
 });
 
 export function updateTaskBiometric4ToJSON(
@@ -3246,8 +3290,7 @@ export function updateTaskBiometric4ToJSON(
 export type UpdateTaskBiometric3$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 /** @internal */
@@ -3257,8 +3300,7 @@ export const UpdateTaskBiometric3$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  selfieImage: z.string(),
-  selfieImageEncryption: z.optional(z.boolean()),
+  faceImage: z.string(),
 });
 
 export function updateTaskBiometric3ToJSON(
@@ -3273,8 +3315,8 @@ export function updateTaskBiometric3ToJSON(
 export type UpdateTaskBiometric2$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  face1Image: string;
-  face2Image: string;
+  selfieImage: string;
+  anchorImage: string;
 };
 
 /** @internal */
@@ -3284,8 +3326,8 @@ export const UpdateTaskBiometric2$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  face1Image: z.string(),
-  face2Image: z.string(),
+  selfieImage: z.string(),
+  anchorImage: z.string(),
 });
 
 export function updateTaskBiometric2ToJSON(
@@ -3300,7 +3342,8 @@ export function updateTaskBiometric2ToJSON(
 export type UpdateTaskBiometric1$Outbound = {
   id?: string | undefined;
   type?: string | undefined;
-  faceImage: string;
+  face1Image: string;
+  face2Image: string;
 };
 
 /** @internal */
@@ -3310,7 +3353,8 @@ export const UpdateTaskBiometric1$outboundSchema: z.ZodMiniType<
 > = z.object({
   id: z.optional(z.string()),
   type: z.optional(z.string()),
-  faceImage: z.string(),
+  face1Image: z.string(),
+  face2Image: z.string(),
 });
 
 export function updateTaskBiometric1ToJSON(
@@ -3323,20 +3367,20 @@ export function updateTaskBiometric1ToJSON(
 
 /** @internal */
 export type UpdateTaskBiometricUnion$Outbound =
-  | UpdateTaskBiometric2$Outbound
-  | UpdateTaskBiometric4$Outbound
   | UpdateTaskBiometric1$Outbound
-  | UpdateTaskBiometric3$Outbound;
+  | UpdateTaskBiometric2$Outbound
+  | UpdateTaskBiometric3$Outbound
+  | UpdateTaskBiometric4$Outbound;
 
 /** @internal */
 export const UpdateTaskBiometricUnion$outboundSchema: z.ZodMiniType<
   UpdateTaskBiometricUnion$Outbound,
   UpdateTaskBiometricUnion
 > = smartUnion([
-  z.lazy(() => UpdateTaskBiometric2$outboundSchema),
-  z.lazy(() => UpdateTaskBiometric4$outboundSchema),
   z.lazy(() => UpdateTaskBiometric1$outboundSchema),
+  z.lazy(() => UpdateTaskBiometric2$outboundSchema),
   z.lazy(() => UpdateTaskBiometric3$outboundSchema),
+  z.lazy(() => UpdateTaskBiometric4$outboundSchema),
 ]);
 
 export function updateTaskBiometricUnionToJSON(
@@ -3615,19 +3659,59 @@ export function updateTaskConsentToJSON(
 }
 
 /** @internal */
+export type UpdateTaskAccount$Outbound = {
+  type: string;
+  accountNumber: string;
+  sortCode?: string | undefined;
+  routingNumber?: string | undefined;
+  iban?: string | undefined;
+  bic?: string | undefined;
+  accountHolderName?: string | undefined;
+  bankName?: string | undefined;
+  country?: string | undefined;
+  accountType?: string | undefined;
+};
+
+/** @internal */
+export const UpdateTaskAccount$outboundSchema: z.ZodMiniType<
+  UpdateTaskAccount$Outbound,
+  UpdateTaskAccount
+> = z.object({
+  type: z.string(),
+  accountNumber: z.string(),
+  sortCode: z.optional(z.string()),
+  routingNumber: z.optional(z.string()),
+  iban: z.optional(z.string()),
+  bic: z.optional(z.string()),
+  accountHolderName: z.optional(z.string()),
+  bankName: z.optional(z.string()),
+  country: z.optional(z.string()),
+  accountType: z.optional(z.string()),
+});
+
+export function updateTaskAccountToJSON(
+  updateTaskAccount: UpdateTaskAccount,
+): string {
+  return JSON.stringify(
+    UpdateTaskAccount$outboundSchema.parse(updateTaskAccount),
+  );
+}
+
+/** @internal */
 export type UpdateTaskSubject$Outbound = {
   identity?: UpdateTaskIdentity$Outbound | undefined;
   documents?: Array<UpdateTaskDocument$Outbound> | undefined;
   biometrics?:
     | Array<
-      | UpdateTaskBiometric2$Outbound
-      | UpdateTaskBiometric4$Outbound
       | UpdateTaskBiometric1$Outbound
+      | UpdateTaskBiometric2$Outbound
       | UpdateTaskBiometric3$Outbound
+      | UpdateTaskBiometric4$Outbound
     >
     | undefined;
   sessions?: Array<UpdateTaskSession$Outbound> | undefined;
   consent?: Array<UpdateTaskConsent$Outbound> | undefined;
+  accounts?: Array<UpdateTaskAccount$Outbound> | undefined;
   uid?: string | undefined;
 };
 
@@ -3642,16 +3726,17 @@ export const UpdateTaskSubject$outboundSchema: z.ZodMiniType<
   ),
   biometrics: z.optional(
     z.array(smartUnion([
-      z.lazy(() => UpdateTaskBiometric2$outboundSchema),
-      z.lazy(() =>
-        UpdateTaskBiometric4$outboundSchema
-      ),
       z.lazy(() => UpdateTaskBiometric1$outboundSchema),
+      z.lazy(() =>
+        UpdateTaskBiometric2$outboundSchema
+      ),
       z.lazy(() => UpdateTaskBiometric3$outboundSchema),
+      z.lazy(() => UpdateTaskBiometric4$outboundSchema),
     ])),
   ),
   sessions: z.optional(z.array(z.lazy(() => UpdateTaskSession$outboundSchema))),
   consent: z.optional(z.array(z.lazy(() => UpdateTaskConsent$outboundSchema))),
+  accounts: z.optional(z.array(z.lazy(() => UpdateTaskAccount$outboundSchema))),
   uid: z.optional(z.string()),
 });
 

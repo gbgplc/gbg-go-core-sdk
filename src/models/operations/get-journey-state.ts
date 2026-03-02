@@ -1094,34 +1094,34 @@ export type GetJourneyStateBiometric4 = {
   id?: string | undefined;
   type?: string | undefined;
   selfieImage: string;
-  anchorImage: string;
+  selfieImageEncryption?: boolean | undefined;
 };
 
 export type GetJourneyStateBiometric3 = {
   id?: string | undefined;
   type?: string | undefined;
-  selfieImage: string;
-  selfieImageEncryption?: boolean | undefined;
+  faceImage: string;
 };
 
 export type GetJourneyStateBiometric2 = {
+  id?: string | undefined;
+  type?: string | undefined;
+  selfieImage: string;
+  anchorImage: string;
+};
+
+export type GetJourneyStateBiometric1 = {
   id?: string | undefined;
   type?: string | undefined;
   face1Image: string;
   face2Image: string;
 };
 
-export type GetJourneyStateBiometric1 = {
-  id?: string | undefined;
-  type?: string | undefined;
-  faceImage: string;
-};
-
 export type GetJourneyStateBiometricUnion =
-  | GetJourneyStateBiometric2
-  | GetJourneyStateBiometric4
   | GetJourneyStateBiometric1
-  | GetJourneyStateBiometric3;
+  | GetJourneyStateBiometric2
+  | GetJourneyStateBiometric3
+  | GetJourneyStateBiometric4;
 
 export type GetJourneyStateUser = {
   id: string;
@@ -1204,19 +1204,63 @@ export type GetJourneyStateConsent = {
   signatory?: string | undefined;
 };
 
+export type GetJourneyStateAccount = {
+  /**
+   * The type of account, e.g. Bank Account, Building Society
+   */
+  type: string;
+  /**
+   * Account number
+   */
+  accountNumber: string;
+  /**
+   * UK sort code
+   */
+  sortCode?: string | undefined;
+  /**
+   * US ABA routing number
+   */
+  routingNumber?: string | undefined;
+  /**
+   * International Bank Account Number
+   */
+  iban?: string | undefined;
+  /**
+   * BIC/SWIFT code
+   */
+  bic?: string | undefined;
+  /**
+   * Name on the account
+   */
+  accountHolderName?: string | undefined;
+  /**
+   * Name of the financial institution
+   */
+  bankName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  /**
+   * Account classification, e.g. current, savings
+   */
+  accountType?: string | undefined;
+};
+
 export type GetJourneyStateSubject = {
   identity?: GetJourneyStateIdentity | undefined;
   documents?: Array<GetJourneyStateDocument> | undefined;
   biometrics?:
     | Array<
-      | GetJourneyStateBiometric2
-      | GetJourneyStateBiometric4
       | GetJourneyStateBiometric1
+      | GetJourneyStateBiometric2
       | GetJourneyStateBiometric3
+      | GetJourneyStateBiometric4
     >
     | undefined;
   sessions?: Array<GetJourneyStateSession> | undefined;
   consent?: Array<GetJourneyStateConsent> | undefined;
+  accounts?: Array<GetJourneyStateAccount> | undefined;
   uid?: string | undefined;
 };
 
@@ -1233,7 +1277,7 @@ export type GetJourneyStateResponse = {
    */
   instanceId: string;
   status: GetJourneyStateStatus;
-  metaData?: MetaData | undefined;
+  metaData: MetaData;
   context?: GetJourneyStateContext | undefined;
   data?: { [k: string]: any } | undefined;
 };
@@ -2753,7 +2797,7 @@ export const GetJourneyStateBiometric4$inboundSchema: z.ZodMiniType<
   id: types.optional(types.string()),
   type: types.optional(types.string()),
   selfieImage: types.string(),
-  anchorImage: types.string(),
+  selfieImageEncryption: types.optional(types.boolean()),
 });
 
 export function getJourneyStateBiometric4FromJSON(
@@ -2773,8 +2817,7 @@ export const GetJourneyStateBiometric3$inboundSchema: z.ZodMiniType<
 > = z.object({
   id: types.optional(types.string()),
   type: types.optional(types.string()),
-  selfieImage: types.string(),
-  selfieImageEncryption: types.optional(types.boolean()),
+  faceImage: types.string(),
 });
 
 export function getJourneyStateBiometric3FromJSON(
@@ -2794,8 +2837,8 @@ export const GetJourneyStateBiometric2$inboundSchema: z.ZodMiniType<
 > = z.object({
   id: types.optional(types.string()),
   type: types.optional(types.string()),
-  face1Image: types.string(),
-  face2Image: types.string(),
+  selfieImage: types.string(),
+  anchorImage: types.string(),
 });
 
 export function getJourneyStateBiometric2FromJSON(
@@ -2815,7 +2858,8 @@ export const GetJourneyStateBiometric1$inboundSchema: z.ZodMiniType<
 > = z.object({
   id: types.optional(types.string()),
   type: types.optional(types.string()),
-  faceImage: types.string(),
+  face1Image: types.string(),
+  face2Image: types.string(),
 });
 
 export function getJourneyStateBiometric1FromJSON(
@@ -2833,10 +2877,10 @@ export const GetJourneyStateBiometricUnion$inboundSchema: z.ZodMiniType<
   GetJourneyStateBiometricUnion,
   unknown
 > = smartUnion([
-  z.lazy(() => GetJourneyStateBiometric2$inboundSchema),
-  z.lazy(() => GetJourneyStateBiometric4$inboundSchema),
   z.lazy(() => GetJourneyStateBiometric1$inboundSchema),
+  z.lazy(() => GetJourneyStateBiometric2$inboundSchema),
   z.lazy(() => GetJourneyStateBiometric3$inboundSchema),
+  z.lazy(() => GetJourneyStateBiometric4$inboundSchema),
 ]);
 
 export function getJourneyStateBiometricUnionFromJSON(
@@ -3074,6 +3118,33 @@ export function getJourneyStateConsentFromJSON(
 }
 
 /** @internal */
+export const GetJourneyStateAccount$inboundSchema: z.ZodMiniType<
+  GetJourneyStateAccount,
+  unknown
+> = z.object({
+  type: types.string(),
+  accountNumber: types.string(),
+  sortCode: types.optional(types.string()),
+  routingNumber: types.optional(types.string()),
+  iban: types.optional(types.string()),
+  bic: types.optional(types.string()),
+  accountHolderName: types.optional(types.string()),
+  bankName: types.optional(types.string()),
+  country: types.optional(types.string()),
+  accountType: types.optional(types.string()),
+});
+
+export function getJourneyStateAccountFromJSON(
+  jsonString: string,
+): SafeParseResult<GetJourneyStateAccount, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => GetJourneyStateAccount$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'GetJourneyStateAccount' from JSON`,
+  );
+}
+
+/** @internal */
 export const GetJourneyStateSubject$inboundSchema: z.ZodMiniType<
   GetJourneyStateSubject,
   unknown
@@ -3084,12 +3155,12 @@ export const GetJourneyStateSubject$inboundSchema: z.ZodMiniType<
   ),
   biometrics: types.optional(
     z.array(smartUnion([
-      z.lazy(() => GetJourneyStateBiometric2$inboundSchema),
-      z.lazy(() =>
-        GetJourneyStateBiometric4$inboundSchema
-      ),
       z.lazy(() => GetJourneyStateBiometric1$inboundSchema),
+      z.lazy(() =>
+        GetJourneyStateBiometric2$inboundSchema
+      ),
       z.lazy(() => GetJourneyStateBiometric3$inboundSchema),
+      z.lazy(() => GetJourneyStateBiometric4$inboundSchema),
     ])),
   ),
   sessions: types.optional(
@@ -3097,6 +3168,9 @@ export const GetJourneyStateSubject$inboundSchema: z.ZodMiniType<
   ),
   consent: types.optional(
     z.array(z.lazy(() => GetJourneyStateConsent$inboundSchema)),
+  ),
+  accounts: types.optional(
+    z.array(z.lazy(() => GetJourneyStateAccount$inboundSchema)),
   ),
   uid: types.optional(types.string()),
 });
@@ -3136,7 +3210,7 @@ export const GetJourneyStateResponse$inboundSchema: z.ZodMiniType<
 > = z.object({
   instanceId: types.string(),
   status: GetJourneyStateStatus$inboundSchema,
-  metaData: types.optional(z.lazy(() => MetaData$inboundSchema)),
+  metaData: z.lazy(() => MetaData$inboundSchema),
   context: types.optional(z.lazy(() => GetJourneyStateContext$inboundSchema)),
   data: types.optional(z.record(z.string(), z.any())),
 });

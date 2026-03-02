@@ -6,7 +6,8 @@
 import { UpdateTaskBiometric1 } from "@gbg/go-core/models/operations";
 
 let value: UpdateTaskBiometric1 = {
-  faceImage: "<value>",
+  face1Image: "<value>",
+  face2Image: "<value>",
 };
 ```
 
@@ -16,4 +17,5 @@ let value: UpdateTaskBiometric1 = {
 | ------------------ | ------------------ | ------------------ | ------------------ |
 | `id`               | *string*           | :heavy_minus_sign: | N/A                |
 | `type`             | *string*           | :heavy_minus_sign: | N/A                |
-| `faceImage`        | *string*           | :heavy_check_mark: | N/A                |
+| `face1Image`       | *string*           | :heavy_check_mark: | N/A                |
+| `face2Image`       | *string*           | :heavy_check_mark: | N/A                |
