@@ -11,7 +11,9 @@ import * as types from "../../types/primitives.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 
 export const PostAuthRealmsGoProtocolOpenidConnectTokenServerList = [
-  "https://gbggo4-dev.nonprod.fabric.gbgplatforms.com",
+  "https://eu.platform.go.gbgplc.com",
+  "https://us.platform.go.gbgplc.com",
+  "https://au.platform.go.gbgplc.com",
 ] as const;
 
 /**

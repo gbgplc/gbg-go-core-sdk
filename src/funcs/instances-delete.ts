@@ -30,6 +30,8 @@ import { Result } from "../types/fp.js";
  *
  * @remarks
  * Delete instance
+ *
+ * If set, this operation will use {@link Security.customerAccess} from the global security.
  */
 export function instancesDelete(
   client: GoCore,
@@ -101,7 +103,7 @@ async function $do(
 
   const secConfig = await extractSecurity(client._options.customerAccess);
   const securityInput = secConfig == null ? {} : { customerAccess: secConfig };
-  const requestSecurity = resolveGlobalSecurity(securityInput);
+  const requestSecurity = resolveGlobalSecurity(securityInput, [0]);
 
   const context = {
     options: client._options,
