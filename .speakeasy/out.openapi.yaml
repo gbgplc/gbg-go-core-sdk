@@ -5613,7 +5613,6 @@ paths:
                 required:
                   - instanceId
                   - status
-                  - metaData
                 additionalProperties: false
               examples:
                 InProgress:

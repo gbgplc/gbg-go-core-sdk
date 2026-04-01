@@ -1,25 +1,25 @@
 lockVersion: 2.0.0
 id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
-  docChecksum: ebbc050dd19fdc05bc72d62b800652fe
+  docChecksum: 4dd27bac0044873c973420b315da9a85
   docVersion: 1.0.0
-  speakeasyVersion: 1.760.0
-  generationVersion: 2.873.1
-  releaseVersion: 0.0.1-alpha.20
-  configChecksum: 90098ba8a9ab03bcdbad413bcdd378d6
+  speakeasyVersion: 1.761.0
+  generationVersion: 2.879.1
+  releaseVersion: 0.0.1-alpha.21
+  configChecksum: b71d08cd30917406b262f4ae8c5d37b5
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: 0b256acd-c3c5-45dc-9988-f721b0065ff2
-  pristine_commit_hash: b0559b9ab48c74973bf4b28a6afcaf97e8ddc3f2
-  pristine_tree_hash: 33c2c6c4b21acf3782ab295d6b175aa0955d655b
+  generation_id: 7aa76fdf-d083-4113-9e6a-f3be93f6a2bf
+  pristine_commit_hash: 56cfbc817984ef62cbc6d08a3398bfde22acc8b7
+  pristine_tree_hash: a2506b219b622a8bfe2ac406be74c4a365e609f4
 features:
   typescript:
     additionalDependencies: 0.1.0
     additionalProperties: 0.1.3
     constsAndDefaults: 0.1.14
-    core: 3.26.45
+    core: 3.26.46
     defaultEnabledRetries: 0.1.0
     devContainers: 2.90.1
     enumUnions: 0.1.0
@@ -780,8 +780,8 @@ trackedFiles:
     pristine_git_object: d301dd5bf852c4a9b7b0550c2ce8be9c71c86ed8
   docs/models/operations/get-journey-state-response.md:
     id: f20a71583469
-    last_write_checksum: sha1:ffcbbb4af5425ae25e9a56b9be35dc83c7d34b41
-    pristine_git_object: 0eec9ca6ffedcc738eed57c65edb7568c8beff77
+    last_write_checksum: sha1:fb4ade9e214b062ca3cf8b245c98d0f623a1df62
+    pristine_git_object: d099161acf1c7baf1ee855351227e0615571069f
   docs/models/operations/get-journey-state-result.md:
     id: 4703c30745ad
     last_write_checksum: sha1:18d927c34ef57fbddffcc233dc4b2006530e4bf2
@@ -1952,12 +1952,12 @@ trackedFiles:
     pristine_git_object: 4fceb9092a8858b31edba290f8d9f307c1785df1
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:6f54fc51faccbe5874635699507d1410982d442d
-    pristine_git_object: 75e673cc32c2d28efc5e2b5267f59765e428e55d
+    last_write_checksum: sha1:db49abbde2168ac1d0c60cf80b8245a58b4cb7dc
+    pristine_git_object: 861af74925473bad4b9d816db9f616db035ea907
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:99d8f3f0ec40ed5d3598c5ec4c4f5d7177d23074
-    pristine_git_object: ec4db0cbc1147a30396854e58991fba8185c237a
+    last_write_checksum: sha1:842db754ee1d1812033a5aca2690d339403a1fd0
+    pristine_git_object: 83ca7a02f37aa96350eccf779adec5eb0b58e7a7
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -2036,8 +2036,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:78655f286d1763a7cddeb4ecaf28417591fd6cf6
-    pristine_git_object: e0fa511795db33250f8e2ecd2d59ad183316d39b
+    last_write_checksum: sha1:aafa7fc82086121c07d44c2b1c186a6de640b8e1
+    pristine_git_object: c741b02c075e380fc1615ba0e45a885218805380
   src/lib/dlv.ts:
     id: b1988214835a
     last_write_checksum: sha1:1dd3e3fbb4550c4bf31f5ef997faff355d6f3250
@@ -2140,8 +2140,8 @@ trackedFiles:
     pristine_git_object: d94d3882dcb5b9df75767d29ac0774ec00b12804
   src/models/operations/get-journey-state.ts:
     id: 8ed3b70735fd
-    last_write_checksum: sha1:c798f6b1675be5f8f1b77f8c0746674861cedd90
-    pristine_git_object: fd0be83420af20dfaadf8e6e6593f483bd6ec7ee
+    last_write_checksum: sha1:0d35b2a9ee97fd2229fda30622c3631aedb5878c
+    pristine_git_object: e05a9e3d1f60b630b6eeaa59bb4ab8fff82a4d69
   src/models/operations/get-task-schema.ts:
     id: ff1a98defbd8
     last_write_checksum: sha1:d478efe7e76cc48fc2ea3e1ef49529bb2bdff6e7
@@ -2370,7 +2370,7 @@ examples:
     speakeasy-default-get-journey-state:
       responses:
         "200":
-          application/json: {"instanceId": "<id>", "status": "InProgress", "metaData": {}}
+          application/json: {"instanceId": "<id>", "status": "InProgress"}
     InProgress:
       responses:
         "200":
@@ -2411,3 +2411,6 @@ examples:
         "200":
           application/json: {"status": "error", "code": 500, "message": "Internal server error"}
 examplesVersion: 1.0.2
+releaseNotes: |
+  ## Typescript SDK Changes:
+  * `go.journeys.getState()`:  `response.metaData` **Changed**
