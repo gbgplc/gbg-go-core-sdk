@@ -1,7 +1,7 @@
 configVersion: 2.0.0
 generation:
   devContainers:
-    enabled: true
+    enabled: false
     schemaPath: .speakeasy/out.openapi.yaml
   sdkClassName: Go
   maintainOpenAPIOrder: true
@@ -34,7 +34,7 @@ generation:
     generateNewTests: true
     skipResponseBodyAssertions: false
 typescript:
-  version: 0.0.1-alpha.22
+  version: 0.0.1-alpha.23
   acceptHeaderEnum: false
   additionalDependencies:
     dependencies: {}
