@@ -509,6 +509,12 @@ const sdk = new Go({ httpClient: httpClient });
 ```
 <!-- End Custom HTTP Client [http-client] -->
 
+## Analytics
+
+The SDK sends an `X-GBG-Source` request header identifying the SDK and its
+version (the same value as the user agent). GBG uses it for anonymous usage
+analytics. It carries no personal or request data.
+
 <!-- Start Debugging [debug] -->
 ## Debugging
 
