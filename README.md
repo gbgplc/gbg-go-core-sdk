@@ -25,6 +25,7 @@ GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact wi
   * [Error Handling](#error-handling)
   * [Server Selection](#server-selection)
   * [Custom HTTP Client](#custom-http-client)
+  * [Analytics](#analytics)
   * [Debugging](#debugging)
 * [Development](#development)
   * [Maturity](#maturity)

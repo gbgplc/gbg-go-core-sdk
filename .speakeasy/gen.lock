@@ -3,23 +3,23 @@ id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
   docChecksum: 4dd27bac0044873c973420b315da9a85
   docVersion: 1.0.0
-  speakeasyVersion: 1.781.0
-  generationVersion: 2.907.0
-  releaseVersion: 0.0.1-alpha.25
-  configChecksum: 3675f386c83c38626740f8871a8ca7cc
+  speakeasyVersion: 1.786.1
+  generationVersion: 2.913.3
+  releaseVersion: 0.0.1-alpha.26
+  configChecksum: cdf38d7089bf6180f1c3eccd17d1cfed
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: 775ef429-e8f9-4df1-9f5d-36e3a526e9d0
-  pristine_commit_hash: 0e1852b27c0ef9bab13d2633e17c716043c2ed0e
-  pristine_tree_hash: 51ff5aa15628971f2e8208131f66bac43da7d5bf
+  generation_id: d3fd5962-d63a-47c1-9ce1-9e27c6fee982
+  pristine_commit_hash: 283e8419278f1542378e23771911c97663caa87e
+  pristine_tree_hash: c0570ff24b8d8a0423201913f4002dd3f142f5b4
 features:
   typescript:
     additionalDependencies: 0.1.0
     additionalProperties: 0.1.3
     constsAndDefaults: 0.1.14
-    core: 3.31.1
+    core: 3.31.2
     defaultEnabledRetries: 0.1.0
     enumUnions: 0.1.0
     envVarSecurityUsage: 0.1.2
@@ -1939,12 +1939,12 @@ trackedFiles:
     pristine_git_object: 4fceb9092a8858b31edba290f8d9f307c1785df1
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:68e490adfefc518d43b0be44b734e618eb7a1fe9
-    pristine_git_object: 9c2ffb53df53bc363271d0e0702415fff0ebc473
+    last_write_checksum: sha1:07f8456576f28c2e3026ff3dcc94448f32726b4e
+    pristine_git_object: 812585af872f2024c78599e8a74a549b305c5b2a
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:e274009495b50030450c3e5d3b1b7b576d7c7038
-    pristine_git_object: ae4aa83399c59bd18b6292d4c9f34f5cbf88aa28
+    last_write_checksum: sha1:19d7946db00b11ddc84e002bc83a0fb05098b52d
+    pristine_git_object: 8a2f8f47a24cbd2ea59114262effe960d8b7a474
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -2023,8 +2023,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:86cd22347b51451741f7f87536bc30d3631477c6
-    pristine_git_object: 4c0a382fc8c9d904b970a626e9adb135131cae7e
+    last_write_checksum: sha1:a727b5141af67522f69042b3f9abf53994ba7c7f
+    pristine_git_object: 29a1a364c22f0647ee941b0c850503eb2019b099
   src/lib/encodings.ts:
     id: 3bd8ead98afd
     last_write_checksum: sha1:7533dcb79b22b8c84ac7b90aec94317d12bad5f8
