@@ -155,3 +155,13 @@ Based on:
 - [typescript v0.0.1-alpha.25] .
 ### Releases
 - [NPM v0.0.1-alpha.25] https://www.npmjs.com/package/@gbg/go-core/v/0.0.1-alpha.25 - .
+
+## 2026-07-01 00:54:27
+### Changes
+Based on:
+- OpenAPI Doc  
+- Speakeasy CLI 1.787.0 (2.914.0) https://github.com/speakeasy-api/speakeasy
+### Generated
+- [typescript v0.0.1-alpha.26] .
+### Releases
+- [NPM v0.0.1-alpha.26] https://www.npmjs.com/package/@gbg/go-core/v/0.0.1-alpha.26 - .
