@@ -13,59 +13,28 @@ servers:
   - url: https://us.platform.go.gbgplc.com/v2/captain
   - url: https://au.platform.go.gbgplc.com/v2/captain
 paths:
-  /auth/realms/go/protocol/openid-connect/token:
+  "/as/token.oauth2":
     post:
       summary: Generate access token
-      description: >-
+      description:
         Get an access token to authenticate API requests. If you're unfamiliar
-        with the authentication process, check out the [authentication
-        guide](/docs/developer-integration/execute-customer-journeys/authenticate)
+        with the authentication process, check out the [authentication guide](/docs/go-v2/developer-integration/execute-customer-journeys/authenticate)
         for more details.
       security: []
       servers:
-        - url: https://eu.platform.go.gbgplc.com
-        - url: https://us.platform.go.gbgplc.com
-        - url: https://au.platform.go.gbgplc.com
+        - url: https://api.auth.gbgplc.com
       requestBody:
         content:
           application/x-www-form-urlencoded:
             schema:
-              type: object
-              properties:
-                client_id:
-                  type: string
-                  description: The client ID assigned to your organization.
-                  example: your_client_id
-                client_secret:
-                  type: string
-                  description: The client secret assigned to your organization.
-                  example: your_client_secret
-                username:
-                  type: string
-                  description: The username for API authentication.
-                  example: your_username
-                password:
-                  type: string
-                  description: The password for API authentication.
-                  example: your_password
-                grant_type:
-                  type: string
-                  enum:
-                    - password
-                  description: Must always be set to 'password'.
-                  example: password
-              required:
-                - client_id
-                - client_secret
-                - username
-                - password
-                - grant_type
-              example:
-                client_id: your-client-id
-                client_secret: your-client-secret
-                username: api-user@example.com
-                password: your-secure-password
-                grant_type: password
+              oneOf:
+                - $ref: "#/components/schemas/PasswordGrantRequest"
+                - $ref: "#/components/schemas/ClientCredentialsGrantRequest"
+              discriminator:
+                propertyName: grant_type
+                mapping:
+                  password: "#/components/schemas/PasswordGrantRequest"
+                  client_credentials: "#/components/schemas/ClientCredentialsGrantRequest"
       responses:
         "200":
           description: Successfully retrieved access token.
@@ -77,21 +46,99 @@ paths:
                   access_token:
                     type: string
                     description: The access token used for authentication.
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
                   expires_in:
                     type: integer
                     description: Token expiration time in seconds.
-                    example: 3600
                   token_type:
                     type: string
                     description: The type of token, usually 'Bearer'.
-                    example: Bearer
         "400":
           description: Invalid request. Check your credentials.
         "401":
           description: Unauthorized request. Invalid username or password.
+      tags:
+        - Journey execution
       x-speakeasy-group: tokens
       x-speakeasy-name-override: generate
+  # /auth/realms/go/protocol/openid-connect/token:
+  #   post:
+  #     summary: Generate access token
+  #     description: >-
+  #       Get an access token to authenticate API requests. If you're unfamiliar
+  #       with the authentication process, check out the [authentication
+  #       guide](/docs/developer-integration/execute-customer-journeys/authenticate)
+  #       for more details.
+  #     security: []
+  #     servers:
+  #       - url: https://eu.platform.go.gbgplc.com
+  #       - url: https://us.platform.go.gbgplc.com
+  #       - url: https://au.platform.go.gbgplc.com
+  #     requestBody:
+  #       content:
+  #         application/x-www-form-urlencoded:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               client_id:
+  #                 type: string
+  #                 description: The client ID assigned to your organization.
+  #                 example: your_client_id
+  #               client_secret:
+  #                 type: string
+  #                 description: The client secret assigned to your organization.
+  #                 example: your_client_secret
+  #               username:
+  #                 type: string
+  #                 description: The username for API authentication.
+  #                 example: your_username
+  #               password:
+  #                 type: string
+  #                 description: The password for API authentication.
+  #                 example: your_password
+  #               grant_type:
+  #                 type: string
+  #                 enum:
+  #                   - password
+  #                 description: Must always be set to 'password'.
+  #                 example: password
+  #             required:
+  #               - client_id
+  #               - client_secret
+  #               - username
+  #               - password
+  #               - grant_type
+  #             example:
+  #               client_id: your-client-id
+  #               client_secret: your-client-secret
+  #               username: api-user@example.com
+  #               password: your-secure-password
+  #               grant_type: password
+  #     responses:
+  #       "200":
+  #         description: Successfully retrieved access token.
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 access_token:
+  #                   type: string
+  #                   description: The access token used for authentication.
+  #                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  #                 expires_in:
+  #                   type: integer
+  #                   description: Token expiration time in seconds.
+  #                   example: 3600
+  #                 token_type:
+  #                   type: string
+  #                   description: The type of token, usually 'Bearer'.
+  #                   example: Bearer
+  #       "400":
+  #         description: Invalid request. Check your credentials.
+  #       "401":
+  #         description: Unauthorized request. Invalid username or password.
+  #     x-speakeasy-group: tokens
+  #     x-speakeasy-name-override: generate
   /journey/health:
     get:
       operationId: health
@@ -10712,6 +10759,36 @@ paths:
                       - code
                       - message
                     additionalProperties: false
+                  - type: object
+                    properties:
+                      instanceId:
+                        type: string
+                        description: Journey instance identifier
+                      journey:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum:
+                              - Completed
+                              - InProgress
+                              - Failed
+                              - Paused
+                        required:
+                          - status
+                        additionalProperties: false
+                      processing:
+                        type: boolean
+                        description: >-
+                          True when the journey is still working and no
+                          interaction is available yet. Clients should poll
+                          /journey/interaction/fetch until this is absent/false
+                          and an `interaction` is returned.
+                    required:
+                      - instanceId
+                      - journey
+                      - processing
+                    additionalProperties: false
               examples:
                 success:
                   value:
@@ -10743,6 +10820,12 @@ paths:
                     status: error
                     code: 500
                     message: Internal server error
+                processing:
+                  value:
+                    instanceId: PiKR2O0IjyUR8KV3RviKt4we
+                    journey:
+                      status: InProgress
+                    processing: true
         "400":
           description: Bad Request
           content:
@@ -10772,6 +10855,51 @@ paths:
           content:
             application/json: {}
 components:
+  schemas:
+    PasswordGrantRequest:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: The client ID assigned to your organization.
+        client_secret:
+          type: string
+          description: The client secret assigned to your organization.
+        username:
+          type: string
+          description: The username for API authentication.
+        password:
+          type: string
+          description: The password for API authentication.
+        grant_type:
+          type: string
+          enum:
+            - password
+          description: Must always be set to 'password'.
+      required:
+        - client_id
+        - client_secret
+        - username
+        - password
+        - grant_type
+    ClientCredentialsGrantRequest:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: The client ID assigned to your organization.
+        client_secret:
+          type: string
+          description: The client secret assigned to your organization.
+        grant_type:
+          type: string
+          enum:
+            - client_credentials
+          description: Must always be set to 'client_credentials'.
+      required:
+        - client_id
+        - client_secret
+        - grant_type
   securitySchemes:
     CustomerAccess:
       type: http
