@@ -44,7 +44,7 @@ export type ResponseBody2 = {
   /**
    * True when the journey is still working and no interaction is available yet. Clients should poll /journey/interaction/fetch until this is absent/false and an `interaction` is returned.
    */
-  processing: boolean;
+  processing?: boolean | undefined;
 };
 
 export const FetchInteractionStatusError = {
@@ -1570,7 +1570,7 @@ export const ResponseBody2$inboundSchema: z.ZodMiniType<
 > = z.object({
   instanceId: types.string(),
   journey: z.lazy(() => Journey2$inboundSchema),
-  processing: types.boolean(),
+  processing: types.optional(types.boolean()),
 });
 
 export function responseBody2FromJSON(

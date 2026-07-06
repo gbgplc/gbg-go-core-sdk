@@ -1,19 +1,19 @@
 lockVersion: 2.0.0
 id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
-  docChecksum: 717270c1d1d02d2215244b15d0120862
+  docChecksum: d969b0b5ca5388028d30baa6cfe88d66
   docVersion: 1.0.0
   speakeasyVersion: 1.788.1
   generationVersion: 2.915.1
-  releaseVersion: 0.0.1-alpha.26
-  configChecksum: cdf38d7089bf6180f1c3eccd17d1cfed
+  releaseVersion: 0.0.1-alpha.27
+  configChecksum: 041777accaf60ac09743583f99eaeb5d
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: 63d2f5aa-119a-4f87-bd0a-020cd38f7ec0
-  pristine_commit_hash: 4b002ff72ddfc7c9140d3871bf492ce440a457a6
-  pristine_tree_hash: 7371c759860caa142bda6e0c27e12687cc51308d
+  generation_id: b778a26d-e787-488e-802b-da0ee4f7cb18
+  pristine_commit_hash: 1204decafbac403310c4be0712a54e181cddb250
+  pristine_tree_hash: c86f652e07b0026d05acc1b433b3758229768c82
 features:
   typescript:
     additionalDependencies: 0.1.0
@@ -459,8 +459,8 @@ trackedFiles:
     pristine_git_object: a68cba9bff84f2899d0c3792180e83b08efc6cf7
   docs/models/operations/fetch-interaction-response.md:
     id: 913ccae7c656
-    last_write_checksum: sha1:d9e99e061a86f2b822f0f8bec0b4f488b11e9723
-    pristine_git_object: 3db0fcb64e0c61d9649c0278cf749323588a5341
+    last_write_checksum: sha1:d0fa2594ed09265e01dc4e00dcae871a7eb5f931
+    pristine_git_object: a33d7fbc0e39ad4f4daf9e5900c44158b57cb497
   docs/models/operations/fetch-interaction-result.md:
     id: 43310250decd
     last_write_checksum: sha1:73d5d252f40fef1dff9f0627150d2ce356670cbd
@@ -939,8 +939,8 @@ trackedFiles:
     pristine_git_object: 528eaeeb565af6225026fa3d8d556f66e23901f9
   docs/models/operations/response-body2.md:
     id: cee8082f242d
-    last_write_checksum: sha1:e4107a295c96d6da07f6d86ee2aab593c02d72a7
-    pristine_git_object: ffa51280417e97aa07b370b564e00cc40455b79f
+    last_write_checksum: sha1:8c1df0f40148cd51898e4e006b88ecce49059af4
+    pristine_git_object: 147b49dbbaaf4dbbf71623b7d3110bf516c50e5d
   docs/models/operations/schema.md:
     id: ebff579e47e2
     last_write_checksum: sha1:e3909457eea8ca30d1d49148e7cf8694b2279abb
@@ -1955,12 +1955,12 @@ trackedFiles:
     pristine_git_object: 69035ca2cb2a98a019ae5cb23a39fd38256654d6
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:07f8456576f28c2e3026ff3dcc94448f32726b4e
-    pristine_git_object: 812585af872f2024c78599e8a74a549b305c5b2a
+    last_write_checksum: sha1:0239c2ca929f15d671a7672d295d8d04d589bc8d
+    pristine_git_object: d8b5c6240c20a090a563cc678303ebf5b82fa9b5
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:19d7946db00b11ddc84e002bc83a0fb05098b52d
-    pristine_git_object: 8a2f8f47a24cbd2ea59114262effe960d8b7a474
+    last_write_checksum: sha1:f19e0a52a01332ac8586f77bd49d2707acaa5c81
+    pristine_git_object: 5e600cd3dc5acabef54a0a9053817a7497d4fec4
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -2039,8 +2039,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:920202510914821156cf0d67845136d184f514ff
-    pristine_git_object: 654c42c4f10cbc9497bd91d360b886d994f4c73a
+    last_write_checksum: sha1:72838d7fd6cc27ff5131a5278d90932d883bc483
+    pristine_git_object: 0d150b419cd32f68daabb138cedda103b117e468
   src/lib/encodings.ts:
     id: 3bd8ead98afd
     last_write_checksum: sha1:7533dcb79b22b8c84ac7b90aec94317d12bad5f8
@@ -2135,8 +2135,8 @@ trackedFiles:
     pristine_git_object: 4c4844d9d10f47743e8bfd5a80a202166e11d3f3
   src/models/operations/fetch-interaction.ts:
     id: 23ba73850efd
-    last_write_checksum: sha1:1bf97d6359ebd066d41b6ab9add2a3ef33fc8963
-    pristine_git_object: 55ec53040e11c41e922c788c8380a7b52dfb02d0
+    last_write_checksum: sha1:3cb32b7b92f01062ccc70b45ba5eb200f95f3ed0
+    pristine_git_object: 233f84075c8e67f22496104c679041a93c2ac4e6
   src/models/operations/get-journey-state.ts:
     id: 8ed3b70735fd
     last_write_checksum: sha1:0d35b2a9ee97fd2229fda30622c3631aedb5878c
@@ -2425,5 +2425,4 @@ examples:
 examplesVersion: 1.0.2
 releaseNotes: |
   ## Typescript SDK Changes:
-  * `go.tokens.generate()`:  `request` **Changed** (Breaking ⚠️)
-  * `go.interactions.fetch()`:  `response.union(class (2))` **Added** (Breaking ⚠️)
+  * `go.interactions.fetch()`:  `response.union(class (2)).processing` **Changed**
