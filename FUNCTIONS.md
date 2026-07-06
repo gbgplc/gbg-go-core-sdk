@@ -27,13 +27,7 @@ import { tokensGenerate } from "@gbg/go-core/funcs/tokens-generate.js";
 const go = new GoCore();
 
 async function run() {
-  const res = await tokensGenerate(go, {
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const res = await tokensGenerate(go);
   if (res.ok) {
     const { value: result } = res;
     console.log(result);

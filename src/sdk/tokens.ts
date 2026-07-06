@@ -12,14 +12,12 @@ export class Tokens extends ClientSDK {
    * Generate access token
    *
    * @remarks
-   * Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/developer-integration/execute-customer-journeys/authenticate) for more details.
+   * Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/go-v2/developer-integration/execute-customer-journeys/authenticate) for more details.
    */
   async generate(
-    request?:
-      | operations.PostAuthRealmsGoProtocolOpenidConnectTokenRequest
-      | undefined,
+    request?: operations.PostAsTokenOauth2Request | undefined,
     options?: RequestOptions,
-  ): Promise<operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse> {
+  ): Promise<operations.PostAsTokenOauth2Response> {
     return unwrapAsync(tokensGenerate(
       this,
       request,

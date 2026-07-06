@@ -171,6 +171,51 @@ async function run() {
 
 run();
 ```
+### Example Usage: processing
+
+<!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="processing" -->
+```typescript
+import { Go } from "@gbg/go-core";
+
+const go = new Go();
+
+async function run() {
+  const result = await go.interactions.fetch({
+    interactionAccess: process.env["GO_INTERACTION_ACCESS"] ?? "",
+  });
+
+  console.log(result);
+}
+
+run();
+```
+
+### Standalone function
+
+The standalone function version of this method:
+
+```typescript
+import { GoCore } from "@gbg/go-core/core.js";
+import { interactionsFetch } from "@gbg/go-core/funcs/interactions-fetch.js";
+
+// Use `GoCore` for best tree-shaking performance.
+// You can create one instance of it to use across an application.
+const go = new GoCore();
+
+async function run() {
+  const res = await interactionsFetch(go, {
+    interactionAccess: process.env["GO_INTERACTION_ACCESS"] ?? "",
+  });
+  if (res.ok) {
+    const { value: result } = res;
+    console.log(result);
+  } else {
+    console.log("interactionsFetch failed:", res.error);
+  }
+}
+
+run();
+```
 ### Example Usage: success
 
 <!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="success" -->

@@ -16,13 +16,7 @@ import { Go } from "@gbg/go-core";
 const go = new Go();
 
 async function main() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const result = await go.tokens.generate();
 
   console.log(result);
 }
