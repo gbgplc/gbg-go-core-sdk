@@ -2,8 +2,8 @@ speakeasyVersion: 1.788.1
 sources:
     GBG GO Next Gen Flow Captain API:
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:130a8b993bb79e980f9726cd2d6368c6be833dbb33799b0c0981e4eec6f628d8
-        sourceBlobDigest: sha256:941213d4d5a05aa85b45d486380c71219be6dbed4ab405c3e121608eab3e46c0
+        sourceRevisionDigest: sha256:ea3818725ac24ffaaed626873067be05adacf48a5a2ff3a731abe88715abf080
+        sourceBlobDigest: sha256:1f19525621baeae6b3ffc0c8f809de2c68ddcbe2ebbbce03e2dbd36fcbb72e15
         tags:
             - latest
             - 1.0.0
@@ -11,10 +11,10 @@ targets:
     go:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:130a8b993bb79e980f9726cd2d6368c6be833dbb33799b0c0981e4eec6f628d8
-        sourceBlobDigest: sha256:941213d4d5a05aa85b45d486380c71219be6dbed4ab405c3e121608eab3e46c0
+        sourceRevisionDigest: sha256:ea3818725ac24ffaaed626873067be05adacf48a5a2ff3a731abe88715abf080
+        sourceBlobDigest: sha256:1f19525621baeae6b3ffc0c8f809de2c68ddcbe2ebbbce03e2dbd36fcbb72e15
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
-        codeSamplesRevisionDigest: sha256:0bbef79bac241834f8c8491526391deb5f174a969b5cf1c1446cf6ea3f141be4
+        codeSamplesRevisionDigest: sha256:317b6d992215681469bfeb16ae0d0af4e1662169166698c881a33e5616545cf3
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest

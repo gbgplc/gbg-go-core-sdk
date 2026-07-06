@@ -50,7 +50,6 @@ const value: operations.ResponseBody2 = {
   journey: {
     status: "InProgress",
   },
-  processing: false,
 };
 ```
 
