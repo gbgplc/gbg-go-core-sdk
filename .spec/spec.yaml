@@ -10787,7 +10787,6 @@ paths:
                     required:
                       - instanceId
                       - journey
-                      - processing
                     additionalProperties: false
               examples:
                 success:
