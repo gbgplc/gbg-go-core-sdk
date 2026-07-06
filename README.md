@@ -25,6 +25,7 @@ GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact wi
   * [Error Handling](#error-handling)
   * [Server Selection](#server-selection)
   * [Custom HTTP Client](#custom-http-client)
+  * [Analytics](#analytics)
   * [Debugging](#debugging)
 * [Development](#development)
   * [Maturity](#maturity)
@@ -82,13 +83,7 @@ import { Go } from "@gbg/go-core";
 const go = new Go();
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const result = await go.tokens.generate();
 
   console.log(result);
 }
@@ -118,13 +113,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const result = await go.tokens.generate();
 
   console.log(result);
 }
@@ -248,13 +237,7 @@ import { Go } from "@gbg/go-core";
 const go = new Go();
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  }, {
+  const result = await go.tokens.generate(undefined, {
     retries: {
       strategy: "backoff",
       backoff: {
@@ -292,13 +275,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const result = await go.tokens.generate();
 
   console.log(result);
 }
@@ -330,13 +307,7 @@ const go = new Go();
 
 async function run() {
   try {
-    const result = await go.tokens.generate({
-      clientId: "your-client-id",
-      clientSecret: "your-client-secret",
-      username: "api-user@example.com",
-      password: "your-secure-password",
-      grantType: "password",
-    });
+    const result = await go.tokens.generate();
 
     console.log(result);
   } catch (error) {
@@ -438,14 +409,8 @@ import { Go } from "@gbg/go-core";
 const go = new Go();
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  }, {
-    serverURL: "https://au.platform.go.gbgplc.com",
+  const result = await go.tokens.generate(undefined, {
+    serverURL: "https://api.auth.gbgplc.com",
   });
 
   console.log(result);

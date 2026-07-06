@@ -5,21 +5,26 @@ Success
 
 ## Supported Types
 
-### `operations.ResponseBody`
+### `operations.ResponseBody1`
 
 ```typescript
-const value: operations.ResponseBody = {
+const value: operations.ResponseBody1 = {
   instanceId: "<id>",
   interactionId: "<id>",
   journey: {
-    status: "Paused",
+    status: "Completed",
   },
   interaction: {
-    collects: [],
+    collects: [
+      {
+        ref: "<value>",
+        spec: "optional",
+      },
+    ],
     consumes: [
       {
         ref: "<value>",
-        spec: "required",
+        spec: "optional",
       },
     ],
     grId: "<id>",
@@ -34,6 +39,18 @@ const value: operations.FetchInteractionError = {
   status: "error",
   code: 6719.06,
   message: "<value>",
+};
+```
+
+### `operations.ResponseBody2`
+
+```typescript
+const value: operations.ResponseBody2 = {
+  instanceId: "<id>",
+  journey: {
+    status: "InProgress",
+  },
+  processing: false,
 };
 ```
 
