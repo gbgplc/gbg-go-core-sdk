@@ -22,7 +22,7 @@ import {
 import { ResponseValidationError } from "../models/errors/response-validation-error.js";
 import { SDKValidationError } from "../models/errors/sdk-validation-error.js";
 import * as operations from "../models/operations/index.js";
-import { PostAuthRealmsGoProtocolOpenidConnectTokenServerList } from "../models/operations/post-auth-realms-go-protocol-openid-connect-token.js";
+import { PostAsTokenOauth2ServerList } from "../models/operations/post-as-token-oauth2.js";
 import { APICall, APIPromise } from "../types/async.js";
 import { Result } from "../types/fp.js";
 
@@ -30,17 +30,15 @@ import { Result } from "../types/fp.js";
  * Generate access token
  *
  * @remarks
- * Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/developer-integration/execute-customer-journeys/authenticate) for more details.
+ * Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/go-v2/developer-integration/execute-customer-journeys/authenticate) for more details.
  */
 export function tokensGenerate(
   client: GoCore,
-  request?:
-    | operations.PostAuthRealmsGoProtocolOpenidConnectTokenRequest
-    | undefined,
+  request?: operations.PostAsTokenOauth2Request | undefined,
   options?: RequestOptions,
 ): APIPromise<
   Result<
-    operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse,
+    operations.PostAsTokenOauth2Response,
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -60,14 +58,12 @@ export function tokensGenerate(
 
 async function $do(
   client: GoCore,
-  request?:
-    | operations.PostAuthRealmsGoProtocolOpenidConnectTokenRequest
-    | undefined,
+  request?: operations.PostAsTokenOauth2Request | undefined,
   options?: RequestOptions,
 ): Promise<
   [
     Result<
-      operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse,
+      operations.PostAsTokenOauth2Response,
       | GoError
       | ResponseValidationError
       | ConnectionError
@@ -84,10 +80,7 @@ async function $do(
     request,
     (value) =>
       z.parse(
-        z.optional(
-          operations
-            .PostAuthRealmsGoProtocolOpenidConnectTokenRequest$outboundSchema,
-        ),
+        z.optional(operations.PostAsTokenOauth2Request$outboundSchema),
         value,
       ),
     "Input validation failed",
@@ -102,11 +95,11 @@ async function $do(
   }).join("&");
 
   const baseURL = options?.serverURL
-    || pathToFunc(PostAuthRealmsGoProtocolOpenidConnectTokenServerList[0], {
+    || pathToFunc(PostAsTokenOauth2ServerList[0], {
       charEncoding: "percent",
     })();
 
-  const path = pathToFunc("/auth/realms/go/protocol/openid-connect/token")();
+  const path = pathToFunc("/as/token.oauth2")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/x-www-form-urlencoded",
@@ -116,7 +109,7 @@ async function $do(
   const context = {
     options: client._options,
     baseURL: baseURL ?? "",
-    operationID: "post_/auth/realms/go/protocol/openid-connect/token",
+    operationID: "post_/as/token.oauth2",
     oAuth2Scopes: null,
 
     resolvedSecurity: null,
@@ -155,7 +148,7 @@ async function $do(
   const response = doResult.value;
 
   const [result] = await M.match<
-    operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse,
+    operations.PostAsTokenOauth2Response,
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -165,11 +158,7 @@ async function $do(
     | UnexpectedClientError
     | SDKValidationError
   >(
-    M.json(
-      200,
-      operations
-        .PostAuthRealmsGoProtocolOpenidConnectTokenResponse$inboundSchema,
-    ),
+    M.json(200, operations.PostAsTokenOauth2Response$inboundSchema),
     M.fail([400, 401, "4XX"]),
     M.fail("5XX"),
   )(response, req);

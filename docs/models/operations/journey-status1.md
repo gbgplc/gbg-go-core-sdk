@@ -1,11 +1,11 @@
-# JourneyStatus
+# JourneyStatus1
 
 ## Example Usage
 
 ```typescript
-import { JourneyStatus } from "@gbg/go-core/models/operations";
+import { JourneyStatus1 } from "@gbg/go-core/models/operations";
 
-let value: JourneyStatus = "Paused";
+let value: JourneyStatus1 = "Completed";
 
 // Open enum: unrecognized values are captured as Unrecognized<string>
 ```

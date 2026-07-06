@@ -1,22 +1,27 @@
-# ResponseBody
+# ResponseBody1
 
 ## Example Usage
 
 ```typescript
-import { ResponseBody } from "@gbg/go-core/models/operations";
+import { ResponseBody1 } from "@gbg/go-core/models/operations";
 
-let value: ResponseBody = {
+let value: ResponseBody1 = {
   instanceId: "<id>",
   interactionId: "<id>",
   journey: {
-    status: "Paused",
+    status: "Completed",
   },
   interaction: {
-    collects: [],
+    collects: [
+      {
+        ref: "<value>",
+        spec: "optional",
+      },
+    ],
     consumes: [
       {
         ref: "<value>",
-        spec: "required",
+        spec: "optional",
       },
     ],
     grId: "<id>",
@@ -30,7 +35,7 @@ let value: ResponseBody = {
 | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | `instanceId`                                                                               | *string*                                                                                   | :heavy_check_mark:                                                                         | Journey instance identifier                                                                |
 | `interactionId`                                                                            | *string*                                                                                   | :heavy_check_mark:                                                                         | Interaction identifier                                                                     |
-| `journey`                                                                                  | [operations.Journey](../../models/operations/journey.md)                                   | :heavy_check_mark:                                                                         | N/A                                                                                        |
+| `journey`                                                                                  | [operations.Journey1](../../models/operations/journey1.md)                                 | :heavy_check_mark:                                                                         | N/A                                                                                        |
 | `interaction`                                                                              | [operations.Interaction](../../models/operations/interaction.md)                           | :heavy_check_mark:                                                                         | N/A                                                                                        |
 | `context`                                                                                  | [operations.FetchInteractionContext](../../models/operations/fetch-interaction-context.md) | :heavy_minus_sign:                                                                         | N/A                                                                                        |
 | `instructions`                                                                             | *string*[]                                                                                 | :heavy_minus_sign:                                                                         | N/A                                                                                        |

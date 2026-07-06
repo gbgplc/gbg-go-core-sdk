@@ -23,6 +23,30 @@ export type FetchInteractionRequest = {
   instanceId: string;
 };
 
+export const JourneyStatus2 = {
+  Completed: "Completed",
+  InProgress: "InProgress",
+  Failed: "Failed",
+  Paused: "Paused",
+} as const;
+export type JourneyStatus2 = OpenEnum<typeof JourneyStatus2>;
+
+export type Journey2 = {
+  status: JourneyStatus2;
+};
+
+export type ResponseBody2 = {
+  /**
+   * Journey instance identifier
+   */
+  instanceId: string;
+  journey: Journey2;
+  /**
+   * True when the journey is still working and no interaction is available yet. Clients should poll /journey/interaction/fetch until this is absent/false and an `interaction` is returned.
+   */
+  processing: boolean;
+};
+
 export const FetchInteractionStatusError = {
   Error: "error",
 } as const;
@@ -42,16 +66,16 @@ export type FetchInteractionError = {
   message: string;
 };
 
-export const JourneyStatus = {
+export const JourneyStatus1 = {
   Completed: "Completed",
   InProgress: "InProgress",
   Failed: "Failed",
   Paused: "Paused",
 } as const;
-export type JourneyStatus = OpenEnum<typeof JourneyStatus>;
+export type JourneyStatus1 = OpenEnum<typeof JourneyStatus1>;
 
-export type Journey = {
-  status: JourneyStatus;
+export type Journey1 = {
+  status: JourneyStatus1;
 };
 
 export const ResourceType = {
@@ -1444,7 +1468,7 @@ export type FetchInteractionContext = {
   subject?: FetchInteractionSubject | undefined;
 };
 
-export type ResponseBody = {
+export type ResponseBody1 = {
   /**
    * Journey instance identifier
    */
@@ -1453,7 +1477,7 @@ export type ResponseBody = {
    * Interaction identifier
    */
   interactionId: string;
-  journey: Journey;
+  journey: Journey1;
   interaction: Interaction;
   context?: FetchInteractionContext | undefined;
   instructions?: Array<string> | undefined;
@@ -1463,7 +1487,10 @@ export type ResponseBody = {
 /**
  * Success
  */
-export type FetchInteractionResponse = ResponseBody | FetchInteractionError;
+export type FetchInteractionResponse =
+  | ResponseBody1
+  | FetchInteractionError
+  | ResponseBody2;
 
 /** @internal */
 export type FetchInteractionSecurity$Outbound = {
@@ -1515,6 +1542,48 @@ export function fetchInteractionRequestToJSON(
 }
 
 /** @internal */
+export const JourneyStatus2$inboundSchema: z.ZodMiniType<
+  JourneyStatus2,
+  unknown
+> = openEnums.inboundSchema(JourneyStatus2);
+
+/** @internal */
+export const Journey2$inboundSchema: z.ZodMiniType<Journey2, unknown> = z
+  .object({
+    status: JourneyStatus2$inboundSchema,
+  });
+
+export function journey2FromJSON(
+  jsonString: string,
+): SafeParseResult<Journey2, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => Journey2$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'Journey2' from JSON`,
+  );
+}
+
+/** @internal */
+export const ResponseBody2$inboundSchema: z.ZodMiniType<
+  ResponseBody2,
+  unknown
+> = z.object({
+  instanceId: types.string(),
+  journey: z.lazy(() => Journey2$inboundSchema),
+  processing: types.boolean(),
+});
+
+export function responseBody2FromJSON(
+  jsonString: string,
+): SafeParseResult<ResponseBody2, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => ResponseBody2$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'ResponseBody2' from JSON`,
+  );
+}
+
+/** @internal */
 export const FetchInteractionStatusError$inboundSchema: z.ZodMiniEnum<
   typeof FetchInteractionStatusError
 > = z.enum(FetchInteractionStatusError);
@@ -1540,23 +1609,24 @@ export function fetchInteractionErrorFromJSON(
 }
 
 /** @internal */
-export const JourneyStatus$inboundSchema: z.ZodMiniType<
-  JourneyStatus,
+export const JourneyStatus1$inboundSchema: z.ZodMiniType<
+  JourneyStatus1,
   unknown
-> = openEnums.inboundSchema(JourneyStatus);
+> = openEnums.inboundSchema(JourneyStatus1);
 
 /** @internal */
-export const Journey$inboundSchema: z.ZodMiniType<Journey, unknown> = z.object({
-  status: JourneyStatus$inboundSchema,
-});
+export const Journey1$inboundSchema: z.ZodMiniType<Journey1, unknown> = z
+  .object({
+    status: JourneyStatus1$inboundSchema,
+  });
 
-export function journeyFromJSON(
+export function journey1FromJSON(
   jsonString: string,
-): SafeParseResult<Journey, SDKValidationError> {
+): SafeParseResult<Journey1, SDKValidationError> {
   return safeParse(
     jsonString,
-    (x) => Journey$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'Journey' from JSON`,
+    (x) => Journey1$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'Journey1' from JSON`,
   );
 }
 
@@ -3740,26 +3810,26 @@ export function fetchInteractionContextFromJSON(
 }
 
 /** @internal */
-export const ResponseBody$inboundSchema: z.ZodMiniType<ResponseBody, unknown> =
-  z.object({
-    instanceId: types.string(),
-    interactionId: types.string(),
-    journey: z.lazy(() => Journey$inboundSchema),
-    interaction: z.lazy(() => Interaction$inboundSchema),
-    context: types.optional(
-      z.lazy(() => FetchInteractionContext$inboundSchema),
-    ),
-    instructions: types.optional(z.array(types.string())),
-    outstanding: types.optional(z.array(types.string())),
-  });
+export const ResponseBody1$inboundSchema: z.ZodMiniType<
+  ResponseBody1,
+  unknown
+> = z.object({
+  instanceId: types.string(),
+  interactionId: types.string(),
+  journey: z.lazy(() => Journey1$inboundSchema),
+  interaction: z.lazy(() => Interaction$inboundSchema),
+  context: types.optional(z.lazy(() => FetchInteractionContext$inboundSchema)),
+  instructions: types.optional(z.array(types.string())),
+  outstanding: types.optional(z.array(types.string())),
+});
 
-export function responseBodyFromJSON(
+export function responseBody1FromJSON(
   jsonString: string,
-): SafeParseResult<ResponseBody, SDKValidationError> {
+): SafeParseResult<ResponseBody1, SDKValidationError> {
   return safeParse(
     jsonString,
-    (x) => ResponseBody$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'ResponseBody' from JSON`,
+    (x) => ResponseBody1$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'ResponseBody1' from JSON`,
   );
 }
 
@@ -3768,8 +3838,9 @@ export const FetchInteractionResponse$inboundSchema: z.ZodMiniType<
   FetchInteractionResponse,
   unknown
 > = smartUnion([
-  z.lazy(() => ResponseBody$inboundSchema),
+  z.lazy(() => ResponseBody1$inboundSchema),
   z.lazy(() => FetchInteractionError$inboundSchema),
+  z.lazy(() => ResponseBody2$inboundSchema),
 ]);
 
 export function fetchInteractionResponseFromJSON(

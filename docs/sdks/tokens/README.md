@@ -8,24 +8,18 @@
 
 ## generate
 
-Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/developer-integration/execute-customer-journeys/authenticate) for more details.
+Get an access token to authenticate API requests. If you're unfamiliar with the authentication process, check out the [authentication guide](/docs/go-v2/developer-integration/execute-customer-journeys/authenticate) for more details.
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="post_/auth/realms/go/protocol/openid-connect/token" method="post" path="/auth/realms/go/protocol/openid-connect/token" -->
+<!-- UsageSnippet language="typescript" operationID="post_/as/token.oauth2" method="post" path="/as/token.oauth2" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
 const go = new Go();
 
 async function run() {
-  const result = await go.tokens.generate({
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const result = await go.tokens.generate();
 
   console.log(result);
 }
@@ -46,13 +40,7 @@ import { tokensGenerate } from "@gbg/go-core/funcs/tokens-generate.js";
 const go = new GoCore();
 
 async function run() {
-  const res = await tokensGenerate(go, {
-    clientId: "your-client-id",
-    clientSecret: "your-client-secret",
-    username: "api-user@example.com",
-    password: "your-secure-password",
-    grantType: "password",
-  });
+  const res = await tokensGenerate(go);
   if (res.ok) {
     const { value: result } = res;
     console.log(result);
@@ -68,7 +56,7 @@ run();
 
 | Parameter                                                                                                                                                                      | Type                                                                                                                                                                           | Required                                                                                                                                                                       | Description                                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `request`                                                                                                                                                                      | [operations.PostAuthRealmsGoProtocolOpenidConnectTokenRequest](../../models/operations/post-auth-realms-go-protocol-openid-connect-token-request.md)                           | :heavy_check_mark:                                                                                                                                                             | The request object to use for the request.                                                                                                                                     |
+| `request`                                                                                                                                                                      | [operations.PostAsTokenOauth2Request](../../models/operations/post-as-token-oauth2-request.md)                                                                                 | :heavy_check_mark:                                                                                                                                                             | The request object to use for the request.                                                                                                                                     |
 | `options`                                                                                                                                                                      | RequestOptions                                                                                                                                                                 | :heavy_minus_sign:                                                                                                                                                             | Used to set various options for making HTTP requests.                                                                                                                          |
 | `options.fetchOptions`                                                                                                                                                         | [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request#options)                                                                                        | :heavy_minus_sign:                                                                                                                                                             | Options that are passed to the underlying HTTP request. This can be used to inject extra headers for examples. All `Request` options, except `method` and `body`, are allowed. |
 | `options.retries`                                                                                                                                                              | [RetryConfig](../../lib/utils/retryconfig.md)                                                                                                                                  | :heavy_minus_sign:                                                                                                                                                             | Enables retrying HTTP requests under certain failure conditions.                                                                                                               |
@@ -76,7 +64,7 @@ run();
 
 ### Response
 
-**Promise\<[operations.PostAuthRealmsGoProtocolOpenidConnectTokenResponse](../../models/operations/post-auth-realms-go-protocol-openid-connect-token-response.md)\>**
+**Promise\<[operations.PostAsTokenOauth2Response](../../models/operations/post-as-token-oauth2-response.md)\>**
 
 ### Errors
 
