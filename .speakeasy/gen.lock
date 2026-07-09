@@ -3,17 +3,17 @@ id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
   docChecksum: d969b0b5ca5388028d30baa6cfe88d66
   docVersion: 1.0.0
-  speakeasyVersion: 1.788.1
-  generationVersion: 2.915.1
-  releaseVersion: 0.0.1-alpha.27
-  configChecksum: 041777accaf60ac09743583f99eaeb5d
+  speakeasyVersion: 1.789.0
+  generationVersion: 2.916.2
+  releaseVersion: 0.1.0
+  configChecksum: a3aca251001c6a27313bbec38b125859
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: b778a26d-e787-488e-802b-da0ee4f7cb18
-  pristine_commit_hash: 1204decafbac403310c4be0712a54e181cddb250
-  pristine_tree_hash: c86f652e07b0026d05acc1b433b3758229768c82
+  generation_id: 8e65b6b0-61a6-47fd-b9a1-e0577725736a
+  pristine_commit_hash: b1e12caafc31cad268d3e04b13cb9b6befe82e24
+  pristine_tree_hash: 1303060b8ece249a566fc18371cfeb253d1e8336
 features:
   typescript:
     additionalDependencies: 0.1.0
@@ -1955,12 +1955,12 @@ trackedFiles:
     pristine_git_object: 69035ca2cb2a98a019ae5cb23a39fd38256654d6
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:0239c2ca929f15d671a7672d295d8d04d589bc8d
-    pristine_git_object: d8b5c6240c20a090a563cc678303ebf5b82fa9b5
+    last_write_checksum: sha1:4b406b759e11e027d68290536e05664be143cfc8
+    pristine_git_object: b9cd0f5ae0a3a1fde7d992a1b559a0cba4123ab4
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:f19e0a52a01332ac8586f77bd49d2707acaa5c81
-    pristine_git_object: 5e600cd3dc5acabef54a0a9053817a7497d4fec4
+    last_write_checksum: sha1:a650722021e0a7ce888dd3f0f90b2433b07c6f93
+    pristine_git_object: b6474505b16b5688390e30d735ab927f931af547
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -2039,8 +2039,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:72838d7fd6cc27ff5131a5278d90932d883bc483
-    pristine_git_object: 0d150b419cd32f68daabb138cedda103b117e468
+    last_write_checksum: sha1:143216a8fb52ef19f3e08c5ac65fcaa03bc25097
+    pristine_git_object: aa2b339cf8706a8f61f938bd7221471d09a3bc53
   src/lib/encodings.ts:
     id: 3bd8ead98afd
     last_write_checksum: sha1:7533dcb79b22b8c84ac7b90aec94317d12bad5f8
@@ -2423,6 +2423,3 @@ examples:
         "200":
           application/json: {}
 examplesVersion: 1.0.2
-releaseNotes: |
-  ## Typescript SDK Changes:
-  * `go.interactions.fetch()`:  `response.union(class (2)).processing` **Changed**
