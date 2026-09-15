@@ -14,7 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URI;
 import java.net.http.HttpRequest;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.gbg.gocore.SDKConfiguration;
@@ -80,5 +82,67 @@ class GbgSourceHookTest {
         assertEquals(original.uri(), result.uri());
         assertEquals(original.method(), result.method());
         assertTrue(result.headers().firstValue(HEADER).isPresent());
+    }
+
+    @Nested
+    @DisplayName("system property")
+    class SystemPropertySource {
+
+        @AfterEach
+        void clearProperty() {
+            System.clearProperty(GbgSourceHook.SOURCE_PROPERTY);
+        }
+
+        @Test
+        @DisplayName("is used when no source was given to the constructor")
+        void propertyUsedAsFallback() throws Exception {
+            System.setProperty(GbgSourceHook.SOURCE_PROPERTY, "from-property");
+
+            HttpRequest result = new GbgSourceHook().beforeRequest(null, request());
+
+            assertEquals("from-property", sourceHeaderOf(result));
+        }
+
+        @Test
+        @DisplayName("loses to an explicitly constructed source")
+        void constructorBeatsProperty() throws Exception {
+            System.setProperty(GbgSourceHook.SOURCE_PROPERTY, "from-property");
+
+            HttpRequest result = new GbgSourceHook("explicit").beforeRequest(null, request());
+
+            assertEquals("explicit", sourceHeaderOf(result));
+        }
+
+        @Test
+        @DisplayName("loses to a per-request header")
+        void perRequestBeatsProperty() throws Exception {
+            System.setProperty(GbgSourceHook.SOURCE_PROPERTY, "from-property");
+
+            HttpRequest withHeader = HttpRequest.newBuilder(request().uri())
+                    .GET()
+                    .header(HEADER, "caller-supplied")
+                    .build();
+
+            HttpRequest result = new GbgSourceHook().beforeRequest(null, withHeader);
+
+            assertEquals("caller-supplied", sourceHeaderOf(result));
+        }
+
+        @Test
+        @DisplayName("a blank value falls through to the user agent")
+        void blankPropertyIgnored() throws Exception {
+            System.setProperty(GbgSourceHook.SOURCE_PROPERTY, "   ");
+
+            HttpRequest result = new GbgSourceHook().beforeRequest(null, request());
+
+            assertEquals(SDKConfiguration.USER_AGENT, sourceHeaderOf(result));
+        }
+    }
+
+    @Test
+    @DisplayName("resolveSource reports the value without issuing a request")
+    void resolveSourceIsInspectable() {
+        assertEquals("explicit", new GbgSourceHook("explicit").resolveSource());
+        assertEquals(SDKConfiguration.USER_AGENT, new GbgSourceHook().resolveSource());
     }
 }
