@@ -17,3 +17,5 @@
 /.tshy
 /.tshy-*
 /__tests__
+
+/java

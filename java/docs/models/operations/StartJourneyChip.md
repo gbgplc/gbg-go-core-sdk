@@ -1,0 +1,10 @@
+# StartJourneyChip
+
+
+## Fields
+
+| Field                                                                          | Setter Type                                                                    | Getter Type                                                                    | Required                                                                       | Description                                                                    |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `lds`                                                                          | List\<[StartJourneyLd](../../models/operations/StartJourneyLd.md)>             | List\<[StartJourneyLd](../../models/operations/StartJourneyLd.md)>             | :heavy_check_mark:                                                             | N/A                                                                            |
+| `auth`                                                                         | List\<[StartJourneyChipAuth](../../models/operations/StartJourneyChipAuth.md)> | List\<[StartJourneyChipAuth](../../models/operations/StartJourneyChipAuth.md)> | :heavy_check_mark:                                                             | N/A                                                                            |
+| `additionalProperties`                                                         | @Nullable Map\<String, *Object*>                                               | Optional\<Map\<String, *Object*>>                                              | :heavy_minus_sign:                                                             | N/A                                                                            |

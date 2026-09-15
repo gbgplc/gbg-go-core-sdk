@@ -1,0 +1,10 @@
+# GetJourneyStateDocumentIdNumber
+
+
+## Fields
+
+| Field                                                                       | Setter Type                                                                 | Getter Type                                                                 | Required                                                                    | Description                                                                 |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `type`                                                                      | *String*                                                                    | *String*                                                                    | :heavy_check_mark:                                                          | The type of phone number, such as landline, mobile, fax, unknown etc        |
+| `idNumber`                                                                  | *String*                                                                    | *String*                                                                    | :heavy_check_mark:                                                          | ID number eg, National Insurance Number in UK, Social Securtiy Number in US |
+| `country`                                                                   | @Nullable *String*                                                          | Optional\<*String*>                                                         | :heavy_minus_sign:                                                          | Country the address is in. It must be a valid ISO2 or ISO3 country code     |
