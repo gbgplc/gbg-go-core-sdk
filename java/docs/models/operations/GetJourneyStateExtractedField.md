@@ -1,0 +1,9 @@
+# GetJourneyStateExtractedField
+
+
+## Fields
+
+| Field                                                                            | Setter Type                                                                      | Getter Type                                                                      | Required                                                                         | Description                                                                      |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `label`                                                                          | *String*                                                                         | *String*                                                                         | :heavy_check_mark:                                                               | N/A                                                                              |
+| `details`                                                                        | List\<[GetJourneyStateDetail](../../models/operations/GetJourneyStateDetail.md)> | List\<[GetJourneyStateDetail](../../models/operations/GetJourneyStateDetail.md)> | :heavy_check_mark:                                                               | N/A                                                                              |

@@ -15,6 +15,13 @@ targets:
         sourceBlobDigest: sha256:1f19525621baeae6b3ffc0c8f809de2c68ddcbe2ebbbce03e2dbd36fcbb72e15
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
         codeSamplesRevisionDigest: sha256:9095c2d5e9a8afeb362d4fb306f6289d15711974694c80019e32ba086b0062cc
+    java:
+        source: GBG GO Next Gen Flow Captain API
+        sourceNamespace: gbg-go-next-gen-flow-captain-api
+        sourceRevisionDigest: sha256:ea3818725ac24ffaaed626873067be05adacf48a5a2ff3a731abe88715abf080
+        sourceBlobDigest: sha256:1f19525621baeae6b3ffc0c8f809de2c68ddcbe2ebbbce03e2dbd36fcbb72e15
+        codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-java-code-samples
+        codeSamplesRevisionDigest: sha256:9efe247d56cd7de456de8b0a5fd78efd73f530ee3319b7de4733f20c15c18503
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest
@@ -39,4 +46,20 @@ workflow:
                     location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api-typescript-code-samples
                 labelOverride:
                     fixedValue: Typescript (SDK)
+                blocking: false
+        java:
+            target: java
+            source: GBG GO Next Gen Flow Captain API
+            output: ./java
+            publish:
+                java:
+                    ossrhUsername: $ossrh_username
+                    ossrhPassword: $ossrh_password
+                    gpgSecretKey: $java_gpg_secret_key
+                    gpgPassPhrase: $java_gpg_passphrase
+            codeSamples:
+                registry:
+                    location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api-java-code-samples
+                labelOverride:
+                    fixedValue: Java (SDK)
                 blocking: false

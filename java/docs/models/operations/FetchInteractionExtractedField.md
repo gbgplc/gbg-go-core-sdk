@@ -1,0 +1,9 @@
+# FetchInteractionExtractedField
+
+
+## Fields
+
+| Field                                                                              | Setter Type                                                                        | Getter Type                                                                        | Required                                                                           | Description                                                                        |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `label`                                                                            | *String*                                                                           | *String*                                                                           | :heavy_check_mark:                                                                 | N/A                                                                                |
+| `details`                                                                          | List\<[FetchInteractionDetail](../../models/operations/FetchInteractionDetail.md)> | List\<[FetchInteractionDetail](../../models/operations/FetchInteractionDetail.md)> | :heavy_check_mark:                                                                 | N/A                                                                                |

@@ -1,0 +1,10 @@
+# FetchInteractionSessionDevice
+
+
+## Fields
+
+| Field                                                                     | Setter Type                                                               | Getter Type                                                               | Required                                                                  | Description                                                               |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `id`                                                                      | *String*                                                                  | *String*                                                                  | :heavy_check_mark:                                                        | N/A                                                                       |
+| `manufacturer`                                                            | *String*                                                                  | *String*                                                                  | :heavy_check_mark:                                                        | N/A                                                                       |
+| `model`                                                                   | [FetchInteractionModel](../../models/operations/FetchInteractionModel.md) | [FetchInteractionModel](../../models/operations/FetchInteractionModel.md) | :heavy_check_mark:                                                        | N/A                                                                       |

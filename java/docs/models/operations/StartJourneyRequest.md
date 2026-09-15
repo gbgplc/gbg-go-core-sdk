@@ -1,0 +1,10 @@
+# StartJourneyRequest
+
+
+## Fields
+
+| Field                                                                            | Setter Type                                                                      | Getter Type                                                                      | Required                                                                         | Description                                                                      |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `resourceId`                                                                     | *String*                                                                         | *String*                                                                         | :heavy_check_mark:                                                               | Resource Id, a unique identifier for a resource, such as a journey or instance.  |
+| `context`                                                                        | @Nullable [StartJourneyContext](../../models/operations/StartJourneyContext.md)  | Optional\<[StartJourneyContext](../../models/operations/StartJourneyContext.md)> | :heavy_minus_sign:                                                               | N/A                                                                              |
+| `data`                                                                           | @Nullable Map\<String, *Object*>                                                 | Optional\<Map\<String, *Object*>>                                                | :heavy_minus_sign:                                                               | N/A                                                                              |

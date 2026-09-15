@@ -1,0 +1,13 @@
+# AddDeviceResponseBody1
+
+Success
+
+
+## Fields
+
+| Field                                                                            | Setter Type                                                                      | Getter Type                                                                      | Required                                                                         | Description                                                                      |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `connectToken`                                                                   | *String*                                                                         | *String*                                                                         | :heavy_check_mark:                                                               | Token used for subsequent operations by the client                               |
+| `tokenType`                                                                      | @Nullable [AddDeviceTokenType1](../../models/operations/AddDeviceTokenType1.md)  | Optional\<[AddDeviceTokenType1](../../models/operations/AddDeviceTokenType1.md)> | :heavy_minus_sign:                                                               | N/A                                                                              |
+| `expiresIn`                                                                      | *double*                                                                         | *double*                                                                         | :heavy_check_mark:                                                               | Seconds until the token expires                                                  |
+| `scope`                                                                          | @Nullable List\<[ScopeResponse1](../../models/operations/ScopeResponse1.md)>     | Optional\<List\<[ScopeResponse1](../../models/operations/ScopeResponse1.md)>>    | :heavy_minus_sign:                                                               | Scopes granted to the client                                                     |

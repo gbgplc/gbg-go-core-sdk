@@ -1,0 +1,9 @@
+# GetTasksSchemaTask
+
+
+## Fields
+
+| Field                                                                             | Setter Type                                                                       | Getter Type                                                                       | Required                                                                          | Description                                                                       |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `taskId`                                                                          | *String*                                                                          | *String*                                                                          | :heavy_check_mark:                                                                | Task Id, a unique identifier for a task assigned to an End User during a Journey. |
+| `schema`                                                                          | [Schema](../../models/operations/Schema.md)                                       | [Schema](../../models/operations/Schema.md)                                       | :heavy_check_mark:                                                                | N/A                                                                               |

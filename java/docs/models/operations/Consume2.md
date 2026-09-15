@@ -1,0 +1,12 @@
+# Consume2
+
+
+## Fields
+
+| Field                                                             | Setter Type                                                       | Getter Type                                                       | Required                                                          | Description                                                       |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `ref`                                                             | *String*                                                          | *String*                                                          | :heavy_check_mark:                                                | N/A                                                               |
+| `spec`                                                            | [ConsumeSpec2](../../models/operations/ConsumeSpec2.md)           | [ConsumeSpec2](../../models/operations/ConsumeSpec2.md)           | :heavy_check_mark:                                                | N/A                                                               |
+| `recommended`                                                     | @Nullable *boolean*                                               | Optional\<*boolean*>                                              | :heavy_minus_sign:                                                | N/A                                                               |
+| `combinator`                                                      | [ConsumeCombinator](../../models/operations/ConsumeCombinator.md) | [ConsumeCombinator](../../models/operations/ConsumeCombinator.md) | :heavy_check_mark:                                                | N/A                                                               |
+| `inputs`                                                          | List\<[ConsumeInput](../../models/operations/ConsumeInput.md)>    | List\<[ConsumeInput](../../models/operations/ConsumeInput.md)>    | :heavy_check_mark:                                                | N/A                                                               |

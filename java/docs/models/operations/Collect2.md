@@ -1,0 +1,12 @@
+# Collect2
+
+
+## Fields
+
+| Field                                                             | Setter Type                                                       | Getter Type                                                       | Required                                                          | Description                                                       |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `ref`                                                             | *String*                                                          | *String*                                                          | :heavy_check_mark:                                                | N/A                                                               |
+| `spec`                                                            | [CollectSpec2](../../models/operations/CollectSpec2.md)           | [CollectSpec2](../../models/operations/CollectSpec2.md)           | :heavy_check_mark:                                                | N/A                                                               |
+| `recommended`                                                     | @Nullable *boolean*                                               | Optional\<*boolean*>                                              | :heavy_minus_sign:                                                | N/A                                                               |
+| `combinator`                                                      | [CollectCombinator](../../models/operations/CollectCombinator.md) | [CollectCombinator](../../models/operations/CollectCombinator.md) | :heavy_check_mark:                                                | N/A                                                               |
+| `inputs`                                                          | List\<[CollectInput](../../models/operations/CollectInput.md)>    | List\<[CollectInput](../../models/operations/CollectInput.md)>    | :heavy_check_mark:                                                | N/A                                                               |
