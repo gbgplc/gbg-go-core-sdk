@@ -1,0 +1,10 @@
+# UpdateTaskChip
+
+
+## Fields
+
+| Field                                                                      | Setter Type                                                                | Getter Type                                                                | Required                                                                   | Description                                                                |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `lds`                                                                      | List\<[UpdateTaskLd](../../models/operations/UpdateTaskLd.md)>             | List\<[UpdateTaskLd](../../models/operations/UpdateTaskLd.md)>             | :heavy_check_mark:                                                         | N/A                                                                        |
+| `auth`                                                                     | List\<[UpdateTaskChipAuth](../../models/operations/UpdateTaskChipAuth.md)> | List\<[UpdateTaskChipAuth](../../models/operations/UpdateTaskChipAuth.md)> | :heavy_check_mark:                                                         | N/A                                                                        |
+| `additionalProperties`                                                     | @Nullable Map\<String, *Object*>                                           | Optional\<Map\<String, *Object*>>                                          | :heavy_minus_sign:                                                         | N/A                                                                        |

@@ -1,0 +1,87 @@
+configVersion: 2.0.0
+generation:
+  sdkClassName: Go
+  maintainOpenAPIOrder: true
+  usageSnippets:
+    optionalPropertyRendering: withExample
+    sdkInitStyle: constructor
+  useClassNamesForArrayFields: true
+  fixes:
+    nameResolutionDec2023: true
+    nameResolutionFeb2025: true
+    parameterOrderingFeb2024: true
+    requestResponseComponentNamesFeb2024: true
+    securityFeb2025: true
+    sharedErrorComponentsApr2025: true
+    sharedNestedComponentsJan2026: true
+    nameOverrideFeb2026: false
+  auth:
+    oAuth2ClientCredentialsEnabled: true
+    oAuth2PasswordEnabled: true
+    hoistGlobalSecurity: true
+  inferSSEOverload: true
+  sdkHooksConfigAccess: true
+  schemas:
+    allOfMergeStrategy: shallowMerge
+  requestBodyFieldName: body
+  versioningStrategy: automatic
+  persistentEdits: {}
+  tests:
+    generateTests: false
+    generateNewTests: true
+    skipResponseBodyAssertions: false
+java:
+  version: 0.1.0-alpha01.1
+  additionalDependencies: []
+  additionalPlugins: []
+  artifactID: go-core-sdk
+  asyncMode: enabled
+  baseErrorName: GoException
+  clientServerStatusCodesAsErrors: true
+  companyEmail: tbd@gbg.com
+  companyName: GBG Group plc
+  companyURL: https://www.gbg.com
+  defaultErrorName: APIException
+  description: Java SDK for the GBG GO Next Gen Flow Captain API - start and drive customer identity verification journeys.
+  enableCustomCodeRegions: false
+  enableFormatting: false
+  enableSlf4jLogging: true
+  enableStreamingUploads: true
+  explicitDocImports: true
+  flattenGlobalSecurity: true
+  forwardCompatibleEnumsByDefault: true
+  forwardCompatibleUnionsByDefault: true
+  generateOptionalUnionAccessors: true
+  generateSpringBootStarter: false
+  generateUnionDocs: true
+  getterStyle: presence-aware
+  githubURL: github.com/gbgplc/gbg-go-core-sdk
+  groupID: com.gbg
+  httpClient: jdk
+  imports:
+    option: openapi
+    paths:
+      callbacks: models/callbacks
+      errors: models/errors
+      operations: models/operations
+      shared: models
+      webhooks: models/webhooks
+  inferUnionDiscriminators: true
+  inputModelSuffix: input
+  languageVersion: 11
+  license:
+    name: MIT License
+    shortName: MIT
+    url: https://opensource.org/licenses/MIT
+  maxMethodParams: 4
+  multipartArrayFormat: standard
+  nullFriendlyParameters: true
+  operationScopedParams: true
+  outputModelSuffix: output
+  packageName: com.gbg.gocore
+  prefixModeMethodNames: true
+  projectName: go-core-sdk
+  respectTitlesForPrimitiveUnionMembers: true
+  showSetterGetterTypesInDocs: true
+  templateVersion: v2
+  unionStrategy: populated-fields

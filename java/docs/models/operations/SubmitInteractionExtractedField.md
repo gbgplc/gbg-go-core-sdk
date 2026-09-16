@@ -1,0 +1,9 @@
+# SubmitInteractionExtractedField
+
+
+## Fields
+
+| Field                                                                                | Setter Type                                                                          | Getter Type                                                                          | Required                                                                             | Description                                                                          |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `label`                                                                              | *String*                                                                             | *String*                                                                             | :heavy_check_mark:                                                                   | N/A                                                                                  |
+| `details`                                                                            | List\<[SubmitInteractionDetail](../../models/operations/SubmitInteractionDetail.md)> | List\<[SubmitInteractionDetail](../../models/operations/SubmitInteractionDetail.md)> | :heavy_check_mark:                                                                   | N/A                                                                                  |

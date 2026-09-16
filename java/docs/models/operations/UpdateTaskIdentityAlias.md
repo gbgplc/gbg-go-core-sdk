@@ -1,0 +1,12 @@
+# UpdateTaskIdentityAlias
+
+
+## Fields
+
+| Field                                                               | Setter Type                                                         | Getter Type                                                         | Required                                                            | Description                                                         |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `title`                                                             | @Nullable *String*                                                  | Optional\<*String*>                                                 | :heavy_minus_sign:                                                  | Title of an individual such as Mr, Mrs, Dr, Sir                     |
+| `firstName`                                                         | @Nullable *String*                                                  | Optional\<*String*>                                                 | :heavy_minus_sign:                                                  | A person's name used by their collegues and friends to address them |
+| `middleNames`                                                       | @Nullable List\<*String*>                                           | Optional\<List\<*String*>>                                          | :heavy_minus_sign:                                                  | Any other registered names used by the individual, not aliases      |
+| `lastNames`                                                         | @Nullable List\<*String*>                                           | Optional\<List\<*String*>>                                          | :heavy_minus_sign:                                                  | Any family names for the individual                                 |
+| `lastNamesAtBirth`                                                  | @Nullable List\<*String*>                                           | Optional\<List\<*String*>>                                          | :heavy_minus_sign:                                                  | Any family names for the individual                                 |

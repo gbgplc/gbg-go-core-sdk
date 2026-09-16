@@ -22,3 +22,19 @@ targets:
             labelOverride:
                 fixedValue: Typescript (SDK)
             blocking: false
+    java:
+        target: java
+        source: GBG GO Next Gen Flow Captain API
+        output: ./java
+        publish:
+            java:
+                ossrhUsername: $ossrh_username
+                ossrhPassword: $ossrh_password
+                gpgSecretKey: $java_gpg_secret_key
+                gpgPassPhrase: $java_gpg_passphrase
+        codeSamples:
+            registry:
+                location: registry.speakeasyapi.dev/gbg/go/gbg-go-next-gen-flow-captain-api-java-code-samples
+            labelOverride:
+                fixedValue: Java (SDK)
+            blocking: false

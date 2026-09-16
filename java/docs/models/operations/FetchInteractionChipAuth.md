@@ -1,0 +1,10 @@
+# FetchInteractionChipAuth
+
+
+## Fields
+
+| Field                                                                           | Setter Type                                                                     | Getter Type                                                                     | Required                                                                        | Description                                                                     |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `type`                                                                          | [FetchInteractionAuthType](../../models/operations/FetchInteractionAuthType.md) | [FetchInteractionAuthType](../../models/operations/FetchInteractionAuthType.md) | :heavy_check_mark:                                                              | N/A                                                                             |
+| `result`                                                                        | [FetchInteractionResult](../../models/operations/FetchInteractionResult.md)     | [FetchInteractionResult](../../models/operations/FetchInteractionResult.md)     | :heavy_check_mark:                                                              | N/A                                                                             |
+| `additionalProperties`                                                          | @Nullable Map\<String, *Object*>                                                | Optional\<Map\<String, *Object*>>                                               | :heavy_minus_sign:                                                              | N/A                                                                             |

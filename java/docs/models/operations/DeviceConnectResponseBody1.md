@@ -1,0 +1,12 @@
+# DeviceConnectResponseBody1
+
+Success
+
+
+## Fields
+
+| Field                                                                                    | Setter Type                                                                              | Getter Type                                                                              | Required                                                                                 | Description                                                                              |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `endUserToken`                                                                           | @Nullable *String*                                                                       | Optional\<*String*>                                                                      | :heavy_minus_sign:                                                                       | Token used for subsequent operations by the client                                       |
+| `tokenType`                                                                              | @Nullable [DeviceConnectTokenType1](../../models/operations/DeviceConnectTokenType1.md)  | Optional\<[DeviceConnectTokenType1](../../models/operations/DeviceConnectTokenType1.md)> | :heavy_minus_sign:                                                                       | N/A                                                                                      |
+| `expiresIn`                                                                              | *double*                                                                                 | *double*                                                                                 | :heavy_check_mark:                                                                       | Seconds until the token expires                                                          |

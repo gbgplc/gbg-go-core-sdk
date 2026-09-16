@@ -1,0 +1,10 @@
+# GetJourneyStateSessionDevice
+
+
+## Fields
+
+| Field                                                                   | Setter Type                                                             | Getter Type                                                             | Required                                                                | Description                                                             |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `id`                                                                    | *String*                                                                | *String*                                                                | :heavy_check_mark:                                                      | N/A                                                                     |
+| `manufacturer`                                                          | *String*                                                                | *String*                                                                | :heavy_check_mark:                                                      | N/A                                                                     |
+| `model`                                                                 | [GetJourneyStateModel](../../models/operations/GetJourneyStateModel.md) | [GetJourneyStateModel](../../models/operations/GetJourneyStateModel.md) | :heavy_check_mark:                                                      | N/A                                                                     |

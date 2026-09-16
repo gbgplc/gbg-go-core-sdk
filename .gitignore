@@ -28,3 +28,7 @@
 .env
 .env.local
 .env.*.local
+# Java SDK build outputs
+/java/build/
+/java/.gradle/
+/java/**/build/

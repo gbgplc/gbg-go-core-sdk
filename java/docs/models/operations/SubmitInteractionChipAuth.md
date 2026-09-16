@@ -1,0 +1,10 @@
+# SubmitInteractionChipAuth
+
+
+## Fields
+
+| Field                                                                             | Setter Type                                                                       | Getter Type                                                                       | Required                                                                          | Description                                                                       |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `type`                                                                            | [SubmitInteractionAuthType](../../models/operations/SubmitInteractionAuthType.md) | [SubmitInteractionAuthType](../../models/operations/SubmitInteractionAuthType.md) | :heavy_check_mark:                                                                | N/A                                                                               |
+| `result`                                                                          | [SubmitInteractionResult](../../models/operations/SubmitInteractionResult.md)     | [SubmitInteractionResult](../../models/operations/SubmitInteractionResult.md)     | :heavy_check_mark:                                                                | N/A                                                                               |
+| `additionalProperties`                                                            | @Nullable Map\<String, *Object*>                                                  | Optional\<Map\<String, *Object*>>                                                 | :heavy_minus_sign:                                                                | N/A                                                                               |

@@ -1,0 +1,10 @@
+# StartJourneyChipAuth
+
+
+## Fields
+
+| Field                                                                   | Setter Type                                                             | Getter Type                                                             | Required                                                                | Description                                                             |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `type`                                                                  | [StartJourneyAuthType](../../models/operations/StartJourneyAuthType.md) | [StartJourneyAuthType](../../models/operations/StartJourneyAuthType.md) | :heavy_check_mark:                                                      | N/A                                                                     |
+| `result`                                                                | [StartJourneyResult](../../models/operations/StartJourneyResult.md)     | [StartJourneyResult](../../models/operations/StartJourneyResult.md)     | :heavy_check_mark:                                                      | N/A                                                                     |
+| `additionalProperties`                                                  | @Nullable Map\<String, *Object*>                                        | Optional\<Map\<String, *Object*>>                                       | :heavy_minus_sign:                                                      | N/A                                                                     |

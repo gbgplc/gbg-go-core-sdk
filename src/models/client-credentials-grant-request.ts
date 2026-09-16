@@ -4,6 +4,18 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../lib/primitives.js";
+import { ClosedEnum } from "../types/enums.js";
+
+/**
+ * Must always be set to 'gbg.token'.
+ */
+export const Scope = {
+  GbgToken: "gbg.token",
+} as const;
+/**
+ * Must always be set to 'gbg.token'.
+ */
+export type Scope = ClosedEnum<typeof Scope>;
 
 export type ClientCredentialsGrantRequest = {
   /**
@@ -18,13 +30,21 @@ export type ClientCredentialsGrantRequest = {
    * Must always be set to 'client_credentials'.
    */
   grantType: "client_credentials";
+  /**
+   * Must always be set to 'gbg.token'.
+   */
+  scope: Scope;
 };
+
+/** @internal */
+export const Scope$outboundSchema: z.ZodMiniEnum<typeof Scope> = z.enum(Scope);
 
 /** @internal */
 export type ClientCredentialsGrantRequest$Outbound = {
   client_id: string;
   client_secret: string;
   grant_type: "client_credentials";
+  scope: string;
 };
 
 /** @internal */
@@ -36,6 +56,7 @@ export const ClientCredentialsGrantRequest$outboundSchema: z.ZodMiniType<
     clientId: z.string(),
     clientSecret: z.string(),
     grantType: z.literal("client_credentials"),
+    scope: Scope$outboundSchema,
   }),
   z.transform((v) => {
     return remap$(v, {
