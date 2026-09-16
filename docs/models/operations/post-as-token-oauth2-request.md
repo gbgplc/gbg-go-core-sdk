@@ -22,6 +22,7 @@ const value: models.ClientCredentialsGrantRequest = {
   clientId: "<id>",
   clientSecret: "<value>",
   grantType: "client_credentials",
+  scope: "gbg.token",
 };
 ```
 

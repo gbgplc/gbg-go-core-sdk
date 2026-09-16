@@ -2,8 +2,8 @@ speakeasyVersion: 1.797.0
 sources:
     GBG GO Next Gen Flow Captain API:
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:ea3818725ac24ffaaed626873067be05adacf48a5a2ff3a731abe88715abf080
-        sourceBlobDigest: sha256:1f19525621baeae6b3ffc0c8f809de2c68ddcbe2ebbbce03e2dbd36fcbb72e15
+        sourceRevisionDigest: sha256:cba89c653fb129117fc1616266648eae5ad23b4abf4eb98cbd6639933d0eb339
+        sourceBlobDigest: sha256:97e88b5e3280438761a74ee85cd46f217d8fa2c6701fef6fff76782db1487dbc
         tags:
             - latest
             - 1.0.0
@@ -11,15 +11,15 @@ targets:
     go:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:ea3818725ac24ffaaed626873067be05adacf48a5a2ff3a731abe88715abf080
-        sourceBlobDigest: sha256:1f19525621baeae6b3ffc0c8f809de2c68ddcbe2ebbbce03e2dbd36fcbb72e15
+        sourceRevisionDigest: sha256:cba89c653fb129117fc1616266648eae5ad23b4abf4eb98cbd6639933d0eb339
+        sourceBlobDigest: sha256:97e88b5e3280438761a74ee85cd46f217d8fa2c6701fef6fff76782db1487dbc
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
-        codeSamplesRevisionDigest: sha256:9095c2d5e9a8afeb362d4fb306f6289d15711974694c80019e32ba086b0062cc
+        codeSamplesRevisionDigest: sha256:9ef59a5feaff25209e1feff73b8773acf35c512d0daa8b0104437f2c63e17366
     java:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:ea3818725ac24ffaaed626873067be05adacf48a5a2ff3a731abe88715abf080
-        sourceBlobDigest: sha256:1f19525621baeae6b3ffc0c8f809de2c68ddcbe2ebbbce03e2dbd36fcbb72e15
+        sourceRevisionDigest: sha256:cba89c653fb129117fc1616266648eae5ad23b4abf4eb98cbd6639933d0eb339
+        sourceBlobDigest: sha256:97e88b5e3280438761a74ee85cd46f217d8fa2c6701fef6fff76782db1487dbc
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-java-code-samples
         codeSamplesRevisionDigest: sha256:9efe247d56cd7de456de8b0a5fd78efd73f530ee3319b7de4733f20c15c18503
 workflow:

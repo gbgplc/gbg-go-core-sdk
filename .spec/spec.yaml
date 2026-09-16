@@ -10895,10 +10895,16 @@ components:
           enum:
             - client_credentials
           description: Must always be set to 'client_credentials'.
+        scope:
+          type: string
+          enum:
+            - gbg.token
+          description: Must always be set to 'gbg.token'.
       required:
         - client_id
         - client_secret
         - grant_type
+        - scope
   securitySchemes:
     CustomerAccess:
       type: http

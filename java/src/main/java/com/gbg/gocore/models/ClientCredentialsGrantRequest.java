@@ -32,17 +32,26 @@ public class ClientCredentialsGrantRequest implements PostAsTokenOauth2Request {
     @SpeakeasyMetadata("form:name=grant_type")
     private ClientCredentialsGrantRequestGrantType grantType;
 
+    /**
+     * Must always be set to 'gbg.token'.
+     */
+    @SpeakeasyMetadata("form:name=scope")
+    private Scope scope;
+
     @JsonCreator
     public ClientCredentialsGrantRequest(
             @Nonnull String clientId,
             @Nonnull String clientSecret,
-            @Nonnull ClientCredentialsGrantRequestGrantType grantType) {
+            @Nonnull ClientCredentialsGrantRequestGrantType grantType,
+            @Nonnull Scope scope) {
         this.clientId = Optional.ofNullable(clientId)
             .orElseThrow(() -> new IllegalArgumentException("clientId cannot be null"));
         this.clientSecret = Optional.ofNullable(clientSecret)
             .orElseThrow(() -> new IllegalArgumentException("clientSecret cannot be null"));
         this.grantType = Optional.ofNullable(grantType)
             .orElseThrow(() -> new IllegalArgumentException("grantType cannot be null"));
+        this.scope = Optional.ofNullable(scope)
+            .orElseThrow(() -> new IllegalArgumentException("scope cannot be null"));
     }
 
     /**
@@ -65,6 +74,13 @@ public class ClientCredentialsGrantRequest implements PostAsTokenOauth2Request {
     @Override
     public String grantType() {
         return Utils.discriminatorToString(grantType);
+    }
+
+    /**
+     * Must always be set to 'gbg.token'.
+     */
+    public Scope scope() {
+        return this.scope;
     }
 
     public static Builder builder() {
@@ -99,6 +115,15 @@ public class ClientCredentialsGrantRequest implements PostAsTokenOauth2Request {
     }
 
 
+    /**
+     * Must always be set to 'gbg.token'.
+     */
+    public ClientCredentialsGrantRequest withScope(@Nonnull Scope scope) {
+        this.scope = Utils.checkNotNull(scope, "scope");
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -111,13 +136,15 @@ public class ClientCredentialsGrantRequest implements PostAsTokenOauth2Request {
         return 
             Utils.enhancedDeepEquals(this.clientId, other.clientId) &&
             Utils.enhancedDeepEquals(this.clientSecret, other.clientSecret) &&
-            Utils.enhancedDeepEquals(this.grantType, other.grantType);
+            Utils.enhancedDeepEquals(this.grantType, other.grantType) &&
+            Utils.enhancedDeepEquals(this.scope, other.scope);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            clientId, clientSecret, grantType);
+            clientId, clientSecret, grantType,
+            scope);
     }
     
     @Override
@@ -125,7 +152,8 @@ public class ClientCredentialsGrantRequest implements PostAsTokenOauth2Request {
         return Utils.toString(ClientCredentialsGrantRequest.class,
                 "clientId", clientId,
                 "clientSecret", clientSecret,
-                "grantType", grantType);
+                "grantType", grantType,
+                "scope", scope);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -136,6 +164,8 @@ public class ClientCredentialsGrantRequest implements PostAsTokenOauth2Request {
         private String clientSecret;
 
         private ClientCredentialsGrantRequestGrantType grantType;
+
+        private Scope scope;
 
         private Builder() {
           // force use of static builder() method
@@ -165,9 +195,18 @@ public class ClientCredentialsGrantRequest implements PostAsTokenOauth2Request {
             return this;
         }
 
+        /**
+         * Must always be set to 'gbg.token'.
+         */
+        public Builder scope(@Nonnull Scope scope) {
+            this.scope = Utils.checkNotNull(scope, "scope");
+            return this;
+        }
+
         public ClientCredentialsGrantRequest build() {
             return new ClientCredentialsGrantRequest(
-                clientId, clientSecret, grantType);
+                clientId, clientSecret, grantType,
+                scope);
         }
 
     }

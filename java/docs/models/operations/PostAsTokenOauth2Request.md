@@ -35,10 +35,11 @@ PostAsTokenOauth2Request value = ClientCredentialsGrantRequest.builder()
     .clientId("<id>")
     .clientSecret("<value>")
     .grantType(ClientCredentialsGrantRequestGrantType.CLIENT_CREDENTIALS)
+    .scope(Scope.GBG_TOKEN)
     .build();
 ```
 
-**Referred Types:** [ClientCredentialsGrantRequestGrantType](../../models/ClientCredentialsGrantRequestGrantType.md)
+**Referred Types:** [ClientCredentialsGrantRequestGrantType](../../models/ClientCredentialsGrantRequestGrantType.md), [Scope](../../models/Scope.md)
 
 ## Consumption Patterns
 
