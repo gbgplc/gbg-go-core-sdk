@@ -31,14 +31,14 @@ generation:
     generateNewTests: true
     skipResponseBodyAssertions: false
 java:
-  version: 0.1.0-alpha01.1
+  version: 0.1.0-alpha01
   additionalDependencies: []
   additionalPlugins: []
   artifactID: go-core-sdk
   asyncMode: enabled
   baseErrorName: GoException
   clientServerStatusCodesAsErrors: true
-  companyEmail: tbd@gbg.com
+  companyEmail: customer.support@gbg.com
   companyName: GBG Group plc
   companyURL: https://www.gbg.com
   defaultErrorName: APIException

@@ -2,8 +2,8 @@ speakeasyVersion: 1.797.0
 sources:
     GBG GO Next Gen Flow Captain API:
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:cba89c653fb129117fc1616266648eae5ad23b4abf4eb98cbd6639933d0eb339
-        sourceBlobDigest: sha256:97e88b5e3280438761a74ee85cd46f217d8fa2c6701fef6fff76782db1487dbc
+        sourceRevisionDigest: sha256:07c1620e544a04c6736fab6e171703f929b17613c529f1546cb547f8ddcb08cb
+        sourceBlobDigest: sha256:08b09db75f33a1249d63c1fa414b1a8b7d9dd15cb6b5294a581c4596ad3fc094
         tags:
             - latest
             - 1.0.0
@@ -11,15 +11,15 @@ targets:
     go:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:cba89c653fb129117fc1616266648eae5ad23b4abf4eb98cbd6639933d0eb339
-        sourceBlobDigest: sha256:97e88b5e3280438761a74ee85cd46f217d8fa2c6701fef6fff76782db1487dbc
+        sourceRevisionDigest: sha256:07c1620e544a04c6736fab6e171703f929b17613c529f1546cb547f8ddcb08cb
+        sourceBlobDigest: sha256:08b09db75f33a1249d63c1fa414b1a8b7d9dd15cb6b5294a581c4596ad3fc094
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
         codeSamplesRevisionDigest: sha256:9ef59a5feaff25209e1feff73b8773acf35c512d0daa8b0104437f2c63e17366
     java:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:cba89c653fb129117fc1616266648eae5ad23b4abf4eb98cbd6639933d0eb339
-        sourceBlobDigest: sha256:97e88b5e3280438761a74ee85cd46f217d8fa2c6701fef6fff76782db1487dbc
+        sourceRevisionDigest: sha256:07c1620e544a04c6736fab6e171703f929b17613c529f1546cb547f8ddcb08cb
+        sourceBlobDigest: sha256:08b09db75f33a1249d63c1fa414b1a8b7d9dd15cb6b5294a581c4596ad3fc094
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-java-code-samples
         codeSamplesRevisionDigest: sha256:9efe247d56cd7de456de8b0a5fd78efd73f530ee3319b7de4733f20c15c18503
 workflow:

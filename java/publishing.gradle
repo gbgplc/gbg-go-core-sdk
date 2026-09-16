@@ -60,7 +60,7 @@ afterEvaluate {
                         developer {
                             name = 'GBG Group plc'
                             organization = 'GBG Group plc'
-                            email = 'tbd@gbg.com'
+                            email = 'customer.support@gbg.com'
                         }
                     }
                     organization {

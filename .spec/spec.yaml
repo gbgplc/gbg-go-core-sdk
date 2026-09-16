@@ -7,7 +7,7 @@ info:
   contact:
     name: GBG GO Next Generation Flow Captain API Team
     url: https://gbgplc.com
-    email: tbd@gbg.com
+    email: customer.support@gbg.com
 servers:
   - url: https://eu.platform.go.gbgplc.com/v2/captain
   - url: https://us.platform.go.gbgplc.com/v2/captain

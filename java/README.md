@@ -47,7 +47,7 @@ The samples below show how a published SDK artifact is used:
 
 Gradle:
 ```groovy
-implementation 'com.gbg:go-core-sdk:0.1.0-alpha01.1'
+implementation 'com.gbg:go-core-sdk:0.1.0-alpha01'
 ```
 
 Maven:
@@ -55,7 +55,7 @@ Maven:
 <dependency>
     <groupId>com.gbg</groupId>
     <artifactId>go-core-sdk</artifactId>
-    <version>0.1.0-alpha01.1</version>
+    <version>0.1.0-alpha01</version>
 </dependency>
 ```
 
