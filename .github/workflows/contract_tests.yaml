@@ -1,0 +1,135 @@
+# Run the SDK test suite against the build in this pull request.
+#
+# The SDKs here are generated, not hand-written, so a regeneration can rename a
+# field, move an endpoint or shift where a credential is placed without anyone
+# reading the diff closely enough to notice. gbgplc/gbg-go-core-sdk-test exists
+# to catch exactly that, and this workflow points it at the pull request's own
+# build rather than the last published one.
+#
+# Only the contract tier runs here: it needs no credentials and no network, so
+# it is safe on every pull request, including ones opened by the generator. The
+# live tier makes real calls against the demo environment and stays out.
+#
+# Note on triggering: a pull request opened with the default GITHUB_TOKEN does
+# not start new workflow runs, so this would never fire on generation PRs while
+# sdk_generation.yaml authenticates with that token. See the comment there.
+name: Contract tests
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: contract-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typescript:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the SDK under test
+        uses: actions/checkout@v4
+        with:
+          path: sdk
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # The suite installs the SDK as a directory dependency, which npm links
+      # rather than packs. A link exposes the working tree as it stands, so
+      # dist/ has to exist before the link is made — npm runs `prepare` on a
+      # file: install, and this package builds under `prepublishOnly`, which it
+      # does not.
+      - name: Build the SDK from this pull request
+        working-directory: sdk
+        run: |
+          npm ci
+          npm run build
+
+      - name: Check out the test suite
+        uses: actions/checkout@v4
+        with:
+          repository: gbgplc/gbg-go-core-sdk-test
+          path: suite
+          token: ${{ secrets.SDK_BOT_TOKEN }}
+
+      - name: Point the suite at this build
+        working-directory: suite
+        run: |
+          npm ci
+          npm pkg set dependencies.@gbg/go-core=file:../sdk
+          npm install
+
+      # GO_SDK_LOCAL is the suite's opt-in for testing an unpublished build.
+      # provenance.test.ts asserts in both directions: without it a linked SDK
+      # fails the run, and with it an SDK that is *not* linked fails too. So a
+      # green run here is evidence the pull request's own build was tested.
+      - name: Contract tier
+        working-directory: suite
+        env:
+          GO_SDK_LOCAL: "1"
+        run: npm run test:contract
+
+  java:
+    name: Java
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the SDK under test
+        uses: actions/checkout@v4
+        with:
+          path: sdk
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      # The suite defaults to the last published version, so publishing this
+      # build to ~/.m2 is not enough on its own: without -PsdkVersion a
+      # regeneration that bumps the number would resolve the published artifact
+      # and report a pass for code this pull request does not contain.
+      - name: Read the version this pull request builds
+        id: sdk
+        run: |
+          version=$(sed -n 's/^version=//p' sdk/java/gradle.properties)
+          if [ -z "$version" ]; then
+            echo "::error::no version= line in java/gradle.properties"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "SDK version under test: $version"
+
+      # -Pskip.signing: a local publish has no reason to want the GPG release key.
+      - name: Publish it to the local Maven repository
+        working-directory: sdk/java
+        run: ./gradlew publishToMavenLocal -Pskip.signing
+
+      - name: Check out the test suite
+        uses: actions/checkout@v4
+        with:
+          repository: gbgplc/gbg-go-core-sdk-test
+          path: suite
+          token: ${{ secrets.SDK_BOT_TOKEN }}
+
+      # -PuseLocalSdk is what puts mavenLocal() on the repository list at all.
+      # ProvenanceTest fails the run if the resolved jar did not come from
+      # ~/.m2 after opting in, so this cannot quietly test the published alpha.
+      - name: Report the SDK under test
+        working-directory: suite/java
+        run: >-
+          ./gradlew printResolvedSdk
+          -PuseLocalSdk
+          -PsdkVersion=${{ steps.sdk.outputs.version }}
+
+      - name: Contract tier
+        working-directory: suite/java
+        run: >-
+          ./gradlew test --tests 'com.gbg.gocore.test.contract.*'
+          -PuseLocalSdk
+          -PsdkVersion=${{ steps.sdk.outputs.version }}

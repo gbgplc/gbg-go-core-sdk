@@ -30,7 +30,17 @@ jobs:
       mode: pr
       set_version: ${{ github.event.inputs.set_version }}
     secrets:
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      # A pull request opened with the default GITHUB_TOKEN does not start new
+      # workflow runs — GitHub blocks that to stop workflows triggering
+      # themselves. The side effect is that the generated SDK pull requests,
+      # the ones most worth testing, get no checks at all.
+      #
+      # SDK_BOT_TOKEN is a GitHub App installation token with write access to
+      # this repository and read access to gbgplc/gbg-go-core-sdk-test. With it
+      # set, Contract tests runs on generation pull requests like any other.
+      # The fallback keeps generation working if the secret is absent, at the
+      # cost of those pull requests going unchecked again.
+      github_access_token: ${{ secrets.SDK_BOT_TOKEN || secrets.GITHUB_TOKEN }}
       npm_token: ${{ secrets.NPM_TOKEN }}
       ossrh_username: ${{ secrets.OSSRH_USERNAME }}
       ossrh_password: ${{ secrets.OSSRH_PASSWORD }}
