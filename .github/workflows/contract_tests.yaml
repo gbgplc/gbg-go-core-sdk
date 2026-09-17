@@ -1,4 +1,4 @@
-# Run the SDK test suite against the build in this pull request.
+# Run the SDK test suite against the build in a pull request.
 #
 # The SDKs here are generated, not hand-written, so a regeneration can rename a
 # field, move an endpoint or shift where a credential is placed without anyone
@@ -6,13 +6,14 @@
 # to catch exactly that, and this workflow points it at the pull request's own
 # build rather than the last published one.
 #
-# Only the contract tier runs here: it needs no credentials and no network, so
-# it is safe on every pull request, including ones opened by the generator. The
-# live tier makes real calls against the demo environment and stays out.
+# Only the contract tier runs: it needs no credentials and no network. The live
+# tier makes real calls against the demo environment and stays out.
 #
-# Note on triggering: a pull request opened with the default GITHUB_TOKEN does
-# not start new workflow runs, so this would never fire on generation PRs while
-# sdk_generation.yaml authenticates with that token. See the comment there.
+# Two triggers, because generated pull requests cannot use the ordinary one. A
+# pull request opened with the default GITHUB_TOKEN does not start new workflow
+# runs — GitHub blocks that so workflows cannot trigger themselves — and the
+# generator has no other token. So those are picked up by watching Generate
+# finish instead, and the result is posted back as a commit status.
 name: Contract tests
 
 permissions:
@@ -21,19 +22,93 @@ permissions:
 on:
   pull_request:
   workflow_dispatch: {}
+  workflow_run:
+    workflows: [Generate]
+    types: [completed]
 
 concurrency:
-  group: contract-tests-${{ github.ref }}
+  group: >-
+    contract-tests-${{ github.event.pull_request.number
+      || github.event.workflow_run.id
+      || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  target:
+    name: Resolve what to test
+    runs-on: ubuntu-latest
+    # A failed generation has nothing worth testing.
+    if: >-
+      github.event_name != 'workflow_run'
+      || github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      found: ${{ steps.resolve.outputs.found }}
+      sha: ${{ steps.resolve.outputs.sha }}
+      report: ${{ steps.resolve.outputs.report }}
+    steps:
+      - name: Resolve the commit under test
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          case "$EVENT" in
+            pull_request)
+              # GitHub already shows these as checks on the pull request, so
+              # there is nothing to post.
+              {
+                echo "found=true"
+                echo "sha=$PR_SHA"
+                echo "report=false"
+              } >> "$GITHUB_OUTPUT"
+              echo "Testing pull request head $PR_SHA"
+              ;;
+            workflow_run)
+              # The generator opens its pull request partway through the
+              # Generate run, so that run's own head_branch is main rather than
+              # the generated branch. Find the branch instead.
+              pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
+                     --json number,headRefName,headRefOid \
+                     --jq '[.[] | select(.headRefName | startswith("speakeasy-sdk-regen-"))]
+                           | sort_by(.number) | last // empty')
+              if [ -z "$pr" ]; then
+                echo "Generate opened no pull request, so there is nothing to test."
+                echo "found=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              number=$(echo "$pr" | jq -r .number)
+              sha=$(echo "$pr" | jq -r .headRefOid)
+              {
+                echo "found=true"
+                echo "sha=$sha"
+                echo "report=true"
+              } >> "$GITHUB_OUTPUT"
+              echo "Testing generated pull request #$number at $sha"
+              ;;
+            *)
+              {
+                echo "found=true"
+                echo "sha=$GITHUB_SHA"
+                echo "report=false"
+              } >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
   typescript:
     name: TypeScript
+    needs: target
+    if: needs.target.outputs.found == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the SDK under test
         uses: actions/checkout@v7
         with:
+          ref: ${{ needs.target.outputs.sha }}
           path: sdk
 
       - uses: actions/setup-node@v7
@@ -51,21 +126,12 @@ jobs:
           npm ci
           npm run build
 
-      - name: Check the suite is reachable
-        env:
-          TOKEN: ${{ secrets.SDK_BOT_TOKEN }}
-        run: |
-          if [ -z "$TOKEN" ]; then
-            echo "::error::SDK_BOT_TOKEN is not set, so the test suite cannot be checked out. It needs read access to gbgplc/gbg-go-core-sdk-test (and write access here, so the generator's pull requests get checks at all). See the comment in sdk_generation.yaml."
-            exit 1
-          fi
-
       - name: Check out the test suite
         uses: actions/checkout@v7
         with:
           repository: gbgplc/gbg-go-core-sdk-test
           path: suite
-          token: ${{ secrets.SDK_BOT_TOKEN }}
+          ssh-key: ${{ secrets.SDK_TEST_REPO_KEY }}
 
       - name: Point the suite at this build
         working-directory: suite
@@ -86,11 +152,14 @@ jobs:
 
   java:
     name: Java
+    needs: target
+    if: needs.target.outputs.found == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the SDK under test
         uses: actions/checkout@v7
         with:
+          ref: ${{ needs.target.outputs.sha }}
           path: sdk
 
       - uses: actions/setup-java@v6
@@ -106,6 +175,7 @@ jobs:
       - name: Read the version this pull request builds
         id: sdk
         run: |
+          set -euo pipefail
           version=$(sed -n 's/^version=//p' sdk/java/gradle.properties)
           if [ -z "$version" ]; then
             echo "::error::no version= line in java/gradle.properties"
@@ -119,21 +189,12 @@ jobs:
         working-directory: sdk/java
         run: ./gradlew publishToMavenLocal -Pskip.signing
 
-      - name: Check the suite is reachable
-        env:
-          TOKEN: ${{ secrets.SDK_BOT_TOKEN }}
-        run: |
-          if [ -z "$TOKEN" ]; then
-            echo "::error::SDK_BOT_TOKEN is not set, so the test suite cannot be checked out. It needs read access to gbgplc/gbg-go-core-sdk-test (and write access here, so the generator's pull requests get checks at all). See the comment in sdk_generation.yaml."
-            exit 1
-          fi
-
       - name: Check out the test suite
         uses: actions/checkout@v7
         with:
           repository: gbgplc/gbg-go-core-sdk-test
           path: suite
-          token: ${{ secrets.SDK_BOT_TOKEN }}
+          ssh-key: ${{ secrets.SDK_TEST_REPO_KEY }}
 
       # -PuseLocalSdk is what puts mavenLocal() on the repository list at all.
       # ProvenanceTest fails the run if the resolved jar did not come from
@@ -151,3 +212,40 @@ jobs:
           ./gradlew test --tests 'com.gbg.gocore.test.contract.*'
           -PuseLocalSdk
           -PsdkVersion=${{ steps.sdk.outputs.version }}
+
+  status:
+    name: Report to the generated pull request
+    needs: [target, typescript, java]
+    if: always() && needs.target.outputs.report == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      # Generated pull requests get no checks of their own, so without this the
+      # result would sit in a workflow run nobody is looking at.
+      - name: Post the result as a commit status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.target.outputs.sha }}
+          TS_RESULT: ${{ needs.typescript.result }}
+          JAVA_RESULT: ${{ needs.java.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          post() {
+            if [ "$1" = "success" ]; then
+              state=success
+              description="contract tier passed"
+            else
+              state=failure
+              description="contract tier $1"
+            fi
+            gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -X POST \
+              -f state="$state" \
+              -f context="$2" \
+              -f description="$description" \
+              -f target_url="$RUN_URL" > /dev/null
+            echo "$2: $state"
+          }
+          post "$TS_RESULT" "Contract tests / TypeScript"
+          post "$JAVA_RESULT" "Contract tests / Java"
