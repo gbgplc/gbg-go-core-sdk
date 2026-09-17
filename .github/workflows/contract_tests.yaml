@@ -71,13 +71,30 @@ jobs:
             workflow_run)
               # The generator opens its pull request partway through the
               # Generate run, so that run's own head_branch is main rather than
-              # the generated branch. Find the branch instead.
+              # the generated branch. Find the pull request instead.
+              #
+              # All three filters are load-bearing, and the first two are the
+              # security boundary. This job holds the deploy key and goes on to
+              # execute what it checks out — npm and Gradle both run code from
+              # the tree. This repository is public, so without the fork and
+              # author checks anyone could open a pull request from a fork on a
+              # branch named speakeasy-sdk-regen-anything and have their code
+              # run here with that key in scope.
+              #
+              #   isCrossRepository  the head branch must be in this repository,
+              #                      which takes push access to create
+              #   author             it must be the pull request the generator
+              #                      itself opened
+              #   headRefName        and on a branch the generator names
               pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
-                     --json number,headRefName,headRefOid \
-                     --jq '[.[] | select(.headRefName | startswith("speakeasy-sdk-regen-"))]
+                     --json number,headRefName,headRefOid,isCrossRepository,author \
+                     --jq '[.[]
+                            | select(.isCrossRepository == false)
+                            | select(.author.login == "app/github-actions")
+                            | select(.headRefName | startswith("speakeasy-sdk-regen-"))]
                            | sort_by(.number) | last // empty')
               if [ -z "$pr" ]; then
-                echo "Generate opened no pull request, so there is nothing to test."
+                echo "No generated pull request from this repository is open, so there is nothing to test."
                 echo "found=false" >> "$GITHUB_OUTPUT"
                 exit 0
               fi
