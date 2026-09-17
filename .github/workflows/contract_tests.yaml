@@ -9,11 +9,11 @@
 # Only the contract tier runs: it needs no credentials and no network. The live
 # tier makes real calls against the demo environment and stays out.
 #
-# Two triggers, because generated pull requests cannot use the ordinary one. A
-# pull request opened with the default GITHUB_TOKEN does not start new workflow
-# runs — GitHub blocks that so workflows cannot trigger themselves — and the
-# generator has no other token. So those are picked up by watching Generate
-# finish instead, and the result is posted back as a commit status.
+# Generated pull requests cannot use the pull_request trigger: a pull request
+# opened with the default GITHUB_TOKEN starts no workflow runs, because GitHub
+# blocks that so workflows cannot trigger themselves. Those are covered by
+# sdk_generation.yaml, which calls this workflow directly once it has generated
+# a branch and names the commit through sdk-ref.
 name: Contract tests
 
 permissions:
@@ -22,110 +22,32 @@ permissions:
 on:
   pull_request:
   workflow_dispatch: {}
-  workflow_run:
-    workflows: [Generate]
-    types: [completed]
+  workflow_call:
+    inputs:
+      sdk-ref:
+        description: >-
+          Commit to test. Left empty, each job checks out whatever the event
+          gives it, which is what the pull_request trigger wants.
+        type: string
+        required: false
+        default: ""
 
 concurrency:
   group: >-
-    contract-tests-${{ github.event.pull_request.number
-      || github.event.workflow_run.id
+    contract-tests-${{ inputs.sdk-ref
+      || github.event.pull_request.number
       || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  target:
-    name: Resolve what to test
-    runs-on: ubuntu-latest
-    # A failed generation has nothing worth testing.
-    if: >-
-      github.event_name != 'workflow_run'
-      || github.event.workflow_run.conclusion == 'success'
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      found: ${{ steps.resolve.outputs.found }}
-      sha: ${{ steps.resolve.outputs.sha }}
-      report: ${{ steps.resolve.outputs.report }}
-    steps:
-      - name: Resolve the commit under test
-        id: resolve
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT: ${{ github.event_name }}
-          PR_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          set -euo pipefail
-          case "$EVENT" in
-            pull_request)
-              # GitHub already shows these as checks on the pull request, so
-              # there is nothing to post.
-              {
-                echo "found=true"
-                echo "sha=$PR_SHA"
-                echo "report=false"
-              } >> "$GITHUB_OUTPUT"
-              echo "Testing pull request head $PR_SHA"
-              ;;
-            workflow_run)
-              # The generator opens its pull request partway through the
-              # Generate run, so that run's own head_branch is main rather than
-              # the generated branch. Find the pull request instead.
-              #
-              # All three filters are load-bearing, and the first two are the
-              # security boundary. This job holds the deploy key and goes on to
-              # execute what it checks out — npm and Gradle both run code from
-              # the tree. This repository is public, so without the fork and
-              # author checks anyone could open a pull request from a fork on a
-              # branch named speakeasy-sdk-regen-anything and have their code
-              # run here with that key in scope.
-              #
-              #   isCrossRepository  the head branch must be in this repository,
-              #                      which takes push access to create
-              #   author             it must be the pull request the generator
-              #                      itself opened
-              #   headRefName        and on a branch the generator names
-              pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
-                     --json number,headRefName,headRefOid,isCrossRepository,author \
-                     --jq '[.[]
-                            | select(.isCrossRepository == false)
-                            | select(.author.login == "app/github-actions")
-                            | select(.headRefName | startswith("speakeasy-sdk-regen-"))]
-                           | sort_by(.number) | last // empty')
-              if [ -z "$pr" ]; then
-                echo "No generated pull request from this repository is open, so there is nothing to test."
-                echo "found=false" >> "$GITHUB_OUTPUT"
-                exit 0
-              fi
-              number=$(echo "$pr" | jq -r .number)
-              sha=$(echo "$pr" | jq -r .headRefOid)
-              {
-                echo "found=true"
-                echo "sha=$sha"
-                echo "report=true"
-              } >> "$GITHUB_OUTPUT"
-              echo "Testing generated pull request #$number at $sha"
-              ;;
-            *)
-              {
-                echo "found=true"
-                echo "sha=$GITHUB_SHA"
-                echo "report=false"
-              } >> "$GITHUB_OUTPUT"
-              ;;
-          esac
-
   typescript:
     name: TypeScript
-    needs: target
-    if: needs.target.outputs.found == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the SDK under test
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.target.outputs.sha }}
+          ref: ${{ inputs.sdk-ref }}
           path: sdk
 
       - uses: actions/setup-node@v7
@@ -169,14 +91,12 @@ jobs:
 
   java:
     name: Java
-    needs: target
-    if: needs.target.outputs.found == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out the SDK under test
         uses: actions/checkout@v7
         with:
-          ref: ${{ needs.target.outputs.sha }}
+          ref: ${{ inputs.sdk-ref }}
           path: sdk
 
       - uses: actions/setup-java@v6
@@ -229,40 +149,3 @@ jobs:
           ./gradlew test --tests 'com.gbg.gocore.test.contract.*'
           -PuseLocalSdk
           -PsdkVersion=${{ steps.sdk.outputs.version }}
-
-  status:
-    name: Report to the generated pull request
-    needs: [target, typescript, java]
-    if: always() && needs.target.outputs.report == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      statuses: write
-    steps:
-      # Generated pull requests get no checks of their own, so without this the
-      # result would sit in a workflow run nobody is looking at.
-      - name: Post the result as a commit status
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SHA: ${{ needs.target.outputs.sha }}
-          TS_RESULT: ${{ needs.typescript.result }}
-          JAVA_RESULT: ${{ needs.java.result }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          set -euo pipefail
-          post() {
-            if [ "$1" = "success" ]; then
-              state=success
-              description="contract tier passed"
-            else
-              state=failure
-              description="contract tier $1"
-            fi
-            gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -X POST \
-              -f state="$state" \
-              -f context="$2" \
-              -f description="$description" \
-              -f target_url="$RUN_URL" > /dev/null
-            echo "$2: $state"
-          }
-          post "$TS_RESULT" "Contract tests / TypeScript"
-          post "$JAVA_RESULT" "Contract tests / Java"
