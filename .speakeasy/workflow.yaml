@@ -3,7 +3,7 @@ speakeasyVersion: latest
 sources:
     GBG GO Next Gen Flow Captain API:
         inputs:
-            - location: ./.spec/spec.yaml
+            - location: https://eu.platform.go.gbgplc.com/v2/captain/openapi.json
         overlays:
             - location: .speakeasy/speakeasy-modifications-overlay.yaml
         output: .speakeasy/out.openapi.yaml
