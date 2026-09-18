@@ -51,7 +51,10 @@ public class StartJourneyDocumentSubject {
     @JsonProperty("lastNamesAtBirth")
     private List<String> lastNamesAtBirth;
 
-
+    /**
+     * Names the subject is otherwise or was previously known by — applicant-declared, unordered,
+     * duplicates permitted
+     */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("aliases")
     private List<StartJourneyDocumentAlias> aliases;
@@ -116,6 +119,13 @@ public class StartJourneyDocumentSubject {
     @JsonProperty("mothersMaidenName")
     private String mothersMaidenName;
 
+    /**
+     * Country the address is in. It must be a valid ISO2 or ISO3 country code
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("nationality")
+    private String nationality;
+
     @JsonCreator
     public StartJourneyDocumentSubject(
             @JsonProperty("title") @Nullable String title,
@@ -134,7 +144,8 @@ public class StartJourneyDocumentSubject {
             @JsonProperty("phones") @Nullable List<StartJourneyDocumentPhone> phones,
             @JsonProperty("emails") @Nullable List<StartJourneyDocumentEmail> emails,
             @JsonProperty("socials") @Nullable List<StartJourneyDocumentSocial> socials,
-            @JsonProperty("mothersMaidenName") @Nullable String mothersMaidenName) {
+            @JsonProperty("mothersMaidenName") @Nullable String mothersMaidenName,
+            @JsonProperty("nationality") @Nullable String nationality) {
         this.title = title;
         this.firstName = firstName;
         this.middleNames = middleNames;
@@ -152,6 +163,7 @@ public class StartJourneyDocumentSubject {
         this.emails = emails;
         this.socials = socials;
         this.mothersMaidenName = mothersMaidenName;
+        this.nationality = nationality;
     }
     
     public StartJourneyDocumentSubject() {
@@ -160,7 +172,7 @@ public class StartJourneyDocumentSubject {
             null, null, null,
             null, null, null,
             null, null, null,
-            null, null);
+            null, null, null);
     }
 
     /**
@@ -198,6 +210,10 @@ public class StartJourneyDocumentSubject {
         return Optional.ofNullable(this.lastNamesAtBirth);
     }
 
+    /**
+     * Names the subject is otherwise or was previously known by — applicant-declared, unordered,
+     * duplicates permitted
+     */
     public Optional<List<StartJourneyDocumentAlias>> aliases() {
         return Optional.ofNullable(this.aliases);
     }
@@ -253,6 +269,13 @@ public class StartJourneyDocumentSubject {
         return Optional.ofNullable(this.mothersMaidenName);
     }
 
+    /**
+     * Country the address is in. It must be a valid ISO2 or ISO3 country code
+     */
+    public Optional<String> nationality() {
+        return Optional.ofNullable(this.nationality);
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -303,6 +326,10 @@ public class StartJourneyDocumentSubject {
     }
 
 
+    /**
+     * Names the subject is otherwise or was previously known by — applicant-declared, unordered,
+     * duplicates permitted
+     */
     public StartJourneyDocumentSubject withAliases(@Nullable List<StartJourneyDocumentAlias> aliases) {
         this.aliases = aliases;
         return this;
@@ -382,6 +409,15 @@ public class StartJourneyDocumentSubject {
     }
 
 
+    /**
+     * Country the address is in. It must be a valid ISO2 or ISO3 country code
+     */
+    public StartJourneyDocumentSubject withNationality(@Nullable String nationality) {
+        this.nationality = nationality;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -408,7 +444,8 @@ public class StartJourneyDocumentSubject {
             Utils.enhancedDeepEquals(this.phones, other.phones) &&
             Utils.enhancedDeepEquals(this.emails, other.emails) &&
             Utils.enhancedDeepEquals(this.socials, other.socials) &&
-            Utils.enhancedDeepEquals(this.mothersMaidenName, other.mothersMaidenName);
+            Utils.enhancedDeepEquals(this.mothersMaidenName, other.mothersMaidenName) &&
+            Utils.enhancedDeepEquals(this.nationality, other.nationality);
     }
     
     @Override
@@ -419,7 +456,7 @@ public class StartJourneyDocumentSubject {
             relatedPersons, dateOfBirth, gender,
             currentAddress, previousAddresses, placeOfBirth,
             idNumbers, phones, emails,
-            socials, mothersMaidenName);
+            socials, mothersMaidenName, nationality);
     }
     
     @Override
@@ -441,7 +478,8 @@ public class StartJourneyDocumentSubject {
                 "phones", phones,
                 "emails", emails,
                 "socials", socials,
-                "mothersMaidenName", mothersMaidenName);
+                "mothersMaidenName", mothersMaidenName,
+                "nationality", nationality);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -480,6 +518,8 @@ public class StartJourneyDocumentSubject {
         private List<StartJourneyDocumentSocial> socials;
 
         private String mothersMaidenName;
+
+        private String nationality;
 
         private Builder() {
           // force use of static builder() method
@@ -525,6 +565,10 @@ public class StartJourneyDocumentSubject {
             return this;
         }
 
+        /**
+         * Names the subject is otherwise or was previously known by — applicant-declared, unordered,
+         * duplicates permitted
+         */
         public Builder aliases(@Nullable List<StartJourneyDocumentAlias> aliases) {
             this.aliases = aliases;
             return this;
@@ -592,6 +636,14 @@ public class StartJourneyDocumentSubject {
             return this;
         }
 
+        /**
+         * Country the address is in. It must be a valid ISO2 or ISO3 country code
+         */
+        public Builder nationality(@Nullable String nationality) {
+            this.nationality = nationality;
+            return this;
+        }
+
         public StartJourneyDocumentSubject build() {
             return new StartJourneyDocumentSubject(
                 title, firstName, middleNames,
@@ -599,7 +651,7 @@ public class StartJourneyDocumentSubject {
                 relatedPersons, dateOfBirth, gender,
                 currentAddress, previousAddresses, placeOfBirth,
                 idNumbers, phones, emails,
-                socials, mothersMaidenName);
+                socials, mothersMaidenName, nationality);
         }
 
     }

@@ -3,38 +3,24 @@
  */
 
 import { ClientSDK } from "../lib/sdks.js";
+import { Addresses } from "./addresses.js";
 import { Devices } from "./devices.js";
-import { Health } from "./health.js";
 import { Instances } from "./instances.js";
 import { Interactions } from "./interactions.js";
 import { Journeys } from "./journeys.js";
+import { Sandbox } from "./sandbox.js";
 import { Tasks } from "./tasks.js";
 import { Tokens } from "./tokens.js";
 
 export class Go extends ClientSDK {
-  private _tokens?: Tokens;
-  get tokens(): Tokens {
-    return (this._tokens ??= new Tokens(this._options));
-  }
-
-  private _health?: Health;
-  get health(): Health {
-    return (this._health ??= new Health(this._options));
-  }
-
-  private _devices?: Devices;
-  get devices(): Devices {
-    return (this._devices ??= new Devices(this._options));
-  }
-
-  private _tasks?: Tasks;
-  get tasks(): Tasks {
-    return (this._tasks ??= new Tasks(this._options));
-  }
-
   private _journeys?: Journeys;
   get journeys(): Journeys {
     return (this._journeys ??= new Journeys(this._options));
+  }
+
+  private _interactions?: Interactions;
+  get interactions(): Interactions {
+    return (this._interactions ??= new Interactions(this._options));
   }
 
   private _instances?: Instances;
@@ -42,8 +28,28 @@ export class Go extends ClientSDK {
     return (this._instances ??= new Instances(this._options));
   }
 
-  private _interactions?: Interactions;
-  get interactions(): Interactions {
-    return (this._interactions ??= new Interactions(this._options));
+  private _addresses?: Addresses;
+  get addresses(): Addresses {
+    return (this._addresses ??= new Addresses(this._options));
+  }
+
+  private _tasks?: Tasks;
+  get tasks(): Tasks {
+    return (this._tasks ??= new Tasks(this._options));
+  }
+
+  private _devices?: Devices;
+  get devices(): Devices {
+    return (this._devices ??= new Devices(this._options));
+  }
+
+  private _sandbox?: Sandbox;
+  get sandbox(): Sandbox {
+    return (this._sandbox ??= new Sandbox(this._options));
+  }
+
+  private _tokens?: Tokens;
+  get tokens(): Tokens {
+    return (this._tokens ??= new Tokens(this._options));
   }
 }

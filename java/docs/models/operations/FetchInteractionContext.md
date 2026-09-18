@@ -1,8 +1,0 @@
-# FetchInteractionContext
-
-
-## Fields
-
-| Field                                                                                    | Setter Type                                                                              | Getter Type                                                                              | Required                                                                                 | Description                                                                              |
-| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `subject`                                                                                | @Nullable [FetchInteractionSubject](../../models/operations/FetchInteractionSubject.md)  | Optional\<[FetchInteractionSubject](../../models/operations/FetchInteractionSubject.md)> | :heavy_minus_sign:                                                                       | N/A                                                                                      |

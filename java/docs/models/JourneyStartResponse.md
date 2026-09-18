@@ -1,0 +1,11 @@
+# JourneyStartResponse
+
+
+## Fields
+
+| Field                                                                 | Setter Type                                                           | Getter Type                                                           | Required                                                              | Description                                                           |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `instanceId`                                                          | *String*                                                              | *String*                                                              | :heavy_check_mark:                                                    | N/A                                                                   |
+| `instanceUrl`                                                         | @Nullable *String*                                                    | Optional\<*String*>                                                   | :heavy_minus_sign:                                                    | N/A                                                                   |
+| `status`                                                              | [JourneyStartResponseStatus](../models/JourneyStartResponseStatus.md) | [JourneyStartResponseStatus](../models/JourneyStartResponseStatus.md) | :heavy_check_mark:                                                    | N/A                                                                   |
+| `message`                                                             | @Nullable *String*                                                    | Optional\<*String*>                                                   | :heavy_minus_sign:                                                    | N/A                                                                   |

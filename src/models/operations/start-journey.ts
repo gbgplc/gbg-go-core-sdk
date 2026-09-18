@@ -3,31 +3,8 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../../lib/schemas.js";
 import { ClosedEnum } from "../../types/enums.js";
-import { Result as SafeParseResult } from "../../types/fp.js";
-import * as types from "../../types/primitives.js";
 import { smartUnion } from "../../types/smart-union.js";
-import { SDKValidationError } from "../errors/sdk-validation-error.js";
-
-/**
- * The method by which the End User will consume the journey.
- */
-export const Delivery = {
-  Page: "page",
-  Api: "api",
-} as const;
-/**
- * The method by which the End User will consume the journey.
- */
-export type Delivery = ClosedEnum<typeof Delivery>;
-
-export type Config = {
-  /**
-   * The method by which the End User will consume the journey.
-   */
-  delivery: Delivery;
-};
 
 export type StartJourneyIdentityAlias = {
   /**
@@ -50,11 +27,16 @@ export type StartJourneyIdentityAlias = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+   */
+  fullName?: string | undefined;
 };
 
 export const StartJourneyIdentityRelationship = {
   Mother: "mother",
   Father: "father",
+  Spouse: "spouse",
   MaternalGrandFather: "maternalGrandFather",
   MaternalGrandMother: "maternalGrandMother",
   PaternalGrandFather: "paternalGrandFather",
@@ -108,15 +90,15 @@ export type StartJourneyIdentityCurrentAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -178,15 +160,15 @@ export type StartJourneyIdentityPreviousAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -229,11 +211,11 @@ export type StartJourneyIdentityPreviousAddress = {
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  fromDate: string;
+  fromDate?: string | undefined;
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  toDate: string;
+  toDate?: string | undefined;
 };
 
 export type StartJourneyIdentityPlaceOfBirthLocation = {
@@ -256,15 +238,15 @@ export type StartJourneyIdentityPlaceOfBirth = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -334,7 +316,7 @@ export type StartJourneyIdentityPhone = {
 
 export type StartJourneyIdentityEmail = {
   /**
-   * The type of email, such as home, work, unknown etc
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -375,6 +357,9 @@ export type StartJourneyIdentity = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * Names the subject is otherwise or was previously known by — applicant-declared, unordered, duplicates permitted
+   */
   aliases?: Array<StartJourneyIdentityAlias> | undefined;
   relatedPersons?: Array<StartJourneyIdentityRelatedPerson> | undefined;
   /**
@@ -393,9 +378,474 @@ export type StartJourneyIdentity = {
    * The subject's mother's maiden name, used for identity verification
    */
   mothersMaidenName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  nationality?: string | undefined;
 };
 
-export type StartJourneyAddress = {
+export const StartJourneyTypePrimary1 = {
+  Primary: "primary",
+} as const;
+export type StartJourneyTypePrimary1 = ClosedEnum<
+  typeof StartJourneyTypePrimary1
+>;
+
+export const StartJourneyStatus = {
+  Active: "active",
+  Suspended: "suspended",
+  Dormant: "dormant",
+  Dissolved: "dissolved",
+  StruckOff: "struckOff",
+  Unknown: "unknown",
+} as const;
+export type StartJourneyStatus = ClosedEnum<typeof StartJourneyStatus>;
+
+export type StartJourneyAddressLocation = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export const StartJourneyPurpose = {
+  Registered: "registered",
+  Mailing: "mailing",
+  Site: "site",
+  Agent: "agent",
+  Headquarters: "headquarters",
+} as const;
+export type StartJourneyPurpose = ClosedEnum<typeof StartJourneyPurpose>;
+
+export type StartJourneyAddressPrimary = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyAddressLocation | undefined;
+  purpose?: StartJourneyPurpose | undefined;
+};
+
+export const StartJourneyTaxIdentifierType = {
+  Tin: "TIN",
+  Ein: "EIN",
+} as const;
+export type StartJourneyTaxIdentifierType = ClosedEnum<
+  typeof StartJourneyTaxIdentifierType
+>;
+
+export type StartJourneyTaxIdentifier = {
+  type: StartJourneyTaxIdentifierType;
+  value: string;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+};
+
+export const StartJourneySystem = {
+  Naics2017: "naics2017",
+  Naics2022: "naics2022",
+  Sic: "sic",
+  Mcc: "mcc",
+} as const;
+export type StartJourneySystem = ClosedEnum<typeof StartJourneySystem>;
+
+export type StartJourneyIndustryClassification = {
+  system: StartJourneySystem;
+  code: string;
+  description?: string | undefined;
+};
+
+export const StartJourneyRegistrationType = {
+  Domestic: "domestic",
+  Foreign: "foreign",
+  Unknown: "unknown",
+} as const;
+export type StartJourneyRegistrationType = ClosedEnum<
+  typeof StartJourneyRegistrationType
+>;
+
+export type StartJourneyRegisteredAddressLocation = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export type StartJourneyRegisteredAddress = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyRegisteredAddressLocation | undefined;
+};
+
+export type StartJourneyAgentAddressLocation = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export type StartJourneyAgentAddress = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyAgentAddressLocation | undefined;
+};
+
+export type StartJourneyRegistration = {
+  jurisdiction?: string | undefined;
+  registrationType?: StartJourneyRegistrationType | undefined;
+  fileNumber?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  issueDate?: string | undefined;
+  registeredAddress?: StartJourneyRegisteredAddress | undefined;
+  agentName?: string | undefined;
+  agentAddress?: StartJourneyAgentAddress | undefined;
+};
+
+export const StartJourneyTypePrimary2 = {
+  Primary: "primary",
+} as const;
+export type StartJourneyTypePrimary2 = ClosedEnum<
+  typeof StartJourneyTypePrimary2
+>;
+
+export const StartJourneyRole = {
+  UltimateBeneficialOwner: "ultimateBeneficialOwner",
+  Director: "director",
+  Officer: "officer",
+  Secretary: "secretary",
+  Shareholder: "shareholder",
+  Partner: "partner",
+} as const;
+export type StartJourneyRole = ClosedEnum<typeof StartJourneyRole>;
+
+export type StartJourneyCurrentAddressLocationPrimary = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export type StartJourneyCurrentAddressPrimary = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyCurrentAddressLocationPrimary | undefined;
+};
+
+export type StartJourneyPerson = {
+  /**
+   * Title of an individual such as Mr, Mrs, Dr, Sir
+   */
+  title?: string | undefined;
+  /**
+   * A person's name used by their collegues and friends to address them
+   */
+  firstName?: string | undefined;
+  /**
+   * Any other registered names used by the individual, not aliases
+   */
+  middleNames?: Array<string> | undefined;
+  /**
+   * Any family names for the individual
+   */
+  lastNames?: Array<string> | undefined;
+  /**
+   * Any family names for the individual
+   */
+  lastNamesAtBirth?: Array<string> | undefined;
+  id?: string | undefined;
+  type?: StartJourneyTypePrimary2 | undefined;
+  role?: StartJourneyRole | undefined;
+  position?: string | undefined;
+  ownershipPercentage?: number | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  nationality?: string | undefined;
+  dateOfBirth?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  startDate?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  endDate?: string | undefined;
+  currentAddress?: StartJourneyCurrentAddressPrimary | undefined;
+};
+
+export type StartJourneyPhonePrimary = {
+  /**
+   * The type of phone number, such as landline, mobile, fax, unknown etc
+   */
+  type: string;
+  /**
+   * Phone number, ideally in international format with +(Country Code)
+   */
+  number: string;
+};
+
+export type StartJourneyEntity = {
+  id?: string | undefined;
+  type?: StartJourneyTypePrimary1 | undefined;
+  name?: string | undefined;
+  aliases?: Array<string> | undefined;
+  businessType?: string | undefined;
+  status?: StartJourneyStatus | undefined;
+  description?: string | undefined;
+  addresses?: Array<StartJourneyAddressPrimary> | undefined;
+  taxIdentifiers?: Array<StartJourneyTaxIdentifier> | undefined;
+  companyNumber?: string | undefined;
+  industryClassifications?:
+    | Array<StartJourneyIndustryClassification>
+    | undefined;
+  registrations?: Array<StartJourneyRegistration> | undefined;
+  corporateStructure?: string | undefined;
+  persons?: Array<StartJourneyPerson> | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  incorporationDate?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  dissolutionDate?: string | undefined;
+  phones?: Array<StartJourneyPhonePrimary> | undefined;
+  websites?: Array<string> | undefined;
+  headcount?: number | undefined;
+  isNonProfit?: boolean | undefined;
+};
+
+export type StartJourneyDocumentAddress = {
   addressString?: string | undefined;
   extractedAddressString?: string | undefined;
   addressLine1?: string | undefined;
@@ -406,6 +856,26 @@ export type StartJourneyAddress = {
 };
 
 export type StartJourneyDocumentDevice = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+export type StartJourneySide1Device = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+export type StartJourneySide2Device = {
   type?: string | undefined;
   model?: string | undefined;
   hasContactlessReader?: boolean | undefined;
@@ -637,11 +1107,16 @@ export type StartJourneyDocumentAlias = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+   */
+  fullName?: string | undefined;
 };
 
 export const StartJourneyDocumentRelationship = {
   Mother: "mother",
   Father: "father",
+  Spouse: "spouse",
   MaternalGrandFather: "maternalGrandFather",
   MaternalGrandMother: "maternalGrandMother",
   PaternalGrandFather: "paternalGrandFather",
@@ -695,15 +1170,15 @@ export type StartJourneyDocumentCurrentAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -765,15 +1240,15 @@ export type StartJourneyDocumentPreviousAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -816,11 +1291,11 @@ export type StartJourneyDocumentPreviousAddress = {
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  fromDate: string;
+  fromDate?: string | undefined;
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  toDate: string;
+  toDate?: string | undefined;
 };
 
 export type StartJourneyDocumentPlaceOfBirthLocation = {
@@ -843,15 +1318,15 @@ export type StartJourneyDocumentPlaceOfBirth = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -921,7 +1396,7 @@ export type StartJourneyDocumentPhone = {
 
 export type StartJourneyDocumentEmail = {
   /**
-   * The type of email, such as home, work, unknown etc
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -962,6 +1437,9 @@ export type StartJourneyDocumentSubject = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * Names the subject is otherwise or was previously known by — applicant-declared, unordered, duplicates permitted
+   */
   aliases?: Array<StartJourneyDocumentAlias> | undefined;
   relatedPersons?: Array<StartJourneyDocumentRelatedPerson> | undefined;
   /**
@@ -980,11 +1458,15 @@ export type StartJourneyDocumentSubject = {
    * The subject's mother's maiden name, used for identity verification
    */
   mothersMaidenName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  nationality?: string | undefined;
 };
 
 export type StartJourneyDocument = {
   oneDBarcode?: string | undefined;
-  address?: StartJourneyAddress | undefined;
+  address?: StartJourneyDocumentAddress | undefined;
   applicationDate?: string | undefined;
   applicationNumber?: string | undefined;
   dateOfBirth?: string | undefined;
@@ -1062,13 +1544,15 @@ export type StartJourneyDocument = {
    */
   issuerCountryCode?: string | undefined;
   id?: string | undefined;
-  type?: string | undefined;
+  type: string;
   category?: string | undefined;
   subtype?: string | undefined;
   format?: string | undefined;
   device?: StartJourneyDocumentDevice | undefined;
   side1Image?: string | undefined;
   side2Image?: string | undefined;
+  side1Device?: StartJourneySide1Device | undefined;
+  side2Device?: StartJourneySide2Device | undefined;
   chip?: StartJourneyChip | undefined;
   classification?: StartJourneyClassification | undefined;
   extraction?: StartJourneyExtraction | undefined;
@@ -1079,11 +1563,55 @@ export type StartJourneyDocument = {
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
   expiryDate?: string | undefined;
+  cardType?: string | undefined;
+  /**
+   * Year and month in ISO 8601 format: YYYY-MM
+   */
+  expiryMonth?: string | undefined;
+  cardColour?: string | undefined;
+  cardStatus?: string | undefined;
   subject?: StartJourneyDocumentSubject | undefined;
   /**
    * Country the address is in. It must be a valid ISO2 or ISO3 country code
    */
   country?: string | undefined;
+  certificateFormat?: string | undefined;
+  registrationNumber?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  registrationDate?: string | undefined;
+  /**
+   * Four-digit calendar year in ISO 8601 format: YYYY
+   */
+  registrationYear?: string | undefined;
+  partyRole?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  dateOfEvent?: string | undefined;
+  previousFirstName?: string | undefined;
+  previousMiddleName?: string | undefined;
+  previousSurname?: string | undefined;
+};
+
+export const StartJourneyBiometricType = {
+  StoredFace: "storedFace",
+} as const;
+export type StartJourneyBiometricType = ClosedEnum<
+  typeof StartJourneyBiometricType
+>;
+
+export type StartJourneyBiometricStoredFace = {
+  id?: string | undefined;
+  type: StartJourneyBiometricType;
+  templateReference: string;
+};
+
+export type StartJourneyBiometric5 = {
+  id?: string | undefined;
+  type?: string | undefined;
+  anchorImage: string;
 };
 
 export type StartJourneyBiometric4 = {
@@ -1116,13 +1644,15 @@ export type StartJourneyBiometric1 = {
 export type StartJourneyBiometricUnion =
   | StartJourneyBiometric1
   | StartJourneyBiometric2
+  | StartJourneyBiometricStoredFace
   | StartJourneyBiometric3
-  | StartJourneyBiometric4;
+  | StartJourneyBiometric4
+  | StartJourneyBiometric5;
 
 export type StartJourneyUser = {
   id: string;
-  email: string;
-  domain: string;
+  email?: string | undefined;
+  domain?: string | undefined;
 };
 
 export type StartJourneyClient = {
@@ -1167,6 +1697,9 @@ export type StartJourneySessionAuth = {
 };
 
 export type StartJourneySession = {
+  id?: string | undefined;
+  type?: string | undefined;
+  provider?: string | undefined;
   user?: StartJourneyUser | undefined;
   client?: StartJourneyClient | undefined;
   device?: StartJourneySessionDevice | undefined;
@@ -1202,7 +1735,7 @@ export type StartJourneyConsent = {
 
 export type StartJourneyAccount = {
   /**
-   * The type of account, e.g. Bank Account, Building Society
+   * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still read but new writes emit the canonical form.
    */
   type: string;
   /**
@@ -1243,82 +1776,132 @@ export type StartJourneyAccount = {
   accountType?: string | undefined;
 };
 
+export type StartJourneyChoice = {
+  label: string;
+  text: string;
+};
+
+export type StartJourneyQuestion = {
+  id: number;
+  questionText: string;
+  helpText?: string | undefined;
+  choices: Array<StartJourneyChoice>;
+};
+
+export type StartJourneyAnswer = {
+  id: number;
+  choices: Array<string>;
+};
+
+export type StartJourneyKba = {
+  questions: Array<StartJourneyQuestion>;
+  answers: Array<StartJourneyAnswer>;
+};
+
 export type StartJourneySubject = {
   identity?: StartJourneyIdentity | undefined;
+  entities?: Array<StartJourneyEntity> | undefined;
   documents?: Array<StartJourneyDocument> | undefined;
   biometrics?:
     | Array<
       | StartJourneyBiometric1
       | StartJourneyBiometric2
+      | StartJourneyBiometricStoredFace
       | StartJourneyBiometric3
       | StartJourneyBiometric4
+      | StartJourneyBiometric5
     >
     | undefined;
   sessions?: Array<StartJourneySession> | undefined;
   consent?: Array<StartJourneyConsent> | undefined;
   accounts?: Array<StartJourneyAccount> | undefined;
+  kba?: StartJourneyKba | undefined;
   uid?: string | undefined;
 };
 
+/**
+ * How resume behaves for this delivery: off (no credential minted — pre-resume behavior) or resume (the applicant may return until an absolute deadline). There is no park setting and no park behavior; what park expressed is the window resume already grants. resume uses resumeExpiryMinutes and off uses no lifetime member at all — supplying one under off is rejected. An operator bound can only cap this DOWN, never raise it.
+ */
+export const ResumeMode = {
+  Off: "off",
+  Resume: "resume",
+} as const;
+/**
+ * How resume behaves for this delivery: off (no credential minted — pre-resume behavior) or resume (the applicant may return until an absolute deadline). There is no park setting and no park behavior; what park expressed is the window resume already grants. resume uses resumeExpiryMinutes and off uses no lifetime member at all — supplying one under off is rejected. An operator bound can only cap this DOWN, never raise it.
+ */
+export type ResumeMode = ClosedEnum<typeof ResumeMode>;
+
+/**
+ * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved independently across the per-journey, delivery, organization and system-default tiers, then clamped down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the delivery-token and connect-secret records, read at connect, and enforced when a resume credential is minted and exchanged. None of the resolved values is echoed on any response — the journey-start log line is where the resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery resource's linkConfig, then to the organization's value, then to the deprecated flat deliveryUrlTtlMinutes, then to the system default.
+ */
+export type LinkConfig = {
+  /**
+   * Lifetime of the delivery link in minutes: the deadline for STARTING a journey, governing the connect secret and therefore how long an unopened link stays usable. It no longer bounds how long an applicant may come BACK — that is resumeExpiryMinutes, which is anchored at first connect and may outlast this. Replaces the deprecated flat deliveryUrlTtlMinutes. Bounded by the operator ceiling at runtime, not here: a value above the ceiling is clamped down to it. A shorter lifetime is always honored exactly as supplied — there is no lower bound, and nothing lengthens a link beyond what was requested.
+   */
+  ttlMinutes?: number | undefined;
+  /**
+   * How resume behaves for this delivery: off (no credential minted — pre-resume behavior) or resume (the applicant may return until an absolute deadline). There is no park setting and no park behavior; what park expressed is the window resume already grants. resume uses resumeExpiryMinutes and off uses no lifetime member at all — supplying one under off is rejected. An operator bound can only cap this DOWN, never raise it.
+   */
+  resumeMode?: ResumeMode | undefined;
+  /**
+   * Resume-credential lifetime in minutes, ABSOLUTE from the applicant first connecting — not from link issue, and not sliding from last use. Nothing renews it: returning many times neither extends nor shortens it. Valid only when resumeMode is resume; supplying it alongside off is rejected. Clamped downward only. It may fall AFTER the link expires, which is deliberate — the link bounds starting, this bounds coming back. Because nothing renews it, a small value is a total journey budget rather than an idle timeout, and will cut off an applicant who never stopped working.
+   */
+  resumeExpiryMinutes?: number | undefined;
+};
+
+/**
+ * Selects which revision of this organisation configuration overlay this execution runs against. It participates in the delivery cache key, so naming a version guarantees the start is served a graph built from that exact overlay instead of a cached one. Omitting it is a no-op: the latest overlay applies and the request behaves as it did before this member existed.
+ */
+export type Overlay = {
+  /**
+   * The overlay revision to apply for this execution. Supply the version returned when the overlay was saved to have the change take effect on this start rather than after the delivery cache expires. Omit it to run the latest overlay, which is the behavior when this member is absent.
+   */
+  version: string;
+};
+
+export type Config = {
+  delivery: string;
+  branding?: any | undefined;
+  /**
+   * Marks this start as operator-completed (assisted) rather than customer-completed, so the two populations can be told apart in downstream telemetry. Accepted and logged but not yet enforced: supplying it does not change validation, routing, execution or the response, and omitting it leaves the request byte-identical to an ordinary start. It is an attribution signal only, and whether anything ever reads it to change behavior is a separate decision that has not been taken.
+   */
+  assisted?: boolean | undefined;
+  /**
+   * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved independently across the per-journey, delivery, organization and system-default tiers, then clamped down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the delivery-token and connect-secret records, read at connect, and enforced when a resume credential is minted and exchanged. None of the resolved values is echoed on any response — the journey-start log line is where the resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery resource's linkConfig, then to the organization's value, then to the deprecated flat deliveryUrlTtlMinutes, then to the system default.
+   */
+  linkConfig?: LinkConfig | undefined;
+  /**
+   * Selects which revision of this organisation configuration overlay this execution runs against. It participates in the delivery cache key, so naming a version guarantees the start is served a graph built from that exact overlay instead of a cached one. Omitting it is a no-op: the latest overlay applies and the request behaves as it did before this member existed.
+   */
+  overlay?: Overlay | undefined;
+  [additionalProperties: string]: unknown;
+};
+
 export type StartJourneyContext = {
+  subject?: StartJourneySubject | undefined;
   config: Config;
-  subject: StartJourneySubject;
+  [additionalProperties: string]: unknown;
+};
+
+export type Modules = {
+  outcome: string;
+  advice?: { [k: string]: any } | undefined;
+  [additionalProperties: string]: unknown;
+};
+
+export type Scenario = {
+  modules: { [k: string]: Modules };
+  defaultOutcome?: string | undefined;
+  defaultAdvice?: { [k: string]: any } | undefined;
+  description?: string | undefined;
+  [additionalProperties: string]: unknown;
 };
 
 export type StartJourneyRequest = {
-  /**
-   * Resource Id, a unique identifier for a resource, such as a journey or instance.
-   */
   resourceId: string;
-  context?: StartJourneyContext | undefined;
-  data?: { [k: string]: any } | undefined;
+  context: StartJourneyContext;
+  scenario?: Scenario | undefined;
 };
-
-/**
- * Start Response contains the Journey Instance Id
- */
-export type StartJourneyResponseBody2 = {
-  /**
-   * Journey Instance Id, a unique identifier for a started journey instance.
-   */
-  instanceId: string;
-  [additionalProperties: string]: unknown;
-};
-
-/**
- * Start Response contains the Journey Instance Id
- */
-export type StartJourneyResponseBody1 = {
-  /**
-   * Journey Instance Id, a unique identifier for a started journey instance.
-   */
-  instanceId: string;
-  [additionalProperties: string]: unknown;
-};
-
-export type StartJourneyResponse =
-  | StartJourneyResponseBody1
-  | StartJourneyResponseBody2;
-
-/** @internal */
-export const Delivery$outboundSchema: z.ZodMiniEnum<typeof Delivery> = z.enum(
-  Delivery,
-);
-
-/** @internal */
-export type Config$Outbound = {
-  delivery: string;
-};
-
-/** @internal */
-export const Config$outboundSchema: z.ZodMiniType<Config$Outbound, Config> = z
-  .object({
-    delivery: Delivery$outboundSchema,
-  });
-
-export function configToJSON(config: Config): string {
-  return JSON.stringify(Config$outboundSchema.parse(config));
-}
 
 /** @internal */
 export type StartJourneyIdentityAlias$Outbound = {
@@ -1327,6 +1910,7 @@ export type StartJourneyIdentityAlias$Outbound = {
   middleNames?: Array<string> | undefined;
   lastNames?: Array<string> | undefined;
   lastNamesAtBirth?: Array<string> | undefined;
+  fullName?: string | undefined;
 };
 
 /** @internal */
@@ -1339,6 +1923,7 @@ export const StartJourneyIdentityAlias$outboundSchema: z.ZodMiniType<
   middleNames: z.optional(z.array(z.string())),
   lastNames: z.optional(z.array(z.string())),
   lastNamesAtBirth: z.optional(z.array(z.string())),
+  fullName: z.optional(z.string()),
 });
 
 export function startJourneyIdentityAliasToJSON(
@@ -1528,8 +2113,8 @@ export type StartJourneyIdentityPreviousAddress$Outbound = {
   subAdministrativeArea?: string | undefined;
   organization?: string | undefined;
   location?: StartJourneyIdentityPreviousAddressLocation$Outbound | undefined;
-  fromDate: string;
-  toDate: string;
+  fromDate?: string | undefined;
+  toDate?: string | undefined;
 };
 
 /** @internal */
@@ -1557,8 +2142,8 @@ export const StartJourneyIdentityPreviousAddress$outboundSchema: z.ZodMiniType<
   location: z.optional(
     z.lazy(() => StartJourneyIdentityPreviousAddressLocation$outboundSchema),
   ),
-  fromDate: z.string(),
-  toDate: z.string(),
+  fromDate: z.optional(z.string()),
+  toDate: z.optional(z.string()),
 });
 
 export function startJourneyIdentityPreviousAddressToJSON(
@@ -1780,6 +2365,7 @@ export type StartJourneyIdentity$Outbound = {
   emails?: Array<StartJourneyIdentityEmail$Outbound> | undefined;
   socials?: Array<StartJourneyIdentitySocial$Outbound> | undefined;
   mothersMaidenName?: string | undefined;
+  nationality?: string | undefined;
 };
 
 /** @internal */
@@ -1822,6 +2408,7 @@ export const StartJourneyIdentity$outboundSchema: z.ZodMiniType<
     z.array(z.lazy(() => StartJourneyIdentitySocial$outboundSchema)),
   ),
   mothersMaidenName: z.optional(z.string()),
+  nationality: z.optional(z.string()),
 });
 
 export function startJourneyIdentityToJSON(
@@ -1833,7 +2420,634 @@ export function startJourneyIdentityToJSON(
 }
 
 /** @internal */
-export type StartJourneyAddress$Outbound = {
+export const StartJourneyTypePrimary1$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyTypePrimary1
+> = z.enum(StartJourneyTypePrimary1);
+
+/** @internal */
+export const StartJourneyStatus$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyStatus
+> = z.enum(StartJourneyStatus);
+
+/** @internal */
+export type StartJourneyAddressLocation$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyAddressLocation$outboundSchema: z.ZodMiniType<
+  StartJourneyAddressLocation$Outbound,
+  StartJourneyAddressLocation
+> = z.object({
+  latitude: z.optional(z.string()),
+  longitude: z.optional(z.string()),
+  geoAccuracy: z.optional(z.string()),
+  what3words: z.optional(z.string()),
+});
+
+export function startJourneyAddressLocationToJSON(
+  startJourneyAddressLocation: StartJourneyAddressLocation,
+): string {
+  return JSON.stringify(
+    StartJourneyAddressLocation$outboundSchema.parse(
+      startJourneyAddressLocation,
+    ),
+  );
+}
+
+/** @internal */
+export const StartJourneyPurpose$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyPurpose
+> = z.enum(StartJourneyPurpose);
+
+/** @internal */
+export type StartJourneyAddressPrimary$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyAddressLocation$Outbound | undefined;
+  purpose?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyAddressPrimary$outboundSchema: z.ZodMiniType<
+  StartJourneyAddressPrimary$Outbound,
+  StartJourneyAddressPrimary
+> = z.object({
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(
+    z.lazy(() => StartJourneyAddressLocation$outboundSchema),
+  ),
+  purpose: z.optional(StartJourneyPurpose$outboundSchema),
+});
+
+export function startJourneyAddressPrimaryToJSON(
+  startJourneyAddressPrimary: StartJourneyAddressPrimary,
+): string {
+  return JSON.stringify(
+    StartJourneyAddressPrimary$outboundSchema.parse(startJourneyAddressPrimary),
+  );
+}
+
+/** @internal */
+export const StartJourneyTaxIdentifierType$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyTaxIdentifierType
+> = z.enum(StartJourneyTaxIdentifierType);
+
+/** @internal */
+export type StartJourneyTaxIdentifier$Outbound = {
+  type: string;
+  value: string;
+  country?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyTaxIdentifier$outboundSchema: z.ZodMiniType<
+  StartJourneyTaxIdentifier$Outbound,
+  StartJourneyTaxIdentifier
+> = z.object({
+  type: StartJourneyTaxIdentifierType$outboundSchema,
+  value: z.string(),
+  country: z.optional(z.string()),
+});
+
+export function startJourneyTaxIdentifierToJSON(
+  startJourneyTaxIdentifier: StartJourneyTaxIdentifier,
+): string {
+  return JSON.stringify(
+    StartJourneyTaxIdentifier$outboundSchema.parse(startJourneyTaxIdentifier),
+  );
+}
+
+/** @internal */
+export const StartJourneySystem$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneySystem
+> = z.enum(StartJourneySystem);
+
+/** @internal */
+export type StartJourneyIndustryClassification$Outbound = {
+  system: string;
+  code: string;
+  description?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyIndustryClassification$outboundSchema: z.ZodMiniType<
+  StartJourneyIndustryClassification$Outbound,
+  StartJourneyIndustryClassification
+> = z.object({
+  system: StartJourneySystem$outboundSchema,
+  code: z.string(),
+  description: z.optional(z.string()),
+});
+
+export function startJourneyIndustryClassificationToJSON(
+  startJourneyIndustryClassification: StartJourneyIndustryClassification,
+): string {
+  return JSON.stringify(
+    StartJourneyIndustryClassification$outboundSchema.parse(
+      startJourneyIndustryClassification,
+    ),
+  );
+}
+
+/** @internal */
+export const StartJourneyRegistrationType$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyRegistrationType
+> = z.enum(StartJourneyRegistrationType);
+
+/** @internal */
+export type StartJourneyRegisteredAddressLocation$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyRegisteredAddressLocation$outboundSchema:
+  z.ZodMiniType<
+    StartJourneyRegisteredAddressLocation$Outbound,
+    StartJourneyRegisteredAddressLocation
+  > = z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  });
+
+export function startJourneyRegisteredAddressLocationToJSON(
+  startJourneyRegisteredAddressLocation: StartJourneyRegisteredAddressLocation,
+): string {
+  return JSON.stringify(
+    StartJourneyRegisteredAddressLocation$outboundSchema.parse(
+      startJourneyRegisteredAddressLocation,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyRegisteredAddress$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyRegisteredAddressLocation$Outbound | undefined;
+};
+
+/** @internal */
+export const StartJourneyRegisteredAddress$outboundSchema: z.ZodMiniType<
+  StartJourneyRegisteredAddress$Outbound,
+  StartJourneyRegisteredAddress
+> = z.object({
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(
+    z.lazy(() => StartJourneyRegisteredAddressLocation$outboundSchema),
+  ),
+});
+
+export function startJourneyRegisteredAddressToJSON(
+  startJourneyRegisteredAddress: StartJourneyRegisteredAddress,
+): string {
+  return JSON.stringify(
+    StartJourneyRegisteredAddress$outboundSchema.parse(
+      startJourneyRegisteredAddress,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyAgentAddressLocation$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyAgentAddressLocation$outboundSchema: z.ZodMiniType<
+  StartJourneyAgentAddressLocation$Outbound,
+  StartJourneyAgentAddressLocation
+> = z.object({
+  latitude: z.optional(z.string()),
+  longitude: z.optional(z.string()),
+  geoAccuracy: z.optional(z.string()),
+  what3words: z.optional(z.string()),
+});
+
+export function startJourneyAgentAddressLocationToJSON(
+  startJourneyAgentAddressLocation: StartJourneyAgentAddressLocation,
+): string {
+  return JSON.stringify(
+    StartJourneyAgentAddressLocation$outboundSchema.parse(
+      startJourneyAgentAddressLocation,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyAgentAddress$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyAgentAddressLocation$Outbound | undefined;
+};
+
+/** @internal */
+export const StartJourneyAgentAddress$outboundSchema: z.ZodMiniType<
+  StartJourneyAgentAddress$Outbound,
+  StartJourneyAgentAddress
+> = z.object({
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(
+    z.lazy(() => StartJourneyAgentAddressLocation$outboundSchema),
+  ),
+});
+
+export function startJourneyAgentAddressToJSON(
+  startJourneyAgentAddress: StartJourneyAgentAddress,
+): string {
+  return JSON.stringify(
+    StartJourneyAgentAddress$outboundSchema.parse(startJourneyAgentAddress),
+  );
+}
+
+/** @internal */
+export type StartJourneyRegistration$Outbound = {
+  jurisdiction?: string | undefined;
+  registrationType?: string | undefined;
+  fileNumber?: string | undefined;
+  issueDate?: string | undefined;
+  registeredAddress?: StartJourneyRegisteredAddress$Outbound | undefined;
+  agentName?: string | undefined;
+  agentAddress?: StartJourneyAgentAddress$Outbound | undefined;
+};
+
+/** @internal */
+export const StartJourneyRegistration$outboundSchema: z.ZodMiniType<
+  StartJourneyRegistration$Outbound,
+  StartJourneyRegistration
+> = z.object({
+  jurisdiction: z.optional(z.string()),
+  registrationType: z.optional(StartJourneyRegistrationType$outboundSchema),
+  fileNumber: z.optional(z.string()),
+  issueDate: z.optional(z.string()),
+  registeredAddress: z.optional(
+    z.lazy(() => StartJourneyRegisteredAddress$outboundSchema),
+  ),
+  agentName: z.optional(z.string()),
+  agentAddress: z.optional(
+    z.lazy(() => StartJourneyAgentAddress$outboundSchema),
+  ),
+});
+
+export function startJourneyRegistrationToJSON(
+  startJourneyRegistration: StartJourneyRegistration,
+): string {
+  return JSON.stringify(
+    StartJourneyRegistration$outboundSchema.parse(startJourneyRegistration),
+  );
+}
+
+/** @internal */
+export const StartJourneyTypePrimary2$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyTypePrimary2
+> = z.enum(StartJourneyTypePrimary2);
+
+/** @internal */
+export const StartJourneyRole$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyRole
+> = z.enum(StartJourneyRole);
+
+/** @internal */
+export type StartJourneyCurrentAddressLocationPrimary$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyCurrentAddressLocationPrimary$outboundSchema:
+  z.ZodMiniType<
+    StartJourneyCurrentAddressLocationPrimary$Outbound,
+    StartJourneyCurrentAddressLocationPrimary
+  > = z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  });
+
+export function startJourneyCurrentAddressLocationPrimaryToJSON(
+  startJourneyCurrentAddressLocationPrimary:
+    StartJourneyCurrentAddressLocationPrimary,
+): string {
+  return JSON.stringify(
+    StartJourneyCurrentAddressLocationPrimary$outboundSchema.parse(
+      startJourneyCurrentAddressLocationPrimary,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyCurrentAddressPrimary$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: StartJourneyCurrentAddressLocationPrimary$Outbound | undefined;
+};
+
+/** @internal */
+export const StartJourneyCurrentAddressPrimary$outboundSchema: z.ZodMiniType<
+  StartJourneyCurrentAddressPrimary$Outbound,
+  StartJourneyCurrentAddressPrimary
+> = z.object({
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(
+    z.lazy(() => StartJourneyCurrentAddressLocationPrimary$outboundSchema),
+  ),
+});
+
+export function startJourneyCurrentAddressPrimaryToJSON(
+  startJourneyCurrentAddressPrimary: StartJourneyCurrentAddressPrimary,
+): string {
+  return JSON.stringify(
+    StartJourneyCurrentAddressPrimary$outboundSchema.parse(
+      startJourneyCurrentAddressPrimary,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyPerson$Outbound = {
+  title?: string | undefined;
+  firstName?: string | undefined;
+  middleNames?: Array<string> | undefined;
+  lastNames?: Array<string> | undefined;
+  lastNamesAtBirth?: Array<string> | undefined;
+  id?: string | undefined;
+  type?: string | undefined;
+  role?: string | undefined;
+  position?: string | undefined;
+  ownershipPercentage?: number | undefined;
+  nationality?: string | undefined;
+  dateOfBirth?: string | undefined;
+  startDate?: string | undefined;
+  endDate?: string | undefined;
+  currentAddress?: StartJourneyCurrentAddressPrimary$Outbound | undefined;
+};
+
+/** @internal */
+export const StartJourneyPerson$outboundSchema: z.ZodMiniType<
+  StartJourneyPerson$Outbound,
+  StartJourneyPerson
+> = z.object({
+  title: z.optional(z.string()),
+  firstName: z.optional(z.string()),
+  middleNames: z.optional(z.array(z.string())),
+  lastNames: z.optional(z.array(z.string())),
+  lastNamesAtBirth: z.optional(z.array(z.string())),
+  id: z.optional(z.string()),
+  type: z.optional(StartJourneyTypePrimary2$outboundSchema),
+  role: z.optional(StartJourneyRole$outboundSchema),
+  position: z.optional(z.string()),
+  ownershipPercentage: z.optional(z.number()),
+  nationality: z.optional(z.string()),
+  dateOfBirth: z.optional(z.string()),
+  startDate: z.optional(z.string()),
+  endDate: z.optional(z.string()),
+  currentAddress: z.optional(
+    z.lazy(() => StartJourneyCurrentAddressPrimary$outboundSchema),
+  ),
+});
+
+export function startJourneyPersonToJSON(
+  startJourneyPerson: StartJourneyPerson,
+): string {
+  return JSON.stringify(
+    StartJourneyPerson$outboundSchema.parse(startJourneyPerson),
+  );
+}
+
+/** @internal */
+export type StartJourneyPhonePrimary$Outbound = {
+  type: string;
+  number: string;
+};
+
+/** @internal */
+export const StartJourneyPhonePrimary$outboundSchema: z.ZodMiniType<
+  StartJourneyPhonePrimary$Outbound,
+  StartJourneyPhonePrimary
+> = z.object({
+  type: z.string(),
+  number: z.string(),
+});
+
+export function startJourneyPhonePrimaryToJSON(
+  startJourneyPhonePrimary: StartJourneyPhonePrimary,
+): string {
+  return JSON.stringify(
+    StartJourneyPhonePrimary$outboundSchema.parse(startJourneyPhonePrimary),
+  );
+}
+
+/** @internal */
+export type StartJourneyEntity$Outbound = {
+  id?: string | undefined;
+  type?: string | undefined;
+  name?: string | undefined;
+  aliases?: Array<string> | undefined;
+  businessType?: string | undefined;
+  status?: string | undefined;
+  description?: string | undefined;
+  addresses?: Array<StartJourneyAddressPrimary$Outbound> | undefined;
+  taxIdentifiers?: Array<StartJourneyTaxIdentifier$Outbound> | undefined;
+  companyNumber?: string | undefined;
+  industryClassifications?:
+    | Array<StartJourneyIndustryClassification$Outbound>
+    | undefined;
+  registrations?: Array<StartJourneyRegistration$Outbound> | undefined;
+  corporateStructure?: string | undefined;
+  persons?: Array<StartJourneyPerson$Outbound> | undefined;
+  incorporationDate?: string | undefined;
+  dissolutionDate?: string | undefined;
+  phones?: Array<StartJourneyPhonePrimary$Outbound> | undefined;
+  websites?: Array<string> | undefined;
+  headcount?: number | undefined;
+  isNonProfit?: boolean | undefined;
+};
+
+/** @internal */
+export const StartJourneyEntity$outboundSchema: z.ZodMiniType<
+  StartJourneyEntity$Outbound,
+  StartJourneyEntity
+> = z.object({
+  id: z.optional(z.string()),
+  type: z.optional(StartJourneyTypePrimary1$outboundSchema),
+  name: z.optional(z.string()),
+  aliases: z.optional(z.array(z.string())),
+  businessType: z.optional(z.string()),
+  status: z.optional(StartJourneyStatus$outboundSchema),
+  description: z.optional(z.string()),
+  addresses: z.optional(
+    z.array(z.lazy(() => StartJourneyAddressPrimary$outboundSchema)),
+  ),
+  taxIdentifiers: z.optional(
+    z.array(z.lazy(() => StartJourneyTaxIdentifier$outboundSchema)),
+  ),
+  companyNumber: z.optional(z.string()),
+  industryClassifications: z.optional(
+    z.array(z.lazy(() => StartJourneyIndustryClassification$outboundSchema)),
+  ),
+  registrations: z.optional(
+    z.array(z.lazy(() => StartJourneyRegistration$outboundSchema)),
+  ),
+  corporateStructure: z.optional(z.string()),
+  persons: z.optional(z.array(z.lazy(() => StartJourneyPerson$outboundSchema))),
+  incorporationDate: z.optional(z.string()),
+  dissolutionDate: z.optional(z.string()),
+  phones: z.optional(
+    z.array(z.lazy(() => StartJourneyPhonePrimary$outboundSchema)),
+  ),
+  websites: z.optional(z.array(z.string())),
+  headcount: z.optional(z.int()),
+  isNonProfit: z.optional(z.boolean()),
+});
+
+export function startJourneyEntityToJSON(
+  startJourneyEntity: StartJourneyEntity,
+): string {
+  return JSON.stringify(
+    StartJourneyEntity$outboundSchema.parse(startJourneyEntity),
+  );
+}
+
+/** @internal */
+export type StartJourneyDocumentAddress$Outbound = {
   addressString?: string | undefined;
   extractedAddressString?: string | undefined;
   addressLine1?: string | undefined;
@@ -1844,9 +3058,9 @@ export type StartJourneyAddress$Outbound = {
 };
 
 /** @internal */
-export const StartJourneyAddress$outboundSchema: z.ZodMiniType<
-  StartJourneyAddress$Outbound,
-  StartJourneyAddress
+export const StartJourneyDocumentAddress$outboundSchema: z.ZodMiniType<
+  StartJourneyDocumentAddress$Outbound,
+  StartJourneyDocumentAddress
 > = z.object({
   addressString: z.optional(z.string()),
   extractedAddressString: z.optional(z.string()),
@@ -1857,11 +3071,13 @@ export const StartJourneyAddress$outboundSchema: z.ZodMiniType<
   postalCode: z.optional(z.string()),
 });
 
-export function startJourneyAddressToJSON(
-  startJourneyAddress: StartJourneyAddress,
+export function startJourneyDocumentAddressToJSON(
+  startJourneyDocumentAddress: StartJourneyDocumentAddress,
 ): string {
   return JSON.stringify(
-    StartJourneyAddress$outboundSchema.parse(startJourneyAddress),
+    StartJourneyDocumentAddress$outboundSchema.parse(
+      startJourneyDocumentAddress,
+    ),
   );
 }
 
@@ -1895,6 +3111,72 @@ export function startJourneyDocumentDeviceToJSON(
 ): string {
   return JSON.stringify(
     StartJourneyDocumentDevice$outboundSchema.parse(startJourneyDocumentDevice),
+  );
+}
+
+/** @internal */
+export type StartJourneySide1Device$Outbound = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneySide1Device$outboundSchema: z.ZodMiniType<
+  StartJourneySide1Device$Outbound,
+  StartJourneySide1Device
+> = z.object({
+  type: z.optional(z.string()),
+  model: z.optional(z.string()),
+  hasContactlessReader: z.optional(z.boolean()),
+  hasMagneticStripeReader: z.optional(z.boolean()),
+  hasCamera: z.optional(z.boolean()),
+  serialNumber: z.optional(z.string()),
+  manufacturer: z.optional(z.string()),
+});
+
+export function startJourneySide1DeviceToJSON(
+  startJourneySide1Device: StartJourneySide1Device,
+): string {
+  return JSON.stringify(
+    StartJourneySide1Device$outboundSchema.parse(startJourneySide1Device),
+  );
+}
+
+/** @internal */
+export type StartJourneySide2Device$Outbound = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneySide2Device$outboundSchema: z.ZodMiniType<
+  StartJourneySide2Device$Outbound,
+  StartJourneySide2Device
+> = z.object({
+  type: z.optional(z.string()),
+  model: z.optional(z.string()),
+  hasContactlessReader: z.optional(z.boolean()),
+  hasMagneticStripeReader: z.optional(z.boolean()),
+  hasCamera: z.optional(z.boolean()),
+  serialNumber: z.optional(z.string()),
+  manufacturer: z.optional(z.string()),
+});
+
+export function startJourneySide2DeviceToJSON(
+  startJourneySide2Device: StartJourneySide2Device,
+): string {
+  return JSON.stringify(
+    StartJourneySide2Device$outboundSchema.parse(startJourneySide2Device),
   );
 }
 
@@ -2584,6 +3866,7 @@ export type StartJourneyDocumentAlias$Outbound = {
   middleNames?: Array<string> | undefined;
   lastNames?: Array<string> | undefined;
   lastNamesAtBirth?: Array<string> | undefined;
+  fullName?: string | undefined;
 };
 
 /** @internal */
@@ -2596,6 +3879,7 @@ export const StartJourneyDocumentAlias$outboundSchema: z.ZodMiniType<
   middleNames: z.optional(z.array(z.string())),
   lastNames: z.optional(z.array(z.string())),
   lastNamesAtBirth: z.optional(z.array(z.string())),
+  fullName: z.optional(z.string()),
 });
 
 export function startJourneyDocumentAliasToJSON(
@@ -2785,8 +4069,8 @@ export type StartJourneyDocumentPreviousAddress$Outbound = {
   subAdministrativeArea?: string | undefined;
   organization?: string | undefined;
   location?: StartJourneyDocumentPreviousAddressLocation$Outbound | undefined;
-  fromDate: string;
-  toDate: string;
+  fromDate?: string | undefined;
+  toDate?: string | undefined;
 };
 
 /** @internal */
@@ -2814,8 +4098,8 @@ export const StartJourneyDocumentPreviousAddress$outboundSchema: z.ZodMiniType<
   location: z.optional(
     z.lazy(() => StartJourneyDocumentPreviousAddressLocation$outboundSchema),
   ),
-  fromDate: z.string(),
-  toDate: z.string(),
+  fromDate: z.optional(z.string()),
+  toDate: z.optional(z.string()),
 });
 
 export function startJourneyDocumentPreviousAddressToJSON(
@@ -3037,6 +4321,7 @@ export type StartJourneyDocumentSubject$Outbound = {
   emails?: Array<StartJourneyDocumentEmail$Outbound> | undefined;
   socials?: Array<StartJourneyDocumentSocial$Outbound> | undefined;
   mothersMaidenName?: string | undefined;
+  nationality?: string | undefined;
 };
 
 /** @internal */
@@ -3079,6 +4364,7 @@ export const StartJourneyDocumentSubject$outboundSchema: z.ZodMiniType<
     z.array(z.lazy(() => StartJourneyDocumentSocial$outboundSchema)),
   ),
   mothersMaidenName: z.optional(z.string()),
+  nationality: z.optional(z.string()),
 });
 
 export function startJourneyDocumentSubjectToJSON(
@@ -3094,7 +4380,7 @@ export function startJourneyDocumentSubjectToJSON(
 /** @internal */
 export type StartJourneyDocument$Outbound = {
   oneDBarcode?: string | undefined;
-  address?: StartJourneyAddress$Outbound | undefined;
+  address?: StartJourneyDocumentAddress$Outbound | undefined;
   applicationDate?: string | undefined;
   applicationNumber?: string | undefined;
   dateOfBirth?: string | undefined;
@@ -3166,13 +4452,15 @@ export type StartJourneyDocument$Outbound = {
   cardNumber?: string | undefined;
   issuerCountryCode?: string | undefined;
   id?: string | undefined;
-  type?: string | undefined;
+  type: string;
   category?: string | undefined;
   subtype?: string | undefined;
   format?: string | undefined;
   device?: StartJourneyDocumentDevice$Outbound | undefined;
   side1Image?: string | undefined;
   side2Image?: string | undefined;
+  side1Device?: StartJourneySide1Device$Outbound | undefined;
+  side2Device?: StartJourneySide2Device$Outbound | undefined;
   chip?: StartJourneyChip$Outbound | undefined;
   classification?: StartJourneyClassification$Outbound | undefined;
   extraction?: StartJourneyExtraction$Outbound | undefined;
@@ -3180,8 +4468,21 @@ export type StartJourneyDocument$Outbound = {
   subType?: string | undefined;
   number?: string | undefined;
   expiryDate?: string | undefined;
+  cardType?: string | undefined;
+  expiryMonth?: string | undefined;
+  cardColour?: string | undefined;
+  cardStatus?: string | undefined;
   subject?: StartJourneyDocumentSubject$Outbound | undefined;
   country?: string | undefined;
+  certificateFormat?: string | undefined;
+  registrationNumber?: string | undefined;
+  registrationDate?: string | undefined;
+  registrationYear?: string | undefined;
+  partyRole?: string | undefined;
+  dateOfEvent?: string | undefined;
+  previousFirstName?: string | undefined;
+  previousMiddleName?: string | undefined;
+  previousSurname?: string | undefined;
 };
 
 /** @internal */
@@ -3190,7 +4491,7 @@ export const StartJourneyDocument$outboundSchema: z.ZodMiniType<
   StartJourneyDocument
 > = z.object({
   oneDBarcode: z.optional(z.string()),
-  address: z.optional(z.lazy(() => StartJourneyAddress$outboundSchema)),
+  address: z.optional(z.lazy(() => StartJourneyDocumentAddress$outboundSchema)),
   applicationDate: z.optional(z.string()),
   applicationNumber: z.optional(z.string()),
   dateOfBirth: z.optional(z.string()),
@@ -3262,13 +4563,15 @@ export const StartJourneyDocument$outboundSchema: z.ZodMiniType<
   cardNumber: z.optional(z.string()),
   issuerCountryCode: z.optional(z.string()),
   id: z.optional(z.string()),
-  type: z.optional(z.string()),
+  type: z.string(),
   category: z.optional(z.string()),
   subtype: z.optional(z.string()),
   format: z.optional(z.string()),
   device: z.optional(z.lazy(() => StartJourneyDocumentDevice$outboundSchema)),
   side1Image: z.optional(z.string()),
   side2Image: z.optional(z.string()),
+  side1Device: z.optional(z.lazy(() => StartJourneySide1Device$outboundSchema)),
+  side2Device: z.optional(z.lazy(() => StartJourneySide2Device$outboundSchema)),
   chip: z.optional(z.lazy(() => StartJourneyChip$outboundSchema)),
   classification: z.optional(
     z.lazy(() => StartJourneyClassification$outboundSchema),
@@ -3278,8 +4581,21 @@ export const StartJourneyDocument$outboundSchema: z.ZodMiniType<
   subType: z.optional(z.string()),
   number: z.optional(z.string()),
   expiryDate: z.optional(z.string()),
+  cardType: z.optional(z.string()),
+  expiryMonth: z.optional(z.string()),
+  cardColour: z.optional(z.string()),
+  cardStatus: z.optional(z.string()),
   subject: z.optional(z.lazy(() => StartJourneyDocumentSubject$outboundSchema)),
   country: z.optional(z.string()),
+  certificateFormat: z.optional(z.string()),
+  registrationNumber: z.optional(z.string()),
+  registrationDate: z.optional(z.string()),
+  registrationYear: z.optional(z.string()),
+  partyRole: z.optional(z.string()),
+  dateOfEvent: z.optional(z.string()),
+  previousFirstName: z.optional(z.string()),
+  previousMiddleName: z.optional(z.string()),
+  previousSurname: z.optional(z.string()),
 });
 
 export function startJourneyDocumentToJSON(
@@ -3287,6 +4603,63 @@ export function startJourneyDocumentToJSON(
 ): string {
   return JSON.stringify(
     StartJourneyDocument$outboundSchema.parse(startJourneyDocument),
+  );
+}
+
+/** @internal */
+export const StartJourneyBiometricType$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyBiometricType
+> = z.enum(StartJourneyBiometricType);
+
+/** @internal */
+export type StartJourneyBiometricStoredFace$Outbound = {
+  id?: string | undefined;
+  type: string;
+  templateReference: string;
+};
+
+/** @internal */
+export const StartJourneyBiometricStoredFace$outboundSchema: z.ZodMiniType<
+  StartJourneyBiometricStoredFace$Outbound,
+  StartJourneyBiometricStoredFace
+> = z.object({
+  id: z.optional(z.string()),
+  type: StartJourneyBiometricType$outboundSchema,
+  templateReference: z.string(),
+});
+
+export function startJourneyBiometricStoredFaceToJSON(
+  startJourneyBiometricStoredFace: StartJourneyBiometricStoredFace,
+): string {
+  return JSON.stringify(
+    StartJourneyBiometricStoredFace$outboundSchema.parse(
+      startJourneyBiometricStoredFace,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyBiometric5$Outbound = {
+  id?: string | undefined;
+  type?: string | undefined;
+  anchorImage: string;
+};
+
+/** @internal */
+export const StartJourneyBiometric5$outboundSchema: z.ZodMiniType<
+  StartJourneyBiometric5$Outbound,
+  StartJourneyBiometric5
+> = z.object({
+  id: z.optional(z.string()),
+  type: z.optional(z.string()),
+  anchorImage: z.string(),
+});
+
+export function startJourneyBiometric5ToJSON(
+  startJourneyBiometric5: StartJourneyBiometric5,
+): string {
+  return JSON.stringify(
+    StartJourneyBiometric5$outboundSchema.parse(startJourneyBiometric5),
   );
 }
 
@@ -3400,8 +4773,10 @@ export function startJourneyBiometric1ToJSON(
 export type StartJourneyBiometricUnion$Outbound =
   | StartJourneyBiometric1$Outbound
   | StartJourneyBiometric2$Outbound
+  | StartJourneyBiometricStoredFace$Outbound
   | StartJourneyBiometric3$Outbound
-  | StartJourneyBiometric4$Outbound;
+  | StartJourneyBiometric4$Outbound
+  | StartJourneyBiometric5$Outbound;
 
 /** @internal */
 export const StartJourneyBiometricUnion$outboundSchema: z.ZodMiniType<
@@ -3410,8 +4785,10 @@ export const StartJourneyBiometricUnion$outboundSchema: z.ZodMiniType<
 > = smartUnion([
   z.lazy(() => StartJourneyBiometric1$outboundSchema),
   z.lazy(() => StartJourneyBiometric2$outboundSchema),
+  z.lazy(() => StartJourneyBiometricStoredFace$outboundSchema),
   z.lazy(() => StartJourneyBiometric3$outboundSchema),
   z.lazy(() => StartJourneyBiometric4$outboundSchema),
+  z.lazy(() => StartJourneyBiometric5$outboundSchema),
 ]);
 
 export function startJourneyBiometricUnionToJSON(
@@ -3425,8 +4802,8 @@ export function startJourneyBiometricUnionToJSON(
 /** @internal */
 export type StartJourneyUser$Outbound = {
   id: string;
-  email: string;
-  domain: string;
+  email?: string | undefined;
+  domain?: string | undefined;
 };
 
 /** @internal */
@@ -3435,8 +4812,8 @@ export const StartJourneyUser$outboundSchema: z.ZodMiniType<
   StartJourneyUser
 > = z.object({
   id: z.string(),
-  email: z.string(),
-  domain: z.string(),
+  email: z.optional(z.string()),
+  domain: z.optional(z.string()),
 });
 
 export function startJourneyUserToJSON(
@@ -3622,6 +4999,9 @@ export function startJourneySessionAuthToJSON(
 
 /** @internal */
 export type StartJourneySession$Outbound = {
+  id?: string | undefined;
+  type?: string | undefined;
+  provider?: string | undefined;
   user?: StartJourneyUser$Outbound | undefined;
   client?: StartJourneyClient$Outbound | undefined;
   device?: StartJourneySessionDevice$Outbound | undefined;
@@ -3636,6 +5016,9 @@ export const StartJourneySession$outboundSchema: z.ZodMiniType<
   StartJourneySession$Outbound,
   StartJourneySession
 > = z.object({
+  id: z.optional(z.string()),
+  type: z.optional(z.string()),
+  provider: z.optional(z.string()),
   user: z.optional(z.lazy(() => StartJourneyUser$outboundSchema)),
   client: z.optional(z.lazy(() => StartJourneyClient$outboundSchema)),
   device: z.optional(z.lazy(() => StartJourneySessionDevice$outboundSchema)),
@@ -3743,20 +5126,118 @@ export function startJourneyAccountToJSON(
 }
 
 /** @internal */
+export type StartJourneyChoice$Outbound = {
+  label: string;
+  text: string;
+};
+
+/** @internal */
+export const StartJourneyChoice$outboundSchema: z.ZodMiniType<
+  StartJourneyChoice$Outbound,
+  StartJourneyChoice
+> = z.object({
+  label: z.string(),
+  text: z.string(),
+});
+
+export function startJourneyChoiceToJSON(
+  startJourneyChoice: StartJourneyChoice,
+): string {
+  return JSON.stringify(
+    StartJourneyChoice$outboundSchema.parse(startJourneyChoice),
+  );
+}
+
+/** @internal */
+export type StartJourneyQuestion$Outbound = {
+  id: number;
+  questionText: string;
+  helpText?: string | undefined;
+  choices: Array<StartJourneyChoice$Outbound>;
+};
+
+/** @internal */
+export const StartJourneyQuestion$outboundSchema: z.ZodMiniType<
+  StartJourneyQuestion$Outbound,
+  StartJourneyQuestion
+> = z.object({
+  id: z.int(),
+  questionText: z.string(),
+  helpText: z.optional(z.string()),
+  choices: z.array(z.lazy(() => StartJourneyChoice$outboundSchema)),
+});
+
+export function startJourneyQuestionToJSON(
+  startJourneyQuestion: StartJourneyQuestion,
+): string {
+  return JSON.stringify(
+    StartJourneyQuestion$outboundSchema.parse(startJourneyQuestion),
+  );
+}
+
+/** @internal */
+export type StartJourneyAnswer$Outbound = {
+  id: number;
+  choices: Array<string>;
+};
+
+/** @internal */
+export const StartJourneyAnswer$outboundSchema: z.ZodMiniType<
+  StartJourneyAnswer$Outbound,
+  StartJourneyAnswer
+> = z.object({
+  id: z.int(),
+  choices: z.array(z.string()),
+});
+
+export function startJourneyAnswerToJSON(
+  startJourneyAnswer: StartJourneyAnswer,
+): string {
+  return JSON.stringify(
+    StartJourneyAnswer$outboundSchema.parse(startJourneyAnswer),
+  );
+}
+
+/** @internal */
+export type StartJourneyKba$Outbound = {
+  questions: Array<StartJourneyQuestion$Outbound>;
+  answers: Array<StartJourneyAnswer$Outbound>;
+};
+
+/** @internal */
+export const StartJourneyKba$outboundSchema: z.ZodMiniType<
+  StartJourneyKba$Outbound,
+  StartJourneyKba
+> = z.object({
+  questions: z.array(z.lazy(() => StartJourneyQuestion$outboundSchema)),
+  answers: z.array(z.lazy(() => StartJourneyAnswer$outboundSchema)),
+});
+
+export function startJourneyKbaToJSON(
+  startJourneyKba: StartJourneyKba,
+): string {
+  return JSON.stringify(StartJourneyKba$outboundSchema.parse(startJourneyKba));
+}
+
+/** @internal */
 export type StartJourneySubject$Outbound = {
   identity?: StartJourneyIdentity$Outbound | undefined;
+  entities?: Array<StartJourneyEntity$Outbound> | undefined;
   documents?: Array<StartJourneyDocument$Outbound> | undefined;
   biometrics?:
     | Array<
       | StartJourneyBiometric1$Outbound
       | StartJourneyBiometric2$Outbound
+      | StartJourneyBiometricStoredFace$Outbound
       | StartJourneyBiometric3$Outbound
       | StartJourneyBiometric4$Outbound
+      | StartJourneyBiometric5$Outbound
     >
     | undefined;
   sessions?: Array<StartJourneySession$Outbound> | undefined;
   consent?: Array<StartJourneyConsent$Outbound> | undefined;
   accounts?: Array<StartJourneyAccount$Outbound> | undefined;
+  kba?: StartJourneyKba$Outbound | undefined;
   uid?: string | undefined;
 };
 
@@ -3766,6 +5247,9 @@ export const StartJourneySubject$outboundSchema: z.ZodMiniType<
   StartJourneySubject
 > = z.object({
   identity: z.optional(z.lazy(() => StartJourneyIdentity$outboundSchema)),
+  entities: z.optional(
+    z.array(z.lazy(() => StartJourneyEntity$outboundSchema)),
+  ),
   documents: z.optional(
     z.array(z.lazy(() => StartJourneyDocument$outboundSchema)),
   ),
@@ -3775,8 +5259,10 @@ export const StartJourneySubject$outboundSchema: z.ZodMiniType<
       z.lazy(() =>
         StartJourneyBiometric2$outboundSchema
       ),
+      z.lazy(() => StartJourneyBiometricStoredFace$outboundSchema),
       z.lazy(() => StartJourneyBiometric3$outboundSchema),
       z.lazy(() => StartJourneyBiometric4$outboundSchema),
+      z.lazy(() => StartJourneyBiometric5$outboundSchema),
     ])),
   ),
   sessions: z.optional(
@@ -3788,6 +5274,7 @@ export const StartJourneySubject$outboundSchema: z.ZodMiniType<
   accounts: z.optional(
     z.array(z.lazy(() => StartJourneyAccount$outboundSchema)),
   ),
+  kba: z.optional(z.lazy(() => StartJourneyKba$outboundSchema)),
   uid: z.optional(z.string()),
 });
 
@@ -3800,19 +5287,90 @@ export function startJourneySubjectToJSON(
 }
 
 /** @internal */
+export const ResumeMode$outboundSchema: z.ZodMiniEnum<typeof ResumeMode> = z
+  .enum(ResumeMode);
+
+/** @internal */
+export type LinkConfig$Outbound = {
+  ttlMinutes?: number | undefined;
+  resumeMode?: string | undefined;
+  resumeExpiryMinutes?: number | undefined;
+};
+
+/** @internal */
+export const LinkConfig$outboundSchema: z.ZodMiniType<
+  LinkConfig$Outbound,
+  LinkConfig
+> = z.object({
+  ttlMinutes: z.optional(z.int()),
+  resumeMode: z.optional(ResumeMode$outboundSchema),
+  resumeExpiryMinutes: z.optional(z.int()),
+});
+
+export function linkConfigToJSON(linkConfig: LinkConfig): string {
+  return JSON.stringify(LinkConfig$outboundSchema.parse(linkConfig));
+}
+
+/** @internal */
+export type Overlay$Outbound = {
+  version: string;
+};
+
+/** @internal */
+export const Overlay$outboundSchema: z.ZodMiniType<Overlay$Outbound, Overlay> =
+  z.object({
+    version: z.string(),
+  });
+
+export function overlayToJSON(overlay: Overlay): string {
+  return JSON.stringify(Overlay$outboundSchema.parse(overlay));
+}
+
+/** @internal */
+export type Config$Outbound = {
+  delivery: string;
+  branding?: any | undefined;
+  assisted?: boolean | undefined;
+  linkConfig?: LinkConfig$Outbound | undefined;
+  overlay?: Overlay$Outbound | undefined;
+  [additionalProperties: string]: unknown;
+};
+
+/** @internal */
+export const Config$outboundSchema: z.ZodMiniType<Config$Outbound, Config> = z
+  .catchall(
+    z.object({
+      delivery: z.string(),
+      branding: z.optional(z.any()),
+      assisted: z.optional(z.boolean()),
+      linkConfig: z.optional(z.lazy(() => LinkConfig$outboundSchema)),
+      overlay: z.optional(z.lazy(() => Overlay$outboundSchema)),
+    }),
+    z.any(),
+  );
+
+export function configToJSON(config: Config): string {
+  return JSON.stringify(Config$outboundSchema.parse(config));
+}
+
+/** @internal */
 export type StartJourneyContext$Outbound = {
+  subject?: StartJourneySubject$Outbound | undefined;
   config: Config$Outbound;
-  subject: StartJourneySubject$Outbound;
+  [additionalProperties: string]: unknown;
 };
 
 /** @internal */
 export const StartJourneyContext$outboundSchema: z.ZodMiniType<
   StartJourneyContext$Outbound,
   StartJourneyContext
-> = z.object({
-  config: z.lazy(() => Config$outboundSchema),
-  subject: z.lazy(() => StartJourneySubject$outboundSchema),
-});
+> = z.catchall(
+  z.object({
+    subject: z.optional(z.lazy(() => StartJourneySubject$outboundSchema)),
+    config: z.lazy(() => Config$outboundSchema),
+  }),
+  z.any(),
+);
 
 export function startJourneyContextToJSON(
   startJourneyContext: StartJourneyContext,
@@ -3823,10 +5381,58 @@ export function startJourneyContextToJSON(
 }
 
 /** @internal */
+export type Modules$Outbound = {
+  outcome: string;
+  advice?: { [k: string]: any } | undefined;
+  [additionalProperties: string]: unknown;
+};
+
+/** @internal */
+export const Modules$outboundSchema: z.ZodMiniType<Modules$Outbound, Modules> =
+  z.catchall(
+    z.object({
+      outcome: z.string(),
+      advice: z.optional(z.record(z.string(), z.any())),
+    }),
+    z.any(),
+  );
+
+export function modulesToJSON(modules: Modules): string {
+  return JSON.stringify(Modules$outboundSchema.parse(modules));
+}
+
+/** @internal */
+export type Scenario$Outbound = {
+  modules: { [k: string]: Modules$Outbound };
+  defaultOutcome?: string | undefined;
+  defaultAdvice?: { [k: string]: any } | undefined;
+  description?: string | undefined;
+  [additionalProperties: string]: unknown;
+};
+
+/** @internal */
+export const Scenario$outboundSchema: z.ZodMiniType<
+  Scenario$Outbound,
+  Scenario
+> = z.catchall(
+  z.object({
+    modules: z.record(z.string(), z.lazy(() => Modules$outboundSchema)),
+    defaultOutcome: z.optional(z.string()),
+    defaultAdvice: z.optional(z.record(z.string(), z.any())),
+    description: z.optional(z.string()),
+  }),
+  z.any(),
+);
+
+export function scenarioToJSON(scenario: Scenario): string {
+  return JSON.stringify(Scenario$outboundSchema.parse(scenario));
+}
+
+/** @internal */
 export type StartJourneyRequest$Outbound = {
   resourceId: string;
-  context?: StartJourneyContext$Outbound | undefined;
-  data?: { [k: string]: any } | undefined;
+  context: StartJourneyContext$Outbound;
+  scenario?: Scenario$Outbound | undefined;
 };
 
 /** @internal */
@@ -3835,8 +5441,8 @@ export const StartJourneyRequest$outboundSchema: z.ZodMiniType<
   StartJourneyRequest
 > = z.object({
   resourceId: z.string(),
-  context: z.optional(z.lazy(() => StartJourneyContext$outboundSchema)),
-  data: z.optional(z.record(z.string(), z.any())),
+  context: z.lazy(() => StartJourneyContext$outboundSchema),
+  scenario: z.optional(z.lazy(() => Scenario$outboundSchema)),
 });
 
 export function startJourneyRequestToJSON(
@@ -3844,66 +5450,5 @@ export function startJourneyRequestToJSON(
 ): string {
   return JSON.stringify(
     StartJourneyRequest$outboundSchema.parse(startJourneyRequest),
-  );
-}
-
-/** @internal */
-export const StartJourneyResponseBody2$inboundSchema: z.ZodMiniType<
-  StartJourneyResponseBody2,
-  unknown
-> = z.catchall(
-  z.object({
-    instanceId: types.string(),
-  }),
-  z.any(),
-);
-
-export function startJourneyResponseBody2FromJSON(
-  jsonString: string,
-): SafeParseResult<StartJourneyResponseBody2, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => StartJourneyResponseBody2$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'StartJourneyResponseBody2' from JSON`,
-  );
-}
-
-/** @internal */
-export const StartJourneyResponseBody1$inboundSchema: z.ZodMiniType<
-  StartJourneyResponseBody1,
-  unknown
-> = z.catchall(
-  z.object({
-    instanceId: types.string(),
-  }),
-  z.any(),
-);
-
-export function startJourneyResponseBody1FromJSON(
-  jsonString: string,
-): SafeParseResult<StartJourneyResponseBody1, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => StartJourneyResponseBody1$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'StartJourneyResponseBody1' from JSON`,
-  );
-}
-
-/** @internal */
-export const StartJourneyResponse$inboundSchema: z.ZodMiniType<
-  StartJourneyResponse,
-  unknown
-> = smartUnion([
-  z.lazy(() => StartJourneyResponseBody1$inboundSchema),
-  z.lazy(() => StartJourneyResponseBody2$inboundSchema),
-]);
-
-export function startJourneyResponseFromJSON(
-  jsonString: string,
-): SafeParseResult<StartJourneyResponse, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => StartJourneyResponse$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'StartJourneyResponse' from JSON`,
   );
 }

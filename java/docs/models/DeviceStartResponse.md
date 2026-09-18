@@ -1,0 +1,11 @@
+# DeviceStartResponse
+
+
+## Fields
+
+| Field                                                                     | Setter Type                                                               | Getter Type                                                               | Required                                                                  | Description                                                               |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `connectToken`                                                            | *String*                                                                  | *String*                                                                  | :heavy_check_mark:                                                        | N/A                                                                       |
+| `tokenType`                                                               | [DeviceStartResponseTokenType](../models/DeviceStartResponseTokenType.md) | [DeviceStartResponseTokenType](../models/DeviceStartResponseTokenType.md) | :heavy_check_mark:                                                        | N/A                                                                       |
+| `expiresIn`                                                               | *double*                                                                  | *double*                                                                  | :heavy_check_mark:                                                        | N/A                                                                       |
+| `scope`                                                                   | List\<*String*>                                                           | List\<*String*>                                                           | :heavy_check_mark:                                                        | N/A                                                                       |

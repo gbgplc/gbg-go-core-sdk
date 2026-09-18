@@ -3,18 +3,6 @@
 
 ## Supported Types
 
-### `models.PasswordGrantRequest`
-
-```typescript
-const value: models.PasswordGrantRequest = {
-  clientId: "<id>",
-  clientSecret: "<value>",
-  username: "Kristoffer80",
-  password: "45Sd_nsD1s_1ImM",
-  grantType: "password",
-};
-```
-
 ### `models.ClientCredentialsGrantRequest`
 
 ```typescript
@@ -23,6 +11,18 @@ const value: models.ClientCredentialsGrantRequest = {
   clientSecret: "<value>",
   grantType: "client_credentials",
   scope: "gbg.token",
+};
+```
+
+### `models.PasswordGrantRequest`
+
+```typescript
+const value: models.PasswordGrantRequest = {
+  clientId: "<id>",
+  clientSecret: "<value>",
+  username: "Liana.Padberg97",
+  password: "m36VkhLclPGZsz9",
+  grantType: "password",
 };
 ```
 

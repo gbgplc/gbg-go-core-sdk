@@ -5,16 +5,26 @@ package com.gbg.gocore;
 
 import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
+import com.gbg.gocore.models.operations.GetJourneySchemasRequest;
 import com.gbg.gocore.models.operations.GetJourneyStateRequest;
+import com.gbg.gocore.models.operations.GetJourneyStateRequestBody;
 import com.gbg.gocore.models.operations.StartJourneyRequest;
+import com.gbg.gocore.models.operations.TerminateJourneyRequest;
+import com.gbg.gocore.models.operations.async.GetJourneySchemasRequestBuilder;
+import com.gbg.gocore.models.operations.async.GetJourneySchemasResponse;
 import com.gbg.gocore.models.operations.async.GetJourneyStateRequestBuilder;
 import com.gbg.gocore.models.operations.async.GetJourneyStateResponse;
 import com.gbg.gocore.models.operations.async.StartJourneyRequestBuilder;
 import com.gbg.gocore.models.operations.async.StartJourneyResponse;
+import com.gbg.gocore.models.operations.async.TerminateJourneyRequestBuilder;
+import com.gbg.gocore.models.operations.async.TerminateJourneyResponse;
+import com.gbg.gocore.operations.GetJourneySchemas;
 import com.gbg.gocore.operations.GetJourneyState;
 import com.gbg.gocore.operations.StartJourney;
+import com.gbg.gocore.operations.TerminateJourney;
 import com.gbg.gocore.utils.Headers;
 import jakarta.annotation.Nullable;
+import java.lang.String;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -39,9 +49,9 @@ public class AsyncJourneys {
 
 
     /**
-     * Start Journey
+     * Start a new journey
      * 
-     * <p>Start Journey
+     * <p>Creates a new journey instance from a resource definition.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -52,9 +62,9 @@ public class AsyncJourneys {
     }
 
     /**
-     * Start Journey
+     * Start a new journey
      * 
-     * <p>Start Journey
+     * <p>Creates a new journey instance from a resource definition.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -65,9 +75,9 @@ public class AsyncJourneys {
     }
 
     /**
-     * Start Journey
+     * Start a new journey
      * 
-     * <p>Start Journey
+     * <p>Creates a new journey instance from a resource definition.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -83,9 +93,9 @@ public class AsyncJourneys {
 
 
     /**
-     * Get State Data
+     * Fetch journey state
      * 
-     * <p>Get State Data
+     * <p>Retrieves the current state of a journey instance.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -96,31 +106,217 @@ public class AsyncJourneys {
     }
 
     /**
-     * Get State Data
+     * Fetch journey state
      * 
-     * <p>Get State Data
+     * <p>Retrieves the current state of a journey instance.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @return {@code CompletableFuture<GetJourneyStateResponse>} - The async response
      */
     public CompletableFuture<GetJourneyStateResponse> getStateDirect() {
-        return getState(null);
+        return getState(null, null);
     }
 
     /**
-     * Get State Data
+     * Fetch journey state
      * 
-     * <p>Get State Data
+     * <p>Retrieves the current state of a journey instance.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param view Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the compact, typed customer-facing shape. Any other value returns 400.
+     * @param body 
+     * @return {@code CompletableFuture<GetJourneyStateResponse>} - The async response
+     */
+    public CompletableFuture<GetJourneyStateResponse> getState(@Nullable String view, @Nullable GetJourneyStateRequestBody body) {
+        GetJourneyStateRequest request = new GetJourneyStateRequest(view, body);
+        AsyncRequestOperation<GetJourneyStateRequest, GetJourneyStateResponse> operation
+              = new GetJourneyState.Async(sdkConfiguration, _headers);
+        return operation.doRequest(request)
+            .thenCompose(operation::handleResponse);
+    }
+
+
+    /**
+     * Fetch interaction JSON schemas
+     * 
+     * <p>Retrieves design-time JSON schemas for the interactions in a delivery — what information the journey
+     * expects a user to complete, which fields are required, and what shape they take.
+     * 
+     * <p>Identifiers are short on both sides; this endpoint never accepts or returns a GRN.
+     * `resourceId` is the same short identifier `POST /journey/start` takes (`my-delivery@latest`), and
+     * the
+     * organization is derived from your token. The response reports the short `deliveryId` plus
+     * `resolvedVersion`, the concrete revision it resolved — join them as
+     * `&lt;deliveryId&gt;@&lt;resolvedVersion&gt;` to
+     * pin `/journey/start` to exactly the revision these schemas describe (`@latest` is an alias, not a
+     * snapshot).
+     * 
+     * <p>Two caveats on that pin. `/journey/start` serves from a cache, so it can briefly run a revision
+     * behind
+     * the one described here. And the pin is only startable when the delivery lives in your token's
+     * primary
+     * organization: this endpoint also searches organizations granted by the token's `x_orgs` federation
+     * claim, which `/journey/start` does not, so a delivery found only through federation is readable here
+     * but not startable with the same token.
+     * 
+     * <p>Known limitation on that federated search: a delivery that a parent organization *linked* into yours
+     * is not currently followed to its source and reports 404 here, even though `/journey/start` can run
+     * it.
+     * 
+     * <p>Filters by `interactionId` and/or `instruction` are optional; `instruction` requires
+     * `interactionId`.
+     * `interactionId` is the short interaction id (e.g. `segment1`) — a GRN, or a short id carrying an
+     * `@version` suffix, is rejected with 400.
+     * 
+     * <p>Note: the `interactionId` reported here is a design-time label for reading the journey. It is not
+     * the
+     * identifier `POST /journey/interaction/submit` expects — that one comes from
+     * `POST /journey/interaction/fetch`, which uses the runtime's own identifiers.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @return The async call builder
+     */
+    public GetJourneySchemasRequestBuilder getSchemas() {
+        return new GetJourneySchemasRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Fetch interaction JSON schemas
+     * 
+     * <p>Retrieves design-time JSON schemas for the interactions in a delivery — what information the journey
+     * expects a user to complete, which fields are required, and what shape they take.
+     * 
+     * <p>Identifiers are short on both sides; this endpoint never accepts or returns a GRN.
+     * `resourceId` is the same short identifier `POST /journey/start` takes (`my-delivery@latest`), and
+     * the
+     * organization is derived from your token. The response reports the short `deliveryId` plus
+     * `resolvedVersion`, the concrete revision it resolved — join them as
+     * `&lt;deliveryId&gt;@&lt;resolvedVersion&gt;` to
+     * pin `/journey/start` to exactly the revision these schemas describe (`@latest` is an alias, not a
+     * snapshot).
+     * 
+     * <p>Two caveats on that pin. `/journey/start` serves from a cache, so it can briefly run a revision
+     * behind
+     * the one described here. And the pin is only startable when the delivery lives in your token's
+     * primary
+     * organization: this endpoint also searches organizations granted by the token's `x_orgs` federation
+     * claim, which `/journey/start` does not, so a delivery found only through federation is readable here
+     * but not startable with the same token.
+     * 
+     * <p>Known limitation on that federated search: a delivery that a parent organization *linked* into yours
+     * is not currently followed to its source and reports 404 here, even though `/journey/start` can run
+     * it.
+     * 
+     * <p>Filters by `interactionId` and/or `instruction` are optional; `instruction` requires
+     * `interactionId`.
+     * `interactionId` is the short interaction id (e.g. `segment1`) — a GRN, or a short id carrying an
+     * `@version` suffix, is rejected with 400.
+     * 
+     * <p>Note: the `interactionId` reported here is a design-time label for reading the journey. It is not
+     * the
+     * identifier `POST /journey/interaction/submit` expects — that one comes from
+     * `POST /journey/interaction/fetch`, which uses the runtime's own identifiers.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @return {@code CompletableFuture<GetJourneySchemasResponse>} - The async response
+     */
+    public CompletableFuture<GetJourneySchemasResponse> getSchemasDirect() {
+        return getSchemas(null);
+    }
+
+    /**
+     * Fetch interaction JSON schemas
+     * 
+     * <p>Retrieves design-time JSON schemas for the interactions in a delivery — what information the journey
+     * expects a user to complete, which fields are required, and what shape they take.
+     * 
+     * <p>Identifiers are short on both sides; this endpoint never accepts or returns a GRN.
+     * `resourceId` is the same short identifier `POST /journey/start` takes (`my-delivery@latest`), and
+     * the
+     * organization is derived from your token. The response reports the short `deliveryId` plus
+     * `resolvedVersion`, the concrete revision it resolved — join them as
+     * `&lt;deliveryId&gt;@&lt;resolvedVersion&gt;` to
+     * pin `/journey/start` to exactly the revision these schemas describe (`@latest` is an alias, not a
+     * snapshot).
+     * 
+     * <p>Two caveats on that pin. `/journey/start` serves from a cache, so it can briefly run a revision
+     * behind
+     * the one described here. And the pin is only startable when the delivery lives in your token's
+     * primary
+     * organization: this endpoint also searches organizations granted by the token's `x_orgs` federation
+     * claim, which `/journey/start` does not, so a delivery found only through federation is readable here
+     * but not startable with the same token.
+     * 
+     * <p>Known limitation on that federated search: a delivery that a parent organization *linked* into yours
+     * is not currently followed to its source and reports 404 here, even though `/journey/start` can run
+     * it.
+     * 
+     * <p>Filters by `interactionId` and/or `instruction` are optional; `instruction` requires
+     * `interactionId`.
+     * `interactionId` is the short interaction id (e.g. `segment1`) — a GRN, or a short id carrying an
+     * `@version` suffix, is rejected with 400.
+     * 
+     * <p>Note: the `interactionId` reported here is a design-time label for reading the journey. It is not
+     * the
+     * identifier `POST /journey/interaction/submit` expects — that one comes from
+     * `POST /journey/interaction/fetch`, which uses the runtime's own identifiers.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @param request The request object containing all the parameters for the API call.
-     * @return {@code CompletableFuture<GetJourneyStateResponse>} - The async response
+     * @return {@code CompletableFuture<GetJourneySchemasResponse>} - The async response
      */
-    public CompletableFuture<GetJourneyStateResponse> getState(@Nullable GetJourneyStateRequest request) {
-        AsyncRequestOperation<GetJourneyStateRequest, GetJourneyStateResponse> operation
-              = new GetJourneyState.Async(sdkConfiguration, _headers);
+    public CompletableFuture<GetJourneySchemasResponse> getSchemas(@Nullable GetJourneySchemasRequest request) {
+        AsyncRequestOperation<GetJourneySchemasRequest, GetJourneySchemasResponse> operation
+              = new GetJourneySchemas.Async(sdkConfiguration, _headers);
+        return operation.doRequest(request)
+            .thenCompose(operation::handleResponse);
+    }
+
+
+    /**
+     * Terminate journey
+     * 
+     * <p>Terminates an active journey instance.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @return The async call builder
+     */
+    public TerminateJourneyRequestBuilder terminate() {
+        return new TerminateJourneyRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Terminate journey
+     * 
+     * <p>Terminates an active journey instance.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @return {@code CompletableFuture<TerminateJourneyResponse>} - The async response
+     */
+    public CompletableFuture<TerminateJourneyResponse> terminateDirect() {
+        return terminate(null);
+    }
+
+    /**
+     * Terminate journey
+     * 
+     * <p>Terminates an active journey instance.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @return {@code CompletableFuture<TerminateJourneyResponse>} - The async response
+     */
+    public CompletableFuture<TerminateJourneyResponse> terminate(@Nullable TerminateJourneyRequest request) {
+        AsyncRequestOperation<TerminateJourneyRequest, TerminateJourneyResponse> operation
+              = new TerminateJourney.Async(sdkConfiguration, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }

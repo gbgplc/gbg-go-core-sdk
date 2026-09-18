@@ -1,0 +1,11 @@
+# StartJourneyQuestion
+
+
+## Fields
+
+| Field                                                                      | Setter Type                                                                | Getter Type                                                                | Required                                                                   | Description                                                                |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `id`                                                                       | *long*                                                                     | *long*                                                                     | :heavy_check_mark:                                                         | N/A                                                                        |
+| `questionText`                                                             | *String*                                                                   | *String*                                                                   | :heavy_check_mark:                                                         | N/A                                                                        |
+| `helpText`                                                                 | @Nullable *String*                                                         | Optional\<*String*>                                                        | :heavy_minus_sign:                                                         | N/A                                                                        |
+| `choices`                                                                  | List\<[StartJourneyChoice](../../models/operations/StartJourneyChoice.md)> | List\<[StartJourneyChoice](../../models/operations/StartJourneyChoice.md)> | :heavy_check_mark:                                                         | N/A                                                                        |

@@ -4,7 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { GoCore } from "../core.js";
-import { encodeJSON } from "../lib/encodings.js";
+import { encodeFormQuery, encodeJSON } from "../lib/encodings.js";
 import { matchStatusCode } from "../lib/http.js";
 import * as M from "../lib/matchers.js";
 import { compactMap } from "../lib/primitives.js";
@@ -20,6 +20,7 @@ import {
   RequestTimeoutError,
   UnexpectedClientError,
 } from "../models/errors/http-client-errors.js";
+import * as errors from "../models/errors/index.js";
 import { ResponseValidationError } from "../models/errors/response-validation-error.js";
 import { SDKValidationError } from "../models/errors/sdk-validation-error.js";
 import * as operations from "../models/operations/index.js";
@@ -27,10 +28,10 @@ import { APICall, APIPromise } from "../types/async.js";
 import { Result } from "../types/fp.js";
 
 /**
- * Get State Data
+ * Fetch journey state
  *
  * @remarks
- * Get State Data
+ * Retrieves the current state of a journey instance.
  *
  * If set, this operation will use {@link Security.customerAccess} from the global security.
  */
@@ -41,6 +42,7 @@ export function journeysGetState(
 ): APIPromise<
   Result<
     operations.GetJourneyStateResponse,
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -66,6 +68,7 @@ async function $do(
   [
     Result<
       operations.GetJourneyStateResponse,
+      | errors.ErrorResponse
       | GoError
       | ResponseValidationError
       | ConnectionError
@@ -91,11 +94,13 @@ async function $do(
     return [parsed, { status: "invalid" }];
   }
   const payload = parsed.value;
-  const body = payload === undefined
-    ? null
-    : encodeJSON("body", payload, { explode: true });
+  const body = encodeJSON("body", payload?.body, { explode: true });
 
-  const path = pathToFunc("/journey/state/fetch")();
+  const path = pathToFunc("/v2/captain/journey/state/fetch")();
+
+  const query = encodeFormQuery({
+    "view": payload?.view,
+  });
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -127,6 +132,7 @@ async function $do(
     baseURL: options?.serverURL,
     path: path,
     headers: headers,
+    query: query,
     body: body,
     userAgent: client._options.userAgent,
     timeoutMs: options?.timeoutMs || client._options.timeoutMs || -1,
@@ -148,8 +154,13 @@ async function $do(
   }
   const response = doResult.value;
 
+  const responseFields = {
+    HttpMeta: { Response: response, Request: req },
+  };
+
   const [result] = await M.match<
     operations.GetJourneyStateResponse,
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -160,9 +171,11 @@ async function $do(
     | SDKValidationError
   >(
     M.json(200, operations.GetJourneyStateResponse$inboundSchema),
-    M.fail([400, 401, 403, 404, 405, "4XX"]),
-    M.fail([500, 503, "5XX"]),
-  )(response, req);
+    M.jsonErr([400, 401, 404], errors.ErrorResponse$inboundSchema),
+    M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
+    M.fail("4XX"),
+    M.fail("5XX"),
+  )(response, req, { extraFields: responseFields });
   if (!result.ok) {
     return [result, { status: "complete", request: req, response }];
   }

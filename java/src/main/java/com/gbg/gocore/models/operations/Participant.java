@@ -3,51 +3,63 @@
  */
 package com.gbg.gocore.models.operations;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
 public class Participant {
-    /**
-     * Optional domain element identifier
-     */
+
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("domainElementId")
     private String domainElementId;
 
 
     @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("instruction")
-    private String instruction;
+    @JsonProperty("instructions")
+    private List<String> instructions;
+
+
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
 
     @JsonCreator
     public Participant(
             @JsonProperty("domainElementId") @Nullable String domainElementId,
-            @JsonProperty("instruction") @Nullable String instruction) {
+            @JsonProperty("instructions") @Nullable List<String> instructions) {
         this.domainElementId = domainElementId;
-        this.instruction = instruction;
+        this.instructions = instructions;
+        this.additionalProperties = new HashMap<>();
     }
     
     public Participant() {
         this(null, null);
     }
 
-    /**
-     * Optional domain element identifier
-     */
     public Optional<String> domainElementId() {
         return Optional.ofNullable(this.domainElementId);
     }
 
-    public Optional<String> instruction() {
-        return Optional.ofNullable(this.instruction);
+    public Optional<List<String>> instructions() {
+        return Optional.ofNullable(this.instructions);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> additionalProperties() {
+        return additionalProperties;
     }
 
     public static Builder builder() {
@@ -55,17 +67,28 @@ public class Participant {
     }
 
 
-    /**
-     * Optional domain element identifier
-     */
     public Participant withDomainElementId(@Nullable String domainElementId) {
         this.domainElementId = domainElementId;
         return this;
     }
 
 
-    public Participant withInstruction(@Nullable String instruction) {
-        this.instruction = instruction;
+    public Participant withInstructions(@Nullable List<String> instructions) {
+        this.instructions = instructions;
+        return this;
+    }
+
+
+    @JsonAnySetter
+    public Participant withAdditionalProperty(String key, Object value) {
+        // note that value can be null because of the way JsonAnySetter works
+        Utils.checkNotNull(key, "key");
+        additionalProperties.put(key, value);
+        return this;
+    }
+
+    public Participant withAdditionalProperties(@Nullable Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
         return this;
     }
 
@@ -81,20 +104,22 @@ public class Participant {
         Participant other = (Participant) o;
         return 
             Utils.enhancedDeepEquals(this.domainElementId, other.domainElementId) &&
-            Utils.enhancedDeepEquals(this.instruction, other.instruction);
+            Utils.enhancedDeepEquals(this.instructions, other.instructions) &&
+            Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            domainElementId, instruction);
+            domainElementId, instructions, additionalProperties);
     }
     
     @Override
     public String toString() {
         return Utils.toString(Participant.class,
                 "domainElementId", domainElementId,
-                "instruction", instruction);
+                "instructions", instructions,
+                "additionalProperties", additionalProperties);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -102,28 +127,42 @@ public class Participant {
 
         private String domainElementId;
 
-        private String instruction;
+        private List<String> instructions;
+
+        private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {
           // force use of static builder() method
         }
 
-        /**
-         * Optional domain element identifier
-         */
         public Builder domainElementId(@Nullable String domainElementId) {
             this.domainElementId = domainElementId;
             return this;
         }
 
-        public Builder instruction(@Nullable String instruction) {
-            this.instruction = instruction;
+        public Builder instructions(@Nullable List<String> instructions) {
+            this.instructions = instructions;
+            return this;
+        }
+
+        public Builder additionalProperty(String key, Object value) {
+            Utils.checkNotNull(key, "key");
+            // we could be strict about null values (force the user
+            // to pass `JsonNullable.of(null)`) but likely to be a bit 
+            // annoying for additional properties building so we'll 
+            // relax preconditions.
+            this.additionalProperties.put(key, value);
+            return this;
+        }
+        public Builder additionalProperties(@Nullable Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
             return this;
         }
 
         public Participant build() {
             return new Participant(
-                domainElementId, instruction);
+                domainElementId, instructions)
+                .withAdditionalProperties(additionalProperties);
         }
 
     }

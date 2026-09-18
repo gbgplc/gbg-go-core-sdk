@@ -4,7 +4,7 @@
 package com.gbg.gocore.models.operations.async;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.gbg.gocore.models.operations.SubmitInteractionResponseBody;
+import com.gbg.gocore.models.InteractionSubmitResponse;
 import com.gbg.gocore.utils.AsyncResponse;
 import com.gbg.gocore.utils.Blob;
 import com.gbg.gocore.utils.Utils;
@@ -34,22 +34,22 @@ public class SubmitInteractionResponse implements AsyncResponse {
     private HttpResponse<Blob> rawResponse;
 
     /**
-     * Success
+     * Submission accepted
      */
-    private SubmitInteractionResponseBody oneOf;
+    private InteractionSubmitResponse interactionSubmitResponse;
 
     @JsonCreator
     public SubmitInteractionResponse(
             @Nonnull String contentType,
             int statusCode,
             @Nonnull HttpResponse<Blob> rawResponse,
-            @Nullable SubmitInteractionResponseBody oneOf) {
+            @Nullable InteractionSubmitResponse interactionSubmitResponse) {
         this.contentType = Optional.ofNullable(contentType)
             .orElseThrow(() -> new IllegalArgumentException("contentType cannot be null"));
         this.statusCode = statusCode;
         this.rawResponse = Optional.ofNullable(rawResponse)
             .orElseThrow(() -> new IllegalArgumentException("rawResponse cannot be null"));
-        this.oneOf = oneOf;
+        this.interactionSubmitResponse = interactionSubmitResponse;
     }
     
     public SubmitInteractionResponse(
@@ -82,10 +82,10 @@ public class SubmitInteractionResponse implements AsyncResponse {
     }
 
     /**
-     * Success
+     * Submission accepted
      */
-    public Optional<SubmitInteractionResponseBody> oneOf() {
-        return Optional.ofNullable(this.oneOf);
+    public Optional<InteractionSubmitResponse> interactionSubmitResponse() {
+        return Optional.ofNullable(this.interactionSubmitResponse);
     }
 
     public static Builder builder() {
@@ -121,10 +121,10 @@ public class SubmitInteractionResponse implements AsyncResponse {
 
 
     /**
-     * Success
+     * Submission accepted
      */
-    public SubmitInteractionResponse withOneOf(@Nullable SubmitInteractionResponseBody oneOf) {
-        this.oneOf = oneOf;
+    public SubmitInteractionResponse withInteractionSubmitResponse(@Nullable InteractionSubmitResponse interactionSubmitResponse) {
+        this.interactionSubmitResponse = interactionSubmitResponse;
         return this;
     }
 
@@ -142,14 +142,14 @@ public class SubmitInteractionResponse implements AsyncResponse {
             Utils.enhancedDeepEquals(this.contentType, other.contentType) &&
             Utils.enhancedDeepEquals(this.statusCode, other.statusCode) &&
             Utils.enhancedDeepEquals(this.rawResponse, other.rawResponse) &&
-            Utils.enhancedDeepEquals(this.oneOf, other.oneOf);
+            Utils.enhancedDeepEquals(this.interactionSubmitResponse, other.interactionSubmitResponse);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             contentType, statusCode, rawResponse,
-            oneOf);
+            interactionSubmitResponse);
     }
     
     @Override
@@ -158,7 +158,7 @@ public class SubmitInteractionResponse implements AsyncResponse {
                 "contentType", contentType,
                 "statusCode", statusCode,
                 "rawResponse", rawResponse,
-                "oneOf", oneOf);
+                "interactionSubmitResponse", interactionSubmitResponse);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -170,7 +170,7 @@ public class SubmitInteractionResponse implements AsyncResponse {
 
         private HttpResponse<Blob> rawResponse;
 
-        private SubmitInteractionResponseBody oneOf;
+        private InteractionSubmitResponse interactionSubmitResponse;
 
         private Builder() {
           // force use of static builder() method
@@ -201,17 +201,17 @@ public class SubmitInteractionResponse implements AsyncResponse {
         }
 
         /**
-         * Success
+         * Submission accepted
          */
-        public Builder oneOf(@Nullable SubmitInteractionResponseBody oneOf) {
-            this.oneOf = oneOf;
+        public Builder interactionSubmitResponse(@Nullable InteractionSubmitResponse interactionSubmitResponse) {
+            this.interactionSubmitResponse = interactionSubmitResponse;
             return this;
         }
 
         public SubmitInteractionResponse build() {
             return new SubmitInteractionResponse(
                 contentType, statusCode, rawResponse,
-                oneOf);
+                interactionSubmitResponse);
         }
 
     }

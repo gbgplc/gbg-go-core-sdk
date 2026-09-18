@@ -109,7 +109,7 @@ async function $do(
   const context = {
     options: client._options,
     baseURL: baseURL ?? "",
-    operationID: "post_/as/token.oauth2",
+    operationID: "postAsTokenOauth2",
     oAuth2Scopes: null,
 
     resolvedSecurity: null,

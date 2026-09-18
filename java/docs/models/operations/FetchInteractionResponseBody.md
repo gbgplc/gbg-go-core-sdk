@@ -1,86 +1,47 @@
 # FetchInteractionResponseBody
 
-Success
+Interaction state (full by default; slim with ?view=slim)
 
 
 ## Supported Types
 
-### [`ResponseBody1`](../../models/operations/ResponseBody1.md)
+### [`InteractionFetchResponse`](../../models/InteractionFetchResponse.md)
 
 ```java
-FetchInteractionResponseBody value = FetchInteractionResponseBody.of(ResponseBody1.builder()
+FetchInteractionResponseBody value = FetchInteractionResponseBody.of(InteractionFetchResponse.builder()
     .instanceId("<id>")
-    .interactionId("<id>")
-    .journey(Journey1.builder()
-        .status(JourneyStatus1.COMPLETED)
-        .build())
-    .interaction(Interaction.builder()
-        .collects(List.of(
-            CollectUnion.of(Collect1.builder()
-                .ref("<value>")
-                .spec(CollectSpec1.OPTIONAL)
-                .build())))
-        .consumes(List.of(
-            ConsumeUnion.of(Consume1.builder()
-                .ref("<value>")
-                .spec(ConsumeSpec1.OPTIONAL)
-                .build())))
-        .grId("<id>")
+    .journey(InteractionFetchResponseJourney.builder()
+        .status("<value>")
         .build())
     .build());
 ```
 
-**Referred Types:**
+**Referred Types:** [InteractionFetchResponseJourney](../../models/InteractionFetchResponseJourney.md)
 
-- [Journey1](../../models/operations/Journey1.md)
-- [JourneyStatus1](../../models/operations/JourneyStatus1.md)
-- [Interaction](../../models/operations/Interaction.md)
-- [CollectUnion](../../models/operations/CollectUnion.md)
-- [Collect1](../../models/operations/Collect1.md)
-- [CollectSpec1](../../models/operations/CollectSpec1.md)
-- [ConsumeUnion](../../models/operations/ConsumeUnion.md)
-- [Consume1](../../models/operations/Consume1.md)
-- [ConsumeSpec1](../../models/operations/ConsumeSpec1.md)
-
-### [`FetchInteractionError`](../../models/operations/FetchInteractionError.md)
+### [`SlimInteractionFetchResponse`](../../models/SlimInteractionFetchResponse.md)
 
 ```java
-FetchInteractionResponseBody value = FetchInteractionResponseBody.of(FetchInteractionError.builder()
-    .status(FetchInteractionStatusError.ERROR)
-    .code(6719.06)
-    .message("<value>")
-    .build());
-```
-
-**Referred Types:** [FetchInteractionStatusError](../../models/operations/FetchInteractionStatusError.md)
-
-### [`ResponseBody2`](../../models/operations/ResponseBody2.md)
-
-```java
-FetchInteractionResponseBody value = FetchInteractionResponseBody.of(ResponseBody2.builder()
+FetchInteractionResponseBody value = FetchInteractionResponseBody.of(SlimInteractionFetchResponse.builder()
     .instanceId("<id>")
-    .journey(Journey2.builder()
-        .status(JourneyStatus2.IN_PROGRESS)
+    .journey(SlimInteractionFetchResponseJourney.builder()
+        .status(SlimInteractionFetchResponseStatus.FAILED)
         .build())
     .build());
 ```
 
-**Referred Types:** [Journey2](../../models/operations/Journey2.md), [JourneyStatus2](../../models/operations/JourneyStatus2.md)
+**Referred Types:** [SlimInteractionFetchResponseJourney](../../models/SlimInteractionFetchResponseJourney.md), [SlimInteractionFetchResponseStatus](../../models/SlimInteractionFetchResponseStatus.md)
 
 ## Consumption Patterns
 
 ### Java 11+ (Accessor Methods)
 
 ```java
-if (value.responseBody1().isPresent()) {
-    com.gbg.gocore.models.operations.ResponseBody1 responseBody1Value = value.responseBody1().get();
-    // Handle responseBody1 variant
-} else if (value.fetchInteractionError().isPresent()) {
-    com.gbg.gocore.models.operations.FetchInteractionError fetchInteractionErrorValue = value.fetchInteractionError().get();
-    // Handle fetchInteractionError variant
-} else if (value.responseBody2().isPresent()) {
-    com.gbg.gocore.models.operations.ResponseBody2 responseBody2Value = value.responseBody2().get();
-    // Handle responseBody2 variant
+if (value.interactionFetchResponse().isPresent()) {
+    com.gbg.gocore.models.InteractionFetchResponse interactionFetchResponseValue = value.interactionFetchResponse().get();
+    // Handle interactionFetchResponse variant
+} else if (value.slimInteractionFetchResponse().isPresent()) {
+    com.gbg.gocore.models.SlimInteractionFetchResponse slimInteractionFetchResponseValue = value.slimInteractionFetchResponse().get();
+    // Handle slimInteractionFetchResponse variant
 } else if (value.asJson().isPresent()) {
     com.fasterxml.jackson.databind.JsonNode raw = value.asJson().get();
     // Handle unknown variant fallback

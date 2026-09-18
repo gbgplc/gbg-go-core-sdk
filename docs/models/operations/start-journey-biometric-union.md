@@ -37,3 +37,20 @@ const value: operations.StartJourneyBiometric4 = {
 };
 ```
 
+### `operations.StartJourneyBiometric5`
+
+```typescript
+const value: operations.StartJourneyBiometric5 = {
+  anchorImage: "<value>",
+};
+```
+
+### `operations.StartJourneyBiometricStoredFace`
+
+```typescript
+const value: operations.StartJourneyBiometricStoredFace = {
+  type: "storedFace",
+  templateReference: "<value>",
+};
+```
+

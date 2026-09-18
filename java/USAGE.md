@@ -3,21 +3,23 @@
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
+                .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        PostAsTokenOauth2Response res = sdk.tokens().generate()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }

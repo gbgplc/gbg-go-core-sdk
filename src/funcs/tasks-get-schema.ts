@@ -20,6 +20,7 @@ import {
   RequestTimeoutError,
   UnexpectedClientError,
 } from "../models/errors/http-client-errors.js";
+import * as errors from "../models/errors/index.js";
 import { ResponseValidationError } from "../models/errors/response-validation-error.js";
 import { SDKValidationError } from "../models/errors/sdk-validation-error.js";
 import * as operations from "../models/operations/index.js";
@@ -27,12 +28,14 @@ import { APICall, APIPromise } from "../types/async.js";
 import { Result } from "../types/fp.js";
 
 /**
- * Get Task Schema
+ * Fetch V1-compat task schema
  *
  * @remarks
- * Get Task Schema
+ * V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
  *
  * If set, this operation will use {@link Security.customerAccess} from the global security.
+ *
+ * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
  */
 export function tasksGetSchema(
   client: GoCore,
@@ -40,7 +43,8 @@ export function tasksGetSchema(
   options?: RequestOptions,
 ): APIPromise<
   Result<
-    operations.GetTaskSchemaResponse,
+    { [k: string]: any },
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -65,7 +69,8 @@ async function $do(
 ): Promise<
   [
     Result<
-      operations.GetTaskSchemaResponse,
+      { [k: string]: any },
+      | errors.ErrorResponse
       | GoError
       | ResponseValidationError
       | ConnectionError
@@ -95,7 +100,7 @@ async function $do(
     ? null
     : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/journey/task/schema")();
+  const path = pathToFunc("/v2/captain/journey/task/schema")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -148,8 +153,13 @@ async function $do(
   }
   const response = doResult.value;
 
+  const responseFields = {
+    HttpMeta: { Response: response, Request: req },
+  };
+
   const [result] = await M.match<
-    operations.GetTaskSchemaResponse,
+    { [k: string]: any },
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -159,10 +169,12 @@ async function $do(
     | UnexpectedClientError
     | SDKValidationError
   >(
-    M.json(200, operations.GetTaskSchemaResponse$inboundSchema),
-    M.fail([400, 401, 403, 404, 405, "4XX"]),
-    M.fail([500, 503, "5XX"]),
-  )(response, req);
+    M.json(200, z.record(z.string(), z.any())),
+    M.jsonErr([400, 401, 404], errors.ErrorResponse$inboundSchema),
+    M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
+    M.fail("4XX"),
+    M.fail("5XX"),
+  )(response, req, { extraFields: responseFields });
   if (!result.ok) {
     return [result, { status: "complete", request: req, response }];
   }

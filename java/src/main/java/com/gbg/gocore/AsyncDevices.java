@@ -4,16 +4,22 @@
 package com.gbg.gocore;
 
 import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
+import static com.gbg.gocore.operations.Operations.AsyncRequestlessOperation;
 
 import com.gbg.gocore.models.operations.AddDeviceRequest;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
-import com.gbg.gocore.models.operations.DeviceConnectSecurity;
+import com.gbg.gocore.models.operations.DeviceValidateSecurity;
 import com.gbg.gocore.models.operations.async.AddDeviceRequestBuilder;
 import com.gbg.gocore.models.operations.async.AddDeviceResponse;
 import com.gbg.gocore.models.operations.async.DeviceConnectRequestBuilder;
 import com.gbg.gocore.models.operations.async.DeviceConnectResponse;
+import com.gbg.gocore.models.operations.async.DeviceRefreshRequestBuilder;
+import com.gbg.gocore.models.operations.async.DeviceRefreshResponse;
+import com.gbg.gocore.models.operations.async.DeviceValidateRequestBuilder;
+import com.gbg.gocore.models.operations.async.DeviceValidateResponse;
 import com.gbg.gocore.operations.AddDevice;
 import com.gbg.gocore.operations.DeviceConnect;
+import com.gbg.gocore.operations.DeviceRefresh;
+import com.gbg.gocore.operations.DeviceValidate;
 import com.gbg.gocore.utils.Headers;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -41,49 +47,9 @@ public class AsyncDevices {
 
 
     /**
-     * Connect or Refresh End User Device
+     * Generate connect token
      * 
-     * <p>Connect or Refresh End User Device
-     * 
-     * @return The async call builder
-     */
-    public DeviceConnectRequestBuilder connect() {
-        return new DeviceConnectRequestBuilder(sdkConfiguration);
-    }
-
-    /**
-     * Connect or Refresh End User Device
-     * 
-     * <p>Connect or Refresh End User Device
-     * 
-     * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<DeviceConnectResponse>} - The async response
-     */
-    public CompletableFuture<DeviceConnectResponse> connect(@Nonnull DeviceConnectSecurity security) {
-        return connect(null, security);
-    }
-
-    /**
-     * Connect or Refresh End User Device
-     * 
-     * <p>Connect or Refresh End User Device
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<DeviceConnectResponse>} - The async response
-     */
-    public CompletableFuture<DeviceConnectResponse> connect(@Nullable DeviceConnectRequest request, @Nonnull DeviceConnectSecurity security) {
-        AsyncRequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
-              = new DeviceConnect.Async(sdkConfiguration, security, _headers);
-        return operation.doRequest(request)
-            .thenCompose(operation::handleResponse);
-    }
-
-
-    /**
-     * Create Connect Secret
-     * 
-     * <p>Create Connect Secret
+     * <p>Generates a one-time connect token for device onboarding.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -94,9 +60,9 @@ public class AsyncDevices {
     }
 
     /**
-     * Create Connect Secret
+     * Generate connect token
      * 
-     * <p>Create Connect Secret
+     * <p>Generates a one-time connect token for device onboarding.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -107,9 +73,9 @@ public class AsyncDevices {
     }
 
     /**
-     * Create Connect Secret
+     * Generate connect token
      * 
-     * <p>Create Connect Secret
+     * <p>Generates a one-time connect token for device onboarding.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -120,6 +86,85 @@ public class AsyncDevices {
         AsyncRequestOperation<AddDeviceRequest, AddDeviceResponse> operation
               = new AddDevice.Async(sdkConfiguration, _headers);
         return operation.doRequest(request)
+            .thenCompose(operation::handleResponse);
+    }
+
+
+    /**
+     * Complete the device-onboarding handshake
+     * 
+     * <p>Completes the device-onboarding handshake. See partner integration guide.
+     * 
+     * @return The async call builder
+     */
+    public DeviceConnectRequestBuilder connect() {
+        return new DeviceConnectRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Complete the device-onboarding handshake
+     * 
+     * <p>Completes the device-onboarding handshake. See partner integration guide.
+     * 
+     * @return {@code CompletableFuture<DeviceConnectResponse>} - The async response
+     */
+    public CompletableFuture<DeviceConnectResponse> connectDirect() {
+        AsyncRequestlessOperation<DeviceConnectResponse> operation
+            = new DeviceConnect.Async(sdkConfiguration, _headers);
+        return operation.doRequest()
+            .thenCompose(operation::handleResponse);
+    }
+
+
+    /**
+     * Renew a device session
+     * 
+     * <p>Renews a device session. See partner integration guide.
+     * 
+     * @return The async call builder
+     */
+    public DeviceRefreshRequestBuilder refresh() {
+        return new DeviceRefreshRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Renew a device session
+     * 
+     * <p>Renews a device session. See partner integration guide.
+     * 
+     * @return {@code CompletableFuture<DeviceRefreshResponse>} - The async response
+     */
+    public CompletableFuture<DeviceRefreshResponse> refreshDirect() {
+        AsyncRequestlessOperation<DeviceRefreshResponse> operation
+            = new DeviceRefresh.Async(sdkConfiguration, _headers);
+        return operation.doRequest()
+            .thenCompose(operation::handleResponse);
+    }
+
+
+    /**
+     * Validate end-user session
+     * 
+     * <p>Validates an end-user JWT and returns session information.
+     * 
+     * @return The async call builder
+     */
+    public DeviceValidateRequestBuilder validate() {
+        return new DeviceValidateRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Validate end-user session
+     * 
+     * <p>Validates an end-user JWT and returns session information.
+     * 
+     * @param security The security details to use for authentication.
+     * @return {@code CompletableFuture<DeviceValidateResponse>} - The async response
+     */
+    public CompletableFuture<DeviceValidateResponse> validate(@Nonnull DeviceValidateSecurity security) {
+        AsyncRequestlessOperation<DeviceValidateResponse> operation
+            = new DeviceValidate.Async(sdkConfiguration, security, _headers);
+        return operation.doRequest()
             .thenCompose(operation::handleResponse);
     }
 

@@ -18,7 +18,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class SDKConfiguration {
 
     private static final String LANGUAGE = "java";
-    public static final String OPENAPI_DOC_VERSION = "1.0.0";
+    public static final String OPENAPI_DOC_VERSION = "2.x";
     public static final String SDK_VERSION = "0.1.0-alpha01";
     public static final String GEN_VERSION = "2.937.18";
     private static final String BASE_PACKAGE = "com.gbg.gocore";

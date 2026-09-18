@@ -1,0 +1,10 @@
+# TerminateJourneyRequest
+
+
+## Fields
+
+| Field                                                                    | Setter Type                                                              | Getter Type                                                              | Required                                                                 | Description                                                              |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `instanceId`                                                             | *String*                                                                 | *String*                                                                 | :heavy_check_mark:                                                       | Journey Instance Id, a unique identifier for a started journey instance. |
+| `reason`                                                                 | @Nullable *String*                                                       | Optional\<*String*>                                                      | :heavy_minus_sign:                                                       | N/A                                                                      |
+| `additionalProperties`                                                   | @Nullable Map\<String, *Object*>                                         | Optional\<Map\<String, *Object*>>                                        | :heavy_minus_sign:                                                       | N/A                                                                      |

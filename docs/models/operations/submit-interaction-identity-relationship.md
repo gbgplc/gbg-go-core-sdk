@@ -11,5 +11,5 @@ let value: SubmitInteractionIdentityRelationship = "maternalGrandMother";
 ## Values
 
 ```typescript
-"mother" | "father" | "maternalGrandFather" | "maternalGrandMother" | "paternalGrandFather" | "paternalGrandMother"
+"mother" | "father" | "spouse" | "maternalGrandFather" | "maternalGrandMother" | "paternalGrandFather" | "paternalGrandMother"
 ```

@@ -3,41 +3,22 @@
  */
 package com.gbg.gocore.models.operations.async;
 
-import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
+import static com.gbg.gocore.operations.Operations.AsyncRequestlessOperation;
 
 import com.gbg.gocore.SDKConfiguration;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
-import com.gbg.gocore.models.operations.DeviceConnectSecurity;
 import com.gbg.gocore.operations.DeviceConnect;
 import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public class DeviceConnectRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
-    private DeviceConnectRequest request;
-    private DeviceConnectSecurity security;
 
     public DeviceConnectRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
     }
 
-    public DeviceConnectRequestBuilder request(@Nullable DeviceConnectRequest request) {
-        this.request = request;
-        return this;
-    }
-
-    public DeviceConnectRequestBuilder security(@Nonnull DeviceConnectSecurity security) {
-        this.security = Utils.checkNotNull(security, "security");
-        return this;
-    }
-
-    private DeviceConnectRequest _buildRequest() {
-        return this.request;
-    }
     
     public DeviceConnectRequestBuilder header(String name, String value) {
         Utils.checkNotNull(name, "name");
@@ -52,9 +33,9 @@ public class DeviceConnectRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<DeviceConnectResponse> call() {
-        AsyncRequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
-              = new DeviceConnect.Async(sdkConfiguration, security, _headers);
-        return operation.doRequest(this._buildRequest())
+        AsyncRequestlessOperation<DeviceConnectResponse> operation
+            = new DeviceConnect.Async(sdkConfiguration, _headers);
+        return operation.doRequest()
             .thenCompose(operation::handleResponse);
     }
 }

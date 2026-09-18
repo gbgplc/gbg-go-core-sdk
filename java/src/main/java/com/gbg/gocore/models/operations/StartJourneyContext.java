@@ -3,44 +3,74 @@
  */
 package com.gbg.gocore.models.operations;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 
 public class StartJourneyContext {
 
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("subject")
+    private StartJourneySubject subject;
+
+
     @JsonProperty("config")
     private Config config;
 
 
-    @JsonProperty("subject")
-    private StartJourneySubject subject;
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
 
     @JsonCreator
     public StartJourneyContext(
-            @JsonProperty("config") @Nonnull Config config,
-            @JsonProperty("subject") @Nonnull StartJourneySubject subject) {
+            @JsonProperty("subject") @Nullable StartJourneySubject subject,
+            @JsonProperty("config") @Nonnull Config config) {
+        this.subject = subject;
         this.config = Optional.ofNullable(config)
             .orElseThrow(() -> new IllegalArgumentException("config cannot be null"));
-        this.subject = Optional.ofNullable(subject)
-            .orElseThrow(() -> new IllegalArgumentException("subject cannot be null"));
+        this.additionalProperties = new HashMap<>();
+    }
+    
+    public StartJourneyContext(
+            @Nonnull Config config) {
+        this(null, config);
+    }
+
+    public Optional<StartJourneySubject> subject() {
+        return Optional.ofNullable(this.subject);
     }
 
     public Config config() {
         return this.config;
     }
 
-    public StartJourneySubject subject() {
-        return this.subject;
+    @JsonAnyGetter
+    public Map<String, Object> additionalProperties() {
+        return additionalProperties;
     }
 
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public StartJourneyContext withSubject(@Nullable StartJourneySubject subject) {
+        this.subject = subject;
+        return this;
     }
 
 
@@ -50,8 +80,16 @@ public class StartJourneyContext {
     }
 
 
-    public StartJourneyContext withSubject(@Nonnull StartJourneySubject subject) {
-        this.subject = Utils.checkNotNull(subject, "subject");
+    @JsonAnySetter
+    public StartJourneyContext withAdditionalProperty(String key, Object value) {
+        // note that value can be null because of the way JsonAnySetter works
+        Utils.checkNotNull(key, "key");
+        additionalProperties.put(key, value);
+        return this;
+    }
+
+    public StartJourneyContext withAdditionalProperties(@Nullable Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
         return this;
     }
 
@@ -66,32 +104,41 @@ public class StartJourneyContext {
         }
         StartJourneyContext other = (StartJourneyContext) o;
         return 
+            Utils.enhancedDeepEquals(this.subject, other.subject) &&
             Utils.enhancedDeepEquals(this.config, other.config) &&
-            Utils.enhancedDeepEquals(this.subject, other.subject);
+            Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            config, subject);
+            subject, config, additionalProperties);
     }
     
     @Override
     public String toString() {
         return Utils.toString(StartJourneyContext.class,
+                "subject", subject,
                 "config", config,
-                "subject", subject);
+                "additionalProperties", additionalProperties);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
+        private StartJourneySubject subject;
+
         private Config config;
 
-        private StartJourneySubject subject;
+        private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {
           // force use of static builder() method
+        }
+
+        public Builder subject(@Nullable StartJourneySubject subject) {
+            this.subject = subject;
+            return this;
         }
 
         public Builder config(@Nonnull Config config) {
@@ -99,14 +146,24 @@ public class StartJourneyContext {
             return this;
         }
 
-        public Builder subject(@Nonnull StartJourneySubject subject) {
-            this.subject = Utils.checkNotNull(subject, "subject");
+        public Builder additionalProperty(String key, Object value) {
+            Utils.checkNotNull(key, "key");
+            // we could be strict about null values (force the user
+            // to pass `JsonNullable.of(null)`) but likely to be a bit 
+            // annoying for additional properties building so we'll 
+            // relax preconditions.
+            this.additionalProperties.put(key, value);
+            return this;
+        }
+        public Builder additionalProperties(@Nullable Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
             return this;
         }
 
         public StartJourneyContext build() {
             return new StartJourneyContext(
-                config, subject);
+                subject, config)
+                .withAdditionalProperties(additionalProperties);
         }
 
     }

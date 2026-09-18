@@ -1,0 +1,10 @@
+# SubmitInteractionIndustryClassification
+
+
+## Fields
+
+| Field                                                                         | Setter Type                                                                   | Getter Type                                                                   | Required                                                                      | Description                                                                   |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `system`                                                                      | [SubmitInteractionSystem](../../models/operations/SubmitInteractionSystem.md) | [SubmitInteractionSystem](../../models/operations/SubmitInteractionSystem.md) | :heavy_check_mark:                                                            | N/A                                                                           |
+| `code`                                                                        | *String*                                                                      | *String*                                                                      | :heavy_check_mark:                                                            | N/A                                                                           |
+| `description`                                                                 | @Nullable *String*                                                            | Optional\<*String*>                                                           | :heavy_minus_sign:                                                            | N/A                                                                           |

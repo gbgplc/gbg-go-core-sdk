@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.Boolean;
 import java.lang.Override;
@@ -24,7 +25,7 @@ public class SubmitInteractionDocument {
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("address")
-    private SubmitInteractionAddress address;
+    private SubmitInteractionDocumentAddress address;
 
 
     @JsonInclude(Include.NON_ABSENT)
@@ -387,7 +388,6 @@ public class SubmitInteractionDocument {
     private String id;
 
 
-    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("type")
     private String type;
 
@@ -420,6 +420,16 @@ public class SubmitInteractionDocument {
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("side2Image")
     private String side2Image;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("side1Device")
+    private SubmitInteractionSide1Device side1Device;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("side2Device")
+    private SubmitInteractionSide2Device side2Device;
 
 
     @JsonInclude(Include.NON_ABSENT)
@@ -461,6 +471,28 @@ public class SubmitInteractionDocument {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("cardType")
+    private String cardType;
+
+    /**
+     * Year and month in ISO 8601 format: YYYY-MM
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("expiryMonth")
+    private String expiryMonth;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("cardColour")
+    private String cardColour;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("cardStatus")
+    private String cardStatus;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("subject")
     private SubmitInteractionDocumentSubject subject;
 
@@ -471,10 +503,63 @@ public class SubmitInteractionDocument {
     @JsonProperty("country")
     private String country;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("certificateFormat")
+    private String certificateFormat;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("registrationNumber")
+    private String registrationNumber;
+
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("registrationDate")
+    private String registrationDate;
+
+    /**
+     * Four-digit calendar year in ISO 8601 format: YYYY
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("registrationYear")
+    private String registrationYear;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("partyRole")
+    private String partyRole;
+
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("dateOfEvent")
+    private String dateOfEvent;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("previousFirstName")
+    private String previousFirstName;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("previousMiddleName")
+    private String previousMiddleName;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("previousSurname")
+    private String previousSurname;
+
     @JsonCreator
     public SubmitInteractionDocument(
             @JsonProperty("oneDBarcode") @Nullable String oneDBarcode,
-            @JsonProperty("address") @Nullable SubmitInteractionAddress address,
+            @JsonProperty("address") @Nullable SubmitInteractionDocumentAddress address,
             @JsonProperty("applicationDate") @Nullable String applicationDate,
             @JsonProperty("applicationNumber") @Nullable String applicationNumber,
             @JsonProperty("dateOfBirth") @Nullable String dateOfBirth,
@@ -546,13 +631,15 @@ public class SubmitInteractionDocument {
             @JsonProperty("cardNumber") @Nullable String cardNumber,
             @JsonProperty("issuerCountryCode") @Nullable String issuerCountryCode,
             @JsonProperty("id") @Nullable String id,
-            @JsonProperty("type") @Nullable String type,
+            @JsonProperty("type") @Nonnull String type,
             @JsonProperty("category") @Nullable String category,
             @JsonProperty("subtype") @Nullable String subtype,
             @JsonProperty("format") @Nullable String format,
             @JsonProperty("device") @Nullable SubmitInteractionDocumentDevice device,
             @JsonProperty("side1Image") @Nullable String side1Image,
             @JsonProperty("side2Image") @Nullable String side2Image,
+            @JsonProperty("side1Device") @Nullable SubmitInteractionSide1Device side1Device,
+            @JsonProperty("side2Device") @Nullable SubmitInteractionSide2Device side2Device,
             @JsonProperty("chip") @Nullable SubmitInteractionChip chip,
             @JsonProperty("classification") @Nullable SubmitInteractionClassification classification,
             @JsonProperty("extraction") @Nullable SubmitInteractionExtraction extraction,
@@ -560,8 +647,21 @@ public class SubmitInteractionDocument {
             @JsonProperty("subType") @Nullable String subType,
             @JsonProperty("number") @Nullable String number,
             @JsonProperty("expiryDate") @Nullable String expiryDate,
+            @JsonProperty("cardType") @Nullable String cardType,
+            @JsonProperty("expiryMonth") @Nullable String expiryMonth,
+            @JsonProperty("cardColour") @Nullable String cardColour,
+            @JsonProperty("cardStatus") @Nullable String cardStatus,
             @JsonProperty("subject") @Nullable SubmitInteractionDocumentSubject subject,
-            @JsonProperty("country") @Nullable String country) {
+            @JsonProperty("country") @Nullable String country,
+            @JsonProperty("certificateFormat") @Nullable String certificateFormat,
+            @JsonProperty("registrationNumber") @Nullable String registrationNumber,
+            @JsonProperty("registrationDate") @Nullable String registrationDate,
+            @JsonProperty("registrationYear") @Nullable String registrationYear,
+            @JsonProperty("partyRole") @Nullable String partyRole,
+            @JsonProperty("dateOfEvent") @Nullable String dateOfEvent,
+            @JsonProperty("previousFirstName") @Nullable String previousFirstName,
+            @JsonProperty("previousMiddleName") @Nullable String previousMiddleName,
+            @JsonProperty("previousSurname") @Nullable String previousSurname) {
         this.oneDBarcode = oneDBarcode;
         this.address = address;
         this.applicationDate = applicationDate;
@@ -635,13 +735,16 @@ public class SubmitInteractionDocument {
         this.cardNumber = cardNumber;
         this.issuerCountryCode = issuerCountryCode;
         this.id = id;
-        this.type = type;
+        this.type = Optional.ofNullable(type)
+            .orElseThrow(() -> new IllegalArgumentException("type cannot be null"));
         this.category = category;
         this.subtype = subtype;
         this.format = format;
         this.device = device;
         this.side1Image = side1Image;
         this.side2Image = side2Image;
+        this.side1Device = side1Device;
+        this.side2Device = side2Device;
         this.chip = chip;
         this.classification = classification;
         this.extraction = extraction;
@@ -649,11 +752,25 @@ public class SubmitInteractionDocument {
         this.subType = subType;
         this.number = number;
         this.expiryDate = expiryDate;
+        this.cardType = cardType;
+        this.expiryMonth = expiryMonth;
+        this.cardColour = cardColour;
+        this.cardStatus = cardStatus;
         this.subject = subject;
         this.country = country;
+        this.certificateFormat = certificateFormat;
+        this.registrationNumber = registrationNumber;
+        this.registrationDate = registrationDate;
+        this.registrationYear = registrationYear;
+        this.partyRole = partyRole;
+        this.dateOfEvent = dateOfEvent;
+        this.previousFirstName = previousFirstName;
+        this.previousMiddleName = previousMiddleName;
+        this.previousSurname = previousSurname;
     }
     
-    public SubmitInteractionDocument() {
+    public SubmitInteractionDocument(
+            @Nonnull String type) {
         this(null, null, null,
             null, null, null,
             null, null, null,
@@ -678,6 +795,11 @@ public class SubmitInteractionDocument {
             null, null, null,
             null, null, null,
             null, null, null,
+            null, type, null,
+            null, null, null,
+            null, null, null,
+            null, null, null,
+            null, null, null,
             null, null, null,
             null, null, null,
             null, null, null,
@@ -690,7 +812,7 @@ public class SubmitInteractionDocument {
         return Optional.ofNullable(this.oneDBarcode);
     }
 
-    public Optional<SubmitInteractionAddress> address() {
+    public Optional<SubmitInteractionDocumentAddress> address() {
         return Optional.ofNullable(this.address);
     }
 
@@ -985,8 +1107,8 @@ public class SubmitInteractionDocument {
         return Optional.ofNullable(this.id);
     }
 
-    public Optional<String> type() {
-        return Optional.ofNullable(this.type);
+    public String type() {
+        return this.type;
     }
 
     public Optional<String> category() {
@@ -1011,6 +1133,14 @@ public class SubmitInteractionDocument {
 
     public Optional<String> side2Image() {
         return Optional.ofNullable(this.side2Image);
+    }
+
+    public Optional<SubmitInteractionSide1Device> side1Device() {
+        return Optional.ofNullable(this.side1Device);
+    }
+
+    public Optional<SubmitInteractionSide2Device> side2Device() {
+        return Optional.ofNullable(this.side2Device);
     }
 
     public Optional<SubmitInteractionChip> chip() {
@@ -1045,6 +1175,25 @@ public class SubmitInteractionDocument {
         return Optional.ofNullable(this.expiryDate);
     }
 
+    public Optional<String> cardType() {
+        return Optional.ofNullable(this.cardType);
+    }
+
+    /**
+     * Year and month in ISO 8601 format: YYYY-MM
+     */
+    public Optional<String> expiryMonth() {
+        return Optional.ofNullable(this.expiryMonth);
+    }
+
+    public Optional<String> cardColour() {
+        return Optional.ofNullable(this.cardColour);
+    }
+
+    public Optional<String> cardStatus() {
+        return Optional.ofNullable(this.cardStatus);
+    }
+
     public Optional<SubmitInteractionDocumentSubject> subject() {
         return Optional.ofNullable(this.subject);
     }
@@ -1054,6 +1203,53 @@ public class SubmitInteractionDocument {
      */
     public Optional<String> country() {
         return Optional.ofNullable(this.country);
+    }
+
+    public Optional<String> certificateFormat() {
+        return Optional.ofNullable(this.certificateFormat);
+    }
+
+    public Optional<String> registrationNumber() {
+        return Optional.ofNullable(this.registrationNumber);
+    }
+
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    public Optional<String> registrationDate() {
+        return Optional.ofNullable(this.registrationDate);
+    }
+
+    /**
+     * Four-digit calendar year in ISO 8601 format: YYYY
+     */
+    public Optional<String> registrationYear() {
+        return Optional.ofNullable(this.registrationYear);
+    }
+
+    public Optional<String> partyRole() {
+        return Optional.ofNullable(this.partyRole);
+    }
+
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    public Optional<String> dateOfEvent() {
+        return Optional.ofNullable(this.dateOfEvent);
+    }
+
+    public Optional<String> previousFirstName() {
+        return Optional.ofNullable(this.previousFirstName);
+    }
+
+    public Optional<String> previousMiddleName() {
+        return Optional.ofNullable(this.previousMiddleName);
+    }
+
+    public Optional<String> previousSurname() {
+        return Optional.ofNullable(this.previousSurname);
     }
 
     public static Builder builder() {
@@ -1067,7 +1263,7 @@ public class SubmitInteractionDocument {
     }
 
 
-    public SubmitInteractionDocument withAddress(@Nullable SubmitInteractionAddress address) {
+    public SubmitInteractionDocument withAddress(@Nullable SubmitInteractionDocumentAddress address) {
         this.address = address;
         return this;
     }
@@ -1506,8 +1702,8 @@ public class SubmitInteractionDocument {
     }
 
 
-    public SubmitInteractionDocument withType(@Nullable String type) {
-        this.type = type;
+    public SubmitInteractionDocument withType(@Nonnull String type) {
+        this.type = Utils.checkNotNull(type, "type");
         return this;
     }
 
@@ -1544,6 +1740,18 @@ public class SubmitInteractionDocument {
 
     public SubmitInteractionDocument withSide2Image(@Nullable String side2Image) {
         this.side2Image = side2Image;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withSide1Device(@Nullable SubmitInteractionSide1Device side1Device) {
+        this.side1Device = side1Device;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withSide2Device(@Nullable SubmitInteractionSide2Device side2Device) {
+        this.side2Device = side2Device;
         return this;
     }
 
@@ -1594,6 +1802,33 @@ public class SubmitInteractionDocument {
     }
 
 
+    public SubmitInteractionDocument withCardType(@Nullable String cardType) {
+        this.cardType = cardType;
+        return this;
+    }
+
+
+    /**
+     * Year and month in ISO 8601 format: YYYY-MM
+     */
+    public SubmitInteractionDocument withExpiryMonth(@Nullable String expiryMonth) {
+        this.expiryMonth = expiryMonth;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withCardColour(@Nullable String cardColour) {
+        this.cardColour = cardColour;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withCardStatus(@Nullable String cardStatus) {
+        this.cardStatus = cardStatus;
+        return this;
+    }
+
+
     public SubmitInteractionDocument withSubject(@Nullable SubmitInteractionDocumentSubject subject) {
         this.subject = subject;
         return this;
@@ -1605,6 +1840,71 @@ public class SubmitInteractionDocument {
      */
     public SubmitInteractionDocument withCountry(@Nullable String country) {
         this.country = country;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withCertificateFormat(@Nullable String certificateFormat) {
+        this.certificateFormat = certificateFormat;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withRegistrationNumber(@Nullable String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+        return this;
+    }
+
+
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    public SubmitInteractionDocument withRegistrationDate(@Nullable String registrationDate) {
+        this.registrationDate = registrationDate;
+        return this;
+    }
+
+
+    /**
+     * Four-digit calendar year in ISO 8601 format: YYYY
+     */
+    public SubmitInteractionDocument withRegistrationYear(@Nullable String registrationYear) {
+        this.registrationYear = registrationYear;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withPartyRole(@Nullable String partyRole) {
+        this.partyRole = partyRole;
+        return this;
+    }
+
+
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    public SubmitInteractionDocument withDateOfEvent(@Nullable String dateOfEvent) {
+        this.dateOfEvent = dateOfEvent;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withPreviousFirstName(@Nullable String previousFirstName) {
+        this.previousFirstName = previousFirstName;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withPreviousMiddleName(@Nullable String previousMiddleName) {
+        this.previousMiddleName = previousMiddleName;
+        return this;
+    }
+
+
+    public SubmitInteractionDocument withPreviousSurname(@Nullable String previousSurname) {
+        this.previousSurname = previousSurname;
         return this;
     }
 
@@ -1699,6 +1999,8 @@ public class SubmitInteractionDocument {
             Utils.enhancedDeepEquals(this.device, other.device) &&
             Utils.enhancedDeepEquals(this.side1Image, other.side1Image) &&
             Utils.enhancedDeepEquals(this.side2Image, other.side2Image) &&
+            Utils.enhancedDeepEquals(this.side1Device, other.side1Device) &&
+            Utils.enhancedDeepEquals(this.side2Device, other.side2Device) &&
             Utils.enhancedDeepEquals(this.chip, other.chip) &&
             Utils.enhancedDeepEquals(this.classification, other.classification) &&
             Utils.enhancedDeepEquals(this.extraction, other.extraction) &&
@@ -1706,8 +2008,21 @@ public class SubmitInteractionDocument {
             Utils.enhancedDeepEquals(this.subType, other.subType) &&
             Utils.enhancedDeepEquals(this.number, other.number) &&
             Utils.enhancedDeepEquals(this.expiryDate, other.expiryDate) &&
+            Utils.enhancedDeepEquals(this.cardType, other.cardType) &&
+            Utils.enhancedDeepEquals(this.expiryMonth, other.expiryMonth) &&
+            Utils.enhancedDeepEquals(this.cardColour, other.cardColour) &&
+            Utils.enhancedDeepEquals(this.cardStatus, other.cardStatus) &&
             Utils.enhancedDeepEquals(this.subject, other.subject) &&
-            Utils.enhancedDeepEquals(this.country, other.country);
+            Utils.enhancedDeepEquals(this.country, other.country) &&
+            Utils.enhancedDeepEquals(this.certificateFormat, other.certificateFormat) &&
+            Utils.enhancedDeepEquals(this.registrationNumber, other.registrationNumber) &&
+            Utils.enhancedDeepEquals(this.registrationDate, other.registrationDate) &&
+            Utils.enhancedDeepEquals(this.registrationYear, other.registrationYear) &&
+            Utils.enhancedDeepEquals(this.partyRole, other.partyRole) &&
+            Utils.enhancedDeepEquals(this.dateOfEvent, other.dateOfEvent) &&
+            Utils.enhancedDeepEquals(this.previousFirstName, other.previousFirstName) &&
+            Utils.enhancedDeepEquals(this.previousMiddleName, other.previousMiddleName) &&
+            Utils.enhancedDeepEquals(this.previousSurname, other.previousSurname);
     }
     
     @Override
@@ -1739,10 +2054,15 @@ public class SubmitInteractionDocument {
             weight, cardNumber, issuerCountryCode,
             id, type, category,
             subtype, format, device,
-            side1Image, side2Image, chip,
-            classification, extraction, validation,
-            subType, number, expiryDate,
-            subject, country);
+            side1Image, side2Image, side1Device,
+            side2Device, chip, classification,
+            extraction, validation, subType,
+            number, expiryDate, cardType,
+            expiryMonth, cardColour, cardStatus,
+            subject, country, certificateFormat,
+            registrationNumber, registrationDate, registrationYear,
+            partyRole, dateOfEvent, previousFirstName,
+            previousMiddleName, previousSurname);
     }
     
     @Override
@@ -1828,6 +2148,8 @@ public class SubmitInteractionDocument {
                 "device", device,
                 "side1Image", side1Image,
                 "side2Image", side2Image,
+                "side1Device", side1Device,
+                "side2Device", side2Device,
                 "chip", chip,
                 "classification", classification,
                 "extraction", extraction,
@@ -1835,8 +2157,21 @@ public class SubmitInteractionDocument {
                 "subType", subType,
                 "number", number,
                 "expiryDate", expiryDate,
+                "cardType", cardType,
+                "expiryMonth", expiryMonth,
+                "cardColour", cardColour,
+                "cardStatus", cardStatus,
                 "subject", subject,
-                "country", country);
+                "country", country,
+                "certificateFormat", certificateFormat,
+                "registrationNumber", registrationNumber,
+                "registrationDate", registrationDate,
+                "registrationYear", registrationYear,
+                "partyRole", partyRole,
+                "dateOfEvent", dateOfEvent,
+                "previousFirstName", previousFirstName,
+                "previousMiddleName", previousMiddleName,
+                "previousSurname", previousSurname);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -1844,7 +2179,7 @@ public class SubmitInteractionDocument {
 
         private String oneDBarcode;
 
-        private SubmitInteractionAddress address;
+        private SubmitInteractionDocumentAddress address;
 
         private String applicationDate;
 
@@ -2002,6 +2337,10 @@ public class SubmitInteractionDocument {
 
         private String side2Image;
 
+        private SubmitInteractionSide1Device side1Device;
+
+        private SubmitInteractionSide2Device side2Device;
+
         private SubmitInteractionChip chip;
 
         private SubmitInteractionClassification classification;
@@ -2016,9 +2355,35 @@ public class SubmitInteractionDocument {
 
         private String expiryDate;
 
+        private String cardType;
+
+        private String expiryMonth;
+
+        private String cardColour;
+
+        private String cardStatus;
+
         private SubmitInteractionDocumentSubject subject;
 
         private String country;
+
+        private String certificateFormat;
+
+        private String registrationNumber;
+
+        private String registrationDate;
+
+        private String registrationYear;
+
+        private String partyRole;
+
+        private String dateOfEvent;
+
+        private String previousFirstName;
+
+        private String previousMiddleName;
+
+        private String previousSurname;
 
         private Builder() {
           // force use of static builder() method
@@ -2029,7 +2394,7 @@ public class SubmitInteractionDocument {
             return this;
         }
 
-        public Builder address(@Nullable SubmitInteractionAddress address) {
+        public Builder address(@Nullable SubmitInteractionDocumentAddress address) {
             this.address = address;
             return this;
         }
@@ -2396,8 +2761,8 @@ public class SubmitInteractionDocument {
             return this;
         }
 
-        public Builder type(@Nullable String type) {
-            this.type = type;
+        public Builder type(@Nonnull String type) {
+            this.type = Utils.checkNotNull(type, "type");
             return this;
         }
 
@@ -2428,6 +2793,16 @@ public class SubmitInteractionDocument {
 
         public Builder side2Image(@Nullable String side2Image) {
             this.side2Image = side2Image;
+            return this;
+        }
+
+        public Builder side1Device(@Nullable SubmitInteractionSide1Device side1Device) {
+            this.side1Device = side1Device;
+            return this;
+        }
+
+        public Builder side2Device(@Nullable SubmitInteractionSide2Device side2Device) {
+            this.side2Device = side2Device;
             return this;
         }
 
@@ -2470,6 +2845,29 @@ public class SubmitInteractionDocument {
             return this;
         }
 
+        public Builder cardType(@Nullable String cardType) {
+            this.cardType = cardType;
+            return this;
+        }
+
+        /**
+         * Year and month in ISO 8601 format: YYYY-MM
+         */
+        public Builder expiryMonth(@Nullable String expiryMonth) {
+            this.expiryMonth = expiryMonth;
+            return this;
+        }
+
+        public Builder cardColour(@Nullable String cardColour) {
+            this.cardColour = cardColour;
+            return this;
+        }
+
+        public Builder cardStatus(@Nullable String cardStatus) {
+            this.cardStatus = cardStatus;
+            return this;
+        }
+
         public Builder subject(@Nullable SubmitInteractionDocumentSubject subject) {
             this.subject = subject;
             return this;
@@ -2480,6 +2878,62 @@ public class SubmitInteractionDocument {
          */
         public Builder country(@Nullable String country) {
             this.country = country;
+            return this;
+        }
+
+        public Builder certificateFormat(@Nullable String certificateFormat) {
+            this.certificateFormat = certificateFormat;
+            return this;
+        }
+
+        public Builder registrationNumber(@Nullable String registrationNumber) {
+            this.registrationNumber = registrationNumber;
+            return this;
+        }
+
+        /**
+         * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+         * to ISO 8601
+         */
+        public Builder registrationDate(@Nullable String registrationDate) {
+            this.registrationDate = registrationDate;
+            return this;
+        }
+
+        /**
+         * Four-digit calendar year in ISO 8601 format: YYYY
+         */
+        public Builder registrationYear(@Nullable String registrationYear) {
+            this.registrationYear = registrationYear;
+            return this;
+        }
+
+        public Builder partyRole(@Nullable String partyRole) {
+            this.partyRole = partyRole;
+            return this;
+        }
+
+        /**
+         * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+         * to ISO 8601
+         */
+        public Builder dateOfEvent(@Nullable String dateOfEvent) {
+            this.dateOfEvent = dateOfEvent;
+            return this;
+        }
+
+        public Builder previousFirstName(@Nullable String previousFirstName) {
+            this.previousFirstName = previousFirstName;
+            return this;
+        }
+
+        public Builder previousMiddleName(@Nullable String previousMiddleName) {
+            this.previousMiddleName = previousMiddleName;
+            return this;
+        }
+
+        public Builder previousSurname(@Nullable String previousSurname) {
+            this.previousSurname = previousSurname;
             return this;
         }
 
@@ -2511,10 +2965,15 @@ public class SubmitInteractionDocument {
                 weight, cardNumber, issuerCountryCode,
                 id, type, category,
                 subtype, format, device,
-                side1Image, side2Image, chip,
-                classification, extraction, validation,
-                subType, number, expiryDate,
-                subject, country);
+                side1Image, side2Image, side1Device,
+                side2Device, chip, classification,
+                extraction, validation, subType,
+                number, expiryDate, cardType,
+                expiryMonth, cardColour, cardStatus,
+                subject, country, certificateFormat,
+                registrationNumber, registrationDate, registrationYear,
+                partyRole, dateOfEvent, previousFirstName,
+                previousMiddleName, previousSurname);
         }
 
     }

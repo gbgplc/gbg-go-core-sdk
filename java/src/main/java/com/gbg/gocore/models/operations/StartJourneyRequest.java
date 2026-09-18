@@ -10,59 +10,53 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
-import java.util.Map;
 import java.util.Optional;
 
 
 public class StartJourneyRequest {
-    /**
-     * Resource Id, a unique identifier for a resource, such as a journey or instance.
-     */
+
     @JsonProperty("resourceId")
     private String resourceId;
 
 
-    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("context")
     private StartJourneyContext context;
 
 
     @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("data")
-    private Map<String, Object> data;
+    @JsonProperty("scenario")
+    private Scenario scenario;
 
     @JsonCreator
     public StartJourneyRequest(
             @JsonProperty("resourceId") @Nonnull String resourceId,
-            @JsonProperty("context") @Nullable StartJourneyContext context,
-            @JsonProperty("data") @Nullable Map<String, Object> data) {
+            @JsonProperty("context") @Nonnull StartJourneyContext context,
+            @JsonProperty("scenario") @Nullable Scenario scenario) {
         this.resourceId = Optional.ofNullable(resourceId)
             .orElseThrow(() -> new IllegalArgumentException("resourceId cannot be null"));
-        this.context = context;
-        this.data = data;
+        this.context = Optional.ofNullable(context)
+            .orElseThrow(() -> new IllegalArgumentException("context cannot be null"));
+        this.scenario = scenario;
     }
     
     public StartJourneyRequest(
-            @Nonnull String resourceId) {
-        this(resourceId, null, null);
+            @Nonnull String resourceId,
+            @Nonnull StartJourneyContext context) {
+        this(resourceId, context, null);
     }
 
-    /**
-     * Resource Id, a unique identifier for a resource, such as a journey or instance.
-     */
     public String resourceId() {
         return this.resourceId;
     }
 
-    public Optional<StartJourneyContext> context() {
-        return Optional.ofNullable(this.context);
+    public StartJourneyContext context() {
+        return this.context;
     }
 
-    public Optional<Map<String, Object>> data() {
-        return Optional.ofNullable(this.data);
+    public Optional<Scenario> scenario() {
+        return Optional.ofNullable(this.scenario);
     }
 
     public static Builder builder() {
@@ -70,23 +64,20 @@ public class StartJourneyRequest {
     }
 
 
-    /**
-     * Resource Id, a unique identifier for a resource, such as a journey or instance.
-     */
     public StartJourneyRequest withResourceId(@Nonnull String resourceId) {
         this.resourceId = Utils.checkNotNull(resourceId, "resourceId");
         return this;
     }
 
 
-    public StartJourneyRequest withContext(@Nullable StartJourneyContext context) {
-        this.context = context;
+    public StartJourneyRequest withContext(@Nonnull StartJourneyContext context) {
+        this.context = Utils.checkNotNull(context, "context");
         return this;
     }
 
 
-    public StartJourneyRequest withData(@Nullable Map<String, Object> data) {
-        this.data = data;
+    public StartJourneyRequest withScenario(@Nullable Scenario scenario) {
+        this.scenario = scenario;
         return this;
     }
 
@@ -103,13 +94,13 @@ public class StartJourneyRequest {
         return 
             Utils.enhancedDeepEquals(this.resourceId, other.resourceId) &&
             Utils.enhancedDeepEquals(this.context, other.context) &&
-            Utils.enhancedDeepEquals(this.data, other.data);
+            Utils.enhancedDeepEquals(this.scenario, other.scenario);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            resourceId, context, data);
+            resourceId, context, scenario);
     }
     
     @Override
@@ -117,7 +108,7 @@ public class StartJourneyRequest {
         return Utils.toString(StartJourneyRequest.class,
                 "resourceId", resourceId,
                 "context", context,
-                "data", data);
+                "scenario", scenario);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -127,33 +118,30 @@ public class StartJourneyRequest {
 
         private StartJourneyContext context;
 
-        private Map<String, Object> data;
+        private Scenario scenario;
 
         private Builder() {
           // force use of static builder() method
         }
 
-        /**
-         * Resource Id, a unique identifier for a resource, such as a journey or instance.
-         */
         public Builder resourceId(@Nonnull String resourceId) {
             this.resourceId = Utils.checkNotNull(resourceId, "resourceId");
             return this;
         }
 
-        public Builder context(@Nullable StartJourneyContext context) {
-            this.context = context;
+        public Builder context(@Nonnull StartJourneyContext context) {
+            this.context = Utils.checkNotNull(context, "context");
             return this;
         }
 
-        public Builder data(@Nullable Map<String, Object> data) {
-            this.data = data;
+        public Builder scenario(@Nullable Scenario scenario) {
+            this.scenario = scenario;
             return this;
         }
 
         public StartJourneyRequest build() {
             return new StartJourneyRequest(
-                resourceId, context, data);
+                resourceId, context, scenario);
         }
 
     }
