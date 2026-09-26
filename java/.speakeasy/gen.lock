@@ -3,15 +3,18 @@ id: 663305ae-280a-4b2f-be56-11e4f8ede2df
 management:
   docChecksum: bb11c48d527bd02dddb9d5b90c020f4c
   docVersion: 1.0.0
-  speakeasyVersion: 1.797.0
-  generationVersion: 2.937.18
-  releaseVersion: 0.1.0-alpha01
-  configChecksum: 089ba1ec1940d205143e7d25864f7095
+  speakeasyVersion: 1.799.0
+  generationVersion: 2.941.0
+  releaseVersion: 0.1.0-alpha01.1
+  configChecksum: cb29c48923f6590dd0dcfdda32c07f18
+  repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
+  repoSubDirectory: java
+  installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: 5c709ce2-6e16-491a-aa65-f1a37fd189f1
-  pristine_commit_hash: 15f5945b742ab2c0c2d2daf834eb98f7bd08ff40
-  pristine_tree_hash: b1b4a49db7986213556c53002a29e07416643d4c
+  generation_id: 434aad9d-cb04-4bf8-a9d5-bd604746b727
+  pristine_commit_hash: 4abd71e31f52b863e66ee28cc2d6220923821650
+  pristine_tree_hash: c2630905652c7cfd4a5abf64679e543eea1840bb
 features:
   java:
     additionalDependencies: 0.1.0
@@ -1979,8 +1982,8 @@ trackedFiles:
     pristine_git_object: 15c9c968dc112a12f5f591958e42f16d8f1e5602
   gradle.properties:
     id: 2afbb999f001
-    last_write_checksum: sha1:c98890f605b9a45cbbd6c19c6c6c4263d9592ed3
-    pristine_git_object: 4bb4c834be13ebd40e69c9b5db08e682809c997e
+    last_write_checksum: sha1:e11f9c0433fca43276895c4d9581149c77cbf117
+    pristine_git_object: 09cce1bb74a7ce1dbed2e33baed3108fa4cc00e4
   gradle/wrapper/gradle-wrapper.jar:
     id: ec27dae6e852
     last_write_checksum: sha1:f725fb1467084142d74fd7cd8eab691ab3442611
@@ -2063,8 +2066,8 @@ trackedFiles:
     pristine_git_object: b1820dcc7d2e36406f142a6a729986ae6e15f01c
   src/main/java/com/gbg/gocore/SDKConfiguration.java:
     id: 740f95ca528a
-    last_write_checksum: sha1:ca73315a65af6ad416112bb3f8dfbc7d80f91624
-    pristine_git_object: 82568232b620fb303fcfa7aeb94919fb2e67e36e
+    last_write_checksum: sha1:346ee5d7f4c0a6399ea543f516c0c742580cffb0
+    pristine_git_object: 496b3cf280a20c1a23c5ed749183a066cec9d40f
   src/main/java/com/gbg/gocore/SecuritySource.java:
     id: c50483fc452f
     last_write_checksum: sha1:f11362fc7bd52b1331215e0afecd99e46b3265b4
