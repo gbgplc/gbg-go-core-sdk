@@ -10,7 +10,7 @@ import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export const DeviceConnectResponseTokenType = {
-  EndUser: "end_user",
+  EndUser: "end-user",
 } as const;
 export type DeviceConnectResponseTokenType = ClosedEnum<
   typeof DeviceConnectResponseTokenType

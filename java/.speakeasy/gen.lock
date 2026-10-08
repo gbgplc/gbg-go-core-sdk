@@ -1,7 +1,7 @@
 lockVersion: 2.0.0
 id: 663305ae-280a-4b2f-be56-11e4f8ede2df
 management:
-  docChecksum: 94bf07940d97650a80f1f11e97bde0e6
+  docChecksum: b0b3db8044cd0e719555dd3dc378f169
   docVersion: 2.x
   speakeasyVersion: 1.801.0
   generationVersion: 2.946.0
@@ -9,9 +9,9 @@ management:
   configChecksum: 089ba1ec1940d205143e7d25864f7095
   published: true
 persistentEdits:
-  generation_id: c3785ab6-9017-4ba3-9ac8-7f58f69893b3
-  pristine_commit_hash: 565425f9804070433ad588cfb59f117fdc425f72
-  pristine_tree_hash: 8573673ce6f3e9388e7f5d1bc5493bc6b8e69172
+  generation_id: 933784aa-d866-468e-8a4a-447f26714111
+  pristine_commit_hash: 0e273b6bddf1086c09ca9d1a8c347aead5a25a16
+  pristine_tree_hash: 42c1cf3699e8af2b7d80b62d7dcf038e0de16adf
 features:
   java:
     additionalDependencies: 0.1.0
@@ -122,8 +122,8 @@ trackedFiles:
     pristine_git_object: 0a52daedb51a3f16752afd01ec61c294a412267a
   docs/models/DeviceConnectResponseTokenType.md:
     id: f02bba79fb25
-    last_write_checksum: sha1:0a6eaf39a8dfe01e570918a2b269bd1db271ed86
-    pristine_git_object: 01f700928fa7c0f0fada76764471d68507157b4f
+    last_write_checksum: sha1:a662df67f008aa2187b0b8e877639726f973a313
+    pristine_git_object: f66b4be0bdcf796098df811a20b7a0ad7e867b0e
   docs/models/DevicePosition.md:
     id: 215a23ee0920
     last_write_checksum: sha1:3cedf8bfc789e285b6ba5f4ac24ea3a46addcdf1
@@ -1714,8 +1714,8 @@ trackedFiles:
     pristine_git_object: 2c3cbb6087b4f1df2be39d8f15e39eaa6436dcf0
   src/main/java/com/gbg/gocore/models/DeviceConnectResponseTokenType.java:
     id: f7a2bb3e47e4
-    last_write_checksum: sha1:3d80f478389fbe37465f2f541d99003279d26bf2
-    pristine_git_object: cee339fc272892ed2ab2af2a3c4b90e40d5ea1d3
+    last_write_checksum: sha1:aeba8766999022a6caabe43b7308fc1016dd5011
+    pristine_git_object: def12caf5dac4bafa7e7876e3c5d25641404fba8
   src/main/java/com/gbg/gocore/models/DevicePosition.java:
     id: 81b78ba553dd
     last_write_checksum: sha1:6cf4813ef226388b291d57a9c1cfca55d6d953de
@@ -3751,7 +3751,7 @@ examples:
         "200":
           application/json: {"tokenType": "Bearer", "expiresIn": 5327.23}
         "201":
-          application/json: {"endUserToken": "<value>", "tokenType": "end_user", "expiresIn": 7429.51, "instanceId": "<id>"}
+          application/json: {"endUserToken": "<value>", "tokenType": "end-user", "expiresIn": 7429.51, "instanceId": "<id>"}
         "400":
           application/json: {"errors": [{"code": "<value>", "name": "<value>", "problem": "<value>", "action": "<value>"}]}
         "500":

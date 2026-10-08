@@ -7,7 +7,7 @@ import { DeviceConnectResponse } from "@gbg/go-core/models";
 
 let value: DeviceConnectResponse = {
   endUserToken: "<value>",
-  tokenType: "end_user",
+  tokenType: "end-user",
   expiresIn: 4500.78,
   instanceId: "<id>",
 };

@@ -13,4 +13,4 @@ DeviceConnectResponseTokenType value = DeviceConnectResponseTokenType.END_USER;
 
 | Name       | Value      |
 | ---------- | ---------- |
-| `END_USER` | end_user   |
+| `END_USER` | end-user   |

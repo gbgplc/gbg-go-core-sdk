@@ -932,7 +932,7 @@ components:
         tokenType:
           type: "string"
           enum:
-            - "end_user"
+            - end-user
         expiresIn:
           type: "number"
         instanceId:

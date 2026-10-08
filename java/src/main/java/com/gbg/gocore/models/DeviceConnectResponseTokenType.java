@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 public class DeviceConnectResponseTokenType {
 
-    public static final DeviceConnectResponseTokenType END_USER = new DeviceConnectResponseTokenType("end_user");
+    public static final DeviceConnectResponseTokenType END_USER = new DeviceConnectResponseTokenType("end-user");
 
     // This map will grow whenever a Color gets created with a new
     // unrecognized value (a potential memory leak if the user is not
@@ -94,20 +94,20 @@ public class DeviceConnectResponseTokenType {
 
     private static final Map<String, DeviceConnectResponseTokenType> createValuesMap() {
         Map<String, DeviceConnectResponseTokenType> map = new LinkedHashMap<>();
-        map.put("end_user", END_USER);
+        map.put("end-user", END_USER);
         return map;
     }
 
     private static final Map<String, DeviceConnectResponseTokenTypeEnum> createEnumsMap() {
         Map<String, DeviceConnectResponseTokenTypeEnum> map = new HashMap<>();
-        map.put("end_user", DeviceConnectResponseTokenTypeEnum.END_USER);
+        map.put("end-user", DeviceConnectResponseTokenTypeEnum.END_USER);
         return map;
     }
     
     
     public enum DeviceConnectResponseTokenTypeEnum {
 
-        END_USER("end_user"),;
+        END_USER("end-user"),;
 
         private final String value;
 

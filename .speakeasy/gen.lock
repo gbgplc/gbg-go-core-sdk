@@ -1,7 +1,7 @@
 lockVersion: 2.0.0
 id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
-  docChecksum: 94bf07940d97650a80f1f11e97bde0e6
+  docChecksum: b0b3db8044cd0e719555dd3dc378f169
   docVersion: 2.x
   speakeasyVersion: 1.801.0
   generationVersion: 2.946.0
@@ -11,9 +11,9 @@ management:
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: 3d4d5cf5-b210-40af-be7e-fc9f3258bd7b
-  pristine_commit_hash: 3839a95457572c51c1aa91a6c54410010a22955d
-  pristine_tree_hash: bf43a63ae369c3579e99e4fafcbe31a0d704e55e
+  generation_id: e9782a45-8f23-44a8-81de-3ae540bc53c0
+  pristine_commit_hash: 7f9ffb9d68162e02c5c2bd6fff06269f0ffb55d5
+  pristine_tree_hash: 030f811f442a7b4736500e0da8f1a478f9709d77
 features:
   typescript:
     additionalDependencies: 0.1.0
@@ -133,12 +133,12 @@ trackedFiles:
     pristine_git_object: 90b2f680e7d94818b2495a9b08d523784bef0b48
   docs/models/device-connect-response-token-type.md:
     id: 6c81d3304650
-    last_write_checksum: sha1:8bd69b4390a1062581c51234e02ee0639999104f
-    pristine_git_object: 376cbbe8772c6ae5ae0e573a63c5dbe9cb2c7f7b
+    last_write_checksum: sha1:b0abe8177adb3f15e1ff7229e92eecdd05381e6b
+    pristine_git_object: c5ba33090a3d77b4f7d8a780aadef92bad0acd98
   docs/models/device-connect-response.md:
     id: 855c83afd771
-    last_write_checksum: sha1:123115520618aa53aea88c0786a948d5063b77ee
-    pristine_git_object: e9e2fc1a4c7c637734bb1da31f9a4b0e9b518481
+    last_write_checksum: sha1:a886f8fc1b5a0e40e596dde58fd28ca76e6173d8
+    pristine_git_object: 3c2fae76f8de993b034081415754463b8cb11bce
   docs/models/device-position.md:
     id: f684563daf8a
     last_write_checksum: sha1:a4c7c06a228359f863322c1b36e699cd2a04d98e
@@ -1653,8 +1653,8 @@ trackedFiles:
     pristine_git_object: ee79131737b89b00bff9aa38a0179a13e61cf70d
   src/models/device-connect-response.ts:
     id: c2925a201322
-    last_write_checksum: sha1:9553f5d6cb3cc0e5170c37da56ffd529a4336e2b
-    pristine_git_object: 216032a050cf84ab14170d8bf6a8c37f453b2400
+    last_write_checksum: sha1:87c397774c282bb4238a1e379cd342231d74b3e7
+    pristine_git_object: 061a686696d8ecbb71ec21246372c19e871782f5
   src/models/device-refresh-response.ts:
     id: ed6537c834fd
     last_write_checksum: sha1:54e7c3ce7ff422c3e8e3c8798cba115393c05dd1
@@ -2008,7 +2008,7 @@ examples:
         "200":
           application/json: {"tokenType": "Bearer", "expiresIn": 5327.23}
         "201":
-          application/json: {"endUserToken": "<value>", "tokenType": "end_user", "expiresIn": 7429.51, "instanceId": "<id>"}
+          application/json: {"endUserToken": "<value>", "tokenType": "end-user", "expiresIn": 7429.51, "instanceId": "<id>"}
         "400":
           application/json: {"errors": [{"code": "<value>", "name": "<value>", "problem": "<value>", "action": "<value>"}]}
         "500":

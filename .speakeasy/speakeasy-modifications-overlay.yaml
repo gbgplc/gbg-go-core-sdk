@@ -224,3 +224,23 @@ actions:
               required:
                 - connectToken
                 - deviceInfo
+
+  # --- Upstream bug: device connect's tokenType enum has the wrong value ---
+  #
+  # The live spec declares DeviceConnectResponse.tokenType as `end_user`. The
+  # server sends `end-user`, with a hyphen — captured from a real 201 against
+  # demo on 2026-10-08, and the same spelling the static spec carried. One
+  # character, and it makes the operation unusable: the response fails
+  # validation and no end-user token ever reaches the caller.
+  #
+  # This corrects a RESPONSE, which the rest of this overlay deliberately
+  # avoids. It earns the exception on two grounds. It is verified against a
+  # live call rather than inferred, and correcting an enum value cannot lose
+  # data the way a hand-maintained response shape can — if the server ever
+  # sends something else, this fails loudly again rather than silently
+  # dropping it. Delete once the live spec spells it correctly.
+  - target: $["components"]["schemas"]["DeviceConnectResponse"]["properties"]["tokenType"]["enum"][*]
+    remove: true
+  - target: $["components"]["schemas"]["DeviceConnectResponse"]["properties"]["tokenType"]["enum"]
+    update:
+      - end-user
