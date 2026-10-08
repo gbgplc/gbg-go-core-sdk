@@ -556,6 +556,31 @@ public class StartJourneyDocument {
     @JsonProperty("previousSurname")
     private String previousSurname;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("individualReferenceNumber")
+    private String individualReferenceNumber;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("nameLine1")
+    private String nameLine1;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("nameLine2")
+    private String nameLine2;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("nameLine3")
+    private String nameLine3;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("nameLine4")
+    private String nameLine4;
+
     @JsonCreator
     public StartJourneyDocument(
             @JsonProperty("oneDBarcode") @Nullable String oneDBarcode,
@@ -661,7 +686,12 @@ public class StartJourneyDocument {
             @JsonProperty("dateOfEvent") @Nullable String dateOfEvent,
             @JsonProperty("previousFirstName") @Nullable String previousFirstName,
             @JsonProperty("previousMiddleName") @Nullable String previousMiddleName,
-            @JsonProperty("previousSurname") @Nullable String previousSurname) {
+            @JsonProperty("previousSurname") @Nullable String previousSurname,
+            @JsonProperty("individualReferenceNumber") @Nullable String individualReferenceNumber,
+            @JsonProperty("nameLine1") @Nullable String nameLine1,
+            @JsonProperty("nameLine2") @Nullable String nameLine2,
+            @JsonProperty("nameLine3") @Nullable String nameLine3,
+            @JsonProperty("nameLine4") @Nullable String nameLine4) {
         this.oneDBarcode = oneDBarcode;
         this.address = address;
         this.applicationDate = applicationDate;
@@ -767,6 +797,11 @@ public class StartJourneyDocument {
         this.previousFirstName = previousFirstName;
         this.previousMiddleName = previousMiddleName;
         this.previousSurname = previousSurname;
+        this.individualReferenceNumber = individualReferenceNumber;
+        this.nameLine1 = nameLine1;
+        this.nameLine2 = nameLine2;
+        this.nameLine3 = nameLine3;
+        this.nameLine4 = nameLine4;
     }
     
     public StartJourneyDocument(
@@ -805,7 +840,9 @@ public class StartJourneyDocument {
             null, null, null,
             null, null, null,
             null, null, null,
-            null, null);
+            null, null, null,
+            null, null, null,
+            null);
     }
 
     public Optional<String> oneDBarcode() {
@@ -1250,6 +1287,26 @@ public class StartJourneyDocument {
 
     public Optional<String> previousSurname() {
         return Optional.ofNullable(this.previousSurname);
+    }
+
+    public Optional<String> individualReferenceNumber() {
+        return Optional.ofNullable(this.individualReferenceNumber);
+    }
+
+    public Optional<String> nameLine1() {
+        return Optional.ofNullable(this.nameLine1);
+    }
+
+    public Optional<String> nameLine2() {
+        return Optional.ofNullable(this.nameLine2);
+    }
+
+    public Optional<String> nameLine3() {
+        return Optional.ofNullable(this.nameLine3);
+    }
+
+    public Optional<String> nameLine4() {
+        return Optional.ofNullable(this.nameLine4);
     }
 
     public static Builder builder() {
@@ -1909,6 +1966,36 @@ public class StartJourneyDocument {
     }
 
 
+    public StartJourneyDocument withIndividualReferenceNumber(@Nullable String individualReferenceNumber) {
+        this.individualReferenceNumber = individualReferenceNumber;
+        return this;
+    }
+
+
+    public StartJourneyDocument withNameLine1(@Nullable String nameLine1) {
+        this.nameLine1 = nameLine1;
+        return this;
+    }
+
+
+    public StartJourneyDocument withNameLine2(@Nullable String nameLine2) {
+        this.nameLine2 = nameLine2;
+        return this;
+    }
+
+
+    public StartJourneyDocument withNameLine3(@Nullable String nameLine3) {
+        this.nameLine3 = nameLine3;
+        return this;
+    }
+
+
+    public StartJourneyDocument withNameLine4(@Nullable String nameLine4) {
+        this.nameLine4 = nameLine4;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -2022,7 +2109,12 @@ public class StartJourneyDocument {
             Utils.enhancedDeepEquals(this.dateOfEvent, other.dateOfEvent) &&
             Utils.enhancedDeepEquals(this.previousFirstName, other.previousFirstName) &&
             Utils.enhancedDeepEquals(this.previousMiddleName, other.previousMiddleName) &&
-            Utils.enhancedDeepEquals(this.previousSurname, other.previousSurname);
+            Utils.enhancedDeepEquals(this.previousSurname, other.previousSurname) &&
+            Utils.enhancedDeepEquals(this.individualReferenceNumber, other.individualReferenceNumber) &&
+            Utils.enhancedDeepEquals(this.nameLine1, other.nameLine1) &&
+            Utils.enhancedDeepEquals(this.nameLine2, other.nameLine2) &&
+            Utils.enhancedDeepEquals(this.nameLine3, other.nameLine3) &&
+            Utils.enhancedDeepEquals(this.nameLine4, other.nameLine4);
     }
     
     @Override
@@ -2062,7 +2154,9 @@ public class StartJourneyDocument {
             subject, country, certificateFormat,
             registrationNumber, registrationDate, registrationYear,
             partyRole, dateOfEvent, previousFirstName,
-            previousMiddleName, previousSurname);
+            previousMiddleName, previousSurname, individualReferenceNumber,
+            nameLine1, nameLine2, nameLine3,
+            nameLine4);
     }
     
     @Override
@@ -2171,7 +2265,12 @@ public class StartJourneyDocument {
                 "dateOfEvent", dateOfEvent,
                 "previousFirstName", previousFirstName,
                 "previousMiddleName", previousMiddleName,
-                "previousSurname", previousSurname);
+                "previousSurname", previousSurname,
+                "individualReferenceNumber", individualReferenceNumber,
+                "nameLine1", nameLine1,
+                "nameLine2", nameLine2,
+                "nameLine3", nameLine3,
+                "nameLine4", nameLine4);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -2384,6 +2483,16 @@ public class StartJourneyDocument {
         private String previousMiddleName;
 
         private String previousSurname;
+
+        private String individualReferenceNumber;
+
+        private String nameLine1;
+
+        private String nameLine2;
+
+        private String nameLine3;
+
+        private String nameLine4;
 
         private Builder() {
           // force use of static builder() method
@@ -2937,6 +3046,31 @@ public class StartJourneyDocument {
             return this;
         }
 
+        public Builder individualReferenceNumber(@Nullable String individualReferenceNumber) {
+            this.individualReferenceNumber = individualReferenceNumber;
+            return this;
+        }
+
+        public Builder nameLine1(@Nullable String nameLine1) {
+            this.nameLine1 = nameLine1;
+            return this;
+        }
+
+        public Builder nameLine2(@Nullable String nameLine2) {
+            this.nameLine2 = nameLine2;
+            return this;
+        }
+
+        public Builder nameLine3(@Nullable String nameLine3) {
+            this.nameLine3 = nameLine3;
+            return this;
+        }
+
+        public Builder nameLine4(@Nullable String nameLine4) {
+            this.nameLine4 = nameLine4;
+            return this;
+        }
+
         public StartJourneyDocument build() {
             return new StartJourneyDocument(
                 oneDBarcode, address, applicationDate,
@@ -2973,7 +3107,9 @@ public class StartJourneyDocument {
                 subject, country, certificateFormat,
                 registrationNumber, registrationDate, registrationYear,
                 partyRole, dateOfEvent, previousFirstName,
-                previousMiddleName, previousSurname);
+                previousMiddleName, previousSurname, individualReferenceNumber,
+                nameLine1, nameLine2, nameLine3,
+                nameLine4);
         }
 
     }

@@ -7,6 +7,8 @@ import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 import static com.gbg.gocore.operations.Operations.AsyncRequestlessOperation;
 
 import com.gbg.gocore.models.operations.AddDeviceRequest;
+import com.gbg.gocore.models.operations.DeviceConnectRequest;
+import com.gbg.gocore.models.operations.DeviceConnectSecurity;
 import com.gbg.gocore.models.operations.DeviceValidateSecurity;
 import com.gbg.gocore.models.operations.async.AddDeviceRequestBuilder;
 import com.gbg.gocore.models.operations.async.AddDeviceResponse;
@@ -106,12 +108,14 @@ public class AsyncDevices {
      * 
      * <p>Completes the device-onboarding handshake. See partner integration guide.
      * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param security The security details to use for authentication.
      * @return {@code CompletableFuture<DeviceConnectResponse>} - The async response
      */
-    public CompletableFuture<DeviceConnectResponse> connectDirect() {
-        AsyncRequestlessOperation<DeviceConnectResponse> operation
-            = new DeviceConnect.Async(sdkConfiguration, _headers);
-        return operation.doRequest()
+    public CompletableFuture<DeviceConnectResponse> connect(@Nonnull DeviceConnectRequest request, @Nonnull DeviceConnectSecurity security) {
+        AsyncRequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
+              = new DeviceConnect.Async(sdkConfiguration, security, _headers);
+        return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
 

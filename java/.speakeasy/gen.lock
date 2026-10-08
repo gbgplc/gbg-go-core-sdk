@@ -1,17 +1,17 @@
 lockVersion: 2.0.0
 id: 663305ae-280a-4b2f-be56-11e4f8ede2df
 management:
-  docChecksum: 586a49872f395e1706a6248c74267062
+  docChecksum: 94bf07940d97650a80f1f11e97bde0e6
   docVersion: 2.x
-  speakeasyVersion: 1.797.0
-  generationVersion: 2.937.18
+  speakeasyVersion: 1.801.0
+  generationVersion: 2.946.0
   releaseVersion: 0.1.0-alpha01
   configChecksum: 089ba1ec1940d205143e7d25864f7095
   published: true
 persistentEdits:
-  generation_id: e8e90852-817d-4d72-9915-553b5bfea9ae
-  pristine_commit_hash: d555f9f5548e457a3a26f19d481f2bc496852d23
-  pristine_tree_hash: e5a0fffc623205a3752b874f47c1ae0724cfd331
+  generation_id: c3785ab6-9017-4ba3-9ac8-7f58f69893b3
+  pristine_commit_hash: 565425f9804070433ad588cfb59f117fdc425f72
+  pristine_tree_hash: 8573673ce6f3e9388e7f5d1bc5493bc6b8e69172
 features:
   java:
     additionalDependencies: 0.1.0
@@ -30,7 +30,7 @@ features:
     nameOverrides: 2.81.5
     nullables: 0.1.1
     sdkHooks: 1.2.0
-    unions: 0.3.8
+    unions: 0.3.10
 trackedFiles:
   .gitattributes:
     id: 24139dae6567
@@ -190,12 +190,12 @@ trackedFiles:
     pristine_git_object: 3ccc1b12ffda9208d565aaed26aec784d0a038f9
   docs/models/JourneyStartResponse.md:
     id: 0a0efd605be7
-    last_write_checksum: sha1:75748e9afa7e811a24d08d4d2ca8c99eb651e576
-    pristine_git_object: d775011d15774b88a736f34197d4269eb122948c
+    last_write_checksum: sha1:ca7880930b743b1a02b4fbcbc4be7fd3520d6900
+    pristine_git_object: d1ddc68f6e8a7b8b6d6c82800a925b620a994f6f
   docs/models/JourneyStartResponseStatus.md:
     id: 7cbb1f8348c4
-    last_write_checksum: sha1:c99753e8ab7d3c5f0ee62f341461439379764ae9
-    pristine_git_object: d9c3862d29619f6f62011b07db51b35f90ac5d79
+    last_write_checksum: sha1:4c699d0557ded963d6e03a583c9ce2a11766c6f6
+    pristine_git_object: b3c067407a0f1b4e1c1dc755766a9afbc2291905
   docs/models/LocationEnum.md:
     id: 49a034d8a9ad
     last_write_checksum: sha1:b5ee491471155b4696361b12e3acc7da21fd79b6
@@ -390,8 +390,8 @@ trackedFiles:
     pristine_git_object: ab6baa6f5cf1a9f6465c8aaf694e826b5c91ba3a
   docs/models/operations/Config.md:
     id: ab289627b271
-    last_write_checksum: sha1:8a7bc126e2d257016760c03d9c841d63d3f5eb15
-    pristine_git_object: e5fdda6676aa531cc6e5cef85eeefbf064c585bc
+    last_write_checksum: sha1:cd9871183d81ab1372234055d14c7f1000037ff0
+    pristine_git_object: 535f7f05530e0378a4bbcb5c949695e398fab039
   docs/models/operations/CreateHandoffTokenRequest.md:
     id: f709e0650d60
     last_write_checksum: sha1:bf202b0fa7dbaea0db32e154ff2ba65e160edce6
@@ -428,10 +428,22 @@ trackedFiles:
     id: 432bc1213d84
     last_write_checksum: sha1:a2c1f9ec1b7a1a83b6a2ab32a2a58bb8d4f64cc2
     pristine_git_object: fb30ede2c0ed23b5db6c5f2e86d2da733df93e5d
+  docs/models/operations/DeviceConnectRequest.md:
+    id: 802a9bdf6e6f
+    last_write_checksum: sha1:841b3fd29db111bd598f4e48cafd4fc8b6c2352c
+    pristine_git_object: 2f7a87b98abde18aa49982edf4a3beaf9dfcddac
   docs/models/operations/DeviceConnectResponse.md:
     id: fd81717f8c26
     last_write_checksum: sha1:bf1417b21f17096d5271a9175c67fa389112ed02
     pristine_git_object: 006819dbed144ac88c2f4111026078a53b3e6b72
+  docs/models/operations/DeviceConnectSecurity.md:
+    id: 0ee90e652604
+    last_write_checksum: sha1:ee620bd855625a12d97387f40a5969a68b7bcf63
+    pristine_git_object: a045f36651c1a36604f725e71a3e94e0d1bec75a
+  docs/models/operations/DeviceInfo.md:
+    id: c90738ca62ef
+    last_write_checksum: sha1:c3ebfeb50a7eb14dba7d3f4888b48b4aec3e8b25
+    pristine_git_object: d43a93c3a27ad2fe8d10f3ce0b8c0aba449effb7
   docs/models/operations/DeviceRefreshResponse.md:
     id: c3fdf923fcec
     last_write_checksum: sha1:4336d2ae1309df38355ce1dacd956ffd521a97c7
@@ -738,8 +750,8 @@ trackedFiles:
     pristine_git_object: 2a9302353c65c105584e3473ed0eb9c69f30db77
   docs/models/operations/StartJourneyDocument.md:
     id: 076e4e918f59
-    last_write_checksum: sha1:c294ba12a324e1ed25b89e69b5a2d060fdc9dc81
-    pristine_git_object: 2d8b129c472aa0fd96e382395563cbb888e806c7
+    last_write_checksum: sha1:a32b15c4554655ee8457c2f6b6559dc9f823d290
+    pristine_git_object: 1ea885f43b351b851c09da2ddff40525b93f377a
   docs/models/operations/StartJourneyDocumentAddress.md:
     id: 6550cb044510
     last_write_checksum: sha1:60f35d624390f8c839c82d4d38a9ffc77a3ba1d4
@@ -1166,8 +1178,8 @@ trackedFiles:
     pristine_git_object: aa20c45e3f60adf452f7bcf30f4786b1aebf49cc
   docs/models/operations/SubmitInteractionDocument.md:
     id: 6e4011fbeac4
-    last_write_checksum: sha1:5dd8cb5cffb781401bc652406f62c9d4801fb61e
-    pristine_git_object: 937845cebc757f9324eaef9eae1277d1d04f0be3
+    last_write_checksum: sha1:a0b61f654843be94201a7460b6d92baf49974c1f
+    pristine_git_object: fa0eb4c5b81b97d34a96703eeebcd1655f6b9871
   docs/models/operations/SubmitInteractionDocumentAddress.md:
     id: ebf0c99f2f63
     last_write_checksum: sha1:82e031c9196dbff00dcd8cdd61d5d63694f7bdf9
@@ -1486,8 +1498,8 @@ trackedFiles:
     pristine_git_object: a1c85e0f881166af152a1adcaa76d20d6d2372c0
   docs/sdks/devices/README.md:
     id: 205e305f3b19
-    last_write_checksum: sha1:d1252586c6a9c96fd32cab64ef451192ff8854b9
-    pristine_git_object: 48f0bbdfcee575abd0c9ffc97d2f6f653093c636
+    last_write_checksum: sha1:8fcf5c5442c2209bb0c27573e987b7eed8dc0c76
+    pristine_git_object: a7b246ae1097f51f336b32d2f57893861a726930
   docs/sdks/instances/README.md:
     id: 3a42a583dacc
     last_write_checksum: sha1:46a063b812924f7c73d75594c75ca945f014a11a
@@ -1554,8 +1566,8 @@ trackedFiles:
     pristine_git_object: eb81f2e626324419c3e10df410ed3a6921089553
   src/main/java/com/gbg/gocore/AsyncDevices.java:
     id: 3acf0a06e897
-    last_write_checksum: sha1:1ded30e2c99c05a28e5cf458cf58768e889866fb
-    pristine_git_object: 9a16d0b419c9ffc9ce4ea2ee159128610c4d5e6a
+    last_write_checksum: sha1:59f2913b056fc423a018ef2c9e4b9ed75f922f3e
+    pristine_git_object: f224d5dc17427c2400e3ab259b718530e5365ea0
   src/main/java/com/gbg/gocore/AsyncGo.java:
     id: fd21a129c990
     last_write_checksum: sha1:76ad8d6de84c7b75b328215c997ffa03b9dab2a8
@@ -1586,8 +1598,8 @@ trackedFiles:
     pristine_git_object: b8f62912eb9b38a6eb3871c350dcf88fc9eaa2fa
   src/main/java/com/gbg/gocore/Devices.java:
     id: 23dff47fcd66
-    last_write_checksum: sha1:aee065b121ef33a6a03ff82296a2aae3d55154f2
-    pristine_git_object: 10f1a9535bc4aac93f67bf3845a317b34c8026f9
+    last_write_checksum: sha1:a7f7614c8354208ca9650e3c1992a25b416283bf
+    pristine_git_object: 6f3adf7a391738b5b25ef54d5cb37a72f578ddf6
   src/main/java/com/gbg/gocore/Go.java:
     id: 1294f0ba1625
     last_write_checksum: sha1:196afa980aebf615bb7a5f4663f50aeea55ab018
@@ -1606,8 +1618,8 @@ trackedFiles:
     pristine_git_object: 31b243b5aeb88ad2e6382ee5ffecd2521565db9f
   src/main/java/com/gbg/gocore/SDKConfiguration.java:
     id: 740f95ca528a
-    last_write_checksum: sha1:d33480a7fdf14b54d0ad4194dc61f149df6fb435
-    pristine_git_object: 50fdb6e6f591c063e7db742a650a8f88efe152fb
+    last_write_checksum: sha1:481a3d138cd52ac130e800d2ffb86031bd8fa4af
+    pristine_git_object: ccb33a5f3080d153a8ffb5c300f1566a6b720b82
   src/main/java/com/gbg/gocore/Sandbox.java:
     id: 28c2bf66f85f
     last_write_checksum: sha1:db1a431773694f037ffc61b12eb2b267365ab462
@@ -1770,12 +1782,12 @@ trackedFiles:
     pristine_git_object: 19d40c4c8f1d6d3838f6f2050516a720e8178738
   src/main/java/com/gbg/gocore/models/JourneyStartResponse.java:
     id: e8ac21bf3fd9
-    last_write_checksum: sha1:6c569f2845393b7eef28cb5ea5b528cd9e4ec036
-    pristine_git_object: d0815483d6d649b4476ffffecd3c1c3b6d84448d
+    last_write_checksum: sha1:fadb5c80486a1508ad519657df9ff263b9fca5a8
+    pristine_git_object: c33a4441f633d27b29111a88004775ecf4a3f89b
   src/main/java/com/gbg/gocore/models/JourneyStartResponseStatus.java:
     id: 4039156ffa71
-    last_write_checksum: sha1:d2f64d5dd0a9ea03e568f75e1247930c89239a61
-    pristine_git_object: 1a0dd9122d5a39d2e472d7eaa8f29c66e161add5
+    last_write_checksum: sha1:6c1fb62e5d08b371a5116f9b347dd5c3ea35a1c3
+    pristine_git_object: 4271a14c64e77473ec639cd402358e92fde2ee67
   src/main/java/com/gbg/gocore/models/LocationEnum.java:
     id: 49cfec023a33
     last_write_checksum: sha1:ddeb574a4abef786ba9b14cd7b34ff5dc42f8aee
@@ -1990,8 +2002,8 @@ trackedFiles:
     pristine_git_object: 38f67016d583e68fa5b2efa2f2169995f0afa1b6
   src/main/java/com/gbg/gocore/models/operations/Config.java:
     id: db1af8c8d5d5
-    last_write_checksum: sha1:4bedba58c17d8a19996881f3c9303e7f52d3b2eb
-    pristine_git_object: 3a488da9efaea211970ffb05ebdbda96ba8dbb32
+    last_write_checksum: sha1:7db7f7ea3471e02b3ddac16ab1402cbd5bbb1e99
+    pristine_git_object: d48ef83b314494eee84080cf400706ff6acea21a
   src/main/java/com/gbg/gocore/models/operations/CreateHandoffTokenRequest.java:
     id: f369be4b6d05
     last_write_checksum: sha1:cc42c191ecd2e1dedc706aff565af65d6a540fb6
@@ -2044,14 +2056,26 @@ trackedFiles:
     id: 35b422ab08d6
     last_write_checksum: sha1:bfd92dcb1f4914f20017a938dbc6d4655f5ab295
     pristine_git_object: b2c110e06623844ed884c63857ffefb7f0152446
+  src/main/java/com/gbg/gocore/models/operations/DeviceConnectRequest.java:
+    id: c2570e82052a
+    last_write_checksum: sha1:ca675d2f6ab3303f11c7e355c17a1d51edc08118
+    pristine_git_object: 83ee4163903d52f5dd4924e88a7353338dc19606
   src/main/java/com/gbg/gocore/models/operations/DeviceConnectRequestBuilder.java:
     id: c9783a72458b
-    last_write_checksum: sha1:7b7cdc82c9c88554631d6aee886ab4fa095ddf2f
-    pristine_git_object: 02ba31de4c0462c8cd5ca3e0b232ddd26f494316
+    last_write_checksum: sha1:305366f24657c66f15074d2d7b0f0fdc3e918e8f
+    pristine_git_object: 8158193f783798abba1ef70d2efcbf362c1ca4e9
   src/main/java/com/gbg/gocore/models/operations/DeviceConnectResponse.java:
     id: f2fc7f6ed1c3
     last_write_checksum: sha1:8097b7fd208b76f5dadc1230b89ae8d9ff00c8e6
     pristine_git_object: 3ed4b4ed5dc3e28bbc12d68d4221b83508a49379
+  src/main/java/com/gbg/gocore/models/operations/DeviceConnectSecurity.java:
+    id: 307fbcbbda7d
+    last_write_checksum: sha1:4d1f519588a2ef3ce3cfb6d18683df183f6ea9f7
+    pristine_git_object: 85d7c7263b7c6d29b9d2623eb0d86d8ba3aba3fa
+  src/main/java/com/gbg/gocore/models/operations/DeviceInfo.java:
+    id: e50557ea8b3c
+    last_write_checksum: sha1:06ce8bc2a129f63c97b176e3d1af35b46e02d073
+    pristine_git_object: 955c5bc4aea345d00f10cc60c7f261c7b40091cf
   src/main/java/com/gbg/gocore/models/operations/DeviceRefreshRequestBuilder.java:
     id: a69135b19ac6
     last_write_checksum: sha1:a42a41975d2c582cd30cdae71f660ebe0a22676b
@@ -2410,8 +2434,8 @@ trackedFiles:
     pristine_git_object: 802489df4ce87803b980ffd86d070fbd85e40d20
   src/main/java/com/gbg/gocore/models/operations/StartJourneyDocument.java:
     id: 0cc20a5e8d35
-    last_write_checksum: sha1:bd325ab2edca75c5777cfdc64b038403ccd1c461
-    pristine_git_object: 4c2ed97328b82c5f60765e8d8d030a3440d46a65
+    last_write_checksum: sha1:2cea2fa91d4849514906c83a82cb3825eaebca1f
+    pristine_git_object: 4272fd362d402857afe9158e9b676f63051c1932
   src/main/java/com/gbg/gocore/models/operations/StartJourneyDocumentAddress.java:
     id: de854d36c4c6
     last_write_checksum: sha1:2835e207eb481e64a085df2cd4c7dd6eacefe8fb
@@ -2842,8 +2866,8 @@ trackedFiles:
     pristine_git_object: 2f918cc42eee7a04f3bac29faeb1fc36f43b4d7e
   src/main/java/com/gbg/gocore/models/operations/SubmitInteractionDocument.java:
     id: 05979479e08e
-    last_write_checksum: sha1:d1e8ff2f86c82671bba0cefef46664ae7b5206a1
-    pristine_git_object: 964856403607887d973c22637f7bca49a4486878
+    last_write_checksum: sha1:b0e8e5be2b52b4e396f885ea35a1cfef794752b4
+    pristine_git_object: d5c2b9b225aa92831bfc64e03f5e10975d10061e
   src/main/java/com/gbg/gocore/models/operations/SubmitInteractionDocumentAddress.java:
     id: f8a51524265c
     last_write_checksum: sha1:60f7f035929158c4054d59fc9f9cb9865f1c577e
@@ -3214,8 +3238,8 @@ trackedFiles:
     pristine_git_object: 571bae604f0e7bfc86bb608700b81728d34e0056
   src/main/java/com/gbg/gocore/models/operations/async/DeviceConnectRequestBuilder.java:
     id: 69c692b6523f
-    last_write_checksum: sha1:fb7bab07d71a3f646d63ae32f534ffeeb527f847
-    pristine_git_object: 7e36089d45385a4c935b46e3c494349f47d20447
+    last_write_checksum: sha1:369a19ef79e90820aa71d41990b9772e6fe8580e
+    pristine_git_object: dca6bf2f02b02805f56568f6088d548192362256
   src/main/java/com/gbg/gocore/models/operations/async/DeviceConnectResponse.java:
     id: 1c48fa06e5e4
     last_write_checksum: sha1:8faf2e2955bd8dcab21d6e0c2f46029644c62002
@@ -3370,8 +3394,8 @@ trackedFiles:
     pristine_git_object: 7e900e77357c654131d132cab4673877af0e2046
   src/main/java/com/gbg/gocore/operations/DeviceConnect.java:
     id: 6c8c6ba3ff19
-    last_write_checksum: sha1:2f1f8c320271f9e6bca4477a2283453f7d6705f7
-    pristine_git_object: c313e97ec05373afa409a7a16863702dc6e524ce
+    last_write_checksum: sha1:8138b6959e8dad54b2bf27aa9b2659d0d9060846
+    pristine_git_object: 79e41387ce6eaf1b4186dc671df59f593eccaf73
   src/main/java/com/gbg/gocore/operations/DeviceRefresh.java:
     id: 62dbbb1de1a2
     last_write_checksum: sha1:9cedab9623cb41998cd299590850ec04a4ac74c5
@@ -3721,6 +3745,8 @@ examples:
           application/json: {"message": "<value>"}
   deviceConnect:
     speakeasy-default-device-connect:
+      requestBody:
+        application/json: {"connectToken": "<value>", "deviceInfo": {"deviceId": "<id>"}}
       responses:
         "200":
           application/json: {"tokenType": "Bearer", "expiresIn": 5327.23}

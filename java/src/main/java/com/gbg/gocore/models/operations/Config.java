@@ -14,6 +14,7 @@ import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.Boolean;
+import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -42,6 +43,30 @@ public class Config {
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("assisted")
     private Boolean assisted;
+
+    /**
+     * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+     * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+     * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+     * with 400 before any journey is created. false is accepted and means the same as omitting it.
+     * 
+     * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("inlineResult")
+    private Boolean inlineResult;
+
+    /**
+     * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * today). Send a smaller value if your own HTTP client gives up sooner.
+     * 
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+     * response says how long the call waited.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("syncWaitSeconds")
+    private Long syncWaitSeconds;
 
     /**
      * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved
@@ -79,12 +104,16 @@ public class Config {
             @JsonProperty("delivery") @Nonnull String delivery,
             @JsonProperty("branding") @Nullable Object branding,
             @JsonProperty("assisted") @Nullable Boolean assisted,
+            @JsonProperty("inlineResult") @Nullable Boolean inlineResult,
+            @JsonProperty("syncWaitSeconds") @Nullable Long syncWaitSeconds,
             @JsonProperty("linkConfig") @Nullable LinkConfig linkConfig,
             @JsonProperty("overlay") @Nullable Overlay overlay) {
         this.delivery = Optional.ofNullable(delivery)
             .orElseThrow(() -> new IllegalArgumentException("delivery cannot be null"));
         this.branding = branding;
         this.assisted = assisted;
+        this.inlineResult = inlineResult;
+        this.syncWaitSeconds = syncWaitSeconds;
         this.linkConfig = linkConfig;
         this.overlay = overlay;
         this.additionalProperties = new HashMap<>();
@@ -93,7 +122,8 @@ public class Config {
     public Config(
             @Nonnull String delivery) {
         this(delivery, null, null,
-            null, null);
+            null, null, null,
+            null);
     }
 
     public String delivery() {
@@ -113,6 +143,30 @@ public class Config {
      */
     public Optional<Boolean> assisted() {
         return Optional.ofNullable(this.assisted);
+    }
+
+    /**
+     * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+     * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+     * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+     * with 400 before any journey is created. false is accepted and means the same as omitting it.
+     * 
+     * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+     */
+    public Optional<Boolean> inlineResult() {
+        return Optional.ofNullable(this.inlineResult);
+    }
+
+    /**
+     * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * today). Send a smaller value if your own HTTP client gives up sooner.
+     * 
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+     * response says how long the call waited.
+     */
+    public Optional<Long> syncWaitSeconds() {
+        return Optional.ofNullable(this.syncWaitSeconds);
     }
 
     /**
@@ -178,6 +232,34 @@ public class Config {
 
 
     /**
+     * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+     * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+     * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+     * with 400 before any journey is created. false is accepted and means the same as omitting it.
+     * 
+     * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+     */
+    public Config withInlineResult(@Nullable Boolean inlineResult) {
+        this.inlineResult = inlineResult;
+        return this;
+    }
+
+
+    /**
+     * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * today). Send a smaller value if your own HTTP client gives up sooner.
+     * 
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+     * response says how long the call waited.
+     */
+    public Config withSyncWaitSeconds(@Nullable Long syncWaitSeconds) {
+        this.syncWaitSeconds = syncWaitSeconds;
+        return this;
+    }
+
+
+    /**
      * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved
      * independently across the per-journey, delivery, organization and system-default tiers, then clamped
      * down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long
@@ -235,6 +317,8 @@ public class Config {
             Utils.enhancedDeepEquals(this.delivery, other.delivery) &&
             Utils.enhancedDeepEquals(this.branding, other.branding) &&
             Utils.enhancedDeepEquals(this.assisted, other.assisted) &&
+            Utils.enhancedDeepEquals(this.inlineResult, other.inlineResult) &&
+            Utils.enhancedDeepEquals(this.syncWaitSeconds, other.syncWaitSeconds) &&
             Utils.enhancedDeepEquals(this.linkConfig, other.linkConfig) &&
             Utils.enhancedDeepEquals(this.overlay, other.overlay) &&
             Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
@@ -244,7 +328,8 @@ public class Config {
     public int hashCode() {
         return Utils.enhancedHash(
             delivery, branding, assisted,
-            linkConfig, overlay, additionalProperties);
+            inlineResult, syncWaitSeconds, linkConfig,
+            overlay, additionalProperties);
     }
     
     @Override
@@ -253,6 +338,8 @@ public class Config {
                 "delivery", delivery,
                 "branding", branding,
                 "assisted", assisted,
+                "inlineResult", inlineResult,
+                "syncWaitSeconds", syncWaitSeconds,
                 "linkConfig", linkConfig,
                 "overlay", overlay,
                 "additionalProperties", additionalProperties);
@@ -266,6 +353,10 @@ public class Config {
         private Object branding;
 
         private Boolean assisted;
+
+        private Boolean inlineResult;
+
+        private Long syncWaitSeconds;
 
         private LinkConfig linkConfig;
 
@@ -296,6 +387,32 @@ public class Config {
          */
         public Builder assisted(@Nullable Boolean assisted) {
             this.assisted = assisted;
+            return this;
+        }
+
+        /**
+         * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+         * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+         * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+         * with 400 before any journey is created. false is accepted and means the same as omitting it.
+         * 
+         * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+         */
+        public Builder inlineResult(@Nullable Boolean inlineResult) {
+            this.inlineResult = inlineResult;
+            return this;
+        }
+
+        /**
+         * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+         * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+         * today). Send a smaller value if your own HTTP client gives up sooner.
+         * 
+         * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+         * response says how long the call waited.
+         */
+        public Builder syncWaitSeconds(@Nullable Long syncWaitSeconds) {
+            this.syncWaitSeconds = syncWaitSeconds;
             return this;
         }
 
@@ -345,7 +462,8 @@ public class Config {
         public Config build() {
             return new Config(
                 delivery, branding, assisted,
-                linkConfig, overlay)
+                inlineResult, syncWaitSeconds, linkConfig,
+                overlay)
                 .withAdditionalProperties(additionalProperties);
         }
 

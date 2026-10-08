@@ -36,10 +36,14 @@ export class Devices extends ClientSDK {
    * Completes the device-onboarding handshake. See partner integration guide.
    */
   async connect(
+    security: operations.DeviceConnectSecurity,
+    request: operations.DeviceConnectRequest,
     options?: RequestOptions,
   ): Promise<models.DeviceConnectResponse> {
     return unwrapAsync(devicesConnect(
       this,
+      security,
+      request,
       options,
     ));
   }

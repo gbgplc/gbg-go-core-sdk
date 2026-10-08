@@ -1623,6 +1623,11 @@ export type SubmitInteractionDocument = {
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
+  individualReferenceNumber?: string | undefined;
+  nameLine1?: string | undefined;
+  nameLine2?: string | undefined;
+  nameLine3?: string | undefined;
+  nameLine4?: string | undefined;
 };
 
 export const SubmitInteractionBiometricType = {
@@ -4651,6 +4656,11 @@ export type SubmitInteractionDocument$Outbound = {
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
+  individualReferenceNumber?: string | undefined;
+  nameLine1?: string | undefined;
+  nameLine2?: string | undefined;
+  nameLine3?: string | undefined;
+  nameLine4?: string | undefined;
 };
 
 /** @internal */
@@ -4778,6 +4788,11 @@ export const SubmitInteractionDocument$outboundSchema: z.ZodMiniType<
   previousFirstName: z.optional(z.string()),
   previousMiddleName: z.optional(z.string()),
   previousSurname: z.optional(z.string()),
+  individualReferenceNumber: z.optional(z.string()),
+  nameLine1: z.optional(z.string()),
+  nameLine2: z.optional(z.string()),
+  nameLine3: z.optional(z.string()),
+  nameLine4: z.optional(z.string()),
 });
 
 export function submitInteractionDocumentToJSON(

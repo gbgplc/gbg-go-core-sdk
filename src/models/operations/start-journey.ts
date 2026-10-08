@@ -1593,6 +1593,11 @@ export type StartJourneyDocument = {
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
+  individualReferenceNumber?: string | undefined;
+  nameLine1?: string | undefined;
+  nameLine2?: string | undefined;
+  nameLine3?: string | undefined;
+  nameLine4?: string | undefined;
 };
 
 export const StartJourneyBiometricType = {
@@ -1866,6 +1871,14 @@ export type Config = {
    * Marks this start as operator-completed (assisted) rather than customer-completed, so the two populations can be told apart in downstream telemetry. Accepted and logged but not yet enforced: supplying it does not change validation, routing, execution or the response, and omitting it leaves the request byte-identical to an ordinary start. It is an attribution signal only, and whether anything ever reads it to change behavior is a separate decision that has not been taken.
    */
   assisted?: boolean | undefined;
+  /**
+   * Opt-in synchronous execution: when true, the start call waits for the journey and returns its outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected with 400 before any journey is created. false is accepted and means the same as omitting it. Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+   */
+  inlineResult?: boolean | undefined;
+  /**
+   * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55 today). Send a smaller value if your own HTTP client gives up sooner. A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the response says how long the call waited.
+   */
+  syncWaitSeconds?: number | undefined;
   /**
    * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved independently across the per-journey, delivery, organization and system-default tiers, then clamped down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the delivery-token and connect-secret records, read at connect, and enforced when a resume credential is minted and exchanged. None of the resolved values is echoed on any response — the journey-start log line is where the resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery resource's linkConfig, then to the organization's value, then to the deprecated flat deliveryUrlTtlMinutes, then to the system default.
    */
@@ -4483,6 +4496,11 @@ export type StartJourneyDocument$Outbound = {
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
+  individualReferenceNumber?: string | undefined;
+  nameLine1?: string | undefined;
+  nameLine2?: string | undefined;
+  nameLine3?: string | undefined;
+  nameLine4?: string | undefined;
 };
 
 /** @internal */
@@ -4596,6 +4614,11 @@ export const StartJourneyDocument$outboundSchema: z.ZodMiniType<
   previousFirstName: z.optional(z.string()),
   previousMiddleName: z.optional(z.string()),
   previousSurname: z.optional(z.string()),
+  individualReferenceNumber: z.optional(z.string()),
+  nameLine1: z.optional(z.string()),
+  nameLine2: z.optional(z.string()),
+  nameLine3: z.optional(z.string()),
+  nameLine4: z.optional(z.string()),
 });
 
 export function startJourneyDocumentToJSON(
@@ -5331,6 +5354,8 @@ export type Config$Outbound = {
   delivery: string;
   branding?: any | undefined;
   assisted?: boolean | undefined;
+  inlineResult?: boolean | undefined;
+  syncWaitSeconds?: number | undefined;
   linkConfig?: LinkConfig$Outbound | undefined;
   overlay?: Overlay$Outbound | undefined;
   [additionalProperties: string]: unknown;
@@ -5343,6 +5368,8 @@ export const Config$outboundSchema: z.ZodMiniType<Config$Outbound, Config> = z
       delivery: z.string(),
       branding: z.optional(z.any()),
       assisted: z.optional(z.boolean()),
+      inlineResult: z.optional(z.boolean()),
+      syncWaitSeconds: z.optional(z.int()),
       linkConfig: z.optional(z.lazy(() => LinkConfig$outboundSchema)),
       overlay: z.optional(z.lazy(() => Overlay$outboundSchema)),
     }),

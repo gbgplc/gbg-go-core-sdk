@@ -9,8 +9,10 @@ import static com.gbg.gocore.operations.Operations.RequestlessOperation;
 import com.gbg.gocore.models.operations.AddDeviceRequest;
 import com.gbg.gocore.models.operations.AddDeviceRequestBuilder;
 import com.gbg.gocore.models.operations.AddDeviceResponse;
+import com.gbg.gocore.models.operations.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectRequestBuilder;
 import com.gbg.gocore.models.operations.DeviceConnectResponse;
+import com.gbg.gocore.models.operations.DeviceConnectSecurity;
 import com.gbg.gocore.models.operations.DeviceRefreshRequestBuilder;
 import com.gbg.gocore.models.operations.DeviceRefreshResponse;
 import com.gbg.gocore.models.operations.DeviceValidateRequestBuilder;
@@ -104,13 +106,15 @@ public class Devices {
      * 
      * <p>Completes the device-onboarding handshake. See partner integration guide.
      * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param security The security details to use for authentication.
      * @return The response from the API call
      * @throws RuntimeException subclass if the API call fails
      */
-    public DeviceConnectResponse connectDirect() {
-        RequestlessOperation<DeviceConnectResponse> operation
-            = new DeviceConnect.Sync(sdkConfiguration, _headers);
-        return operation.handleResponse(operation.doRequest());
+    public DeviceConnectResponse connect(@Nonnull DeviceConnectRequest request, @Nonnull DeviceConnectSecurity security) {
+        RequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
+              = new DeviceConnect.Sync(sdkConfiguration, security, _headers);
+        return operation.handleResponse(operation.doRequest(request));
     }
 
     /**

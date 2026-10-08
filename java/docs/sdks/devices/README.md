@@ -72,7 +72,10 @@ package hello.world;
 
 import com.gbg.gocore.Go;
 import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectResponse;
+import com.gbg.gocore.models.operations.DeviceConnectSecurity;
+import com.gbg.gocore.models.operations.DeviceInfo;
 import java.lang.Exception;
 
 public class Application {
@@ -82,7 +85,18 @@ public class Application {
         Go sdk = Go.builder()
             .build();
 
+        DeviceConnectRequest req = DeviceConnectRequest.builder()
+                .connectToken("<value>")
+                .deviceInfo(DeviceInfo.builder()
+                    .deviceId("<id>")
+                    .build())
+                .build();
+
         DeviceConnectResponse res = sdk.devices().connect()
+                .request(req)
+                .security(DeviceConnectSecurity.builder()
+                    .deviceConnect(System.getenv().getOrDefault("DEVICE_CONNECT", ""))
+                    .build())
                 .call();
 
         if (res.deviceConnectResponse().isPresent()) {
@@ -91,6 +105,13 @@ public class Application {
     }
 }
 ```
+
+### Parameters
+
+| Parameter                                                                                                  | Type                                                                                                       | Required                                                                                                   | Description                                                                                                |
+| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `request`                                                                                                  | [DeviceConnectRequest](../../models/operations/DeviceConnectRequest.md)                                    | :heavy_check_mark:                                                                                         | The request object to use for the request.                                                                 |
+| `security`                                                                                                 | [com.gbg.gocore.models.operations.DeviceConnectSecurity](../../models/operations/DeviceConnectSecurity.md) | :heavy_check_mark:                                                                                         | The security requirements to use for the request.                                                          |
 
 ### Response
 

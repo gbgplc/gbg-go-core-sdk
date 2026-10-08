@@ -165,18 +165,62 @@ actions:
       x-speakeasy-group: sandbox
       x-speakeasy-name-override: deleteScenario
 
-  # --- Upstream gap: missing `scope` on the client credentials grant -------
-  # Added to the static spec in 1c5d27f ("feat: add required scope to the
-  # client credentials grant"). The live spec does not carry it, so without
-  # this the regenerated SDK would stop sending `scope` and token requests
-  # would regress. Remove this action once the live spec declares it.
-  - target: $["components"]["schemas"]["ClientCredentialsGrantRequest"]["properties"]
+  # --- Upstream gap: device/connect is described as taking nothing --------
+  #
+  # The live spec declares this operation with `security: []`, no requestBody
+  # and no parameters. The static spec required a DeviceConnect bearer plus
+  # `connectToken` and `deviceInfo`, and that is what the endpoint actually
+  # wants — without this the generated `devices.connect()` accepts nothing and
+  # the device handover cannot be driven through the SDK at all.
+  #
+  # This patches a REQUEST, which is why it is tolerable where patching a
+  # response would not be. A stale request patch fails loudly with a 400; a
+  # stale response patch drops fields silently, which is the bug this whole
+  # migration exists to fix. Delete this once the live spec describes the
+  # operation properly.
+  #
+  # Shape taken from the static spec at 32440fe (.spec/spec.yaml,
+  # /journey/device/connect), which was generating a working client.
+  - target: $["components"]["securitySchemes"]
     update:
-      scope:
-        type: string
-        enum:
-          - gbg.token
-        description: Must always be set to 'gbg.token'.
-  - target: $["components"]["schemas"]["ClientCredentialsGrantRequest"]["required"]
+      DeviceConnect:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+        description: >-
+          Connect-token bearer, minted by device/start and exchanged here for
+          an end-user token. Absent from the live spec; see the overlay.
+  - target: $["paths"]["/v2/captain/journey/device/connect"]["post"]["security"]
     update:
-      - scope
+      - DeviceConnect: []
+  - target: $["paths"]["/v2/captain/journey/device/connect"]["post"]
+    update:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connectToken:
+                  type: string
+                  minLength: 8
+                  maxLength: 1024
+                  description: Bearer Token credential for a connection.
+                deviceInfo:
+                  type: object
+                  properties:
+                    deviceId:
+                      type: string
+                      minLength: 16
+                      maxLength: 64
+                      description: Device Id, a unique identifier for a device.
+                    deviceName:
+                      type: string
+                    deviceType:
+                      type: string
+                  required:
+                    - deviceId
+              required:
+                - connectToken
+                - deviceInfo

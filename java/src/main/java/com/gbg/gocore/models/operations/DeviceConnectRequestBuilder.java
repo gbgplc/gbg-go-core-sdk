@@ -3,21 +3,37 @@
  */
 package com.gbg.gocore.models.operations;
 
-import static com.gbg.gocore.operations.Operations.RequestlessOperation;
+import static com.gbg.gocore.operations.Operations.RequestOperation;
 
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.DeviceConnect;
 import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Utils;
+import jakarta.annotation.Nonnull;
 
 public class DeviceConnectRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
+    private DeviceConnectRequest request;
+    private DeviceConnectSecurity security;
 
     public DeviceConnectRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
     }
 
+    public DeviceConnectRequestBuilder request(@Nonnull DeviceConnectRequest request) {
+        this.request = Utils.checkNotNull(request, "request");
+        return this;
+    }
+
+    public DeviceConnectRequestBuilder security(@Nonnull DeviceConnectSecurity security) {
+        this.security = Utils.checkNotNull(security, "security");
+        return this;
+    }
+
+    private DeviceConnectRequest _buildRequest() {
+        return this.request;
+    }
     
     public DeviceConnectRequestBuilder header(String name, String value) {
         Utils.checkNotNull(name, "name");
@@ -32,8 +48,8 @@ public class DeviceConnectRequestBuilder {
     * @return The response from the server.
     */
     public DeviceConnectResponse call() {
-        RequestlessOperation<DeviceConnectResponse> operation
-            = new DeviceConnect.Sync(sdkConfiguration, _headers);
-        return operation.handleResponse(operation.doRequest());
+        RequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
+              = new DeviceConnect.Sync(sdkConfiguration, security, _headers);
+        return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

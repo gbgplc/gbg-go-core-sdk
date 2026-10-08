@@ -7,6 +7,7 @@ export * from "./create-handoff-token.js";
 export * from "./create-sandbox-scenario.js";
 export * from "./delete-instance.js";
 export * from "./delete-sandbox-scenario.js";
+export * from "./device-connect.js";
 export * from "./device-validate.js";
 export * from "./fetch-interaction.js";
 export * from "./get-journey-schemas.js";

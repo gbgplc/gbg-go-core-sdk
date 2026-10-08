@@ -3,16 +3,18 @@
  */
 package com.gbg.gocore.operations;
 
-import static com.gbg.gocore.operations.Operations.RequestlessOperation;
+import static com.gbg.gocore.operations.Operations.RequestOperation;
 import static com.gbg.gocore.utils.Exceptions.unchecked;
-import static com.gbg.gocore.operations.Operations.AsyncRequestlessOperation;
+import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.SecuritySource;
 import com.gbg.gocore.models.errors.APIException;
 import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectResponse;
+import com.gbg.gocore.models.operations.DeviceConnectSecurity;
 import com.gbg.gocore.utils.Blob;
 import com.gbg.gocore.utils.HTTPClient;
 import com.gbg.gocore.utils.HTTPRequest;
@@ -20,10 +22,14 @@ import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Hook.AfterErrorContextImpl;
 import com.gbg.gocore.utils.Hook.AfterSuccessContextImpl;
 import com.gbg.gocore.utils.Hook.BeforeRequestContextImpl;
+import com.gbg.gocore.utils.SerializedBody;
+import com.gbg.gocore.utils.Utils.JsonShape;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.Exception;
+import java.lang.IllegalArgumentException;
+import java.lang.Object;
 import java.lang.String;
 import java.lang.Throwable;
 import java.net.http.HttpRequest;
@@ -38,15 +44,20 @@ public class DeviceConnect {
     static abstract class Base {
         final SDKConfiguration sdkConfiguration;
         final String baseUrl;
+        final DeviceConnectSecurity security;
         final SecuritySource securitySource;
         final HTTPClient client;
         final Headers _headers;
 
-        public Base(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
+        public Base(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
+                Headers _headers) {
             this.sdkConfiguration = sdkConfiguration;
             this._headers =_headers;
             this.baseUrl = this.sdkConfiguration.serverUrl();
-            this.securitySource = null;
+            this.security = security;
+            // hooks will be passed method level security only
+            this.securitySource = SecuritySource.of(security);
             this.client = this.sdkConfiguration.client();
         }
 
@@ -80,27 +91,45 @@ public class DeviceConnect {
                     java.util.Optional.empty(),
                     securitySource());
         }
-        HttpRequest buildRequest() throws Exception {
+        <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
                     "/v2/captain/journey/device/connect");
             HTTPRequest req = new HTTPRequest(url, "POST");
+            Object convertedRequest = Utils.convertToShape(
+                    request,
+                    JsonShape.DEFAULT,
+                    typeReference);
+            SerializedBody serializedRequestBody = Utils.serializeRequestBody(
+                    convertedRequest,
+                    "",
+                    "json",
+                    false);
+            if (serializedRequestBody == null) {
+                throw new IllegalArgumentException("Request body is required");
+            }
+            req.setBody(Optional.ofNullable(serializedRequestBody));
             req.addHeader("Accept", "application/json")
                     .addHeader("user-agent", SDKConfiguration.USER_AGENT);
             _headers.forEach((k, list) -> list.forEach(v -> req.addHeader(k, v)));
+            Utils.configureSecurity(req, security);
 
             return req.build();
         }
     }
 
     public static class Sync extends Base
-            implements RequestlessOperation<DeviceConnectResponse> {
-        public Sync(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
-            super(sdkConfiguration, _headers);
+            implements RequestOperation<DeviceConnectRequest, DeviceConnectResponse> {
+        public Sync(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
+                Headers _headers) {
+            super(
+                  sdkConfiguration, security,
+                  _headers);
         }
 
-        private HttpRequest onBuildRequest() throws Exception {
-            HttpRequest req = buildRequest();
+        private HttpRequest onBuildRequest(DeviceConnectRequest request) throws Exception {
+            HttpRequest req = buildRequest(request, new TypeReference<DeviceConnectRequest>() {});
             return sdkConfiguration.hooks().beforeRequest(createBeforeRequestContext(), req);
         }
 
@@ -116,8 +145,8 @@ public class DeviceConnect {
         }
 
         @Override
-        public HttpResponse<InputStream> doRequest() {
-            HttpRequest r = unchecked(() -> onBuildRequest()).get();
+        public HttpResponse<InputStream> doRequest(DeviceConnectRequest request) {
+            HttpRequest r = unchecked(() -> onBuildRequest(request)).get();
             HttpResponse<InputStream> httpRes;
             try {
                 httpRes = client.send(r);
@@ -182,14 +211,18 @@ public class DeviceConnect {
         }
     }
     public static class Async extends Base
-            implements AsyncRequestlessOperation<com.gbg.gocore.models.operations.async.DeviceConnectResponse> {
+            implements AsyncRequestOperation<DeviceConnectRequest, com.gbg.gocore.models.operations.async.DeviceConnectResponse> {
 
-        public Async(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
-            super(sdkConfiguration, _headers);
+        public Async(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
+                Headers _headers) {
+            super(
+                  sdkConfiguration, security,
+                  _headers);
         }
 
-        private CompletableFuture<HttpRequest> onBuildRequest() throws Exception {
-            HttpRequest req = buildRequest();
+        private CompletableFuture<HttpRequest> onBuildRequest(DeviceConnectRequest request) throws Exception {
+            HttpRequest req = buildRequest(request, new TypeReference<DeviceConnectRequest>() {});
             return this.sdkConfiguration.asyncHooks().beforeRequest(createBeforeRequestContext(), req);
         }
 
@@ -202,8 +235,8 @@ public class DeviceConnect {
         }
 
         @Override
-        public CompletableFuture<HttpResponse<Blob>> doRequest() {
-            return unchecked(() -> onBuildRequest()).get().thenCompose(client::sendAsync)
+        public CompletableFuture<HttpResponse<Blob>> doRequest(DeviceConnectRequest request) {
+            return unchecked(() -> onBuildRequest(request)).get().thenCompose(client::sendAsync)
                     .handle((resp, err) -> {
                         if (err != null) {
                             return onError(null, err);

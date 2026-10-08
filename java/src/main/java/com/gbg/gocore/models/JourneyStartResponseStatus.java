@@ -21,6 +21,10 @@ import java.util.Optional;
 public class JourneyStartResponseStatus {
 
     public static final JourneyStartResponseStatus STARTED = new JourneyStartResponseStatus("started");
+    public static final JourneyStartResponseStatus COMPLETED = new JourneyStartResponseStatus("completed");
+    public static final JourneyStartResponseStatus FAILED = new JourneyStartResponseStatus("failed");
+    public static final JourneyStartResponseStatus AWAITING_INPUT = new JourneyStartResponseStatus("awaiting-input");
+    public static final JourneyStartResponseStatus PENDING = new JourneyStartResponseStatus("pending");
 
     // This map will grow whenever a Color gets created with a new
     // unrecognized value (a potential memory leak if the user is not
@@ -95,19 +99,31 @@ public class JourneyStartResponseStatus {
     private static final Map<String, JourneyStartResponseStatus> createValuesMap() {
         Map<String, JourneyStartResponseStatus> map = new LinkedHashMap<>();
         map.put("started", STARTED);
+        map.put("completed", COMPLETED);
+        map.put("failed", FAILED);
+        map.put("awaiting-input", AWAITING_INPUT);
+        map.put("pending", PENDING);
         return map;
     }
 
     private static final Map<String, JourneyStartResponseStatusEnum> createEnumsMap() {
         Map<String, JourneyStartResponseStatusEnum> map = new HashMap<>();
         map.put("started", JourneyStartResponseStatusEnum.STARTED);
+        map.put("completed", JourneyStartResponseStatusEnum.COMPLETED);
+        map.put("failed", JourneyStartResponseStatusEnum.FAILED);
+        map.put("awaiting-input", JourneyStartResponseStatusEnum.AWAITING_INPUT);
+        map.put("pending", JourneyStartResponseStatusEnum.PENDING);
         return map;
     }
     
     
     public enum JourneyStartResponseStatusEnum {
 
-        STARTED("started"),;
+        STARTED("started"),
+        COMPLETED("completed"),
+        FAILED("failed"),
+        AWAITING_INPUT("awaiting-input"),
+        PENDING("pending"),;
 
         private final String value;
 

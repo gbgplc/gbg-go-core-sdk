@@ -38,6 +38,12 @@ components:
       scheme: "bearer"
       bearerFormat: "JWT"
       description: "End-User JWT token for end-user scoped operations. Required for: interaction/fetch, interaction/submit, device/validate"
+    DeviceConnect:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Connect-token bearer, minted by device/start and exchanged here for an end-user token. Absent from the live spec; see the overlay.
   schemas:
     JourneyStartResponse:
       type: "object"
@@ -50,8 +56,33 @@ components:
           type: "string"
           enum:
             - "started"
+            - "completed"
+            - "failed"
+            - "awaiting-input"
+            - "pending"
         message:
           type: "string"
+        waitedSeconds:
+          type: "integer"
+          minimum: 0
+        state:
+          $ref: "#/components/schemas/StateFetchResponse"
+      required:
+        - "instanceId"
+        - "status"
+    StateFetchResponse:
+      type: "object"
+      properties:
+        instanceId:
+          type: "string"
+        status:
+          type: "string"
+        context:
+          type: "object"
+          additionalProperties: {}
+        result:
+          type: "object"
+          additionalProperties: {}
       required:
         - "instanceId"
         - "status"
@@ -767,22 +798,6 @@ components:
             additionalProperties: {}
       required:
         - "Items"
-    StateFetchResponse:
-      type: "object"
-      properties:
-        instanceId:
-          type: "string"
-        status:
-          type: "string"
-        context:
-          type: "object"
-          additionalProperties: {}
-        result:
-          type: "object"
-          additionalProperties: {}
-      required:
-        - "instanceId"
-        - "status"
     SlimStateFetchResponse:
       type: "object"
       properties:
@@ -1139,15 +1154,15 @@ components:
             - "client_credentials"
           description: "Must always be set to 'client_credentials'."
         scope:
-          type: string
+          type: "string"
           enum:
-            - gbg.token
-          description: Must always be set to 'gbg.token'.
+            - "gbg.token"
+          description: "Must always be set to 'gbg.token'."
       required:
         - "client_id"
         - "client_secret"
         - "grant_type"
-        - scope
+        - "scope"
   parameters: {}
 paths:
   /v2/captain/journey/start:
@@ -3074,6 +3089,18 @@ paths:
                               previousSurname:
                                 type: "string"
                                 minLength: 1
+                              individualReferenceNumber:
+                                type: "string"
+                                minLength: 1
+                              nameLine1:
+                                type: "string"
+                                minLength: 1
+                              nameLine2:
+                                type: "string"
+                              nameLine3:
+                                type: "string"
+                              nameLine4:
+                                type: "string"
                             required:
                               - "type"
                           maxItems: 50
@@ -3414,6 +3441,13 @@ paths:
                         assisted:
                           type: "boolean"
                           description: "Marks this start as operator-completed (assisted) rather than customer-completed, so the two populations can be told apart in downstream telemetry. Accepted and logged but not yet enforced: supplying it does not change validation, routing, execution or the response, and omitting it leaves the request byte-identical to an ordinary start. It is an attribution signal only, and whether anything ever reads it to change behavior is a separate decision that has not been taken."
+                        inlineResult:
+                          type: "boolean"
+                          description: "Opt-in synchronous execution: when true, the start call waits for the journey and returns its outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with just an instanceId. Requires delivery \"api\" and a durable engine; otherwise the request is rejected with 400 before any journey is created. false is accepted and means the same as omitting it. Same name as Captain V1, but the response shape differs: the journey state is nested under \"state\"."
+                        syncWaitSeconds:
+                          type: "integer"
+                          exclusiveMinimum: 0
+                          description: "How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55 today). Send a smaller value if your own HTTP client gives up sooner. A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the response says how long the call waited."
                         linkConfig:
                           type: "object"
                           properties:
@@ -5550,6 +5584,18 @@ paths:
                               previousSurname:
                                 type: "string"
                                 minLength: 1
+                              individualReferenceNumber:
+                                type: "string"
+                                minLength: 1
+                              nameLine1:
+                                type: "string"
+                                minLength: 1
+                              nameLine2:
+                                type: "string"
+                              nameLine3:
+                                type: "string"
+                              nameLine4:
+                                type: "string"
                             required:
                               - "type"
                           maxItems: 50
@@ -5931,7 +5977,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "409":
-          description: "Submitted data is invalid for the required domain elements"
+          description: "Conflict. Two distinct outcomes share this status and are told apart by the error code, NOT by the status: `4003/INVALID_FIELD` — every submitted domain element is present but invalid, so correcting the data and retrying can succeed; `4009/JOURNEY_NOT_ACTIVE` — the journey has already completed, failed or been abandoned, so retrying this request can never succeed and the client should start a new journey rather than offer a retry."
           content:
             application/json:
               schema:
@@ -6650,7 +6696,8 @@ paths:
         - "Device"
       summary: "Complete the device-onboarding handshake"
       description: "Completes the device-onboarding handshake. See partner integration guide."
-      security: []
+      security:
+        - DeviceConnect: []
       responses:
         "201":
           description: "End-user token issued"
@@ -6679,6 +6726,35 @@ paths:
       operationId: deviceConnect
       x-speakeasy-group: devices
       x-speakeasy-name-override: connect
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connectToken:
+                  type: string
+                  minLength: 8
+                  maxLength: 1024
+                  description: Bearer Token credential for a connection.
+                deviceInfo:
+                  type: object
+                  properties:
+                    deviceId:
+                      type: string
+                      minLength: 16
+                      maxLength: 64
+                      description: Device Id, a unique identifier for a device.
+                    deviceName:
+                      type: string
+                    deviceType:
+                      type: string
+                  required:
+                    - deviceId
+              required:
+                - connectToken
+                - deviceInfo
   /v2/captain/journey/device/refresh:
     post:
       tags:

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.Long;
 import java.lang.Override;
 import java.lang.String;
 import java.util.Optional;
@@ -34,25 +35,39 @@ public class JourneyStartResponse {
     @JsonProperty("message")
     private String message;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("waitedSeconds")
+    private Long waitedSeconds;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("state")
+    private StateFetchResponse state;
+
     @JsonCreator
     public JourneyStartResponse(
             @JsonProperty("instanceId") @Nonnull String instanceId,
             @JsonProperty("instanceUrl") @Nullable String instanceUrl,
             @JsonProperty("status") @Nonnull JourneyStartResponseStatus status,
-            @JsonProperty("message") @Nullable String message) {
+            @JsonProperty("message") @Nullable String message,
+            @JsonProperty("waitedSeconds") @Nullable Long waitedSeconds,
+            @JsonProperty("state") @Nullable StateFetchResponse state) {
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
         this.instanceUrl = instanceUrl;
         this.status = Optional.ofNullable(status)
             .orElseThrow(() -> new IllegalArgumentException("status cannot be null"));
         this.message = message;
+        this.waitedSeconds = waitedSeconds;
+        this.state = state;
     }
     
     public JourneyStartResponse(
             @Nonnull String instanceId,
             @Nonnull JourneyStartResponseStatus status) {
         this(instanceId, null, status,
-            null);
+            null, null, null);
     }
 
     public String instanceId() {
@@ -69,6 +84,14 @@ public class JourneyStartResponse {
 
     public Optional<String> message() {
         return Optional.ofNullable(this.message);
+    }
+
+    public Optional<Long> waitedSeconds() {
+        return Optional.ofNullable(this.waitedSeconds);
+    }
+
+    public Optional<StateFetchResponse> state() {
+        return Optional.ofNullable(this.state);
     }
 
     public static Builder builder() {
@@ -100,6 +123,18 @@ public class JourneyStartResponse {
     }
 
 
+    public JourneyStartResponse withWaitedSeconds(@Nullable Long waitedSeconds) {
+        this.waitedSeconds = waitedSeconds;
+        return this;
+    }
+
+
+    public JourneyStartResponse withState(@Nullable StateFetchResponse state) {
+        this.state = state;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -113,14 +148,16 @@ public class JourneyStartResponse {
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
             Utils.enhancedDeepEquals(this.instanceUrl, other.instanceUrl) &&
             Utils.enhancedDeepEquals(this.status, other.status) &&
-            Utils.enhancedDeepEquals(this.message, other.message);
+            Utils.enhancedDeepEquals(this.message, other.message) &&
+            Utils.enhancedDeepEquals(this.waitedSeconds, other.waitedSeconds) &&
+            Utils.enhancedDeepEquals(this.state, other.state);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             instanceId, instanceUrl, status,
-            message);
+            message, waitedSeconds, state);
     }
     
     @Override
@@ -129,7 +166,9 @@ public class JourneyStartResponse {
                 "instanceId", instanceId,
                 "instanceUrl", instanceUrl,
                 "status", status,
-                "message", message);
+                "message", message,
+                "waitedSeconds", waitedSeconds,
+                "state", state);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -142,6 +181,10 @@ public class JourneyStartResponse {
         private JourneyStartResponseStatus status;
 
         private String message;
+
+        private Long waitedSeconds;
+
+        private StateFetchResponse state;
 
         private Builder() {
           // force use of static builder() method
@@ -167,10 +210,20 @@ public class JourneyStartResponse {
             return this;
         }
 
+        public Builder waitedSeconds(@Nullable Long waitedSeconds) {
+            this.waitedSeconds = waitedSeconds;
+            return this;
+        }
+
+        public Builder state(@Nullable StateFetchResponse state) {
+            this.state = state;
+            return this;
+        }
+
         public JourneyStartResponse build() {
             return new JourneyStartResponse(
                 instanceId, instanceUrl, status,
-                message);
+                message, waitedSeconds, state);
         }
 
     }
