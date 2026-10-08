@@ -5,13 +5,13 @@ management:
   docVersion: 2.x
   speakeasyVersion: 1.801.0
   generationVersion: 2.946.0
-  releaseVersion: 0.1.0-alpha01
-  configChecksum: 089ba1ec1940d205143e7d25864f7095
+  releaseVersion: 0.2.0-alpha01
+  configChecksum: 9bf1e30bb44410389025cd55402797a5
   published: true
 persistentEdits:
-  generation_id: 933784aa-d866-468e-8a4a-447f26714111
-  pristine_commit_hash: 0e273b6bddf1086c09ca9d1a8c347aead5a25a16
-  pristine_tree_hash: 42c1cf3699e8af2b7d80b62d7dcf038e0de16adf
+  generation_id: 9ca73027-6f40-45a7-b90f-51d407fdf74a
+  pristine_commit_hash: 2defd2a7d79fb1d1d39d4ac5cedb4ec82721afe2
+  pristine_tree_hash: 556d58dd991991c1660dd7728e07bdae98576f30
 features:
   java:
     additionalDependencies: 0.1.0
@@ -1530,8 +1530,8 @@ trackedFiles:
     pristine_git_object: 15c9c968dc112a12f5f591958e42f16d8f1e5602
   gradle.properties:
     id: 2afbb999f001
-    last_write_checksum: sha1:c98890f605b9a45cbbd6c19c6c6c4263d9592ed3
-    pristine_git_object: 4bb4c834be13ebd40e69c9b5db08e682809c997e
+    last_write_checksum: sha1:27d5d35bf81cd62863e50b2fbb187858e6294443
+    pristine_git_object: 11c40d8c574248739010ac7b8be962906f5c164e
   gradle/wrapper/gradle-wrapper.jar:
     id: ec27dae6e852
     last_write_checksum: sha1:f725fb1467084142d74fd7cd8eab691ab3442611
@@ -1618,8 +1618,8 @@ trackedFiles:
     pristine_git_object: 31b243b5aeb88ad2e6382ee5ffecd2521565db9f
   src/main/java/com/gbg/gocore/SDKConfiguration.java:
     id: 740f95ca528a
-    last_write_checksum: sha1:481a3d138cd52ac130e800d2ffb86031bd8fa4af
-    pristine_git_object: ccb33a5f3080d153a8ffb5c300f1566a6b720b82
+    last_write_checksum: sha1:245721aa178782718ee8b48c10f59362b3430bba
+    pristine_git_object: bcdf670b64c9d45a0a444f4114ed18c665b8f9af
   src/main/java/com/gbg/gocore/Sandbox.java:
     id: 28c2bf66f85f
     last_write_checksum: sha1:db1a431773694f037ffc61b12eb2b267365ab462

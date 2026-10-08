@@ -5,15 +5,15 @@ management:
   docVersion: 2.x
   speakeasyVersion: 1.801.0
   generationVersion: 2.946.0
-  releaseVersion: 0.1.3
-  configChecksum: 3249d2bd12dc9e0e93fc4846bb7fc8d5
+  releaseVersion: 0.2.0-alpha.0
+  configChecksum: f780637bf61f20692d08ca9357987aa4
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: e9782a45-8f23-44a8-81de-3ae540bc53c0
-  pristine_commit_hash: 7f9ffb9d68162e02c5c2bd6fff06269f0ffb55d5
-  pristine_tree_hash: 030f811f442a7b4736500e0da8f1a478f9709d77
+  generation_id: bf685234-9f6f-42f7-8865-abcf8f76fbca
+  pristine_commit_hash: aee529e92cc9658b32f2ca8cd9595e1c13013dd9
+  pristine_tree_hash: 0d86dfa83a9baaf60cf0fd7c4b3ecb4924f38a37
 features:
   typescript:
     additionalDependencies: 0.1.0
@@ -1469,12 +1469,12 @@ trackedFiles:
     pristine_git_object: d5dc74b688899badec476aa7e914d3783b8baf78
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:857b996079d67a665f7285d307bf18b2f3da0720
-    pristine_git_object: 74c3b30315e653aca6d235c000379c5395387618
+    last_write_checksum: sha1:32a9835fc0e1f2038748c9eca013b02c88fd4a75
+    pristine_git_object: 1ed8888f374d32e43a4288535205909bef76c46e
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:fea6d1b8da6863fa3fe1486f134d57fb811712a9
-    pristine_git_object: 2133a8008eb5ee21e65fb32345731ed470bcc8fe
+    last_write_checksum: sha1:05c150988d557f6fa32f5528ddae72de3612ddc1
+    pristine_git_object: 6ec6f412ec7cb549c22569023876bd5542b3f94f
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -1589,8 +1589,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:517005813cb1eb29b9dee897fdeeb21743b73e08
-    pristine_git_object: 245b1d73b5e48588feeca83d1f77c9e4b55a58ee
+    last_write_checksum: sha1:54706c33094bf649704334596c857350e4b2324f
+    pristine_git_object: 7daae03fc5bd8bd3f731ce6c69ec80c7a04edaa0
   src/lib/encodings.ts:
     id: 3bd8ead98afd
     last_write_checksum: sha1:4481b2a380f8a16856ef92c66fb370299f56d135
