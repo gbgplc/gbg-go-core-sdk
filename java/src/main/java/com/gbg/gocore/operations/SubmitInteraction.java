@@ -10,10 +10,11 @@ import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.SecuritySource;
+import com.gbg.gocore.models.InteractionSubmitResponse;
 import com.gbg.gocore.models.errors.APIException;
+import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.SubmitInteractionRequest;
 import com.gbg.gocore.models.operations.SubmitInteractionResponse;
-import com.gbg.gocore.models.operations.SubmitInteractionResponseBody;
 import com.gbg.gocore.models.operations.SubmitInteractionSecurity;
 import com.gbg.gocore.utils.Blob;
 import com.gbg.gocore.utils.HTTPClient;
@@ -93,7 +94,7 @@ public class SubmitInteraction {
         <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/journey/interaction/submit");
+                    "/v2/captain/journey/interaction/submit");
             HTTPRequest req = new HTTPRequest(url, "POST");
             Object convertedRequest = Utils.convertToShape(
                     request,
@@ -176,16 +177,30 @@ public class SubmitInteraction {
             
             if (Utils.statusCodeMatches(response.statusCode(), "200")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return res.withOneOf(Utils.unmarshal(response, new TypeReference<SubmitInteractionResponseBody>() {}));
+                    return res.withInteractionSubmitResponse(Utils.unmarshal(response, new TypeReference<InteractionSubmitResponse>() {}));
                 } else {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "405", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "409", "429")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    throw ErrorResponse.from(response);
+                } else {
+                    throw APIException.from("Unexpected content-type received: " + contentType, response);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    throw ErrorResponse.from(response);
+                } else {
+                    throw APIException.from("Unexpected content-type received: " + contentType, response);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 throw APIException.from("API error occurred", response);
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500", "503", "5XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "5XX")) {
                 // no content
                 throw APIException.from("API error occurred", response);
             }
@@ -250,17 +265,33 @@ public class SubmitInteraction {
             
             if (Utils.statusCodeMatches(response.statusCode(), "200")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return Utils.unmarshalAsync(response, new TypeReference<SubmitInteractionResponseBody>() {})
-                            .thenApply(res::withOneOf);
+                    return Utils.unmarshalAsync(response, new TypeReference<InteractionSubmitResponse>() {})
+                            .thenApply(res::withInteractionSubmitResponse);
                 } else {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "405", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "409", "429")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    return ErrorResponse.fromAsync(response)
+                            .thenCompose(CompletableFuture::failedFuture);
+                } else {
+                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    return ErrorResponse.fromAsync(response)
+                            .thenCompose(CompletableFuture::failedFuture);
+                } else {
+                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 return Utils.createAsyncApiError(response, "API error occurred");
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500", "503", "5XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "5XX")) {
                 // no content
                 return Utils.createAsyncApiError(response, "API error occurred");
             }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.gbg.gocore.utils.HasSecurity;
 import com.gbg.gocore.utils.SpeakeasyMetadata;
 import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.lang.Override;
 import java.lang.String;
 import java.util.Optional;
@@ -16,17 +16,30 @@ import java.util.Optional;
 public class SubmitInteractionSecurity implements HasSecurity {
 
     @SpeakeasyMetadata("security:scheme=true,type=http,subtype=bearer,name=Authorization")
+    private String customerAccess;
+
+
+    @SpeakeasyMetadata("security:scheme=true,type=http,subtype=bearer,name=Authorization")
     private String interactionAccess;
 
     @JsonCreator
     public SubmitInteractionSecurity(
-            @Nonnull String interactionAccess) {
-        this.interactionAccess = Optional.ofNullable(interactionAccess)
-            .orElseThrow(() -> new IllegalArgumentException("interactionAccess cannot be null"));
+            @Nullable String customerAccess,
+            @Nullable String interactionAccess) {
+        this.customerAccess = customerAccess;
+        this.interactionAccess = interactionAccess;
+    }
+    
+    public SubmitInteractionSecurity() {
+        this(null, null);
     }
 
-    public String interactionAccess() {
-        return this.interactionAccess;
+    public Optional<String> customerAccess() {
+        return Optional.ofNullable(this.customerAccess);
+    }
+
+    public Optional<String> interactionAccess() {
+        return Optional.ofNullable(this.interactionAccess);
     }
 
     public static Builder builder() {
@@ -34,8 +47,14 @@ public class SubmitInteractionSecurity implements HasSecurity {
     }
 
 
-    public SubmitInteractionSecurity withInteractionAccess(@Nonnull String interactionAccess) {
-        this.interactionAccess = Utils.checkNotNull(interactionAccess, "interactionAccess");
+    public SubmitInteractionSecurity withCustomerAccess(@Nullable String customerAccess) {
+        this.customerAccess = customerAccess;
+        return this;
+    }
+
+
+    public SubmitInteractionSecurity withInteractionAccess(@Nullable String interactionAccess) {
+        this.interactionAccess = interactionAccess;
         return this;
     }
 
@@ -50,23 +69,27 @@ public class SubmitInteractionSecurity implements HasSecurity {
         }
         SubmitInteractionSecurity other = (SubmitInteractionSecurity) o;
         return 
+            Utils.enhancedDeepEquals(this.customerAccess, other.customerAccess) &&
             Utils.enhancedDeepEquals(this.interactionAccess, other.interactionAccess);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            interactionAccess);
+            customerAccess, interactionAccess);
     }
     
     @Override
     public String toString() {
         return Utils.toString(SubmitInteractionSecurity.class,
+                "customerAccess", customerAccess,
                 "interactionAccess", interactionAccess);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
+
+        private String customerAccess;
 
         private String interactionAccess;
 
@@ -74,14 +97,19 @@ public class SubmitInteractionSecurity implements HasSecurity {
           // force use of static builder() method
         }
 
-        public Builder interactionAccess(@Nonnull String interactionAccess) {
-            this.interactionAccess = Utils.checkNotNull(interactionAccess, "interactionAccess");
+        public Builder customerAccess(@Nullable String customerAccess) {
+            this.customerAccess = customerAccess;
+            return this;
+        }
+
+        public Builder interactionAccess(@Nullable String interactionAccess) {
+            this.interactionAccess = interactionAccess;
             return this;
         }
 
         public SubmitInteractionSecurity build() {
             return new SubmitInteractionSecurity(
-                interactionAccess);
+                customerAccess, interactionAccess);
         }
 
     }

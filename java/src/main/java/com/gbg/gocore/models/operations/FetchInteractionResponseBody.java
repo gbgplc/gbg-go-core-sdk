@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.gbg.gocore.models.InteractionFetchResponse;
+import com.gbg.gocore.models.SlimInteractionFetchResponse;
 import com.gbg.gocore.utils.OneOfDeserializer;
 import com.gbg.gocore.utils.TypedObject;
 import com.gbg.gocore.utils.Utils.JsonShape;
@@ -20,7 +22,7 @@ import java.util.Optional;
 /**
  * FetchInteractionResponseBody
  * 
- * <p>Success
+ * <p>Interaction state (full by default; slim with ?view=slim)
  */
 @JsonDeserialize(using = FetchInteractionResponseBody._Deserializer.class)
 public class FetchInteractionResponseBody {
@@ -32,56 +34,38 @@ public class FetchInteractionResponseBody {
         this.value = value;
     }
 
-    public static FetchInteractionResponseBody of(ResponseBody1 value) {
+    public static FetchInteractionResponseBody of(InteractionFetchResponse value) {
         Utils.checkNotNull(value, "value");
         return new FetchInteractionResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
     }
 
-    public static FetchInteractionResponseBody of(FetchInteractionError value) {
-        Utils.checkNotNull(value, "value");
-        return new FetchInteractionResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
-    }
-
-    public static FetchInteractionResponseBody of(ResponseBody2 value) {
+    public static FetchInteractionResponseBody of(SlimInteractionFetchResponse value) {
         Utils.checkNotNull(value, "value");
         return new FetchInteractionResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
     }
     
     /**
-     * Returns an {@link Optional} containing the value if it is of type {@code ResponseBody1},
+     * Returns an {@link Optional} containing the value if it is of type {@code InteractionFetchResponse},
      * otherwise returns an empty {@link Optional}.
      *
-     * @return an {@link Optional} containing the {@code ResponseBody1} value, or empty if not of this type
+     * @return an {@link Optional} containing the {@code InteractionFetchResponse} value, or empty if not of this type
      */
-    public Optional<ResponseBody1> responseBody1() {
-        if (value.value() instanceof ResponseBody1) {
-            return Optional.of((ResponseBody1) value.value());
+    public Optional<InteractionFetchResponse> interactionFetchResponse() {
+        if (value.value() instanceof InteractionFetchResponse) {
+            return Optional.of((InteractionFetchResponse) value.value());
         }
         return Optional.empty();
     }
     
     /**
-     * Returns an {@link Optional} containing the value if it is of type {@code FetchInteractionError},
+     * Returns an {@link Optional} containing the value if it is of type {@code SlimInteractionFetchResponse},
      * otherwise returns an empty {@link Optional}.
      *
-     * @return an {@link Optional} containing the {@code FetchInteractionError} value, or empty if not of this type
+     * @return an {@link Optional} containing the {@code SlimInteractionFetchResponse} value, or empty if not of this type
      */
-    public Optional<FetchInteractionError> fetchInteractionError() {
-        if (value.value() instanceof FetchInteractionError) {
-            return Optional.of((FetchInteractionError) value.value());
-        }
-        return Optional.empty();
-    }
-    
-    /**
-     * Returns an {@link Optional} containing the value if it is of type {@code ResponseBody2},
-     * otherwise returns an empty {@link Optional}.
-     *
-     * @return an {@link Optional} containing the {@code ResponseBody2} value, or empty if not of this type
-     */
-    public Optional<ResponseBody2> responseBody2() {
-        if (value.value() instanceof ResponseBody2) {
-            return Optional.of((ResponseBody2) value.value());
+    public Optional<SlimInteractionFetchResponse> slimInteractionFetchResponse() {
+        if (value.value() instanceof SlimInteractionFetchResponse) {
+            return Optional.of((SlimInteractionFetchResponse) value.value());
         }
         return Optional.empty();
     }
@@ -120,9 +104,8 @@ public class FetchInteractionResponseBody {
 
         public _Deserializer() {
             super(FetchInteractionResponseBody.class, false,
-                  TypeReferenceWithShape.of(new TypeReference<ResponseBody1>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<FetchInteractionError>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<ResponseBody2>() {}, JsonShape.DEFAULT));
+                  TypeReferenceWithShape.of(new TypeReference<InteractionFetchResponse>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<SlimInteractionFetchResponse>() {}, JsonShape.DEFAULT));
         }
     }
     

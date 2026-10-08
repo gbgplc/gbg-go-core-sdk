@@ -4,22 +4,42 @@
 
 import { devicesAdd } from "../funcs/devices-add.js";
 import { devicesConnect } from "../funcs/devices-connect.js";
+import { devicesRefresh } from "../funcs/devices-refresh.js";
+import { devicesValidate } from "../funcs/devices-validate.js";
 import { ClientSDK, RequestOptions } from "../lib/sdks.js";
+import * as models from "../models/index.js";
 import * as operations from "../models/operations/index.js";
 import { unwrapAsync } from "../types/fp.js";
 
 export class Devices extends ClientSDK {
   /**
-   * Connect or Refresh End User Device
+   * Generate connect token
    *
    * @remarks
-   * Connect or Refresh End User Device
+   * Generates a one-time connect token for device onboarding.
+   */
+  async add(
+    request?: operations.AddDeviceRequest | undefined,
+    options?: RequestOptions,
+  ): Promise<models.DeviceStartResponse> {
+    return unwrapAsync(devicesAdd(
+      this,
+      request,
+      options,
+    ));
+  }
+
+  /**
+   * Complete the device-onboarding handshake
+   *
+   * @remarks
+   * Completes the device-onboarding handshake. See partner integration guide.
    */
   async connect(
     security: operations.DeviceConnectSecurity,
-    request?: operations.DeviceConnectRequest | undefined,
+    request: operations.DeviceConnectRequest,
     options?: RequestOptions,
-  ): Promise<operations.DeviceConnectResponse> {
+  ): Promise<models.DeviceConnectResponse> {
     return unwrapAsync(devicesConnect(
       this,
       security,
@@ -29,18 +49,33 @@ export class Devices extends ClientSDK {
   }
 
   /**
-   * Create Connect Secret
+   * Renew a device session
    *
    * @remarks
-   * Create Connect Secret
+   * Renews a device session. See partner integration guide.
    */
-  async add(
-    request?: operations.AddDeviceRequest | undefined,
+  async refresh(
     options?: RequestOptions,
-  ): Promise<operations.AddDeviceResponse> {
-    return unwrapAsync(devicesAdd(
+  ): Promise<models.DeviceRefreshResponse> {
+    return unwrapAsync(devicesRefresh(
       this,
-      request,
+      options,
+    ));
+  }
+
+  /**
+   * Validate end-user session
+   *
+   * @remarks
+   * Validates an end-user JWT and returns session information.
+   */
+  async validate(
+    security: operations.DeviceValidateSecurity,
+    options?: RequestOptions,
+  ): Promise<models.DeviceValidateResponse> {
+    return unwrapAsync(devicesValidate(
+      this,
+      security,
       options,
     ));
   }

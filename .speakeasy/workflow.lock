@@ -1,34 +1,34 @@
-speakeasyVersion: 1.797.0
+speakeasyVersion: 1.801.0
 sources:
     GBG GO Next Gen Flow Captain API:
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:07c1620e544a04c6736fab6e171703f929b17613c529f1546cb547f8ddcb08cb
-        sourceBlobDigest: sha256:08b09db75f33a1249d63c1fa414b1a8b7d9dd15cb6b5294a581c4596ad3fc094
+        sourceRevisionDigest: sha256:b78f4450ae8168ac678ce134d7537c50ce02d23af0c2af0d945a8ed7f401e701
+        sourceBlobDigest: sha256:7da313953f49b6d34967c5af01643a574f7b6e8a2b2c8a0b7949c1fddf98c091
         tags:
             - latest
-            - 1.0.0
+            - 2.x
 targets:
     go:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:07c1620e544a04c6736fab6e171703f929b17613c529f1546cb547f8ddcb08cb
-        sourceBlobDigest: sha256:08b09db75f33a1249d63c1fa414b1a8b7d9dd15cb6b5294a581c4596ad3fc094
+        sourceRevisionDigest: sha256:b78f4450ae8168ac678ce134d7537c50ce02d23af0c2af0d945a8ed7f401e701
+        sourceBlobDigest: sha256:7da313953f49b6d34967c5af01643a574f7b6e8a2b2c8a0b7949c1fddf98c091
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
-        codeSamplesRevisionDigest: sha256:9ef59a5feaff25209e1feff73b8773acf35c512d0daa8b0104437f2c63e17366
+        codeSamplesRevisionDigest: sha256:0535ff20e94a7ab00bc0fb6536327a33bc3a0662aba3f3049acab19e95ba588c
     java:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
-        sourceRevisionDigest: sha256:07c1620e544a04c6736fab6e171703f929b17613c529f1546cb547f8ddcb08cb
-        sourceBlobDigest: sha256:08b09db75f33a1249d63c1fa414b1a8b7d9dd15cb6b5294a581c4596ad3fc094
+        sourceRevisionDigest: sha256:b78f4450ae8168ac678ce134d7537c50ce02d23af0c2af0d945a8ed7f401e701
+        sourceBlobDigest: sha256:7da313953f49b6d34967c5af01643a574f7b6e8a2b2c8a0b7949c1fddf98c091
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-java-code-samples
-        codeSamplesRevisionDigest: sha256:9efe247d56cd7de456de8b0a5fd78efd73f530ee3319b7de4733f20c15c18503
+        codeSamplesRevisionDigest: sha256:a6f36bd3af8e3dff2ee3cb8dcac8c63f2bfd60022cb657942a83de19098ea9fc
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest
     sources:
         GBG GO Next Gen Flow Captain API:
             inputs:
-                - location: ./.spec/spec.yaml
+                - location: https://eu.platform.go.gbgplc.com/v2/captain/openapi.json
             overlays:
                 - location: .speakeasy/speakeasy-modifications-overlay.yaml
             output: .speakeasy/out.openapi.yaml

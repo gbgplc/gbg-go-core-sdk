@@ -3,134 +3,85 @@
  */
 package com.gbg.gocore.models.operations;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.gbg.gocore.models.SlimStateFetchResponse;
+import com.gbg.gocore.models.StateFetchResponse;
+import com.gbg.gocore.utils.OneOfDeserializer;
+import com.gbg.gocore.utils.TypedObject;
+import com.gbg.gocore.utils.Utils.JsonShape;
+import com.gbg.gocore.utils.Utils.TypeReferenceWithShape;
 import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
-import java.util.Map;
+import java.lang.SuppressWarnings;
 import java.util.Optional;
 
 /**
  * GetJourneyStateResponseBody
  * 
- * <p>Success
+ * <p>Journey state (full by default; slim with ?view=slim)
  */
+@JsonDeserialize(using = GetJourneyStateResponseBody._Deserializer.class)
 public class GetJourneyStateResponseBody {
-    /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
-     */
-    @JsonProperty("instanceId")
-    private String instanceId;
 
+    @JsonValue
+    private final TypedObject value;
+    
+    private GetJourneyStateResponseBody(TypedObject value) {
+        this.value = value;
+    }
 
-    @JsonProperty("status")
-    private GetJourneyStateStatus status;
+    public static GetJourneyStateResponseBody of(StateFetchResponse value) {
+        Utils.checkNotNull(value, "value");
+        return new GetJourneyStateResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
+    }
 
-
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("metaData")
-    private MetaData metaData;
-
-
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("context")
-    private GetJourneyStateContext context;
-
-
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("data")
-    private Map<String, Object> data;
-
-    @JsonCreator
-    public GetJourneyStateResponseBody(
-            @JsonProperty("instanceId") @Nonnull String instanceId,
-            @JsonProperty("status") @Nonnull GetJourneyStateStatus status,
-            @JsonProperty("metaData") @Nullable MetaData metaData,
-            @JsonProperty("context") @Nullable GetJourneyStateContext context,
-            @JsonProperty("data") @Nullable Map<String, Object> data) {
-        this.instanceId = Optional.ofNullable(instanceId)
-            .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
-        this.status = Optional.ofNullable(status)
-            .orElseThrow(() -> new IllegalArgumentException("status cannot be null"));
-        this.metaData = metaData;
-        this.context = context;
-        this.data = data;
+    public static GetJourneyStateResponseBody of(SlimStateFetchResponse value) {
+        Utils.checkNotNull(value, "value");
+        return new GetJourneyStateResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
     }
     
-    public GetJourneyStateResponseBody(
-            @Nonnull String instanceId,
-            @Nonnull GetJourneyStateStatus status) {
-        this(instanceId, status, null,
-            null, null);
-    }
-
     /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
+     * Returns an {@link Optional} containing the value if it is of type {@code StateFetchResponse},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code StateFetchResponse} value, or empty if not of this type
      */
-    public String instanceId() {
-        return this.instanceId;
+    public Optional<StateFetchResponse> stateFetchResponse() {
+        if (value.value() instanceof StateFetchResponse) {
+            return Optional.of((StateFetchResponse) value.value());
+        }
+        return Optional.empty();
     }
-
-    public GetJourneyStateStatus status() {
-        return this.status;
-    }
-
-    public Optional<MetaData> metaData() {
-        return Optional.ofNullable(this.metaData);
-    }
-
-    public Optional<GetJourneyStateContext> context() {
-        return Optional.ofNullable(this.context);
-    }
-
-    public Optional<Map<String, Object>> data() {
-        return Optional.ofNullable(this.data);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-
+    
     /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
+     * Returns an {@link Optional} containing the value if it is of type {@code SlimStateFetchResponse},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code SlimStateFetchResponse} value, or empty if not of this type
      */
-    public GetJourneyStateResponseBody withInstanceId(@Nonnull String instanceId) {
-        this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
-        return this;
+    public Optional<SlimStateFetchResponse> slimStateFetchResponse() {
+        if (value.value() instanceof SlimStateFetchResponse) {
+            return Optional.of((SlimStateFetchResponse) value.value());
+        }
+        return Optional.empty();
     }
-
-
-    public GetJourneyStateResponseBody withStatus(@Nonnull GetJourneyStateStatus status) {
-        this.status = Utils.checkNotNull(status, "status");
-        return this;
-    }
-
-
-    public GetJourneyStateResponseBody withMetaData(@Nullable MetaData metaData) {
-        this.metaData = metaData;
-        return this;
-    }
-
-
-    public GetJourneyStateResponseBody withContext(@Nullable GetJourneyStateContext context) {
-        this.context = context;
-        return this;
-    }
-
-
-    public GetJourneyStateResponseBody withData(@Nullable Map<String, Object> data) {
-        this.data = data;
-        return this;
-    }
-
-
+   /**
+    * Returns an {@link Optional} containing the value as a {@code JsonNode}.
+    * This accessor returns the raw JSON when the value doesn't match any of the defined union types.
+    *
+    * @return an {@link Optional} containing the {@code JsonNode} value, or empty if value matched a known type
+    */
+   public Optional<JsonNode> asJson() {
+       if (value.value() instanceof JsonNode) {
+           return Optional.of((JsonNode) value.value());
+       }
+       return Optional.empty();
+   }
+    
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -140,81 +91,29 @@ public class GetJourneyStateResponseBody {
             return false;
         }
         GetJourneyStateResponseBody other = (GetJourneyStateResponseBody) o;
-        return 
-            Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
-            Utils.enhancedDeepEquals(this.status, other.status) &&
-            Utils.enhancedDeepEquals(this.metaData, other.metaData) &&
-            Utils.enhancedDeepEquals(this.context, other.context) &&
-            Utils.enhancedDeepEquals(this.data, other.data);
+        return Utils.enhancedDeepEquals(this.value.value(), other.value.value());
     }
     
     @Override
     public int hashCode() {
-        return Utils.enhancedHash(
-            instanceId, status, metaData,
-            context, data);
+        return Utils.enhancedHash(value.value());
+    }
+    
+    @SuppressWarnings("serial")
+    public static final class _Deserializer extends OneOfDeserializer<GetJourneyStateResponseBody> {
+
+        public _Deserializer() {
+            super(GetJourneyStateResponseBody.class, false,
+                  TypeReferenceWithShape.of(new TypeReference<StateFetchResponse>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<SlimStateFetchResponse>() {}, JsonShape.DEFAULT));
+        }
     }
     
     @Override
     public String toString() {
         return Utils.toString(GetJourneyStateResponseBody.class,
-                "instanceId", instanceId,
-                "status", status,
-                "metaData", metaData,
-                "context", context,
-                "data", data);
+                "value", value);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    public final static class Builder {
-
-        private String instanceId;
-
-        private GetJourneyStateStatus status;
-
-        private MetaData metaData;
-
-        private GetJourneyStateContext context;
-
-        private Map<String, Object> data;
-
-        private Builder() {
-          // force use of static builder() method
-        }
-
-        /**
-         * Journey Instance Id, a unique identifier for a started journey instance.
-         */
-        public Builder instanceId(@Nonnull String instanceId) {
-            this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
-            return this;
-        }
-
-        public Builder status(@Nonnull GetJourneyStateStatus status) {
-            this.status = Utils.checkNotNull(status, "status");
-            return this;
-        }
-
-        public Builder metaData(@Nullable MetaData metaData) {
-            this.metaData = metaData;
-            return this;
-        }
-
-        public Builder context(@Nullable GetJourneyStateContext context) {
-            this.context = context;
-            return this;
-        }
-
-        public Builder data(@Nullable Map<String, Object> data) {
-            this.data = data;
-            return this;
-        }
-
-        public GetJourneyStateResponseBody build() {
-            return new GetJourneyStateResponseBody(
-                instanceId, status, metaData,
-                context, data);
-        }
-
-    }
 }
+

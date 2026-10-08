@@ -1,0 +1,9 @@
+# SubmitInteractionKba
+
+
+## Fields
+
+| Field                                                                                    | Setter Type                                                                              | Getter Type                                                                              | Required                                                                                 | Description                                                                              |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `questions`                                                                              | List\<[SubmitInteractionQuestion](../../models/operations/SubmitInteractionQuestion.md)> | List\<[SubmitInteractionQuestion](../../models/operations/SubmitInteractionQuestion.md)> | :heavy_check_mark:                                                                       | N/A                                                                                      |
+| `answers`                                                                                | List\<[SubmitInteractionAnswer](../../models/operations/SubmitInteractionAnswer.md)>     | List\<[SubmitInteractionAnswer](../../models/operations/SubmitInteractionAnswer.md)>     | :heavy_check_mark:                                                                       | N/A                                                                                      |

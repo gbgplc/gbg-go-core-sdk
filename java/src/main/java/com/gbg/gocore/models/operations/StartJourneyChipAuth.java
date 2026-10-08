@@ -141,6 +141,10 @@ public class StartJourneyChipAuth {
 
         public Builder additionalProperty(String key, Object value) {
             Utils.checkNotNull(key, "key");
+            // we could be strict about null values (force the user
+            // to pass `JsonNullable.of(null)`) but likely to be a bit 
+            // annoying for additional properties building so we'll 
+            // relax preconditions.
             this.additionalProperties.put(key, value);
             return this;
         }

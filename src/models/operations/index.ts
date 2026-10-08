@@ -3,15 +3,23 @@
  */
 
 export * from "./add-device.js";
+export * from "./create-handoff-token.js";
+export * from "./create-sandbox-scenario.js";
 export * from "./delete-instance.js";
+export * from "./delete-sandbox-scenario.js";
 export * from "./device-connect.js";
+export * from "./device-validate.js";
 export * from "./fetch-interaction.js";
+export * from "./get-journey-schemas.js";
 export * from "./get-journey-state.js";
+export * from "./get-sandbox-scenario.js";
 export * from "./get-task-schema.js";
-export * from "./get-tasks-schema.js";
-export * from "./get-tasks.js";
-export * from "./health.js";
+export * from "./list-sandbox-scenarios.js";
 export * from "./post-as-token-oauth2.js";
+export * from "./put-sandbox-scenario.js";
+export * from "./retrieve-address.js";
+export * from "./search-addresses.js";
 export * from "./start-journey.js";
 export * from "./submit-interaction.js";
-export * from "./update-task.js";
+export * from "./terminate-journey.js";
+export * from "./upload-interaction-asset.js";

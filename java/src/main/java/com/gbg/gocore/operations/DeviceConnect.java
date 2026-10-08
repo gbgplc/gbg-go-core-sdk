@@ -11,10 +11,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.SecuritySource;
 import com.gbg.gocore.models.errors.APIException;
+import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectResponse;
-import com.gbg.gocore.models.operations.DeviceConnectResponseBody1;
-import com.gbg.gocore.models.operations.DeviceConnectResponseBody2;
 import com.gbg.gocore.models.operations.DeviceConnectSecurity;
 import com.gbg.gocore.utils.Blob;
 import com.gbg.gocore.utils.HTTPClient;
@@ -29,6 +28,7 @@ import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.Exception;
+import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.String;
 import java.lang.Throwable;
@@ -94,7 +94,7 @@ public class DeviceConnect {
         <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/journey/device/connect");
+                    "/v2/captain/journey/device/connect");
             HTTPRequest req = new HTTPRequest(url, "POST");
             Object convertedRequest = Utils.convertToShape(
                     request,
@@ -105,6 +105,9 @@ public class DeviceConnect {
                     "",
                     "json",
                     false);
+            if (serializedRequestBody == null) {
+                throw new IllegalArgumentException("Request body is required");
+            }
             req.setBody(Optional.ofNullable(serializedRequestBody));
             req.addHeader("Accept", "application/json")
                     .addHeader("user-agent", SDKConfiguration.USER_AGENT);
@@ -175,25 +178,32 @@ public class DeviceConnect {
 
             DeviceConnectResponse res = resBuilder.build();
             
-            if (Utils.statusCodeMatches(response.statusCode(), "200")) {
-                if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return res.withTwoHundredApplicationJsonObject(Utils.unmarshal(response, new TypeReference<DeviceConnectResponseBody1>() {}));
-                } else {
-                    throw APIException.from("Unexpected content-type received: " + contentType, response);
-                }
-            }
             if (Utils.statusCodeMatches(response.statusCode(), "201")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return res.withTwoHundredAndOneApplicationJsonObject(Utils.unmarshal(response, new TypeReference<DeviceConnectResponseBody2>() {}));
+                    return res.withDeviceConnectResponse(Utils.unmarshal(response, new TypeReference<com.gbg.gocore.models.DeviceConnectResponse>() {}));
                 } else {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "405", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    throw ErrorResponse.from(response);
+                } else {
+                    throw APIException.from("Unexpected content-type received: " + contentType, response);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    throw ErrorResponse.from(response);
+                } else {
+                    throw APIException.from("Unexpected content-type received: " + contentType, response);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 throw APIException.from("API error occurred", response);
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500", "503", "5XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "5XX")) {
                 // no content
                 throw APIException.from("API error occurred", response);
             }
@@ -256,27 +266,35 @@ public class DeviceConnect {
 
             com.gbg.gocore.models.operations.async.DeviceConnectResponse res = resBuilder.build();
             
-            if (Utils.statusCodeMatches(response.statusCode(), "200")) {
-                if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return Utils.unmarshalAsync(response, new TypeReference<DeviceConnectResponseBody1>() {})
-                            .thenApply(res::withTwoHundredApplicationJsonObject);
-                } else {
-                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
-                }
-            }
             if (Utils.statusCodeMatches(response.statusCode(), "201")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return Utils.unmarshalAsync(response, new TypeReference<DeviceConnectResponseBody2>() {})
-                            .thenApply(res::withTwoHundredAndOneApplicationJsonObject);
+                    return Utils.unmarshalAsync(response, new TypeReference<com.gbg.gocore.models.DeviceConnectResponse>() {})
+                            .thenApply(res::withDeviceConnectResponse);
                 } else {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "405", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    return ErrorResponse.fromAsync(response)
+                            .thenCompose(CompletableFuture::failedFuture);
+                } else {
+                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    return ErrorResponse.fromAsync(response)
+                            .thenCompose(CompletableFuture::failedFuture);
+                } else {
+                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 return Utils.createAsyncApiError(response, "API error occurred");
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500", "503", "5XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "5XX")) {
                 // no content
                 return Utils.createAsyncApiError(response, "API error occurred");
             }

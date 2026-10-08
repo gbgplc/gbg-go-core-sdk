@@ -17,7 +17,8 @@ import java.util.Optional;
 
 public class SubmitInteractionAccount {
     /**
-     * The type of account, e.g. Bank Account, Building Society
+     * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+     * read but new writes emit the canonical form.
      */
     @JsonProperty("type")
     private String type;
@@ -120,7 +121,8 @@ public class SubmitInteractionAccount {
     }
 
     /**
-     * The type of account, e.g. Bank Account, Building Society
+     * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+     * read but new writes emit the canonical form.
      */
     public String type() {
         return this.type;
@@ -195,7 +197,8 @@ public class SubmitInteractionAccount {
 
 
     /**
-     * The type of account, e.g. Bank Account, Building Society
+     * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+     * read but new writes emit the canonical form.
      */
     public SubmitInteractionAccount withType(@Nonnull String type) {
         this.type = Utils.checkNotNull(type, "type");
@@ -358,7 +361,8 @@ public class SubmitInteractionAccount {
         }
 
         /**
-         * The type of account, e.g. Bank Account, Building Society
+         * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+         * read but new writes emit the canonical form.
          */
         public Builder type(@Nonnull String type) {
             this.type = Utils.checkNotNull(type, "type");

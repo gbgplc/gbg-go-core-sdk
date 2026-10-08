@@ -46,6 +46,16 @@ public class StartJourneyBiometricUnion {
         Utils.checkNotNull(value, "value");
         return new StartJourneyBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
     }
+
+    public static StartJourneyBiometricUnion of(StartJourneyBiometric5 value) {
+        Utils.checkNotNull(value, "value");
+        return new StartJourneyBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
+    }
+
+    public static StartJourneyBiometricUnion of(StartJourneyBiometricStoredFace value) {
+        Utils.checkNotNull(value, "value");
+        return new StartJourneyBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
+    }
     
     /**
      * Returns an {@link Optional} containing the value if it is of type {@code StartJourneyBiometric1},
@@ -98,6 +108,32 @@ public class StartJourneyBiometricUnion {
         }
         return Optional.empty();
     }
+    
+    /**
+     * Returns an {@link Optional} containing the value if it is of type {@code StartJourneyBiometric5},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code StartJourneyBiometric5} value, or empty if not of this type
+     */
+    public Optional<StartJourneyBiometric5> startJourneyBiometric5() {
+        if (value.value() instanceof StartJourneyBiometric5) {
+            return Optional.of((StartJourneyBiometric5) value.value());
+        }
+        return Optional.empty();
+    }
+    
+    /**
+     * Returns an {@link Optional} containing the value if it is of type {@code StartJourneyBiometricStoredFace},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code StartJourneyBiometricStoredFace} value, or empty if not of this type
+     */
+    public Optional<StartJourneyBiometricStoredFace> startJourneyBiometricStoredFace() {
+        if (value.value() instanceof StartJourneyBiometricStoredFace) {
+            return Optional.of((StartJourneyBiometricStoredFace) value.value());
+        }
+        return Optional.empty();
+    }
    /**
     * Returns an {@link Optional} containing the value as a {@code JsonNode}.
     * This accessor returns the raw JSON when the value doesn't match any of the defined union types.
@@ -136,7 +172,9 @@ public class StartJourneyBiometricUnion {
                   TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric1>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric2>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric3>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric4>() {}, JsonShape.DEFAULT));
+                  TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric4>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric5>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometricStoredFace>() {}, JsonShape.DEFAULT));
         }
     }
     

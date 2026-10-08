@@ -3,34 +3,202 @@
  */
 package com.gbg.gocore.models.operations;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.lang.Boolean;
+import java.lang.Long;
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 
 public class Config {
-    /**
-     * The method by which the End User will consume the journey.
-     */
+
     @JsonProperty("delivery")
-    private Delivery delivery;
+    private String delivery;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("branding")
+    private Object branding;
+
+    /**
+     * Marks this start as operator-completed (assisted) rather than customer-completed, so the two
+     * populations can be told apart in downstream telemetry. Accepted and logged but not yet enforced:
+     * supplying it does not change validation, routing, execution or the response, and omitting it leaves
+     * the request byte-identical to an ordinary start. It is an attribution signal only, and whether
+     * anything ever reads it to change behavior is a separate decision that has not been taken.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("assisted")
+    private Boolean assisted;
+
+    /**
+     * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+     * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+     * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+     * with 400 before any journey is created. false is accepted and means the same as omitting it.
+     * 
+     * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("inlineResult")
+    private Boolean inlineResult;
+
+    /**
+     * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * today). Send a smaller value if your own HTTP client gives up sooner.
+     * 
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+     * response says how long the call waited.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("syncWaitSeconds")
+    private Long syncWaitSeconds;
+
+    /**
+     * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved
+     * independently across the per-journey, delivery, organization and system-default tiers, then clamped
+     * down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long
+     * the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the
+     * delivery-token and connect-secret records, read at connect, and enforced when a resume credential is
+     * minted and exchanged.
+     * 
+     * <p>None of the resolved values is echoed on any response — the journey-start log line is where the
+     * resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery
+     * resource's linkConfig, then to the organization's value, then to the deprecated flat
+     * deliveryUrlTtlMinutes, then to the system default.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("linkConfig")
+    private LinkConfig linkConfig;
+
+    /**
+     * Selects which revision of this organisation configuration overlay this execution runs against. It
+     * participates in the delivery cache key, so naming a version guarantees the start is served a graph
+     * built from that exact overlay instead of a cached one. Omitting it is a no-op: the latest overlay
+     * applies and the request behaves as it did before this member existed.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("overlay")
+    private Overlay overlay;
+
+
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
 
     @JsonCreator
     public Config(
-            @JsonProperty("delivery") @Nonnull Delivery delivery) {
+            @JsonProperty("delivery") @Nonnull String delivery,
+            @JsonProperty("branding") @Nullable Object branding,
+            @JsonProperty("assisted") @Nullable Boolean assisted,
+            @JsonProperty("inlineResult") @Nullable Boolean inlineResult,
+            @JsonProperty("syncWaitSeconds") @Nullable Long syncWaitSeconds,
+            @JsonProperty("linkConfig") @Nullable LinkConfig linkConfig,
+            @JsonProperty("overlay") @Nullable Overlay overlay) {
         this.delivery = Optional.ofNullable(delivery)
             .orElseThrow(() -> new IllegalArgumentException("delivery cannot be null"));
+        this.branding = branding;
+        this.assisted = assisted;
+        this.inlineResult = inlineResult;
+        this.syncWaitSeconds = syncWaitSeconds;
+        this.linkConfig = linkConfig;
+        this.overlay = overlay;
+        this.additionalProperties = new HashMap<>();
+    }
+    
+    public Config(
+            @Nonnull String delivery) {
+        this(delivery, null, null,
+            null, null, null,
+            null);
+    }
+
+    public String delivery() {
+        return this.delivery;
+    }
+
+    public Optional<Object> branding() {
+        return Optional.ofNullable(this.branding);
     }
 
     /**
-     * The method by which the End User will consume the journey.
+     * Marks this start as operator-completed (assisted) rather than customer-completed, so the two
+     * populations can be told apart in downstream telemetry. Accepted and logged but not yet enforced:
+     * supplying it does not change validation, routing, execution or the response, and omitting it leaves
+     * the request byte-identical to an ordinary start. It is an attribution signal only, and whether
+     * anything ever reads it to change behavior is a separate decision that has not been taken.
      */
-    public Delivery delivery() {
-        return this.delivery;
+    public Optional<Boolean> assisted() {
+        return Optional.ofNullable(this.assisted);
+    }
+
+    /**
+     * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+     * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+     * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+     * with 400 before any journey is created. false is accepted and means the same as omitting it.
+     * 
+     * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+     */
+    public Optional<Boolean> inlineResult() {
+        return Optional.ofNullable(this.inlineResult);
+    }
+
+    /**
+     * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * today). Send a smaller value if your own HTTP client gives up sooner.
+     * 
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+     * response says how long the call waited.
+     */
+    public Optional<Long> syncWaitSeconds() {
+        return Optional.ofNullable(this.syncWaitSeconds);
+    }
+
+    /**
+     * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved
+     * independently across the per-journey, delivery, organization and system-default tiers, then clamped
+     * down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long
+     * the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the
+     * delivery-token and connect-secret records, read at connect, and enforced when a resume credential is
+     * minted and exchanged.
+     * 
+     * <p>None of the resolved values is echoed on any response — the journey-start log line is where the
+     * resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery
+     * resource's linkConfig, then to the organization's value, then to the deprecated flat
+     * deliveryUrlTtlMinutes, then to the system default.
+     */
+    public Optional<LinkConfig> linkConfig() {
+        return Optional.ofNullable(this.linkConfig);
+    }
+
+    /**
+     * Selects which revision of this organisation configuration overlay this execution runs against. It
+     * participates in the delivery cache key, so naming a version guarantees the start is served a graph
+     * built from that exact overlay instead of a cached one. Omitting it is a no-op: the latest overlay
+     * applies and the request behaves as it did before this member existed.
+     */
+    public Optional<Overlay> overlay() {
+        return Optional.ofNullable(this.overlay);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> additionalProperties() {
+        return additionalProperties;
     }
 
     public static Builder builder() {
@@ -38,11 +206,100 @@ public class Config {
     }
 
 
-    /**
-     * The method by which the End User will consume the journey.
-     */
-    public Config withDelivery(@Nonnull Delivery delivery) {
+    public Config withDelivery(@Nonnull String delivery) {
         this.delivery = Utils.checkNotNull(delivery, "delivery");
+        return this;
+    }
+
+
+    public Config withBranding(@Nullable Object branding) {
+        this.branding = branding;
+        return this;
+    }
+
+
+    /**
+     * Marks this start as operator-completed (assisted) rather than customer-completed, so the two
+     * populations can be told apart in downstream telemetry. Accepted and logged but not yet enforced:
+     * supplying it does not change validation, routing, execution or the response, and omitting it leaves
+     * the request byte-identical to an ordinary start. It is an attribution signal only, and whether
+     * anything ever reads it to change behavior is a separate decision that has not been taken.
+     */
+    public Config withAssisted(@Nullable Boolean assisted) {
+        this.assisted = assisted;
+        return this;
+    }
+
+
+    /**
+     * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+     * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+     * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+     * with 400 before any journey is created. false is accepted and means the same as omitting it.
+     * 
+     * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+     */
+    public Config withInlineResult(@Nullable Boolean inlineResult) {
+        this.inlineResult = inlineResult;
+        return this;
+    }
+
+
+    /**
+     * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * today). Send a smaller value if your own HTTP client gives up sooner.
+     * 
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+     * response says how long the call waited.
+     */
+    public Config withSyncWaitSeconds(@Nullable Long syncWaitSeconds) {
+        this.syncWaitSeconds = syncWaitSeconds;
+        return this;
+    }
+
+
+    /**
+     * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved
+     * independently across the per-journey, delivery, organization and system-default tiers, then clamped
+     * down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long
+     * the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the
+     * delivery-token and connect-secret records, read at connect, and enforced when a resume credential is
+     * minted and exchanged.
+     * 
+     * <p>None of the resolved values is echoed on any response — the journey-start log line is where the
+     * resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery
+     * resource's linkConfig, then to the organization's value, then to the deprecated flat
+     * deliveryUrlTtlMinutes, then to the system default.
+     */
+    public Config withLinkConfig(@Nullable LinkConfig linkConfig) {
+        this.linkConfig = linkConfig;
+        return this;
+    }
+
+
+    /**
+     * Selects which revision of this organisation configuration overlay this execution runs against. It
+     * participates in the delivery cache key, so naming a version guarantees the start is served a graph
+     * built from that exact overlay instead of a cached one. Omitting it is a no-op: the latest overlay
+     * applies and the request behaves as it did before this member existed.
+     */
+    public Config withOverlay(@Nullable Overlay overlay) {
+        this.overlay = overlay;
+        return this;
+    }
+
+
+    @JsonAnySetter
+    public Config withAdditionalProperty(String key, Object value) {
+        // note that value can be null because of the way JsonAnySetter works
+        Utils.checkNotNull(key, "key");
+        additionalProperties.put(key, value);
+        return this;
+    }
+
+    public Config withAdditionalProperties(@Nullable Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
         return this;
     }
 
@@ -57,41 +314,157 @@ public class Config {
         }
         Config other = (Config) o;
         return 
-            Utils.enhancedDeepEquals(this.delivery, other.delivery);
+            Utils.enhancedDeepEquals(this.delivery, other.delivery) &&
+            Utils.enhancedDeepEquals(this.branding, other.branding) &&
+            Utils.enhancedDeepEquals(this.assisted, other.assisted) &&
+            Utils.enhancedDeepEquals(this.inlineResult, other.inlineResult) &&
+            Utils.enhancedDeepEquals(this.syncWaitSeconds, other.syncWaitSeconds) &&
+            Utils.enhancedDeepEquals(this.linkConfig, other.linkConfig) &&
+            Utils.enhancedDeepEquals(this.overlay, other.overlay) &&
+            Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            delivery);
+            delivery, branding, assisted,
+            inlineResult, syncWaitSeconds, linkConfig,
+            overlay, additionalProperties);
     }
     
     @Override
     public String toString() {
         return Utils.toString(Config.class,
-                "delivery", delivery);
+                "delivery", delivery,
+                "branding", branding,
+                "assisted", assisted,
+                "inlineResult", inlineResult,
+                "syncWaitSeconds", syncWaitSeconds,
+                "linkConfig", linkConfig,
+                "overlay", overlay,
+                "additionalProperties", additionalProperties);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
-        private Delivery delivery;
+        private String delivery;
+
+        private Object branding;
+
+        private Boolean assisted;
+
+        private Boolean inlineResult;
+
+        private Long syncWaitSeconds;
+
+        private LinkConfig linkConfig;
+
+        private Overlay overlay;
+
+        private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {
           // force use of static builder() method
         }
 
-        /**
-         * The method by which the End User will consume the journey.
-         */
-        public Builder delivery(@Nonnull Delivery delivery) {
+        public Builder delivery(@Nonnull String delivery) {
             this.delivery = Utils.checkNotNull(delivery, "delivery");
+            return this;
+        }
+
+        public Builder branding(@Nullable Object branding) {
+            this.branding = branding;
+            return this;
+        }
+
+        /**
+         * Marks this start as operator-completed (assisted) rather than customer-completed, so the two
+         * populations can be told apart in downstream telemetry. Accepted and logged but not yet enforced:
+         * supplying it does not change validation, routing, execution or the response, and omitting it leaves
+         * the request byte-identical to an ordinary start. It is an attribution signal only, and whether
+         * anything ever reads it to change behavior is a separate decision that has not been taken.
+         */
+        public Builder assisted(@Nullable Boolean assisted) {
+            this.assisted = assisted;
+            return this;
+        }
+
+        /**
+         * Opt-in synchronous execution: when true, the start call waits for the journey and returns its
+         * outcome inline (completed, failed, awaiting-input or pending) instead of returning immediately with
+         * just an instanceId. Requires delivery "api" and a durable engine; otherwise the request is rejected
+         * with 400 before any journey is created. false is accepted and means the same as omitting it.
+         * 
+         * <p>Same name as Captain V1, but the response shape differs: the journey state is nested under "state".
+         */
+        public Builder inlineResult(@Nullable Boolean inlineResult) {
+            this.inlineResult = inlineResult;
+            return this;
+        }
+
+        /**
+         * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
+         * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+         * today). Send a smaller value if your own HTTP client gives up sooner.
+         * 
+         * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
+         * response says how long the call waited.
+         */
+        public Builder syncWaitSeconds(@Nullable Long syncWaitSeconds) {
+            this.syncWaitSeconds = syncWaitSeconds;
+            return this;
+        }
+
+        /**
+         * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved
+         * independently across the per-journey, delivery, organization and system-default tiers, then clamped
+         * down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long
+         * the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the
+         * delivery-token and connect-secret records, read at connect, and enforced when a resume credential is
+         * minted and exchanged.
+         * 
+         * <p>None of the resolved values is echoed on any response — the journey-start log line is where the
+         * resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery
+         * resource's linkConfig, then to the organization's value, then to the deprecated flat
+         * deliveryUrlTtlMinutes, then to the system default.
+         */
+        public Builder linkConfig(@Nullable LinkConfig linkConfig) {
+            this.linkConfig = linkConfig;
+            return this;
+        }
+
+        /**
+         * Selects which revision of this organisation configuration overlay this execution runs against. It
+         * participates in the delivery cache key, so naming a version guarantees the start is served a graph
+         * built from that exact overlay instead of a cached one. Omitting it is a no-op: the latest overlay
+         * applies and the request behaves as it did before this member existed.
+         */
+        public Builder overlay(@Nullable Overlay overlay) {
+            this.overlay = overlay;
+            return this;
+        }
+
+        public Builder additionalProperty(String key, Object value) {
+            Utils.checkNotNull(key, "key");
+            // we could be strict about null values (force the user
+            // to pass `JsonNullable.of(null)`) but likely to be a bit 
+            // annoying for additional properties building so we'll 
+            // relax preconditions.
+            this.additionalProperties.put(key, value);
+            return this;
+        }
+        public Builder additionalProperties(@Nullable Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
             return this;
         }
 
         public Config build() {
             return new Config(
-                delivery);
+                delivery, branding, assisted,
+                inlineResult, syncWaitSeconds, linkConfig,
+                overlay)
+                .withAdditionalProperties(additionalProperties);
         }
 
     }

@@ -37,6 +37,25 @@ SubmitInteractionBiometricUnion value = SubmitInteractionBiometricUnion.of(Submi
     .build());
 ```
 
+### [`SubmitInteractionBiometric5`](../../models/operations/SubmitInteractionBiometric5.md)
+
+```java
+SubmitInteractionBiometricUnion value = SubmitInteractionBiometricUnion.of(SubmitInteractionBiometric5.builder()
+    .anchorImage("<value>")
+    .build());
+```
+
+### [`SubmitInteractionBiometricStoredFace`](../../models/operations/SubmitInteractionBiometricStoredFace.md)
+
+```java
+SubmitInteractionBiometricUnion value = SubmitInteractionBiometricUnion.of(SubmitInteractionBiometricStoredFace.builder()
+    .type(SubmitInteractionBiometricType.STORED_FACE)
+    .templateReference("<value>")
+    .build());
+```
+
+**Referred Types:** [SubmitInteractionBiometricType](../../models/operations/SubmitInteractionBiometricType.md)
+
 ## Consumption Patterns
 
 ### Java 11+ (Accessor Methods)
@@ -54,6 +73,12 @@ if (value.submitInteractionBiometric1().isPresent()) {
 } else if (value.submitInteractionBiometric4().isPresent()) {
     com.gbg.gocore.models.operations.SubmitInteractionBiometric4 submitInteractionBiometric4Value = value.submitInteractionBiometric4().get();
     // Handle submitInteractionBiometric4 variant
+} else if (value.submitInteractionBiometric5().isPresent()) {
+    com.gbg.gocore.models.operations.SubmitInteractionBiometric5 submitInteractionBiometric5Value = value.submitInteractionBiometric5().get();
+    // Handle submitInteractionBiometric5 variant
+} else if (value.submitInteractionBiometricStoredFace().isPresent()) {
+    com.gbg.gocore.models.operations.SubmitInteractionBiometricStoredFace submitInteractionBiometricStoredFaceValue = value.submitInteractionBiometricStoredFace().get();
+    // Handle submitInteractionBiometricStoredFace variant
 } else if (value.asJson().isPresent()) {
     com.fasterxml.jackson.databind.JsonNode raw = value.asJson().get();
     // Handle unknown variant fallback

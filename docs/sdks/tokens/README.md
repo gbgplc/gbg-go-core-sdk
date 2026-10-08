@@ -12,7 +12,7 @@ Get an access token to authenticate API requests. If you're unfamiliar with the 
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="post_/as/token.oauth2" method="post" path="/as/token.oauth2" -->
+<!-- UsageSnippet language="typescript" operationID="postAsTokenOauth2" method="post" path="/as/token.oauth2" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 

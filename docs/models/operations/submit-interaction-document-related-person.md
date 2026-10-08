@@ -6,7 +6,7 @@
 import { SubmitInteractionDocumentRelatedPerson } from "@gbg/go-core/models/operations";
 
 let value: SubmitInteractionDocumentRelatedPerson = {
-  relationship: "maternalGrandMother",
+  relationship: "maternalGrandFather",
 };
 ```
 

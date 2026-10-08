@@ -14,7 +14,14 @@ import java.util.Optional;
 
 public class SubmitInteractionIdentityEmail {
     /**
-     * The type of email, such as home, work, unknown etc
+     * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a
+     * domain element by exact match: 'personal' -&gt; PersonalEmail, 'work' -&gt; WorkEmail, 'other' -&gt;
+     * OtherEmails (the domainElementId used to collect them).
+     * 
+     * <p>'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but
+     * cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to
+     * have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -&gt;
+     * 'personal').
      */
     @JsonProperty("type")
     private String type;
@@ -36,7 +43,14 @@ public class SubmitInteractionIdentityEmail {
     }
 
     /**
-     * The type of email, such as home, work, unknown etc
+     * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a
+     * domain element by exact match: 'personal' -&gt; PersonalEmail, 'work' -&gt; WorkEmail, 'other' -&gt;
+     * OtherEmails (the domainElementId used to collect them).
+     * 
+     * <p>'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but
+     * cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to
+     * have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -&gt;
+     * 'personal').
      */
     public String type() {
         return this.type;
@@ -55,7 +69,14 @@ public class SubmitInteractionIdentityEmail {
 
 
     /**
-     * The type of email, such as home, work, unknown etc
+     * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a
+     * domain element by exact match: 'personal' -&gt; PersonalEmail, 'work' -&gt; WorkEmail, 'other' -&gt;
+     * OtherEmails (the domainElementId used to collect them).
+     * 
+     * <p>'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but
+     * cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to
+     * have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -&gt;
+     * 'personal').
      */
     public SubmitInteractionIdentityEmail withType(@Nonnull String type) {
         this.type = Utils.checkNotNull(type, "type");
@@ -111,7 +132,14 @@ public class SubmitInteractionIdentityEmail {
         }
 
         /**
-         * The type of email, such as home, work, unknown etc
+         * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a
+         * domain element by exact match: 'personal' -&gt; PersonalEmail, 'work' -&gt; WorkEmail, 'other' -&gt;
+         * OtherEmails (the domainElementId used to collect them).
+         * 
+         * <p>'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but
+         * cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to
+         * have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -&gt;
+         * 'personal').
          */
         public Builder type(@Nonnull String type) {
             this.type = Utils.checkNotNull(type, "type");

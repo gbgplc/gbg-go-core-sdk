@@ -15,8 +15,8 @@ export const PostAsTokenOauth2ServerList = [
 ] as const;
 
 export type PostAsTokenOauth2Request =
-  | models.PasswordGrantRequest
-  | models.ClientCredentialsGrantRequest;
+  | models.ClientCredentialsGrantRequest
+  | models.PasswordGrantRequest;
 
 /**
  * Successfully retrieved access token.
@@ -38,16 +38,16 @@ export type PostAsTokenOauth2Response = {
 
 /** @internal */
 export type PostAsTokenOauth2Request$Outbound =
-  | models.PasswordGrantRequest$Outbound
-  | models.ClientCredentialsGrantRequest$Outbound;
+  | models.ClientCredentialsGrantRequest$Outbound
+  | models.PasswordGrantRequest$Outbound;
 
 /** @internal */
 export const PostAsTokenOauth2Request$outboundSchema: z.ZodMiniType<
   PostAsTokenOauth2Request$Outbound,
   PostAsTokenOauth2Request
 > = z.union([
-  models.PasswordGrantRequest$outboundSchema,
   models.ClientCredentialsGrantRequest$outboundSchema,
+  models.PasswordGrantRequest$outboundSchema,
 ]);
 
 export function postAsTokenOauth2RequestToJSON(

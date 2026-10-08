@@ -15,6 +15,7 @@ SubmitInteractionDocumentRelationship value = SubmitInteractionDocumentRelations
 | ----------------------- | ----------------------- |
 | `MOTHER`                | mother                  |
 | `FATHER`                | father                  |
+| `SPOUSE`                | spouse                  |
 | `MATERNAL_GRAND_FATHER` | maternalGrandFather     |
 | `MATERNAL_GRAND_MOTHER` | maternalGrandMother     |
 | `PATERNAL_GRAND_FATHER` | paternalGrandFather     |

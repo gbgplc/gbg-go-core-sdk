@@ -32,7 +32,7 @@ public class FetchInteractionResponse implements Response {
     private HttpResponse<InputStream> rawResponse;
 
     /**
-     * Success
+     * Interaction state (full by default; slim with ?view=slim)
      */
     private FetchInteractionResponseBody oneOf;
 
@@ -80,7 +80,7 @@ public class FetchInteractionResponse implements Response {
     }
 
     /**
-     * Success
+     * Interaction state (full by default; slim with ?view=slim)
      */
     public Optional<FetchInteractionResponseBody> oneOf() {
         return Optional.ofNullable(this.oneOf);
@@ -119,7 +119,7 @@ public class FetchInteractionResponse implements Response {
 
 
     /**
-     * Success
+     * Interaction state (full by default; slim with ?view=slim)
      */
     public FetchInteractionResponse withOneOf(@Nullable FetchInteractionResponseBody oneOf) {
         this.oneOf = oneOf;
@@ -199,7 +199,7 @@ public class FetchInteractionResponse implements Response {
         }
 
         /**
-         * Success
+         * Interaction state (full by default; slim with ?view=slim)
          */
         public Builder oneOf(@Nullable FetchInteractionResponseBody oneOf) {
             this.oneOf = oneOf;

@@ -5,12 +5,19 @@ package com.gbg.gocore;
 
 import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
+import com.gbg.gocore.models.operations.CreateHandoffTokenRequest;
+import com.gbg.gocore.models.operations.CreateHandoffTokenSecurity;
 import com.gbg.gocore.models.operations.DeleteInstanceRequest;
+import com.gbg.gocore.models.operations.async.CreateHandoffTokenRequestBuilder;
+import com.gbg.gocore.models.operations.async.CreateHandoffTokenResponse;
 import com.gbg.gocore.models.operations.async.DeleteInstanceRequestBuilder;
 import com.gbg.gocore.models.operations.async.DeleteInstanceResponse;
+import com.gbg.gocore.operations.CreateHandoffToken;
 import com.gbg.gocore.operations.DeleteInstance;
 import com.gbg.gocore.utils.Headers;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.String;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -35,9 +42,44 @@ public class AsyncInstances {
 
 
     /**
-     * Delete instance
+     * Mint a fresh position-scoped handoff token
      * 
-     * <p>Delete instance
+     * <p>Mints a fresh page-mode delivery-token + connect-secret pair pointing at the same instance, stamped
+     * devicePosition=joined, so a second device can join. Device-token only, and only from the device that
+     * started the journey; customer tokens and already-joined devices are rejected with 403. Returns {
+     * instanceUrl, devicePosition, expiresIn }.
+     * 
+     * @return The async call builder
+     */
+    public CreateHandoffTokenRequestBuilder handoffToken() {
+        return new CreateHandoffTokenRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Mint a fresh position-scoped handoff token
+     * 
+     * <p>Mints a fresh page-mode delivery-token + connect-secret pair pointing at the same instance, stamped
+     * devicePosition=joined, so a second device can join. Device-token only, and only from the device that
+     * started the journey; customer tokens and already-joined devices are rejected with 403. Returns {
+     * instanceUrl, devicePosition, expiresIn }.
+     * 
+     * @param security The security details to use for authentication.
+     * @param instanceId 
+     * @return {@code CompletableFuture<CreateHandoffTokenResponse>} - The async response
+     */
+    public CompletableFuture<CreateHandoffTokenResponse> handoffToken(@Nonnull CreateHandoffTokenSecurity security, @Nonnull String instanceId) {
+        CreateHandoffTokenRequest request = new CreateHandoffTokenRequest(instanceId);
+        AsyncRequestOperation<CreateHandoffTokenRequest, CreateHandoffTokenResponse> operation
+              = new CreateHandoffToken.Async(sdkConfiguration, security, _headers);
+        return operation.doRequest(request)
+            .thenCompose(operation::handleResponse);
+    }
+
+
+    /**
+     * Delete journey state
+     * 
+     * <p>Permanently deletes a completed journey instance (REQ-02-002).
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -48,9 +90,9 @@ public class AsyncInstances {
     }
 
     /**
-     * Delete instance
+     * Delete journey state
      * 
-     * <p>Delete instance
+     * <p>Permanently deletes a completed journey instance (REQ-02-002).
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -61,9 +103,9 @@ public class AsyncInstances {
     }
 
     /**
-     * Delete instance
+     * Delete journey state
      * 
-     * <p>Delete instance
+     * <p>Permanently deletes a completed journey instance (REQ-02-002).
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 

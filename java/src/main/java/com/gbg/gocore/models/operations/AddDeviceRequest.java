@@ -3,13 +3,22 @@
  */
 package com.gbg.gocore.models.operations;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -21,17 +30,27 @@ public class AddDeviceRequest {
     private String instanceId;
 
 
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("scope")
-    private List<ScopeRequest> scope;
+    private List<AddDeviceScope> scope;
+
+
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
 
     @JsonCreator
     public AddDeviceRequest(
             @JsonProperty("instanceId") @Nonnull String instanceId,
-            @JsonProperty("scope") @Nonnull List<ScopeRequest> scope) {
+            @JsonProperty("scope") @Nullable List<AddDeviceScope> scope) {
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
-        this.scope = Optional.ofNullable(scope)
-            .orElseThrow(() -> new IllegalArgumentException("scope cannot be null"));
+        this.scope = scope;
+        this.additionalProperties = new HashMap<>();
+    }
+    
+    public AddDeviceRequest(
+            @Nonnull String instanceId) {
+        this(instanceId, null);
     }
 
     /**
@@ -41,8 +60,13 @@ public class AddDeviceRequest {
         return this.instanceId;
     }
 
-    public List<ScopeRequest> scope() {
-        return this.scope;
+    public Optional<List<AddDeviceScope>> scope() {
+        return Optional.ofNullable(this.scope);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> additionalProperties() {
+        return additionalProperties;
     }
 
     public static Builder builder() {
@@ -59,8 +83,22 @@ public class AddDeviceRequest {
     }
 
 
-    public AddDeviceRequest withScope(@Nonnull List<ScopeRequest> scope) {
-        this.scope = Utils.checkNotNull(scope, "scope");
+    public AddDeviceRequest withScope(@Nullable List<AddDeviceScope> scope) {
+        this.scope = scope;
+        return this;
+    }
+
+
+    @JsonAnySetter
+    public AddDeviceRequest withAdditionalProperty(String key, Object value) {
+        // note that value can be null because of the way JsonAnySetter works
+        Utils.checkNotNull(key, "key");
+        additionalProperties.put(key, value);
+        return this;
+    }
+
+    public AddDeviceRequest withAdditionalProperties(@Nullable Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
         return this;
     }
 
@@ -76,20 +114,22 @@ public class AddDeviceRequest {
         AddDeviceRequest other = (AddDeviceRequest) o;
         return 
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
-            Utils.enhancedDeepEquals(this.scope, other.scope);
+            Utils.enhancedDeepEquals(this.scope, other.scope) &&
+            Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            instanceId, scope);
+            instanceId, scope, additionalProperties);
     }
     
     @Override
     public String toString() {
         return Utils.toString(AddDeviceRequest.class,
                 "instanceId", instanceId,
-                "scope", scope);
+                "scope", scope,
+                "additionalProperties", additionalProperties);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -97,7 +137,9 @@ public class AddDeviceRequest {
 
         private String instanceId;
 
-        private List<ScopeRequest> scope;
+        private List<AddDeviceScope> scope;
+
+        private Map<String, Object> additionalProperties = new HashMap<>();
 
         private Builder() {
           // force use of static builder() method
@@ -111,14 +153,29 @@ public class AddDeviceRequest {
             return this;
         }
 
-        public Builder scope(@Nonnull List<ScopeRequest> scope) {
-            this.scope = Utils.checkNotNull(scope, "scope");
+        public Builder scope(@Nullable List<AddDeviceScope> scope) {
+            this.scope = scope;
+            return this;
+        }
+
+        public Builder additionalProperty(String key, Object value) {
+            Utils.checkNotNull(key, "key");
+            // we could be strict about null values (force the user
+            // to pass `JsonNullable.of(null)`) but likely to be a bit 
+            // annoying for additional properties building so we'll 
+            // relax preconditions.
+            this.additionalProperties.put(key, value);
+            return this;
+        }
+        public Builder additionalProperties(@Nullable Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
             return this;
         }
 
         public AddDeviceRequest build() {
             return new AddDeviceRequest(
-                instanceId, scope);
+                instanceId, scope)
+                .withAdditionalProperties(additionalProperties);
         }
 
     }

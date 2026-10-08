@@ -20,26 +20,29 @@ import {
   RequestTimeoutError,
   UnexpectedClientError,
 } from "../models/errors/http-client-errors.js";
+import * as errors from "../models/errors/index.js";
 import { ResponseValidationError } from "../models/errors/response-validation-error.js";
 import { SDKValidationError } from "../models/errors/sdk-validation-error.js";
+import * as models from "../models/index.js";
 import * as operations from "../models/operations/index.js";
 import { APICall, APIPromise } from "../types/async.js";
 import { Result } from "../types/fp.js";
 
 /**
- * Connect or Refresh End User Device
+ * Complete the device-onboarding handshake
  *
  * @remarks
- * Connect or Refresh End User Device
+ * Completes the device-onboarding handshake. See partner integration guide.
  */
 export function devicesConnect(
   client: GoCore,
   security: operations.DeviceConnectSecurity,
-  request?: operations.DeviceConnectRequest | undefined,
+  request: operations.DeviceConnectRequest,
   options?: RequestOptions,
 ): APIPromise<
   Result<
-    operations.DeviceConnectResponse,
+    models.DeviceConnectResponse,
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -61,12 +64,13 @@ export function devicesConnect(
 async function $do(
   client: GoCore,
   security: operations.DeviceConnectSecurity,
-  request?: operations.DeviceConnectRequest | undefined,
+  request: operations.DeviceConnectRequest,
   options?: RequestOptions,
 ): Promise<
   [
     Result<
-      operations.DeviceConnectResponse,
+      models.DeviceConnectResponse,
+      | errors.ErrorResponse
       | GoError
       | ResponseValidationError
       | ConnectionError
@@ -81,22 +85,16 @@ async function $do(
 > {
   const parsed = safeParse(
     request,
-    (value) =>
-      z.parse(
-        z.optional(operations.DeviceConnectRequest$outboundSchema),
-        value,
-      ),
+    (value) => z.parse(operations.DeviceConnectRequest$outboundSchema, value),
     "Input validation failed",
   );
   if (!parsed.ok) {
     return [parsed, { status: "invalid" }];
   }
   const payload = parsed.value;
-  const body = payload === undefined
-    ? null
-    : encodeJSON("body", payload, { explode: true });
+  const body = encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/journey/device/connect")();
+  const path = pathToFunc("/v2/captain/journey/device/connect")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -155,8 +153,13 @@ async function $do(
   }
   const response = doResult.value;
 
+  const responseFields = {
+    HttpMeta: { Response: response, Request: req },
+  };
+
   const [result] = await M.match<
-    operations.DeviceConnectResponse,
+    models.DeviceConnectResponse,
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -166,11 +169,12 @@ async function $do(
     | UnexpectedClientError
     | SDKValidationError
   >(
-    M.json(200, operations.DeviceConnectResponse$inboundSchema),
-    M.json(201, operations.DeviceConnectResponse$inboundSchema),
-    M.fail([400, 401, 403, 404, 405, "4XX"]),
-    M.fail([500, 503, "5XX"]),
-  )(response, req);
+    M.json(201, models.DeviceConnectResponse$inboundSchema),
+    M.jsonErr([400, 401], errors.ErrorResponse$inboundSchema),
+    M.jsonErr(500, errors.ErrorResponse$inboundSchema),
+    M.fail("4XX"),
+    M.fail("5XX"),
+  )(response, req, { extraFields: responseFields });
   if (!result.ok) {
     return [result, { status: "complete", request: req, response }];
   }

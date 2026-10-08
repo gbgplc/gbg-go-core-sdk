@@ -1,0 +1,16 @@
+# UploadInteractionAssetSecurity
+
+## Example Usage
+
+```typescript
+import { UploadInteractionAssetSecurity } from "@gbg/go-core/models/operations";
+
+let value: UploadInteractionAssetSecurity = {};
+```
+
+## Fields
+
+| Field               | Type                | Required            | Description         |
+| ------------------- | ------------------- | ------------------- | ------------------- |
+| `customerAccess`    | *string*            | :heavy_minus_sign:  | N/A                 |
+| `interactionAccess` | *string*            | :heavy_minus_sign:  | N/A                 |

@@ -13,7 +13,7 @@ Developer-friendly & type-safe Java SDK specifically catered to leverage *go-cor
 <!-- Start Summary [summary] -->
 ## Summary
 
-GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact with the GBG GO Next Gen Flow Captain
+GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
 <!-- End Summary [summary] -->
 
 <!-- Start Table of Contents [toc] -->
@@ -47,7 +47,7 @@ The samples below show how a published SDK artifact is used:
 
 Gradle:
 ```groovy
-implementation 'com.gbg:go-core-sdk:0.1.0-alpha01'
+implementation 'com.gbg:go-core-sdk:0.2.0-alpha01'
 ```
 
 Maven:
@@ -55,7 +55,7 @@ Maven:
 <dependency>
     <groupId>com.gbg</groupId>
     <artifactId>go-core-sdk</artifactId>
-    <version>0.1.0-alpha01</version>
+    <version>0.2.0-alpha01</version>
 </dependency>
 ```
 
@@ -83,21 +83,23 @@ gradlew.bat publishToMavenLocal -Pskip.signing
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
+                .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        PostAsTokenOauth2Response res = sdk.tokens().generate()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }
@@ -109,7 +111,7 @@ package hello.world;
 
 import com.gbg.gocore.AsyncGo;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.async.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.operations.async.StartJourneyResponse;
 import java.util.concurrent.CompletableFuture;
 
 public class Application {
@@ -117,15 +119,16 @@ public class Application {
     public static void main(String[] args) {
 
         AsyncGo sdk = Go.builder()
+                .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build()
             .toAsync();
 
-        CompletableFuture<PostAsTokenOauth2Response> resFut = sdk.tokens().generate()
+        CompletableFuture<StartJourneyResponse> resFut = sdk.journeys().start()
                 .call();
 
         resFut.thenAccept(res -> {
-            if (res.object().isPresent()) {
-                System.out.println(res.object().get());
+            if (res.journeyStartResponse().isPresent()) {
+                System.out.println(res.journeyStartResponse().get());
             }
         });
     }
@@ -226,22 +229,23 @@ To authenticate with the API the `customerAccess` parameter must be set when ini
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
                 .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        PostAsTokenOauth2Response res = sdk.tokens().generate()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }
@@ -253,38 +257,42 @@ Some operations in this SDK require the security scheme to be specified at the r
 ```java
 package hello.world;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
-import com.gbg.gocore.models.operations.DeviceConnectResponse;
-import com.gbg.gocore.models.operations.DeviceConnectSecurity;
-import com.gbg.gocore.models.operations.DeviceInfo;
+import com.gbg.gocore.models.InteractionFetchResponse;
+import com.gbg.gocore.models.SlimInteractionFetchResponse;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.FetchInteractionResponse;
+import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
+import com.gbg.gocore.models.operations.FetchInteractionSecurity;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
             .build();
 
-        DeviceConnectRequest req = DeviceConnectRequest.builder()
-                .connectToken("s4FUx8Ny8ijXRtFigz3x1_8rb9bd_5ZD")
-                .deviceInfo(DeviceInfo.builder()
-                    .deviceId("exampleDeviceId123")
-                    .deviceName("deviceName")
-                    .deviceType("deviceType")
-                    .build())
-                .build();
+        FetchInteractionResponse res = sdk.interactions().fetch()
+                .security(FetchInteractionSecurity.builder()
 
-        DeviceConnectResponse res = sdk.devices().connect()
-                .request(req)
-                .security(DeviceConnectSecurity.builder()
-                    .deviceConnect(System.getenv().getOrDefault("DEVICE_CONNECT", ""))
                     .build())
+                .view("slim")
                 .call();
 
-        if (res.twoHundredApplicationJsonObject().isPresent()) {
-            System.out.println(res.twoHundredApplicationJsonObject().get());
+        if (res.oneOf().isPresent()) {
+            FetchInteractionResponseBody unionValue = res.oneOf().get();
+            if (unionValue.interactionFetchResponse().isPresent()) {
+                InteractionFetchResponse interactionFetchResponseValue = unionValue.interactionFetchResponse().get();
+                // Handle interactionFetchResponse variant
+            } else if (unionValue.slimInteractionFetchResponse().isPresent()) {
+                SlimInteractionFetchResponse slimInteractionFetchResponseValue = unionValue.slimInteractionFetchResponse().get();
+                // Handle slimInteractionFetchResponse variant
+            } else if (unionValue.asJson().isPresent()) {
+                JsonNode raw = unionValue.asJson().get();
+                // Handle unknown variant fallback
+            }
         }
     }
 }
@@ -297,35 +305,47 @@ public class Application {
 <details open>
 <summary>Available methods</summary>
 
+### [Addresses](docs/sdks/addresses/README.md)
+
+* [search](docs/sdks/addresses/README.md#search) - Search addresses via Loqate Capture
+* [retrieve](docs/sdks/addresses/README.md#retrieve) - Retrieve full address via Loqate Capture
+
 ### [Devices](docs/sdks/devices/README.md)
 
-* [connect](docs/sdks/devices/README.md#connect) - Connect or Refresh End User Device
-* [add](docs/sdks/devices/README.md#add) - Create Connect Secret
-
-### [Health](docs/sdks/health/README.md)
-
-* [get](docs/sdks/health/README.md#get) - Obtain the flow-captain health status
+* [add](docs/sdks/devices/README.md#add) - Generate connect token
+* [connect](docs/sdks/devices/README.md#connect) - Complete the device-onboarding handshake
+* [refresh](docs/sdks/devices/README.md#refresh) - Renew a device session
+* [validate](docs/sdks/devices/README.md#validate) - Validate end-user session
 
 ### [Instances](docs/sdks/instances/README.md)
 
-* [delete](docs/sdks/instances/README.md#delete) - Delete instance
+* [handoffToken](docs/sdks/instances/README.md#handofftoken) - Mint a fresh position-scoped handoff token
+* [delete](docs/sdks/instances/README.md#delete) - Delete journey state
 
 ### [Interactions](docs/sdks/interactions/README.md)
 
-* [submit](docs/sdks/interactions/README.md#submit) - Submit Interaction
-* [fetch](docs/sdks/interactions/README.md#fetch) - Fetch Interaction
+* [fetch](docs/sdks/interactions/README.md#fetch) - Fetch current interaction
+* [submit](docs/sdks/interactions/README.md#submit) - Submit interaction data
+* [uploadAsset](docs/sdks/interactions/README.md#uploadasset) - Stream an interaction asset to storage
 
 ### [Journeys](docs/sdks/journeys/README.md)
 
-* [start](docs/sdks/journeys/README.md#start) - Start Journey
-* [getState](docs/sdks/journeys/README.md#getstate) - Get State Data
+* [start](docs/sdks/journeys/README.md#start) - Start a new journey
+* [getState](docs/sdks/journeys/README.md#getstate) - Fetch journey state
+* [getSchemas](docs/sdks/journeys/README.md#getschemas) - Fetch interaction JSON schemas
+* [terminate](docs/sdks/journeys/README.md#terminate) - Terminate journey
 
-### [Tasks](docs/sdks/tasks/README.md)
+### [Sandbox](docs/sdks/sandbox/README.md)
 
-* [list](docs/sdks/tasks/README.md#list) - Get End User Tasks
-* [update](docs/sdks/tasks/README.md#update) - Put End User Data
-* [getSchema](docs/sdks/tasks/README.md#getschema) - Get Task Schema
-* [listSchema](docs/sdks/tasks/README.md#listschema) - Get Tasks Schema
+* [createScenario](docs/sdks/sandbox/README.md#createscenario) - Create a sandbox scenario on a journey
+* [listScenarios](docs/sdks/sandbox/README.md#listscenarios) - List a journey's sandbox scenarios
+* [getScenario](docs/sdks/sandbox/README.md#getscenario) - Read a sandbox scenario
+* [putScenario](docs/sdks/sandbox/README.md#putscenario) - Replace a sandbox scenario
+* [deleteScenario](docs/sdks/sandbox/README.md#deletescenario) - Delete a sandbox scenario
+
+### [~~Tasks~~](docs/sdks/tasks/README.md)
+
+* [~~getSchema~~](docs/sdks/tasks/README.md#getschema) - Fetch V1-compat task schema :warning: **Deprecated**
 
 ### [Tokens](docs/sdks/tokens/README.md)
 
@@ -356,25 +376,29 @@ Handling errors in this SDK should largely match your expectations. All operatio
 package hello.world;
 
 import com.gbg.gocore.Go;
+import com.gbg.gocore.models.GbgError;
+import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.errors.GoException;
-import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.io.UncheckedIOException;
 import java.lang.Exception;
+import java.util.List;
 import java.util.Optional;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
+                .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
         try {
 
-            PostAsTokenOauth2Response res = sdk.tokens().generate()
+            StartJourneyResponse res = sdk.journeys().start()
                     .call();
 
-            if (res.object().isPresent()) {
-                System.out.println(res.object().get());
+            if (res.journeyStartResponse().isPresent()) {
+                System.out.println(res.journeyStartResponse().get());
             }
         } catch (GoException ex) { // all SDK exceptions inherit from GoException
 
@@ -388,6 +412,23 @@ public class Application {
             var contentType = headers.first("Content-Type");
             int statusCode = ex.code();
             Optional<byte[]> responseBody = ex.body();
+
+            // different error subclasses may be thrown 
+            // depending on the service call
+            if (ex instanceof ErrorResponse) {
+                var e = (ErrorResponse) ex;
+                // Check error data fields
+                e.data().ifPresent(payload -> {
+                      List<GbgError> errors = payload.errors();
+                });
+            }
+
+            // An underlying cause may be provided. If the error payload 
+            // cannot be deserialized then the deserialization exception 
+            // will be set as the cause.
+            if (ex.getCause() != null) {
+                var cause = ex.getCause();
+            }
         } catch (UncheckedIOException ex) {
             // handle IO error (connection, timeout, etc)
         }    }
@@ -395,8 +436,9 @@ public class Application {
 ```
 
 ### Error Classes
-**Primary error:**
+**Primary errors:**
 * [`GoException`](./src/main/java/models/errors/GoException.java): The base class for HTTP error responses.
+  * [`com.gbg.gocore.models.errors.ErrorResponse`](./src/main/java/models/errors/com.gbg.gocore.models.errors.ErrorResponse.java): *
 
 <details><summary>Less common errors (6)</summary>
 
@@ -411,6 +453,8 @@ many more subclasses in the JDK platform).
 
 
 </details>
+
+\* Check [the method documentation](#available-resources-and-operations) to see if the error is applicable.
 <!-- End Error Handling [errors] -->
 
 <!-- Start Server Selection [server] -->
@@ -420,11 +464,11 @@ many more subclasses in the JDK platform).
 
 You can override the default server globally using the `.serverIndex(int serverIdx)` builder method when initializing the SDK client instance. The selected server will then be used as the default on the operations that use it. This table lists the indexes associated with the available servers:
 
-| #   | Server                                         | Description |
-| --- | ---------------------------------------------- | ----------- |
-| 0   | `https://eu.platform.go.gbgplc.com/v2/captain` |             |
-| 1   | `https://us.platform.go.gbgplc.com/v2/captain` |             |
-| 2   | `https://au.platform.go.gbgplc.com/v2/captain` |             |
+| #   | Server                              | Description |
+| --- | ----------------------------------- | ----------- |
+| 0   | `https://eu.platform.go.gbgplc.com` | EU          |
+| 1   | `https://us.platform.go.gbgplc.com` | US          |
+| 2   | `https://au.platform.go.gbgplc.com` | AU          |
 
 #### Example
 
@@ -432,23 +476,24 @@ You can override the default server globally using the `.serverIndex(int serverI
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.HealthResponse;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
                 .serverIndex(0)
                 .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        HealthResponse res = sdk.health().get()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }
@@ -461,23 +506,24 @@ The default server can also be overridden globally using the `.serverURL(String 
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.HealthResponse;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
-                .serverURL("https://au.platform.go.gbgplc.com/v2/captain")
+                .serverURL("https://au.platform.go.gbgplc.com")
                 .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        HealthResponse res = sdk.health().get()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }

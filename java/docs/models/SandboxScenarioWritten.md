@@ -1,0 +1,10 @@
+# SandboxScenarioWritten
+
+
+## Fields
+
+| Field                                                                 | Setter Type                                                           | Getter Type                                                           | Required                                                              | Description                                                           |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `name`                                                                | *String*                                                              | *String*                                                              | :heavy_check_mark:                                                    | N/A                                                                   |
+| `journeyId`                                                           | *String*                                                              | *String*                                                              | :heavy_check_mark:                                                    | N/A                                                                   |
+| `tier`                                                                | [SandboxScenarioWrittenTier](../models/SandboxScenarioWrittenTier.md) | [SandboxScenarioWrittenTier](../models/SandboxScenarioWrittenTier.md) | :heavy_check_mark:                                                    | N/A                                                                   |
