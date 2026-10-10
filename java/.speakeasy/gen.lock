@@ -3,15 +3,18 @@ id: 663305ae-280a-4b2f-be56-11e4f8ede2df
 management:
   docChecksum: bb11c48d527bd02dddb9d5b90c020f4c
   docVersion: 1.0.0
-  speakeasyVersion: 1.797.0
-  generationVersion: 2.937.18
-  releaseVersion: 0.1.0-alpha01
-  configChecksum: 089ba1ec1940d205143e7d25864f7095
+  speakeasyVersion: 1.801.0
+  generationVersion: 2.946.0
+  releaseVersion: 0.1.0-alpha01.1
+  configChecksum: cb29c48923f6590dd0dcfdda32c07f18
+  repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
+  repoSubDirectory: java
+  installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: 5c709ce2-6e16-491a-aa65-f1a37fd189f1
-  pristine_commit_hash: 15f5945b742ab2c0c2d2daf834eb98f7bd08ff40
-  pristine_tree_hash: b1b4a49db7986213556c53002a29e07416643d4c
+  generation_id: e6946af7-2438-4175-8136-68d4c96ccf30
+  pristine_commit_hash: 50445f8cd1885fa5ad8336e351b06dd1ae250c2b
+  pristine_tree_hash: d0c86d1beaf844dcf1205efa09b94cb2bef774fc
 features:
   java:
     additionalDependencies: 0.1.0
@@ -27,7 +30,7 @@ features:
     methodServerURLs: 2.82.2
     nameOverrides: 2.81.5
     sdkHooks: 1.2.0
-    unions: 0.3.8
+    unions: 0.3.10
 trackedFiles:
   .gitattributes:
     id: 24139dae6567
@@ -1979,8 +1982,8 @@ trackedFiles:
     pristine_git_object: 15c9c968dc112a12f5f591958e42f16d8f1e5602
   gradle.properties:
     id: 2afbb999f001
-    last_write_checksum: sha1:c98890f605b9a45cbbd6c19c6c6c4263d9592ed3
-    pristine_git_object: 4bb4c834be13ebd40e69c9b5db08e682809c997e
+    last_write_checksum: sha1:e11f9c0433fca43276895c4d9581149c77cbf117
+    pristine_git_object: 09cce1bb74a7ce1dbed2e33baed3108fa4cc00e4
   gradle/wrapper/gradle-wrapper.jar:
     id: ec27dae6e852
     last_write_checksum: sha1:f725fb1467084142d74fd7cd8eab691ab3442611
@@ -2063,8 +2066,8 @@ trackedFiles:
     pristine_git_object: b1820dcc7d2e36406f142a6a729986ae6e15f01c
   src/main/java/com/gbg/gocore/SDKConfiguration.java:
     id: 740f95ca528a
-    last_write_checksum: sha1:ca73315a65af6ad416112bb3f8dfbc7d80f91624
-    pristine_git_object: 82568232b620fb303fcfa7aeb94919fb2e67e36e
+    last_write_checksum: sha1:35a395005675b24e3d6ffe02e9501d16640eb12a
+    pristine_git_object: 98ef731d6ff51cdc4354be2016ea77281c317d3d
   src/main/java/com/gbg/gocore/SecuritySource.java:
     id: c50483fc452f
     last_write_checksum: sha1:f11362fc7bd52b1331215e0afecd99e46b3265b4
