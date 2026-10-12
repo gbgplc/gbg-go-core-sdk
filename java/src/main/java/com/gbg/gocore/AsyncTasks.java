@@ -6,26 +6,12 @@ package com.gbg.gocore;
 import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
 import com.gbg.gocore.models.operations.GetTaskSchemaRequest;
-import com.gbg.gocore.models.operations.GetTasksRequest;
-import com.gbg.gocore.models.operations.GetTasksSchemaRequest;
-import com.gbg.gocore.models.operations.GetTasksSecurity;
-import com.gbg.gocore.models.operations.UpdateTaskRequest;
-import com.gbg.gocore.models.operations.UpdateTaskSecurity;
 import com.gbg.gocore.models.operations.async.GetTaskSchemaRequestBuilder;
 import com.gbg.gocore.models.operations.async.GetTaskSchemaResponse;
-import com.gbg.gocore.models.operations.async.GetTasksRequestBuilder;
-import com.gbg.gocore.models.operations.async.GetTasksResponse;
-import com.gbg.gocore.models.operations.async.GetTasksSchemaRequestBuilder;
-import com.gbg.gocore.models.operations.async.GetTasksSchemaResponse;
-import com.gbg.gocore.models.operations.async.UpdateTaskRequestBuilder;
-import com.gbg.gocore.models.operations.async.UpdateTaskResponse;
 import com.gbg.gocore.operations.GetTaskSchema;
-import com.gbg.gocore.operations.GetTasks;
-import com.gbg.gocore.operations.GetTasksSchema;
-import com.gbg.gocore.operations.UpdateTask;
 import com.gbg.gocore.utils.Headers;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.Deprecated;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -50,168 +36,53 @@ public class AsyncTasks {
 
 
     /**
-     * Get End User Tasks
+     * Fetch V1-compat task schema
      * 
-     * <p>Get End User Tasks
-     * 
-     * @return The async call builder
-     */
-    public GetTasksRequestBuilder list() {
-        return new GetTasksRequestBuilder(sdkConfiguration);
-    }
-
-    /**
-     * Get End User Tasks
-     * 
-     * <p>Get End User Tasks
-     * 
-     * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<GetTasksResponse>} - The async response
-     */
-    public CompletableFuture<GetTasksResponse> list(@Nonnull GetTasksSecurity security) {
-        return list(null, security);
-    }
-
-    /**
-     * Get End User Tasks
-     * 
-     * <p>Get End User Tasks
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<GetTasksResponse>} - The async response
-     */
-    public CompletableFuture<GetTasksResponse> list(@Nullable GetTasksRequest request, @Nonnull GetTasksSecurity security) {
-        AsyncRequestOperation<GetTasksRequest, GetTasksResponse> operation
-              = new GetTasks.Async(sdkConfiguration, security, _headers);
-        return operation.doRequest(request)
-            .thenCompose(operation::handleResponse);
-    }
-
-
-    /**
-     * Put End User Data
-     * 
-     * <p>Put End User Data
-     * 
-     * @return The async call builder
-     */
-    public UpdateTaskRequestBuilder update() {
-        return new UpdateTaskRequestBuilder(sdkConfiguration);
-    }
-
-    /**
-     * Put End User Data
-     * 
-     * <p>Put End User Data
-     * 
-     * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<UpdateTaskResponse>} - The async response
-     */
-    public CompletableFuture<UpdateTaskResponse> update(@Nonnull UpdateTaskSecurity security) {
-        return update(null, security);
-    }
-
-    /**
-     * Put End User Data
-     * 
-     * <p>Put End User Data
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<UpdateTaskResponse>} - The async response
-     */
-    public CompletableFuture<UpdateTaskResponse> update(@Nullable UpdateTaskRequest request, @Nonnull UpdateTaskSecurity security) {
-        AsyncRequestOperation<UpdateTaskRequest, UpdateTaskResponse> operation
-              = new UpdateTask.Async(sdkConfiguration, security, _headers);
-        return operation.doRequest(request)
-            .thenCompose(operation::handleResponse);
-    }
-
-
-    /**
-     * Get Task Schema
-     * 
-     * <p>Get Task Schema
+     * <p>V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey
+     * identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @return The async call builder
+     * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
      */
+    @Deprecated
     public GetTaskSchemaRequestBuilder getSchema() {
         return new GetTaskSchemaRequestBuilder(sdkConfiguration);
     }
 
     /**
-     * Get Task Schema
+     * Fetch V1-compat task schema
      * 
-     * <p>Get Task Schema
+     * <p>V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey
+     * identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @return {@code CompletableFuture<GetTaskSchemaResponse>} - The async response
+     * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
      */
+    @Deprecated
     public CompletableFuture<GetTaskSchemaResponse> getSchemaDirect() {
         return getSchema(null);
     }
 
     /**
-     * Get Task Schema
+     * Fetch V1-compat task schema
      * 
-     * <p>Get Task Schema
+     * <p>V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey
+     * identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @param request The request object containing all the parameters for the API call.
      * @return {@code CompletableFuture<GetTaskSchemaResponse>} - The async response
+     * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
      */
+    @Deprecated
     public CompletableFuture<GetTaskSchemaResponse> getSchema(@Nullable GetTaskSchemaRequest request) {
         AsyncRequestOperation<GetTaskSchemaRequest, GetTaskSchemaResponse> operation
               = new GetTaskSchema.Async(sdkConfiguration, _headers);
-        return operation.doRequest(request)
-            .thenCompose(operation::handleResponse);
-    }
-
-
-    /**
-     * Get Tasks Schema
-     * 
-     * <p>Get Tasks Schema
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
-     * 
-     * @return The async call builder
-     */
-    public GetTasksSchemaRequestBuilder listSchema() {
-        return new GetTasksSchemaRequestBuilder(sdkConfiguration);
-    }
-
-    /**
-     * Get Tasks Schema
-     * 
-     * <p>Get Tasks Schema
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
-     * 
-     * @return {@code CompletableFuture<GetTasksSchemaResponse>} - The async response
-     */
-    public CompletableFuture<GetTasksSchemaResponse> listSchemaDirect() {
-        return listSchema(null);
-    }
-
-    /**
-     * Get Tasks Schema
-     * 
-     * <p>Get Tasks Schema
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @return {@code CompletableFuture<GetTasksSchemaResponse>} - The async response
-     */
-    public CompletableFuture<GetTasksSchemaResponse> listSchema(@Nullable GetTasksSchemaRequest request) {
-        AsyncRequestOperation<GetTasksSchemaRequest, GetTasksSchemaResponse> operation
-              = new GetTasksSchema.Async(sdkConfiguration, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }

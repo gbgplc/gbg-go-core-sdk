@@ -1,14 +1,43 @@
 # GetJourneyStateResponseBody
 
-Success
+Journey state (full by default; slim with ?view=slim)
 
 
-## Fields
+## Supported Types
 
-| Field                                                                                  | Setter Type                                                                            | Getter Type                                                                            | Required                                                                               | Description                                                                            |
-| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `instanceId`                                                                           | *String*                                                                               | *String*                                                                               | :heavy_check_mark:                                                                     | Journey Instance Id, a unique identifier for a started journey instance.               |
-| `status`                                                                               | [GetJourneyStateStatus](../../models/operations/GetJourneyStateStatus.md)              | [GetJourneyStateStatus](../../models/operations/GetJourneyStateStatus.md)              | :heavy_check_mark:                                                                     | N/A                                                                                    |
-| `metaData`                                                                             | @Nullable [MetaData](../../models/operations/MetaData.md)                              | Optional\<[MetaData](../../models/operations/MetaData.md)>                             | :heavy_minus_sign:                                                                     | N/A                                                                                    |
-| `context`                                                                              | @Nullable [GetJourneyStateContext](../../models/operations/GetJourneyStateContext.md)  | Optional\<[GetJourneyStateContext](../../models/operations/GetJourneyStateContext.md)> | :heavy_minus_sign:                                                                     | N/A                                                                                    |
-| `data`                                                                                 | @Nullable Map\<String, *Object*>                                                       | Optional\<Map\<String, *Object*>>                                                      | :heavy_minus_sign:                                                                     | N/A                                                                                    |
+### [`StateFetchResponse`](../../models/StateFetchResponse.md)
+
+```java
+GetJourneyStateResponseBody value = GetJourneyStateResponseBody.of(StateFetchResponse.builder()
+    .instanceId("<id>")
+    .status("<value>")
+    .build());
+```
+
+### [`SlimStateFetchResponse`](../../models/SlimStateFetchResponse.md)
+
+```java
+GetJourneyStateResponseBody value = GetJourneyStateResponseBody.of(SlimStateFetchResponse.builder()
+    .instanceId("<id>")
+    .status(SlimStateFetchResponseStatus.ERROR)
+    .build());
+```
+
+**Referred Types:** [SlimStateFetchResponseStatus](../../models/SlimStateFetchResponseStatus.md)
+
+## Consumption Patterns
+
+### Java 11+ (Accessor Methods)
+
+```java
+if (value.stateFetchResponse().isPresent()) {
+    com.gbg.gocore.models.StateFetchResponse stateFetchResponseValue = value.stateFetchResponse().get();
+    // Handle stateFetchResponse variant
+} else if (value.slimStateFetchResponse().isPresent()) {
+    com.gbg.gocore.models.SlimStateFetchResponse slimStateFetchResponseValue = value.slimStateFetchResponse().get();
+    // Handle slimStateFetchResponse variant
+} else if (value.asJson().isPresent()) {
+    com.fasterxml.jackson.databind.JsonNode raw = value.asJson().get();
+    // Handle unknown variant fallback
+}
+```

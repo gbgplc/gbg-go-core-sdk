@@ -4,6 +4,7 @@
 package com.gbg.gocore.models.operations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.gbg.gocore.models.DeviceStartResponse;
 import com.gbg.gocore.utils.Response;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
@@ -32,29 +33,22 @@ public class AddDeviceResponse implements Response {
     private HttpResponse<InputStream> rawResponse;
 
     /**
-     * Success
+     * Connect token created
      */
-    private AddDeviceResponseBody1 twoHundredApplicationJsonObject;
-
-    /**
-     * Success
-     */
-    private AddDeviceResponseBody2 twoHundredAndOneApplicationJsonObject;
+    private DeviceStartResponse deviceStartResponse;
 
     @JsonCreator
     public AddDeviceResponse(
             @Nonnull String contentType,
             int statusCode,
             @Nonnull HttpResponse<InputStream> rawResponse,
-            @Nullable AddDeviceResponseBody1 twoHundredApplicationJsonObject,
-            @Nullable AddDeviceResponseBody2 twoHundredAndOneApplicationJsonObject) {
+            @Nullable DeviceStartResponse deviceStartResponse) {
         this.contentType = Optional.ofNullable(contentType)
             .orElseThrow(() -> new IllegalArgumentException("contentType cannot be null"));
         this.statusCode = statusCode;
         this.rawResponse = Optional.ofNullable(rawResponse)
             .orElseThrow(() -> new IllegalArgumentException("rawResponse cannot be null"));
-        this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-        this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+        this.deviceStartResponse = deviceStartResponse;
     }
     
     public AddDeviceResponse(
@@ -62,7 +56,7 @@ public class AddDeviceResponse implements Response {
             int statusCode,
             @Nonnull HttpResponse<InputStream> rawResponse) {
         this(contentType, statusCode, rawResponse,
-            null, null);
+            null);
     }
 
     /**
@@ -87,17 +81,10 @@ public class AddDeviceResponse implements Response {
     }
 
     /**
-     * Success
+     * Connect token created
      */
-    public Optional<AddDeviceResponseBody1> twoHundredApplicationJsonObject() {
-        return Optional.ofNullable(this.twoHundredApplicationJsonObject);
-    }
-
-    /**
-     * Success
-     */
-    public Optional<AddDeviceResponseBody2> twoHundredAndOneApplicationJsonObject() {
-        return Optional.ofNullable(this.twoHundredAndOneApplicationJsonObject);
+    public Optional<DeviceStartResponse> deviceStartResponse() {
+        return Optional.ofNullable(this.deviceStartResponse);
     }
 
     public static Builder builder() {
@@ -133,19 +120,10 @@ public class AddDeviceResponse implements Response {
 
 
     /**
-     * Success
+     * Connect token created
      */
-    public AddDeviceResponse withTwoHundredApplicationJsonObject(@Nullable AddDeviceResponseBody1 twoHundredApplicationJsonObject) {
-        this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-        return this;
-    }
-
-
-    /**
-     * Success
-     */
-    public AddDeviceResponse withTwoHundredAndOneApplicationJsonObject(@Nullable AddDeviceResponseBody2 twoHundredAndOneApplicationJsonObject) {
-        this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+    public AddDeviceResponse withDeviceStartResponse(@Nullable DeviceStartResponse deviceStartResponse) {
+        this.deviceStartResponse = deviceStartResponse;
         return this;
     }
 
@@ -163,15 +141,14 @@ public class AddDeviceResponse implements Response {
             Utils.enhancedDeepEquals(this.contentType, other.contentType) &&
             Utils.enhancedDeepEquals(this.statusCode, other.statusCode) &&
             Utils.enhancedDeepEquals(this.rawResponse, other.rawResponse) &&
-            Utils.enhancedDeepEquals(this.twoHundredApplicationJsonObject, other.twoHundredApplicationJsonObject) &&
-            Utils.enhancedDeepEquals(this.twoHundredAndOneApplicationJsonObject, other.twoHundredAndOneApplicationJsonObject);
+            Utils.enhancedDeepEquals(this.deviceStartResponse, other.deviceStartResponse);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             contentType, statusCode, rawResponse,
-            twoHundredApplicationJsonObject, twoHundredAndOneApplicationJsonObject);
+            deviceStartResponse);
     }
     
     @Override
@@ -180,8 +157,7 @@ public class AddDeviceResponse implements Response {
                 "contentType", contentType,
                 "statusCode", statusCode,
                 "rawResponse", rawResponse,
-                "twoHundredApplicationJsonObject", twoHundredApplicationJsonObject,
-                "twoHundredAndOneApplicationJsonObject", twoHundredAndOneApplicationJsonObject);
+                "deviceStartResponse", deviceStartResponse);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -193,9 +169,7 @@ public class AddDeviceResponse implements Response {
 
         private HttpResponse<InputStream> rawResponse;
 
-        private AddDeviceResponseBody1 twoHundredApplicationJsonObject;
-
-        private AddDeviceResponseBody2 twoHundredAndOneApplicationJsonObject;
+        private DeviceStartResponse deviceStartResponse;
 
         private Builder() {
           // force use of static builder() method
@@ -226,25 +200,17 @@ public class AddDeviceResponse implements Response {
         }
 
         /**
-         * Success
+         * Connect token created
          */
-        public Builder twoHundredApplicationJsonObject(@Nullable AddDeviceResponseBody1 twoHundredApplicationJsonObject) {
-            this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-            return this;
-        }
-
-        /**
-         * Success
-         */
-        public Builder twoHundredAndOneApplicationJsonObject(@Nullable AddDeviceResponseBody2 twoHundredAndOneApplicationJsonObject) {
-            this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+        public Builder deviceStartResponse(@Nullable DeviceStartResponse deviceStartResponse) {
+            this.deviceStartResponse = deviceStartResponse;
             return this;
         }
 
         public AddDeviceResponse build() {
             return new AddDeviceResponse(
                 contentType, statusCode, rawResponse,
-                twoHundredApplicationJsonObject, twoHundredAndOneApplicationJsonObject);
+                deviceStartResponse);
         }
 
     }

@@ -23,6 +23,11 @@ public class StartJourneySubject {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("entities")
+    private List<StartJourneyEntity> entities;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("documents")
     private List<StartJourneyDocument> documents;
 
@@ -48,35 +53,48 @@ public class StartJourneySubject {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("kba")
+    private StartJourneyKba kba;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("uid")
     private String uid;
 
     @JsonCreator
     public StartJourneySubject(
             @JsonProperty("identity") @Nullable StartJourneyIdentity identity,
+            @JsonProperty("entities") @Nullable List<StartJourneyEntity> entities,
             @JsonProperty("documents") @Nullable List<StartJourneyDocument> documents,
             @JsonProperty("biometrics") @Nullable List<StartJourneyBiometricUnion> biometrics,
             @JsonProperty("sessions") @Nullable List<StartJourneySession> sessions,
             @JsonProperty("consent") @Nullable List<StartJourneyConsent> consent,
             @JsonProperty("accounts") @Nullable List<StartJourneyAccount> accounts,
+            @JsonProperty("kba") @Nullable StartJourneyKba kba,
             @JsonProperty("uid") @Nullable String uid) {
         this.identity = identity;
+        this.entities = entities;
         this.documents = documents;
         this.biometrics = biometrics;
         this.sessions = sessions;
         this.consent = consent;
         this.accounts = accounts;
+        this.kba = kba;
         this.uid = uid;
     }
     
     public StartJourneySubject() {
         this(null, null, null,
             null, null, null,
-            null);
+            null, null, null);
     }
 
     public Optional<StartJourneyIdentity> identity() {
         return Optional.ofNullable(this.identity);
+    }
+
+    public Optional<List<StartJourneyEntity>> entities() {
+        return Optional.ofNullable(this.entities);
     }
 
     public Optional<List<StartJourneyDocument>> documents() {
@@ -99,6 +117,10 @@ public class StartJourneySubject {
         return Optional.ofNullable(this.accounts);
     }
 
+    public Optional<StartJourneyKba> kba() {
+        return Optional.ofNullable(this.kba);
+    }
+
     public Optional<String> uid() {
         return Optional.ofNullable(this.uid);
     }
@@ -110,6 +132,12 @@ public class StartJourneySubject {
 
     public StartJourneySubject withIdentity(@Nullable StartJourneyIdentity identity) {
         this.identity = identity;
+        return this;
+    }
+
+
+    public StartJourneySubject withEntities(@Nullable List<StartJourneyEntity> entities) {
+        this.entities = entities;
         return this;
     }
 
@@ -144,6 +172,12 @@ public class StartJourneySubject {
     }
 
 
+    public StartJourneySubject withKba(@Nullable StartJourneyKba kba) {
+        this.kba = kba;
+        return this;
+    }
+
+
     public StartJourneySubject withUid(@Nullable String uid) {
         this.uid = uid;
         return this;
@@ -161,31 +195,35 @@ public class StartJourneySubject {
         StartJourneySubject other = (StartJourneySubject) o;
         return 
             Utils.enhancedDeepEquals(this.identity, other.identity) &&
+            Utils.enhancedDeepEquals(this.entities, other.entities) &&
             Utils.enhancedDeepEquals(this.documents, other.documents) &&
             Utils.enhancedDeepEquals(this.biometrics, other.biometrics) &&
             Utils.enhancedDeepEquals(this.sessions, other.sessions) &&
             Utils.enhancedDeepEquals(this.consent, other.consent) &&
             Utils.enhancedDeepEquals(this.accounts, other.accounts) &&
+            Utils.enhancedDeepEquals(this.kba, other.kba) &&
             Utils.enhancedDeepEquals(this.uid, other.uid);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            identity, documents, biometrics,
-            sessions, consent, accounts,
-            uid);
+            identity, entities, documents,
+            biometrics, sessions, consent,
+            accounts, kba, uid);
     }
     
     @Override
     public String toString() {
         return Utils.toString(StartJourneySubject.class,
                 "identity", identity,
+                "entities", entities,
                 "documents", documents,
                 "biometrics", biometrics,
                 "sessions", sessions,
                 "consent", consent,
                 "accounts", accounts,
+                "kba", kba,
                 "uid", uid);
     }
 
@@ -193,6 +231,8 @@ public class StartJourneySubject {
     public final static class Builder {
 
         private StartJourneyIdentity identity;
+
+        private List<StartJourneyEntity> entities;
 
         private List<StartJourneyDocument> documents;
 
@@ -204,6 +244,8 @@ public class StartJourneySubject {
 
         private List<StartJourneyAccount> accounts;
 
+        private StartJourneyKba kba;
+
         private String uid;
 
         private Builder() {
@@ -212,6 +254,11 @@ public class StartJourneySubject {
 
         public Builder identity(@Nullable StartJourneyIdentity identity) {
             this.identity = identity;
+            return this;
+        }
+
+        public Builder entities(@Nullable List<StartJourneyEntity> entities) {
+            this.entities = entities;
             return this;
         }
 
@@ -240,6 +287,11 @@ public class StartJourneySubject {
             return this;
         }
 
+        public Builder kba(@Nullable StartJourneyKba kba) {
+            this.kba = kba;
+            return this;
+        }
+
         public Builder uid(@Nullable String uid) {
             this.uid = uid;
             return this;
@@ -247,9 +299,9 @@ public class StartJourneySubject {
 
         public StartJourneySubject build() {
             return new StartJourneySubject(
-                identity, documents, biometrics,
-                sessions, consent, accounts,
-                uid);
+                identity, entities, documents,
+                biometrics, sessions, consent,
+                accounts, kba, uid);
         }
 
     }

@@ -4,25 +4,18 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
-import { safeParse } from "../../lib/schemas.js";
-import * as discriminatedUnionTypes from "../../types/discriminated-union.js";
-import { discriminatedUnion } from "../../types/discriminated-union.js";
 import { ClosedEnum } from "../../types/enums.js";
-import { Result as SafeParseResult } from "../../types/fp.js";
-import * as types from "../../types/primitives.js";
 import { smartUnion } from "../../types/smart-union.js";
-import { SDKValidationError } from "../errors/sdk-validation-error.js";
 
 export type SubmitInteractionSecurity = {
-  interactionAccess: string;
+  customerAccess?: string | undefined;
+  interactionAccess?: string | undefined;
 };
 
 export type Participant = {
-  /**
-   * Optional domain element identifier
-   */
   domainElementId?: string | undefined;
-  instruction?: string | undefined;
+  instructions?: Array<string> | undefined;
+  [additionalProperties: string]: unknown;
 };
 
 export type SubmitInteractionIdentityAlias = {
@@ -46,11 +39,16 @@ export type SubmitInteractionIdentityAlias = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+   */
+  fullName?: string | undefined;
 };
 
 export const SubmitInteractionIdentityRelationship = {
   Mother: "mother",
   Father: "father",
+  Spouse: "spouse",
   MaternalGrandFather: "maternalGrandFather",
   MaternalGrandMother: "maternalGrandMother",
   PaternalGrandFather: "paternalGrandFather",
@@ -104,15 +102,15 @@ export type SubmitInteractionIdentityCurrentAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -174,15 +172,15 @@ export type SubmitInteractionIdentityPreviousAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -225,11 +223,11 @@ export type SubmitInteractionIdentityPreviousAddress = {
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  fromDate: string;
+  fromDate?: string | undefined;
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  toDate: string;
+  toDate?: string | undefined;
 };
 
 export type SubmitInteractionIdentityPlaceOfBirthLocation = {
@@ -252,15 +250,15 @@ export type SubmitInteractionIdentityPlaceOfBirth = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -330,7 +328,7 @@ export type SubmitInteractionIdentityPhone = {
 
 export type SubmitInteractionIdentityEmail = {
   /**
-   * The type of email, such as home, work, unknown etc
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -371,6 +369,9 @@ export type SubmitInteractionIdentity = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * Names the subject is otherwise or was previously known by — applicant-declared, unordered, duplicates permitted
+   */
   aliases?: Array<SubmitInteractionIdentityAlias> | undefined;
   relatedPersons?: Array<SubmitInteractionIdentityRelatedPerson> | undefined;
   /**
@@ -391,9 +392,480 @@ export type SubmitInteractionIdentity = {
    * The subject's mother's maiden name, used for identity verification
    */
   mothersMaidenName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  nationality?: string | undefined;
 };
 
-export type SubmitInteractionAddress = {
+export const SubmitInteractionTypePrimary1 = {
+  Primary: "primary",
+} as const;
+export type SubmitInteractionTypePrimary1 = ClosedEnum<
+  typeof SubmitInteractionTypePrimary1
+>;
+
+export const SubmitInteractionStatus = {
+  Active: "active",
+  Suspended: "suspended",
+  Dormant: "dormant",
+  Dissolved: "dissolved",
+  StruckOff: "struckOff",
+  Unknown: "unknown",
+} as const;
+export type SubmitInteractionStatus = ClosedEnum<
+  typeof SubmitInteractionStatus
+>;
+
+export type SubmitInteractionAddressLocation = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export const SubmitInteractionPurpose = {
+  Registered: "registered",
+  Mailing: "mailing",
+  Site: "site",
+  Agent: "agent",
+  Headquarters: "headquarters",
+} as const;
+export type SubmitInteractionPurpose = ClosedEnum<
+  typeof SubmitInteractionPurpose
+>;
+
+export type SubmitInteractionAddressPrimary = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: SubmitInteractionAddressLocation | undefined;
+  purpose?: SubmitInteractionPurpose | undefined;
+};
+
+export const SubmitInteractionTaxIdentifierType = {
+  Tin: "TIN",
+  Ein: "EIN",
+} as const;
+export type SubmitInteractionTaxIdentifierType = ClosedEnum<
+  typeof SubmitInteractionTaxIdentifierType
+>;
+
+export type SubmitInteractionTaxIdentifier = {
+  type: SubmitInteractionTaxIdentifierType;
+  value: string;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+};
+
+export const SubmitInteractionSystem = {
+  Naics2017: "naics2017",
+  Naics2022: "naics2022",
+  Sic: "sic",
+  Mcc: "mcc",
+} as const;
+export type SubmitInteractionSystem = ClosedEnum<
+  typeof SubmitInteractionSystem
+>;
+
+export type SubmitInteractionIndustryClassification = {
+  system: SubmitInteractionSystem;
+  code: string;
+  description?: string | undefined;
+};
+
+export const SubmitInteractionRegistrationType = {
+  Domestic: "domestic",
+  Foreign: "foreign",
+  Unknown: "unknown",
+} as const;
+export type SubmitInteractionRegistrationType = ClosedEnum<
+  typeof SubmitInteractionRegistrationType
+>;
+
+export type SubmitInteractionRegisteredAddressLocation = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export type SubmitInteractionRegisteredAddress = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: SubmitInteractionRegisteredAddressLocation | undefined;
+};
+
+export type SubmitInteractionAgentAddressLocation = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export type SubmitInteractionAgentAddress = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: SubmitInteractionAgentAddressLocation | undefined;
+};
+
+export type SubmitInteractionRegistration = {
+  jurisdiction?: string | undefined;
+  registrationType?: SubmitInteractionRegistrationType | undefined;
+  fileNumber?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  issueDate?: string | undefined;
+  registeredAddress?: SubmitInteractionRegisteredAddress | undefined;
+  agentName?: string | undefined;
+  agentAddress?: SubmitInteractionAgentAddress | undefined;
+};
+
+export const SubmitInteractionTypePrimary2 = {
+  Primary: "primary",
+} as const;
+export type SubmitInteractionTypePrimary2 = ClosedEnum<
+  typeof SubmitInteractionTypePrimary2
+>;
+
+export const SubmitInteractionRole = {
+  UltimateBeneficialOwner: "ultimateBeneficialOwner",
+  Director: "director",
+  Officer: "officer",
+  Secretary: "secretary",
+  Shareholder: "shareholder",
+  Partner: "partner",
+} as const;
+export type SubmitInteractionRole = ClosedEnum<typeof SubmitInteractionRole>;
+
+export type SubmitInteractionCurrentAddressLocationPrimary = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  /**
+   * A What3words designation associated with this location with '.' separator.
+   */
+  what3words?: string | undefined;
+};
+
+export type SubmitInteractionCurrentAddressPrimary = {
+  /**
+   * Unformatted line based address
+   */
+  lines?: Array<string> | undefined;
+  /**
+   * The address as a single line
+   */
+  addressString?: string | undefined;
+  /**
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
+   */
+  premise?: string | undefined;
+  /**
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
+   */
+  building?: string | undefined;
+  /**
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
+   */
+  subBuilding?: string | undefined;
+  /**
+   * This field holds the most common street or block data element within a country. For instance, USA Street
+   */
+  thoroughfare?: string | undefined;
+  /**
+   * The name of a dependent street or block, such as a street within a complex.
+   */
+  dependentThoroughfare?: string | undefined;
+  /**
+   * This field holds the most common population center data element within a country. For instance, USA City, Canadian Municipality
+   */
+  locality?: string | undefined;
+  /**
+   * This is a smaller area within a locality, such as a neighborhood or district. Like Manhattan in New York City, or Soho in London.
+   */
+  dependentLocality?: string | undefined;
+  /**
+   * This is an even smaller area within a dependent locality, often used in very detailed addresses.
+   */
+  doubleDependentLocality?: string | undefined;
+  /**
+   * This field contains the complete postal code for a particular delivery point, should such detail be able to be determined. For example ZIP code in the US
+   */
+  postalCode?: string | undefined;
+  /**
+   * This field contains the post box number associated with a particular delivery point, should one exist.
+   */
+  postBox?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: SubmitInteractionCurrentAddressLocationPrimary | undefined;
+};
+
+export type SubmitInteractionPerson = {
+  /**
+   * Title of an individual such as Mr, Mrs, Dr, Sir
+   */
+  title?: string | undefined;
+  /**
+   * A person's name used by their collegues and friends to address them
+   */
+  firstName?: string | undefined;
+  /**
+   * Any other registered names used by the individual, not aliases
+   */
+  middleNames?: Array<string> | undefined;
+  /**
+   * Any family names for the individual
+   */
+  lastNames?: Array<string> | undefined;
+  /**
+   * Any family names for the individual
+   */
+  lastNamesAtBirth?: Array<string> | undefined;
+  id?: string | undefined;
+  type?: SubmitInteractionTypePrimary2 | undefined;
+  role?: SubmitInteractionRole | undefined;
+  position?: string | undefined;
+  ownershipPercentage?: number | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  nationality?: string | undefined;
+  dateOfBirth?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  startDate?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  endDate?: string | undefined;
+  currentAddress?: SubmitInteractionCurrentAddressPrimary | undefined;
+};
+
+export type SubmitInteractionPhonePrimary = {
+  /**
+   * The type of phone number, such as landline, mobile, fax, unknown etc
+   */
+  type: string;
+  /**
+   * Phone number, ideally in international format with +(Country Code)
+   */
+  number: string;
+};
+
+export type SubmitInteractionEntity = {
+  id?: string | undefined;
+  type?: SubmitInteractionTypePrimary1 | undefined;
+  name?: string | undefined;
+  aliases?: Array<string> | undefined;
+  businessType?: string | undefined;
+  status?: SubmitInteractionStatus | undefined;
+  description?: string | undefined;
+  addresses?: Array<SubmitInteractionAddressPrimary> | undefined;
+  taxIdentifiers?: Array<SubmitInteractionTaxIdentifier> | undefined;
+  companyNumber?: string | undefined;
+  industryClassifications?:
+    | Array<SubmitInteractionIndustryClassification>
+    | undefined;
+  registrations?: Array<SubmitInteractionRegistration> | undefined;
+  corporateStructure?: string | undefined;
+  persons?: Array<SubmitInteractionPerson> | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  incorporationDate?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  dissolutionDate?: string | undefined;
+  phones?: Array<SubmitInteractionPhonePrimary> | undefined;
+  websites?: Array<string> | undefined;
+  headcount?: number | undefined;
+  isNonProfit?: boolean | undefined;
+};
+
+export type SubmitInteractionDocumentAddress = {
   addressString?: string | undefined;
   extractedAddressString?: string | undefined;
   addressLine1?: string | undefined;
@@ -404,6 +876,26 @@ export type SubmitInteractionAddress = {
 };
 
 export type SubmitInteractionDocumentDevice = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+export type SubmitInteractionSide1Device = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+export type SubmitInteractionSide2Device = {
   type?: string | undefined;
   model?: string | undefined;
   hasContactlessReader?: boolean | undefined;
@@ -643,11 +1135,16 @@ export type SubmitInteractionDocumentAlias = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+   */
+  fullName?: string | undefined;
 };
 
 export const SubmitInteractionDocumentRelationship = {
   Mother: "mother",
   Father: "father",
+  Spouse: "spouse",
   MaternalGrandFather: "maternalGrandFather",
   MaternalGrandMother: "maternalGrandMother",
   PaternalGrandFather: "paternalGrandFather",
@@ -701,15 +1198,15 @@ export type SubmitInteractionDocumentCurrentAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -771,15 +1268,15 @@ export type SubmitInteractionDocumentPreviousAddress = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -822,11 +1319,11 @@ export type SubmitInteractionDocumentPreviousAddress = {
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  fromDate: string;
+  fromDate?: string | undefined;
   /**
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
-  toDate: string;
+  toDate?: string | undefined;
 };
 
 export type SubmitInteractionDocumentPlaceOfBirthLocation = {
@@ -849,15 +1346,15 @@ export type SubmitInteractionDocumentPlaceOfBirth = {
    */
   addressString?: string | undefined;
   /**
-   * The primary delivery point for a premise or building. This could be a house number, a building name, etc.
+   * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty for a property identified only by a name.
    */
   premise?: string | undefined;
   /**
-   * The name of a building or a building complex. In the US, this is the street number.
+   * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the street number, in any country; that is premise. A property identified only by a name populates this field with premise left empty.
    */
   building?: string | undefined;
   /**
-   * The name of a sub-building, such as a flat or apartment number.
+   * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
    */
   subBuilding?: string | undefined;
   /**
@@ -927,7 +1424,7 @@ export type SubmitInteractionDocumentPhone = {
 
 export type SubmitInteractionDocumentEmail = {
   /**
-   * The type of email, such as home, work, unknown etc
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -968,6 +1465,9 @@ export type SubmitInteractionDocumentSubject = {
    * Any family names for the individual
    */
   lastNamesAtBirth?: Array<string> | undefined;
+  /**
+   * Names the subject is otherwise or was previously known by — applicant-declared, unordered, duplicates permitted
+   */
   aliases?: Array<SubmitInteractionDocumentAlias> | undefined;
   relatedPersons?: Array<SubmitInteractionDocumentRelatedPerson> | undefined;
   /**
@@ -988,11 +1488,15 @@ export type SubmitInteractionDocumentSubject = {
    * The subject's mother's maiden name, used for identity verification
    */
   mothersMaidenName?: string | undefined;
+  /**
+   * Country the address is in. It must be a valid ISO2 or ISO3 country code
+   */
+  nationality?: string | undefined;
 };
 
 export type SubmitInteractionDocument = {
   oneDBarcode?: string | undefined;
-  address?: SubmitInteractionAddress | undefined;
+  address?: SubmitInteractionDocumentAddress | undefined;
   applicationDate?: string | undefined;
   applicationNumber?: string | undefined;
   dateOfBirth?: string | undefined;
@@ -1070,13 +1574,15 @@ export type SubmitInteractionDocument = {
    */
   issuerCountryCode?: string | undefined;
   id?: string | undefined;
-  type?: string | undefined;
+  type: string;
   category?: string | undefined;
   subtype?: string | undefined;
   format?: string | undefined;
   device?: SubmitInteractionDocumentDevice | undefined;
   side1Image?: string | undefined;
   side2Image?: string | undefined;
+  side1Device?: SubmitInteractionSide1Device | undefined;
+  side2Device?: SubmitInteractionSide2Device | undefined;
   chip?: SubmitInteractionChip | undefined;
   classification?: SubmitInteractionClassification | undefined;
   extraction?: SubmitInteractionExtraction | undefined;
@@ -1087,11 +1593,60 @@ export type SubmitInteractionDocument = {
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
   expiryDate?: string | undefined;
+  cardType?: string | undefined;
+  /**
+   * Year and month in ISO 8601 format: YYYY-MM
+   */
+  expiryMonth?: string | undefined;
+  cardColour?: string | undefined;
+  cardStatus?: string | undefined;
   subject?: SubmitInteractionDocumentSubject | undefined;
   /**
    * Country the address is in. It must be a valid ISO2 or ISO3 country code
    */
   country?: string | undefined;
+  certificateFormat?: string | undefined;
+  registrationNumber?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  registrationDate?: string | undefined;
+  /**
+   * Four-digit calendar year in ISO 8601 format: YYYY
+   */
+  registrationYear?: string | undefined;
+  partyRole?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  dateOfEvent?: string | undefined;
+  previousFirstName?: string | undefined;
+  previousMiddleName?: string | undefined;
+  previousSurname?: string | undefined;
+  individualReferenceNumber?: string | undefined;
+  nameLine1?: string | undefined;
+  nameLine2?: string | undefined;
+  nameLine3?: string | undefined;
+  nameLine4?: string | undefined;
+};
+
+export const SubmitInteractionBiometricType = {
+  StoredFace: "storedFace",
+} as const;
+export type SubmitInteractionBiometricType = ClosedEnum<
+  typeof SubmitInteractionBiometricType
+>;
+
+export type SubmitInteractionBiometricStoredFace = {
+  id?: string | undefined;
+  type: SubmitInteractionBiometricType;
+  templateReference: string;
+};
+
+export type SubmitInteractionBiometric5 = {
+  id?: string | undefined;
+  type?: string | undefined;
+  anchorImage: string;
 };
 
 export type SubmitInteractionBiometric4 = {
@@ -1124,13 +1679,15 @@ export type SubmitInteractionBiometric1 = {
 export type SubmitInteractionBiometricUnion =
   | SubmitInteractionBiometric1
   | SubmitInteractionBiometric2
+  | SubmitInteractionBiometricStoredFace
   | SubmitInteractionBiometric3
-  | SubmitInteractionBiometric4;
+  | SubmitInteractionBiometric4
+  | SubmitInteractionBiometric5;
 
 export type SubmitInteractionUser = {
   id: string;
-  email: string;
-  domain: string;
+  email?: string | undefined;
+  domain?: string | undefined;
 };
 
 export type SubmitInteractionClient = {
@@ -1175,6 +1732,9 @@ export type SubmitInteractionSessionAuth = {
 };
 
 export type SubmitInteractionSession = {
+  id?: string | undefined;
+  type?: string | undefined;
+  provider?: string | undefined;
   user?: SubmitInteractionUser | undefined;
   client?: SubmitInteractionClient | undefined;
   device?: SubmitInteractionSessionDevice | undefined;
@@ -1210,7 +1770,7 @@ export type SubmitInteractionConsent = {
 
 export type SubmitInteractionAccount = {
   /**
-   * The type of account, e.g. Bank Account, Building Society
+   * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still read but new writes emit the canonical form.
    */
   type: string;
   /**
@@ -1251,70 +1811,96 @@ export type SubmitInteractionAccount = {
   accountType?: string | undefined;
 };
 
+export type SubmitInteractionChoice = {
+  label: string;
+  text: string;
+};
+
+export type SubmitInteractionQuestion = {
+  id: number;
+  questionText: string;
+  helpText?: string | undefined;
+  choices: Array<SubmitInteractionChoice>;
+};
+
+export type SubmitInteractionAnswer = {
+  id: number;
+  choices: Array<string>;
+};
+
+export type SubmitInteractionKba = {
+  questions: Array<SubmitInteractionQuestion>;
+  answers: Array<SubmitInteractionAnswer>;
+};
+
 export type SubmitInteractionSubject = {
   identity?: SubmitInteractionIdentity | undefined;
+  entities?: Array<SubmitInteractionEntity> | undefined;
   documents?: Array<SubmitInteractionDocument> | undefined;
   biometrics?:
     | Array<
       | SubmitInteractionBiometric1
       | SubmitInteractionBiometric2
+      | SubmitInteractionBiometricStoredFace
       | SubmitInteractionBiometric3
       | SubmitInteractionBiometric4
+      | SubmitInteractionBiometric5
     >
     | undefined;
   sessions?: Array<SubmitInteractionSession> | undefined;
   consent?: Array<SubmitInteractionConsent> | undefined;
   accounts?: Array<SubmitInteractionAccount> | undefined;
+  kba?: SubmitInteractionKba | undefined;
   uid?: string | undefined;
+};
+
+/**
+ * Reviewer-supplied manual-review input: a required decision ordinal plus optional notes. Identity fields are Captain-populated and rejected here.
+ */
+export type ManualReview = {
+  /**
+   * Ordinal decision outcome (0-9) submitted by the reviewer
+   */
+  decision: number;
+  /**
+   * Free-text justification or notes provided by the reviewer
+   */
+  notes?: string | undefined;
+};
+
+/**
+ * Caller-facing reviewer entry for a submit request.
+ */
+export type Reviewer = {
+  /**
+   * Reviewer-supplied manual-review input: a required decision ordinal plus optional notes. Identity fields are Captain-populated and rejected here.
+   */
+  manualReview?: ManualReview | undefined;
 };
 
 export type SubmitInteractionContext = {
   subject: SubmitInteractionSubject;
+  /**
+   * Reviewer decisions for this submit. Single reviewer at v1 (max 1).
+   */
+  reviewers?: Array<Reviewer> | undefined;
 };
 
 export type SubmitInteractionRequest = {
   /**
-   * Journey instance identifier
+   * Journey Instance Id, a unique identifier for a started journey instance.
    */
   instanceId: string;
-  /**
-   * Interaction identifier
-   */
   interactionId: string;
-  /**
-   * List of participant identifiers involved in the interaction
-   */
   participants?: Array<Participant> | undefined;
   context?: SubmitInteractionContext | undefined;
+  [additionalProperties: string]: unknown;
 };
-
-export type SubmitInteractionError = {
-  status: "error";
-  /**
-   * Error code indicating the type of error
-   */
-  code: number;
-  /**
-   * Error message detailing the issue
-   */
-  message: string;
-};
-
-export type Success = {
-  status: "success";
-};
-
-/**
- * Success
- */
-export type SubmitInteractionResponse =
-  | Success
-  | SubmitInteractionError
-  | discriminatedUnionTypes.Unknown<"status">;
 
 /** @internal */
 export type SubmitInteractionSecurity$Outbound = {
-  InteractionAccess: string;
+  CustomerAccess?: string | undefined;
+  InteractionAccess?: string | undefined;
 };
 
 /** @internal */
@@ -1323,10 +1909,12 @@ export const SubmitInteractionSecurity$outboundSchema: z.ZodMiniType<
   SubmitInteractionSecurity
 > = z.pipe(
   z.object({
-    interactionAccess: z.string(),
+    customerAccess: z.optional(z.string()),
+    interactionAccess: z.optional(z.string()),
   }),
   z.transform((v) => {
     return remap$(v, {
+      customerAccess: "CustomerAccess",
       interactionAccess: "InteractionAccess",
     });
   }),
@@ -1343,17 +1931,21 @@ export function submitInteractionSecurityToJSON(
 /** @internal */
 export type Participant$Outbound = {
   domainElementId?: string | undefined;
-  instruction?: string | undefined;
+  instructions?: Array<string> | undefined;
+  [additionalProperties: string]: unknown;
 };
 
 /** @internal */
 export const Participant$outboundSchema: z.ZodMiniType<
   Participant$Outbound,
   Participant
-> = z.object({
-  domainElementId: z.optional(z.string()),
-  instruction: z.optional(z.string()),
-});
+> = z.catchall(
+  z.object({
+    domainElementId: z.optional(z.string()),
+    instructions: z.optional(z.array(z.string())),
+  }),
+  z.any(),
+);
 
 export function participantToJSON(participant: Participant): string {
   return JSON.stringify(Participant$outboundSchema.parse(participant));
@@ -1366,6 +1958,7 @@ export type SubmitInteractionIdentityAlias$Outbound = {
   middleNames?: Array<string> | undefined;
   lastNames?: Array<string> | undefined;
   lastNamesAtBirth?: Array<string> | undefined;
+  fullName?: string | undefined;
 };
 
 /** @internal */
@@ -1378,6 +1971,7 @@ export const SubmitInteractionIdentityAlias$outboundSchema: z.ZodMiniType<
   middleNames: z.optional(z.array(z.string())),
   lastNames: z.optional(z.array(z.string())),
   lastNamesAtBirth: z.optional(z.array(z.string())),
+  fullName: z.optional(z.string()),
 });
 
 export function submitInteractionIdentityAliasToJSON(
@@ -1580,8 +2174,8 @@ export type SubmitInteractionIdentityPreviousAddress$Outbound = {
   location?:
     | SubmitInteractionIdentityPreviousAddressLocation$Outbound
     | undefined;
-  fromDate: string;
-  toDate: string;
+  fromDate?: string | undefined;
+  toDate?: string | undefined;
 };
 
 /** @internal */
@@ -1612,8 +2206,8 @@ export const SubmitInteractionIdentityPreviousAddress$outboundSchema:
         SubmitInteractionIdentityPreviousAddressLocation$outboundSchema
       ),
     ),
-    fromDate: z.string(),
-    toDate: z.string(),
+    fromDate: z.optional(z.string()),
+    toDate: z.optional(z.string()),
   });
 
 export function submitInteractionIdentityPreviousAddressToJSON(
@@ -1845,6 +2439,7 @@ export type SubmitInteractionIdentity$Outbound = {
   emails?: Array<SubmitInteractionIdentityEmail$Outbound> | undefined;
   socials?: Array<SubmitInteractionIdentitySocial$Outbound> | undefined;
   mothersMaidenName?: string | undefined;
+  nationality?: string | undefined;
 };
 
 /** @internal */
@@ -1891,6 +2486,7 @@ export const SubmitInteractionIdentity$outboundSchema: z.ZodMiniType<
     z.array(z.lazy(() => SubmitInteractionIdentitySocial$outboundSchema)),
   ),
   mothersMaidenName: z.optional(z.string()),
+  nationality: z.optional(z.string()),
 });
 
 export function submitInteractionIdentityToJSON(
@@ -1902,7 +2498,660 @@ export function submitInteractionIdentityToJSON(
 }
 
 /** @internal */
-export type SubmitInteractionAddress$Outbound = {
+export const SubmitInteractionTypePrimary1$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionTypePrimary1
+> = z.enum(SubmitInteractionTypePrimary1);
+
+/** @internal */
+export const SubmitInteractionStatus$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionStatus
+> = z.enum(SubmitInteractionStatus);
+
+/** @internal */
+export type SubmitInteractionAddressLocation$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionAddressLocation$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAddressLocation$Outbound,
+  SubmitInteractionAddressLocation
+> = z.object({
+  latitude: z.optional(z.string()),
+  longitude: z.optional(z.string()),
+  geoAccuracy: z.optional(z.string()),
+  what3words: z.optional(z.string()),
+});
+
+export function submitInteractionAddressLocationToJSON(
+  submitInteractionAddressLocation: SubmitInteractionAddressLocation,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAddressLocation$outboundSchema.parse(
+      submitInteractionAddressLocation,
+    ),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionPurpose$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionPurpose
+> = z.enum(SubmitInteractionPurpose);
+
+/** @internal */
+export type SubmitInteractionAddressPrimary$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: SubmitInteractionAddressLocation$Outbound | undefined;
+  purpose?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionAddressPrimary$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAddressPrimary$Outbound,
+  SubmitInteractionAddressPrimary
+> = z.object({
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(
+    z.lazy(() => SubmitInteractionAddressLocation$outboundSchema),
+  ),
+  purpose: z.optional(SubmitInteractionPurpose$outboundSchema),
+});
+
+export function submitInteractionAddressPrimaryToJSON(
+  submitInteractionAddressPrimary: SubmitInteractionAddressPrimary,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAddressPrimary$outboundSchema.parse(
+      submitInteractionAddressPrimary,
+    ),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionTaxIdentifierType$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionTaxIdentifierType
+> = z.enum(SubmitInteractionTaxIdentifierType);
+
+/** @internal */
+export type SubmitInteractionTaxIdentifier$Outbound = {
+  type: string;
+  value: string;
+  country?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionTaxIdentifier$outboundSchema: z.ZodMiniType<
+  SubmitInteractionTaxIdentifier$Outbound,
+  SubmitInteractionTaxIdentifier
+> = z.object({
+  type: SubmitInteractionTaxIdentifierType$outboundSchema,
+  value: z.string(),
+  country: z.optional(z.string()),
+});
+
+export function submitInteractionTaxIdentifierToJSON(
+  submitInteractionTaxIdentifier: SubmitInteractionTaxIdentifier,
+): string {
+  return JSON.stringify(
+    SubmitInteractionTaxIdentifier$outboundSchema.parse(
+      submitInteractionTaxIdentifier,
+    ),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionSystem$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionSystem
+> = z.enum(SubmitInteractionSystem);
+
+/** @internal */
+export type SubmitInteractionIndustryClassification$Outbound = {
+  system: string;
+  code: string;
+  description?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionIndustryClassification$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionIndustryClassification$Outbound,
+    SubmitInteractionIndustryClassification
+  > = z.object({
+    system: SubmitInteractionSystem$outboundSchema,
+    code: z.string(),
+    description: z.optional(z.string()),
+  });
+
+export function submitInteractionIndustryClassificationToJSON(
+  submitInteractionIndustryClassification:
+    SubmitInteractionIndustryClassification,
+): string {
+  return JSON.stringify(
+    SubmitInteractionIndustryClassification$outboundSchema.parse(
+      submitInteractionIndustryClassification,
+    ),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionRegistrationType$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionRegistrationType
+> = z.enum(SubmitInteractionRegistrationType);
+
+/** @internal */
+export type SubmitInteractionRegisteredAddressLocation$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionRegisteredAddressLocation$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionRegisteredAddressLocation$Outbound,
+    SubmitInteractionRegisteredAddressLocation
+  > = z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  });
+
+export function submitInteractionRegisteredAddressLocationToJSON(
+  submitInteractionRegisteredAddressLocation:
+    SubmitInteractionRegisteredAddressLocation,
+): string {
+  return JSON.stringify(
+    SubmitInteractionRegisteredAddressLocation$outboundSchema.parse(
+      submitInteractionRegisteredAddressLocation,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionRegisteredAddress$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: SubmitInteractionRegisteredAddressLocation$Outbound | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionRegisteredAddress$outboundSchema: z.ZodMiniType<
+  SubmitInteractionRegisteredAddress$Outbound,
+  SubmitInteractionRegisteredAddress
+> = z.object({
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(
+    z.lazy(() => SubmitInteractionRegisteredAddressLocation$outboundSchema),
+  ),
+});
+
+export function submitInteractionRegisteredAddressToJSON(
+  submitInteractionRegisteredAddress: SubmitInteractionRegisteredAddress,
+): string {
+  return JSON.stringify(
+    SubmitInteractionRegisteredAddress$outboundSchema.parse(
+      submitInteractionRegisteredAddress,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAgentAddressLocation$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionAgentAddressLocation$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionAgentAddressLocation$Outbound,
+    SubmitInteractionAgentAddressLocation
+  > = z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  });
+
+export function submitInteractionAgentAddressLocationToJSON(
+  submitInteractionAgentAddressLocation: SubmitInteractionAgentAddressLocation,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAgentAddressLocation$outboundSchema.parse(
+      submitInteractionAgentAddressLocation,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAgentAddress$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?: SubmitInteractionAgentAddressLocation$Outbound | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionAgentAddress$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAgentAddress$Outbound,
+  SubmitInteractionAgentAddress
+> = z.object({
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(
+    z.lazy(() => SubmitInteractionAgentAddressLocation$outboundSchema),
+  ),
+});
+
+export function submitInteractionAgentAddressToJSON(
+  submitInteractionAgentAddress: SubmitInteractionAgentAddress,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAgentAddress$outboundSchema.parse(
+      submitInteractionAgentAddress,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionRegistration$Outbound = {
+  jurisdiction?: string | undefined;
+  registrationType?: string | undefined;
+  fileNumber?: string | undefined;
+  issueDate?: string | undefined;
+  registeredAddress?: SubmitInteractionRegisteredAddress$Outbound | undefined;
+  agentName?: string | undefined;
+  agentAddress?: SubmitInteractionAgentAddress$Outbound | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionRegistration$outboundSchema: z.ZodMiniType<
+  SubmitInteractionRegistration$Outbound,
+  SubmitInteractionRegistration
+> = z.object({
+  jurisdiction: z.optional(z.string()),
+  registrationType: z.optional(
+    SubmitInteractionRegistrationType$outboundSchema,
+  ),
+  fileNumber: z.optional(z.string()),
+  issueDate: z.optional(z.string()),
+  registeredAddress: z.optional(
+    z.lazy(() => SubmitInteractionRegisteredAddress$outboundSchema),
+  ),
+  agentName: z.optional(z.string()),
+  agentAddress: z.optional(
+    z.lazy(() => SubmitInteractionAgentAddress$outboundSchema),
+  ),
+});
+
+export function submitInteractionRegistrationToJSON(
+  submitInteractionRegistration: SubmitInteractionRegistration,
+): string {
+  return JSON.stringify(
+    SubmitInteractionRegistration$outboundSchema.parse(
+      submitInteractionRegistration,
+    ),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionTypePrimary2$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionTypePrimary2
+> = z.enum(SubmitInteractionTypePrimary2);
+
+/** @internal */
+export const SubmitInteractionRole$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionRole
+> = z.enum(SubmitInteractionRole);
+
+/** @internal */
+export type SubmitInteractionCurrentAddressLocationPrimary$Outbound = {
+  latitude?: string | undefined;
+  longitude?: string | undefined;
+  geoAccuracy?: string | undefined;
+  what3words?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionCurrentAddressLocationPrimary$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionCurrentAddressLocationPrimary$Outbound,
+    SubmitInteractionCurrentAddressLocationPrimary
+  > = z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  });
+
+export function submitInteractionCurrentAddressLocationPrimaryToJSON(
+  submitInteractionCurrentAddressLocationPrimary:
+    SubmitInteractionCurrentAddressLocationPrimary,
+): string {
+  return JSON.stringify(
+    SubmitInteractionCurrentAddressLocationPrimary$outboundSchema.parse(
+      submitInteractionCurrentAddressLocationPrimary,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionCurrentAddressPrimary$Outbound = {
+  lines?: Array<string> | undefined;
+  addressString?: string | undefined;
+  premise?: string | undefined;
+  building?: string | undefined;
+  subBuilding?: string | undefined;
+  thoroughfare?: string | undefined;
+  dependentThoroughfare?: string | undefined;
+  locality?: string | undefined;
+  dependentLocality?: string | undefined;
+  doubleDependentLocality?: string | undefined;
+  postalCode?: string | undefined;
+  postBox?: string | undefined;
+  country?: string | undefined;
+  superAdministrativeArea?: string | undefined;
+  administrativeArea?: string | undefined;
+  subAdministrativeArea?: string | undefined;
+  organization?: string | undefined;
+  location?:
+    | SubmitInteractionCurrentAddressLocationPrimary$Outbound
+    | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionCurrentAddressPrimary$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionCurrentAddressPrimary$Outbound,
+    SubmitInteractionCurrentAddressPrimary
+  > = z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() =>
+        SubmitInteractionCurrentAddressLocationPrimary$outboundSchema
+      ),
+    ),
+  });
+
+export function submitInteractionCurrentAddressPrimaryToJSON(
+  submitInteractionCurrentAddressPrimary:
+    SubmitInteractionCurrentAddressPrimary,
+): string {
+  return JSON.stringify(
+    SubmitInteractionCurrentAddressPrimary$outboundSchema.parse(
+      submitInteractionCurrentAddressPrimary,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionPerson$Outbound = {
+  title?: string | undefined;
+  firstName?: string | undefined;
+  middleNames?: Array<string> | undefined;
+  lastNames?: Array<string> | undefined;
+  lastNamesAtBirth?: Array<string> | undefined;
+  id?: string | undefined;
+  type?: string | undefined;
+  role?: string | undefined;
+  position?: string | undefined;
+  ownershipPercentage?: number | undefined;
+  nationality?: string | undefined;
+  dateOfBirth?: string | undefined;
+  startDate?: string | undefined;
+  endDate?: string | undefined;
+  currentAddress?: SubmitInteractionCurrentAddressPrimary$Outbound | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionPerson$outboundSchema: z.ZodMiniType<
+  SubmitInteractionPerson$Outbound,
+  SubmitInteractionPerson
+> = z.object({
+  title: z.optional(z.string()),
+  firstName: z.optional(z.string()),
+  middleNames: z.optional(z.array(z.string())),
+  lastNames: z.optional(z.array(z.string())),
+  lastNamesAtBirth: z.optional(z.array(z.string())),
+  id: z.optional(z.string()),
+  type: z.optional(SubmitInteractionTypePrimary2$outboundSchema),
+  role: z.optional(SubmitInteractionRole$outboundSchema),
+  position: z.optional(z.string()),
+  ownershipPercentage: z.optional(z.number()),
+  nationality: z.optional(z.string()),
+  dateOfBirth: z.optional(z.string()),
+  startDate: z.optional(z.string()),
+  endDate: z.optional(z.string()),
+  currentAddress: z.optional(
+    z.lazy(() => SubmitInteractionCurrentAddressPrimary$outboundSchema),
+  ),
+});
+
+export function submitInteractionPersonToJSON(
+  submitInteractionPerson: SubmitInteractionPerson,
+): string {
+  return JSON.stringify(
+    SubmitInteractionPerson$outboundSchema.parse(submitInteractionPerson),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionPhonePrimary$Outbound = {
+  type: string;
+  number: string;
+};
+
+/** @internal */
+export const SubmitInteractionPhonePrimary$outboundSchema: z.ZodMiniType<
+  SubmitInteractionPhonePrimary$Outbound,
+  SubmitInteractionPhonePrimary
+> = z.object({
+  type: z.string(),
+  number: z.string(),
+});
+
+export function submitInteractionPhonePrimaryToJSON(
+  submitInteractionPhonePrimary: SubmitInteractionPhonePrimary,
+): string {
+  return JSON.stringify(
+    SubmitInteractionPhonePrimary$outboundSchema.parse(
+      submitInteractionPhonePrimary,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionEntity$Outbound = {
+  id?: string | undefined;
+  type?: string | undefined;
+  name?: string | undefined;
+  aliases?: Array<string> | undefined;
+  businessType?: string | undefined;
+  status?: string | undefined;
+  description?: string | undefined;
+  addresses?: Array<SubmitInteractionAddressPrimary$Outbound> | undefined;
+  taxIdentifiers?: Array<SubmitInteractionTaxIdentifier$Outbound> | undefined;
+  companyNumber?: string | undefined;
+  industryClassifications?:
+    | Array<SubmitInteractionIndustryClassification$Outbound>
+    | undefined;
+  registrations?: Array<SubmitInteractionRegistration$Outbound> | undefined;
+  corporateStructure?: string | undefined;
+  persons?: Array<SubmitInteractionPerson$Outbound> | undefined;
+  incorporationDate?: string | undefined;
+  dissolutionDate?: string | undefined;
+  phones?: Array<SubmitInteractionPhonePrimary$Outbound> | undefined;
+  websites?: Array<string> | undefined;
+  headcount?: number | undefined;
+  isNonProfit?: boolean | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionEntity$outboundSchema: z.ZodMiniType<
+  SubmitInteractionEntity$Outbound,
+  SubmitInteractionEntity
+> = z.object({
+  id: z.optional(z.string()),
+  type: z.optional(SubmitInteractionTypePrimary1$outboundSchema),
+  name: z.optional(z.string()),
+  aliases: z.optional(z.array(z.string())),
+  businessType: z.optional(z.string()),
+  status: z.optional(SubmitInteractionStatus$outboundSchema),
+  description: z.optional(z.string()),
+  addresses: z.optional(
+    z.array(z.lazy(() => SubmitInteractionAddressPrimary$outboundSchema)),
+  ),
+  taxIdentifiers: z.optional(
+    z.array(z.lazy(() => SubmitInteractionTaxIdentifier$outboundSchema)),
+  ),
+  companyNumber: z.optional(z.string()),
+  industryClassifications: z.optional(
+    z.array(
+      z.lazy(() => SubmitInteractionIndustryClassification$outboundSchema),
+    ),
+  ),
+  registrations: z.optional(
+    z.array(z.lazy(() => SubmitInteractionRegistration$outboundSchema)),
+  ),
+  corporateStructure: z.optional(z.string()),
+  persons: z.optional(
+    z.array(z.lazy(() => SubmitInteractionPerson$outboundSchema)),
+  ),
+  incorporationDate: z.optional(z.string()),
+  dissolutionDate: z.optional(z.string()),
+  phones: z.optional(
+    z.array(z.lazy(() => SubmitInteractionPhonePrimary$outboundSchema)),
+  ),
+  websites: z.optional(z.array(z.string())),
+  headcount: z.optional(z.int()),
+  isNonProfit: z.optional(z.boolean()),
+});
+
+export function submitInteractionEntityToJSON(
+  submitInteractionEntity: SubmitInteractionEntity,
+): string {
+  return JSON.stringify(
+    SubmitInteractionEntity$outboundSchema.parse(submitInteractionEntity),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionDocumentAddress$Outbound = {
   addressString?: string | undefined;
   extractedAddressString?: string | undefined;
   addressLine1?: string | undefined;
@@ -1913,9 +3162,9 @@ export type SubmitInteractionAddress$Outbound = {
 };
 
 /** @internal */
-export const SubmitInteractionAddress$outboundSchema: z.ZodMiniType<
-  SubmitInteractionAddress$Outbound,
-  SubmitInteractionAddress
+export const SubmitInteractionDocumentAddress$outboundSchema: z.ZodMiniType<
+  SubmitInteractionDocumentAddress$Outbound,
+  SubmitInteractionDocumentAddress
 > = z.object({
   addressString: z.optional(z.string()),
   extractedAddressString: z.optional(z.string()),
@@ -1926,11 +3175,13 @@ export const SubmitInteractionAddress$outboundSchema: z.ZodMiniType<
   postalCode: z.optional(z.string()),
 });
 
-export function submitInteractionAddressToJSON(
-  submitInteractionAddress: SubmitInteractionAddress,
+export function submitInteractionDocumentAddressToJSON(
+  submitInteractionDocumentAddress: SubmitInteractionDocumentAddress,
 ): string {
   return JSON.stringify(
-    SubmitInteractionAddress$outboundSchema.parse(submitInteractionAddress),
+    SubmitInteractionDocumentAddress$outboundSchema.parse(
+      submitInteractionDocumentAddress,
+    ),
   );
 }
 
@@ -1965,6 +3216,76 @@ export function submitInteractionDocumentDeviceToJSON(
   return JSON.stringify(
     SubmitInteractionDocumentDevice$outboundSchema.parse(
       submitInteractionDocumentDevice,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionSide1Device$Outbound = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionSide1Device$outboundSchema: z.ZodMiniType<
+  SubmitInteractionSide1Device$Outbound,
+  SubmitInteractionSide1Device
+> = z.object({
+  type: z.optional(z.string()),
+  model: z.optional(z.string()),
+  hasContactlessReader: z.optional(z.boolean()),
+  hasMagneticStripeReader: z.optional(z.boolean()),
+  hasCamera: z.optional(z.boolean()),
+  serialNumber: z.optional(z.string()),
+  manufacturer: z.optional(z.string()),
+});
+
+export function submitInteractionSide1DeviceToJSON(
+  submitInteractionSide1Device: SubmitInteractionSide1Device,
+): string {
+  return JSON.stringify(
+    SubmitInteractionSide1Device$outboundSchema.parse(
+      submitInteractionSide1Device,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionSide2Device$Outbound = {
+  type?: string | undefined;
+  model?: string | undefined;
+  hasContactlessReader?: boolean | undefined;
+  hasMagneticStripeReader?: boolean | undefined;
+  hasCamera?: boolean | undefined;
+  serialNumber?: string | undefined;
+  manufacturer?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionSide2Device$outboundSchema: z.ZodMiniType<
+  SubmitInteractionSide2Device$Outbound,
+  SubmitInteractionSide2Device
+> = z.object({
+  type: z.optional(z.string()),
+  model: z.optional(z.string()),
+  hasContactlessReader: z.optional(z.boolean()),
+  hasMagneticStripeReader: z.optional(z.boolean()),
+  hasCamera: z.optional(z.boolean()),
+  serialNumber: z.optional(z.string()),
+  manufacturer: z.optional(z.string()),
+});
+
+export function submitInteractionSide2DeviceToJSON(
+  submitInteractionSide2Device: SubmitInteractionSide2Device,
+): string {
+  return JSON.stringify(
+    SubmitInteractionSide2Device$outboundSchema.parse(
+      submitInteractionSide2Device,
     ),
   );
 }
@@ -2688,6 +4009,7 @@ export type SubmitInteractionDocumentAlias$Outbound = {
   middleNames?: Array<string> | undefined;
   lastNames?: Array<string> | undefined;
   lastNamesAtBirth?: Array<string> | undefined;
+  fullName?: string | undefined;
 };
 
 /** @internal */
@@ -2700,6 +4022,7 @@ export const SubmitInteractionDocumentAlias$outboundSchema: z.ZodMiniType<
   middleNames: z.optional(z.array(z.string())),
   lastNames: z.optional(z.array(z.string())),
   lastNamesAtBirth: z.optional(z.array(z.string())),
+  fullName: z.optional(z.string()),
 });
 
 export function submitInteractionDocumentAliasToJSON(
@@ -2902,8 +4225,8 @@ export type SubmitInteractionDocumentPreviousAddress$Outbound = {
   location?:
     | SubmitInteractionDocumentPreviousAddressLocation$Outbound
     | undefined;
-  fromDate: string;
-  toDate: string;
+  fromDate?: string | undefined;
+  toDate?: string | undefined;
 };
 
 /** @internal */
@@ -2934,8 +4257,8 @@ export const SubmitInteractionDocumentPreviousAddress$outboundSchema:
         SubmitInteractionDocumentPreviousAddressLocation$outboundSchema
       ),
     ),
-    fromDate: z.string(),
-    toDate: z.string(),
+    fromDate: z.optional(z.string()),
+    toDate: z.optional(z.string()),
   });
 
 export function submitInteractionDocumentPreviousAddressToJSON(
@@ -3167,6 +4490,7 @@ export type SubmitInteractionDocumentSubject$Outbound = {
   emails?: Array<SubmitInteractionDocumentEmail$Outbound> | undefined;
   socials?: Array<SubmitInteractionDocumentSocial$Outbound> | undefined;
   mothersMaidenName?: string | undefined;
+  nationality?: string | undefined;
 };
 
 /** @internal */
@@ -3213,6 +4537,7 @@ export const SubmitInteractionDocumentSubject$outboundSchema: z.ZodMiniType<
     z.array(z.lazy(() => SubmitInteractionDocumentSocial$outboundSchema)),
   ),
   mothersMaidenName: z.optional(z.string()),
+  nationality: z.optional(z.string()),
 });
 
 export function submitInteractionDocumentSubjectToJSON(
@@ -3228,7 +4553,7 @@ export function submitInteractionDocumentSubjectToJSON(
 /** @internal */
 export type SubmitInteractionDocument$Outbound = {
   oneDBarcode?: string | undefined;
-  address?: SubmitInteractionAddress$Outbound | undefined;
+  address?: SubmitInteractionDocumentAddress$Outbound | undefined;
   applicationDate?: string | undefined;
   applicationNumber?: string | undefined;
   dateOfBirth?: string | undefined;
@@ -3300,13 +4625,15 @@ export type SubmitInteractionDocument$Outbound = {
   cardNumber?: string | undefined;
   issuerCountryCode?: string | undefined;
   id?: string | undefined;
-  type?: string | undefined;
+  type: string;
   category?: string | undefined;
   subtype?: string | undefined;
   format?: string | undefined;
   device?: SubmitInteractionDocumentDevice$Outbound | undefined;
   side1Image?: string | undefined;
   side2Image?: string | undefined;
+  side1Device?: SubmitInteractionSide1Device$Outbound | undefined;
+  side2Device?: SubmitInteractionSide2Device$Outbound | undefined;
   chip?: SubmitInteractionChip$Outbound | undefined;
   classification?: SubmitInteractionClassification$Outbound | undefined;
   extraction?: SubmitInteractionExtraction$Outbound | undefined;
@@ -3314,8 +4641,26 @@ export type SubmitInteractionDocument$Outbound = {
   subType?: string | undefined;
   number?: string | undefined;
   expiryDate?: string | undefined;
+  cardType?: string | undefined;
+  expiryMonth?: string | undefined;
+  cardColour?: string | undefined;
+  cardStatus?: string | undefined;
   subject?: SubmitInteractionDocumentSubject$Outbound | undefined;
   country?: string | undefined;
+  certificateFormat?: string | undefined;
+  registrationNumber?: string | undefined;
+  registrationDate?: string | undefined;
+  registrationYear?: string | undefined;
+  partyRole?: string | undefined;
+  dateOfEvent?: string | undefined;
+  previousFirstName?: string | undefined;
+  previousMiddleName?: string | undefined;
+  previousSurname?: string | undefined;
+  individualReferenceNumber?: string | undefined;
+  nameLine1?: string | undefined;
+  nameLine2?: string | undefined;
+  nameLine3?: string | undefined;
+  nameLine4?: string | undefined;
 };
 
 /** @internal */
@@ -3324,7 +4669,9 @@ export const SubmitInteractionDocument$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocument
 > = z.object({
   oneDBarcode: z.optional(z.string()),
-  address: z.optional(z.lazy(() => SubmitInteractionAddress$outboundSchema)),
+  address: z.optional(
+    z.lazy(() => SubmitInteractionDocumentAddress$outboundSchema),
+  ),
   applicationDate: z.optional(z.string()),
   applicationNumber: z.optional(z.string()),
   dateOfBirth: z.optional(z.string()),
@@ -3396,7 +4743,7 @@ export const SubmitInteractionDocument$outboundSchema: z.ZodMiniType<
   cardNumber: z.optional(z.string()),
   issuerCountryCode: z.optional(z.string()),
   id: z.optional(z.string()),
-  type: z.optional(z.string()),
+  type: z.string(),
   category: z.optional(z.string()),
   subtype: z.optional(z.string()),
   format: z.optional(z.string()),
@@ -3405,6 +4752,12 @@ export const SubmitInteractionDocument$outboundSchema: z.ZodMiniType<
   ),
   side1Image: z.optional(z.string()),
   side2Image: z.optional(z.string()),
+  side1Device: z.optional(
+    z.lazy(() => SubmitInteractionSide1Device$outboundSchema),
+  ),
+  side2Device: z.optional(
+    z.lazy(() => SubmitInteractionSide2Device$outboundSchema),
+  ),
   chip: z.optional(z.lazy(() => SubmitInteractionChip$outboundSchema)),
   classification: z.optional(
     z.lazy(() => SubmitInteractionClassification$outboundSchema),
@@ -3418,10 +4771,28 @@ export const SubmitInteractionDocument$outboundSchema: z.ZodMiniType<
   subType: z.optional(z.string()),
   number: z.optional(z.string()),
   expiryDate: z.optional(z.string()),
+  cardType: z.optional(z.string()),
+  expiryMonth: z.optional(z.string()),
+  cardColour: z.optional(z.string()),
+  cardStatus: z.optional(z.string()),
   subject: z.optional(
     z.lazy(() => SubmitInteractionDocumentSubject$outboundSchema),
   ),
   country: z.optional(z.string()),
+  certificateFormat: z.optional(z.string()),
+  registrationNumber: z.optional(z.string()),
+  registrationDate: z.optional(z.string()),
+  registrationYear: z.optional(z.string()),
+  partyRole: z.optional(z.string()),
+  dateOfEvent: z.optional(z.string()),
+  previousFirstName: z.optional(z.string()),
+  previousMiddleName: z.optional(z.string()),
+  previousSurname: z.optional(z.string()),
+  individualReferenceNumber: z.optional(z.string()),
+  nameLine1: z.optional(z.string()),
+  nameLine2: z.optional(z.string()),
+  nameLine3: z.optional(z.string()),
+  nameLine4: z.optional(z.string()),
 });
 
 export function submitInteractionDocumentToJSON(
@@ -3429,6 +4800,65 @@ export function submitInteractionDocumentToJSON(
 ): string {
   return JSON.stringify(
     SubmitInteractionDocument$outboundSchema.parse(submitInteractionDocument),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionBiometricType$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionBiometricType
+> = z.enum(SubmitInteractionBiometricType);
+
+/** @internal */
+export type SubmitInteractionBiometricStoredFace$Outbound = {
+  id?: string | undefined;
+  type: string;
+  templateReference: string;
+};
+
+/** @internal */
+export const SubmitInteractionBiometricStoredFace$outboundSchema: z.ZodMiniType<
+  SubmitInteractionBiometricStoredFace$Outbound,
+  SubmitInteractionBiometricStoredFace
+> = z.object({
+  id: z.optional(z.string()),
+  type: SubmitInteractionBiometricType$outboundSchema,
+  templateReference: z.string(),
+});
+
+export function submitInteractionBiometricStoredFaceToJSON(
+  submitInteractionBiometricStoredFace: SubmitInteractionBiometricStoredFace,
+): string {
+  return JSON.stringify(
+    SubmitInteractionBiometricStoredFace$outboundSchema.parse(
+      submitInteractionBiometricStoredFace,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionBiometric5$Outbound = {
+  id?: string | undefined;
+  type?: string | undefined;
+  anchorImage: string;
+};
+
+/** @internal */
+export const SubmitInteractionBiometric5$outboundSchema: z.ZodMiniType<
+  SubmitInteractionBiometric5$Outbound,
+  SubmitInteractionBiometric5
+> = z.object({
+  id: z.optional(z.string()),
+  type: z.optional(z.string()),
+  anchorImage: z.string(),
+});
+
+export function submitInteractionBiometric5ToJSON(
+  submitInteractionBiometric5: SubmitInteractionBiometric5,
+): string {
+  return JSON.stringify(
+    SubmitInteractionBiometric5$outboundSchema.parse(
+      submitInteractionBiometric5,
+    ),
   );
 }
 
@@ -3550,8 +4980,10 @@ export function submitInteractionBiometric1ToJSON(
 export type SubmitInteractionBiometricUnion$Outbound =
   | SubmitInteractionBiometric1$Outbound
   | SubmitInteractionBiometric2$Outbound
+  | SubmitInteractionBiometricStoredFace$Outbound
   | SubmitInteractionBiometric3$Outbound
-  | SubmitInteractionBiometric4$Outbound;
+  | SubmitInteractionBiometric4$Outbound
+  | SubmitInteractionBiometric5$Outbound;
 
 /** @internal */
 export const SubmitInteractionBiometricUnion$outboundSchema: z.ZodMiniType<
@@ -3560,8 +4992,10 @@ export const SubmitInteractionBiometricUnion$outboundSchema: z.ZodMiniType<
 > = smartUnion([
   z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric2$outboundSchema),
+  z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
+  z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
 ]);
 
 export function submitInteractionBiometricUnionToJSON(
@@ -3577,8 +5011,8 @@ export function submitInteractionBiometricUnionToJSON(
 /** @internal */
 export type SubmitInteractionUser$Outbound = {
   id: string;
-  email: string;
-  domain: string;
+  email?: string | undefined;
+  domain?: string | undefined;
 };
 
 /** @internal */
@@ -3587,8 +5021,8 @@ export const SubmitInteractionUser$outboundSchema: z.ZodMiniType<
   SubmitInteractionUser
 > = z.object({
   id: z.string(),
-  email: z.string(),
-  domain: z.string(),
+  email: z.optional(z.string()),
+  domain: z.optional(z.string()),
 });
 
 export function submitInteractionUserToJSON(
@@ -3780,6 +5214,9 @@ export function submitInteractionSessionAuthToJSON(
 
 /** @internal */
 export type SubmitInteractionSession$Outbound = {
+  id?: string | undefined;
+  type?: string | undefined;
+  provider?: string | undefined;
   user?: SubmitInteractionUser$Outbound | undefined;
   client?: SubmitInteractionClient$Outbound | undefined;
   device?: SubmitInteractionSessionDevice$Outbound | undefined;
@@ -3794,6 +5231,9 @@ export const SubmitInteractionSession$outboundSchema: z.ZodMiniType<
   SubmitInteractionSession$Outbound,
   SubmitInteractionSession
 > = z.object({
+  id: z.optional(z.string()),
+  type: z.optional(z.string()),
+  provider: z.optional(z.string()),
   user: z.optional(z.lazy(() => SubmitInteractionUser$outboundSchema)),
   client: z.optional(z.lazy(() => SubmitInteractionClient$outboundSchema)),
   device: z.optional(
@@ -3905,20 +5345,120 @@ export function submitInteractionAccountToJSON(
 }
 
 /** @internal */
+export type SubmitInteractionChoice$Outbound = {
+  label: string;
+  text: string;
+};
+
+/** @internal */
+export const SubmitInteractionChoice$outboundSchema: z.ZodMiniType<
+  SubmitInteractionChoice$Outbound,
+  SubmitInteractionChoice
+> = z.object({
+  label: z.string(),
+  text: z.string(),
+});
+
+export function submitInteractionChoiceToJSON(
+  submitInteractionChoice: SubmitInteractionChoice,
+): string {
+  return JSON.stringify(
+    SubmitInteractionChoice$outboundSchema.parse(submitInteractionChoice),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionQuestion$Outbound = {
+  id: number;
+  questionText: string;
+  helpText?: string | undefined;
+  choices: Array<SubmitInteractionChoice$Outbound>;
+};
+
+/** @internal */
+export const SubmitInteractionQuestion$outboundSchema: z.ZodMiniType<
+  SubmitInteractionQuestion$Outbound,
+  SubmitInteractionQuestion
+> = z.object({
+  id: z.int(),
+  questionText: z.string(),
+  helpText: z.optional(z.string()),
+  choices: z.array(z.lazy(() => SubmitInteractionChoice$outboundSchema)),
+});
+
+export function submitInteractionQuestionToJSON(
+  submitInteractionQuestion: SubmitInteractionQuestion,
+): string {
+  return JSON.stringify(
+    SubmitInteractionQuestion$outboundSchema.parse(submitInteractionQuestion),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAnswer$Outbound = {
+  id: number;
+  choices: Array<string>;
+};
+
+/** @internal */
+export const SubmitInteractionAnswer$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAnswer$Outbound,
+  SubmitInteractionAnswer
+> = z.object({
+  id: z.int(),
+  choices: z.array(z.string()),
+});
+
+export function submitInteractionAnswerToJSON(
+  submitInteractionAnswer: SubmitInteractionAnswer,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAnswer$outboundSchema.parse(submitInteractionAnswer),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionKba$Outbound = {
+  questions: Array<SubmitInteractionQuestion$Outbound>;
+  answers: Array<SubmitInteractionAnswer$Outbound>;
+};
+
+/** @internal */
+export const SubmitInteractionKba$outboundSchema: z.ZodMiniType<
+  SubmitInteractionKba$Outbound,
+  SubmitInteractionKba
+> = z.object({
+  questions: z.array(z.lazy(() => SubmitInteractionQuestion$outboundSchema)),
+  answers: z.array(z.lazy(() => SubmitInteractionAnswer$outboundSchema)),
+});
+
+export function submitInteractionKbaToJSON(
+  submitInteractionKba: SubmitInteractionKba,
+): string {
+  return JSON.stringify(
+    SubmitInteractionKba$outboundSchema.parse(submitInteractionKba),
+  );
+}
+
+/** @internal */
 export type SubmitInteractionSubject$Outbound = {
   identity?: SubmitInteractionIdentity$Outbound | undefined;
+  entities?: Array<SubmitInteractionEntity$Outbound> | undefined;
   documents?: Array<SubmitInteractionDocument$Outbound> | undefined;
   biometrics?:
     | Array<
       | SubmitInteractionBiometric1$Outbound
       | SubmitInteractionBiometric2$Outbound
+      | SubmitInteractionBiometricStoredFace$Outbound
       | SubmitInteractionBiometric3$Outbound
       | SubmitInteractionBiometric4$Outbound
+      | SubmitInteractionBiometric5$Outbound
     >
     | undefined;
   sessions?: Array<SubmitInteractionSession$Outbound> | undefined;
   consent?: Array<SubmitInteractionConsent$Outbound> | undefined;
   accounts?: Array<SubmitInteractionAccount$Outbound> | undefined;
+  kba?: SubmitInteractionKba$Outbound | undefined;
   uid?: string | undefined;
 };
 
@@ -3928,6 +5468,9 @@ export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
   SubmitInteractionSubject
 > = z.object({
   identity: z.optional(z.lazy(() => SubmitInteractionIdentity$outboundSchema)),
+  entities: z.optional(
+    z.array(z.lazy(() => SubmitInteractionEntity$outboundSchema)),
+  ),
   documents: z.optional(
     z.array(z.lazy(() => SubmitInteractionDocument$outboundSchema)),
   ),
@@ -3937,8 +5480,10 @@ export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
       z.lazy(() =>
         SubmitInteractionBiometric2$outboundSchema
       ),
+      z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
       z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
       z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
+      z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
     ])),
   ),
   sessions: z.optional(
@@ -3950,6 +5495,7 @@ export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
   accounts: z.optional(
     z.array(z.lazy(() => SubmitInteractionAccount$outboundSchema)),
   ),
+  kba: z.optional(z.lazy(() => SubmitInteractionKba$outboundSchema)),
   uid: z.optional(z.string()),
 });
 
@@ -3962,8 +5508,45 @@ export function submitInteractionSubjectToJSON(
 }
 
 /** @internal */
+export type ManualReview$Outbound = {
+  decision: number;
+  notes?: string | undefined;
+};
+
+/** @internal */
+export const ManualReview$outboundSchema: z.ZodMiniType<
+  ManualReview$Outbound,
+  ManualReview
+> = z.object({
+  decision: z.int(),
+  notes: z.optional(z.string()),
+});
+
+export function manualReviewToJSON(manualReview: ManualReview): string {
+  return JSON.stringify(ManualReview$outboundSchema.parse(manualReview));
+}
+
+/** @internal */
+export type Reviewer$Outbound = {
+  manualReview?: ManualReview$Outbound | undefined;
+};
+
+/** @internal */
+export const Reviewer$outboundSchema: z.ZodMiniType<
+  Reviewer$Outbound,
+  Reviewer
+> = z.object({
+  manualReview: z.optional(z.lazy(() => ManualReview$outboundSchema)),
+});
+
+export function reviewerToJSON(reviewer: Reviewer): string {
+  return JSON.stringify(Reviewer$outboundSchema.parse(reviewer));
+}
+
+/** @internal */
 export type SubmitInteractionContext$Outbound = {
   subject: SubmitInteractionSubject$Outbound;
+  reviewers?: Array<Reviewer$Outbound> | undefined;
 };
 
 /** @internal */
@@ -3972,6 +5555,7 @@ export const SubmitInteractionContext$outboundSchema: z.ZodMiniType<
   SubmitInteractionContext
 > = z.object({
   subject: z.lazy(() => SubmitInteractionSubject$outboundSchema),
+  reviewers: z.optional(z.array(z.lazy(() => Reviewer$outboundSchema))),
 });
 
 export function submitInteractionContextToJSON(
@@ -3988,77 +5572,27 @@ export type SubmitInteractionRequest$Outbound = {
   interactionId: string;
   participants?: Array<Participant$Outbound> | undefined;
   context?: SubmitInteractionContext$Outbound | undefined;
+  [additionalProperties: string]: unknown;
 };
 
 /** @internal */
 export const SubmitInteractionRequest$outboundSchema: z.ZodMiniType<
   SubmitInteractionRequest$Outbound,
   SubmitInteractionRequest
-> = z.object({
-  instanceId: z.string(),
-  interactionId: z.string(),
-  participants: z.optional(z.array(z.lazy(() => Participant$outboundSchema))),
-  context: z.optional(z.lazy(() => SubmitInteractionContext$outboundSchema)),
-});
+> = z.catchall(
+  z.object({
+    instanceId: z.string(),
+    interactionId: z.string(),
+    participants: z.optional(z.array(z.lazy(() => Participant$outboundSchema))),
+    context: z.optional(z.lazy(() => SubmitInteractionContext$outboundSchema)),
+  }),
+  z.any(),
+);
 
 export function submitInteractionRequestToJSON(
   submitInteractionRequest: SubmitInteractionRequest,
 ): string {
   return JSON.stringify(
     SubmitInteractionRequest$outboundSchema.parse(submitInteractionRequest),
-  );
-}
-
-/** @internal */
-export const SubmitInteractionError$inboundSchema: z.ZodMiniType<
-  SubmitInteractionError,
-  unknown
-> = z.object({
-  status: types.literal("error"),
-  code: types.number(),
-  message: types.string(),
-});
-
-export function submitInteractionErrorFromJSON(
-  jsonString: string,
-): SafeParseResult<SubmitInteractionError, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => SubmitInteractionError$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'SubmitInteractionError' from JSON`,
-  );
-}
-
-/** @internal */
-export const Success$inboundSchema: z.ZodMiniType<Success, unknown> = z.object({
-  status: types.literal("success"),
-});
-
-export function successFromJSON(
-  jsonString: string,
-): SafeParseResult<Success, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => Success$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'Success' from JSON`,
-  );
-}
-
-/** @internal */
-export const SubmitInteractionResponse$inboundSchema: z.ZodMiniType<
-  SubmitInteractionResponse,
-  unknown
-> = discriminatedUnion("status", {
-  success: z.lazy(() => Success$inboundSchema),
-  error: z.lazy(() => SubmitInteractionError$inboundSchema),
-});
-
-export function submitInteractionResponseFromJSON(
-  jsonString: string,
-): SafeParseResult<SubmitInteractionResponse, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => SubmitInteractionResponse$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'SubmitInteractionResponse' from JSON`,
   );
 }

@@ -77,7 +77,7 @@ public class PostAsTokenOauth2 {
             return new BeforeRequestContextImpl(
                     this.sdkConfiguration,
                     this.baseUrl,
-                    "post_/as/token.oauth2",
+                    "postAsTokenOauth2",
                     java.util.Optional.empty(),
                     securitySource());
         }
@@ -86,7 +86,7 @@ public class PostAsTokenOauth2 {
             return new AfterSuccessContextImpl(
                     this.sdkConfiguration,
                     this.baseUrl,
-                    "post_/as/token.oauth2",
+                    "postAsTokenOauth2",
                     java.util.Optional.empty(),
                     securitySource());
         }
@@ -95,7 +95,7 @@ public class PostAsTokenOauth2 {
             return new AfterErrorContextImpl(
                     this.sdkConfiguration,
                     this.baseUrl,
-                    "post_/as/token.oauth2",
+                    "postAsTokenOauth2",
                     java.util.Optional.empty(),
                     securitySource());
         }

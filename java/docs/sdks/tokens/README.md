@@ -12,7 +12,7 @@ Get an access token to authenticate API requests. If you're unfamiliar with the 
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="post_/as/token.oauth2" method="post" path="/as/token.oauth2" -->
+<!-- UsageSnippet language="java" operationID="postAsTokenOauth2" method="post" path="/as/token.oauth2" -->
 ```java
 package hello.world;
 

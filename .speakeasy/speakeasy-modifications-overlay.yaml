@@ -2,140 +2,245 @@ overlay: 1.0.0
 x-speakeasy-jsonpath: rfc9535
 info:
   title: Speakeasy Modifications
-  version: 0.0.3
+  version: 0.1.0
   x-speakeasy-metadata:
     after: ""
     before: ""
     type: speakeasy-modifications
+
+# The source is now the live, dynamically generated spec served by Captain at
+# /v2/captain/openapi.json. It describes the API faithfully but was not written
+# with SDK generation in mind, so this overlay supplies what a generator needs
+# and the server has no reason to publish:
+#
+#   - method names, because the live spec carries no operationIds
+#   - the US and AU hosts, because the live spec advertises only EU
+#
+# It also restores one field the live spec is missing outright (see the auth
+# section at the bottom). That entry is a patch over a real upstream gap, not a
+# generation concern, and should be deleted once the platform team ships it.
+#
+# Nothing here should ever describe the *shape of a response*. Hand-maintaining
+# response schemas is what left the published SDK silently dropping the journey
+# result; the live spec is the only thing that tracks the server, so let it.
+
 actions:
-  - target: $["paths"]["/journey/state/fetch"]["post"]
+  # --- Servers -------------------------------------------------------------
+  # `update` merges, and merging into an array appends, so replacing the list
+  # takes a remove first. Without this the EU entry is duplicated.
+  - target: $["servers"][*]
+    remove: true
+  - target: $["servers"]
     update:
-      x-speakeasy-group: journeys
-      x-speakeasy-name-override: getState
-    x-speakeasy-metadata:
-      after: sdk.journeys.getState()
-      before: sdk.Customer APIs.getJourneyState()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/update"]["post"]
+      - url: https://eu.platform.go.gbgplc.com
+        description: EU
+      - url: https://us.platform.go.gbgplc.com
+        description: US
+      - url: https://au.platform.go.gbgplc.com
+        description: AU
+
+  # --- Authentication ------------------------------------------------------
+  - target: $["paths"]["/as/token.oauth2"]["post"]
     update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: update
-    x-speakeasy-metadata:
-      after: sdk.tasks.update()
-      before: sdk.End User APIs.updateTask()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/list"]["post"]
+      operationId: postAsTokenOauth2
+      x-speakeasy-group: tokens
+      x-speakeasy-name-override: generate
+
+  # --- Journeys ------------------------------------------------------------
+  - target: $["paths"]["/v2/captain/journey/start"]["post"]
     update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: list
-    x-speakeasy-metadata:
-      after: sdk.tasks.list()
-      before: sdk.End User APIs.getTasks()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/schema"]["post"]
-    update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: getSchema
-    x-speakeasy-metadata:
-      after: sdk.tasks.getSchema()
-      before: sdk.Customer APIs.getTaskSchema()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/device/start"]["post"]
-    update:
-      x-speakeasy-group: devices
-      x-speakeasy-name-override: add
-    x-speakeasy-metadata:
-      after: sdk.devices.add()
-      before: sdk.Customer APIs.addDevice()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/device/connect"]["post"]
-    update:
-      x-speakeasy-group: devices
-      x-speakeasy-name-override: connect
-    x-speakeasy-metadata:
-      after: sdk.devices.connect()
-      before: sdk.End User APIs.deviceConnect()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/state/delete"]["post"]
-    update:
-      x-speakeasy-group: instances
-      x-speakeasy-name-override: delete
-    x-speakeasy-metadata:
-      after: sdk.instances.delete()
-      before: sdk.Customer APIs.deleteInstance()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/list/schema"]["post"]
-    update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: listSchema
-    x-speakeasy-metadata:
-      after: sdk.tasks.listSchema()
-      before: sdk.Customer APIs.getTasksSchema()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/health"]["get"]
-    update:
-      x-speakeasy-name-override: get
-    x-speakeasy-metadata:
-      after: sdk.health.get()
-      before: sdk.Health.health()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/interaction/submit"]["post"]
-    update:
-      x-speakeasy-group: interactions
-      x-speakeasy-name-override: submit
-    x-speakeasy-metadata:
-      after: sdk.interactions.submit()
-      before: sdk.Interaction Service.submitInteraction()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/interaction/fetch"]["post"]
-    update:
-      x-speakeasy-group: interactions
-      x-speakeasy-name-override: fetch
-    x-speakeasy-metadata:
-      after: sdk.interactions.fetch()
-      before: sdk.Interaction Service.fetchInteraction()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/start"]["post"]
-    update:
+      operationId: startJourney
       x-speakeasy-group: journeys
       x-speakeasy-name-override: start
-    x-speakeasy-metadata:
-      after: sdk.journeys.start()
-      before: sdk.Customer APIs.startJourney()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/state/fetch"]["post"]["responses"]["200"]["content"]["application/json"]["schema"]["required"][*]
-    remove: true
-    x-speakeasy-metadata:
-      created_at: 1775035860983
-      type: user-edit
-  - target: $["paths"]["/journey/state/fetch"]["post"]["responses"]["200"]["content"]["application/json"]["schema"]["required"]
+  - target: $["paths"]["/v2/captain/journey/state/fetch"]["post"]
     update:
-      - instanceId
-      - status
-    x-speakeasy-metadata:
-      created_at: 1775035860983
-      type: user-edit
+      operationId: getJourneyState
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: getState
+  - target: $["paths"]["/v2/captain/journey/schema/fetch"]["post"]
+    update:
+      operationId: getJourneySchemas
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: getSchemas
+  - target: $["paths"]["/v2/captain/journey/terminate"]["post"]
+    update:
+      operationId: terminateJourney
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: terminate
+
+  # --- Instances -----------------------------------------------------------
+  - target: $["paths"]["/v2/captain/journey/state/delete"]["post"]
+    update:
+      operationId: deleteInstance
+      x-speakeasy-group: instances
+      x-speakeasy-name-override: delete
+  - target: $["paths"]["/v2/captain/journey/instance/{instanceId}/handoff-token"]["post"]
+    update:
+      operationId: createHandoffToken
+      x-speakeasy-group: instances
+      x-speakeasy-name-override: handoffToken
+
+  # --- Interactions --------------------------------------------------------
+  - target: $["paths"]["/v2/captain/journey/interaction/fetch"]["post"]
+    update:
+      operationId: fetchInteraction
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: fetch
+  - target: $["paths"]["/v2/captain/journey/interaction/submit"]["post"]
+    update:
+      operationId: submitInteraction
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: submit
+  - target: $["paths"]["/v2/captain/journey/interaction/asset/upload"]["post"]
+    update:
+      operationId: uploadInteractionAsset
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: uploadAsset
+
+  # --- Tasks ---------------------------------------------------------------
+  - target: $["paths"]["/v2/captain/journey/task/schema"]["post"]
+    update:
+      operationId: getTaskSchema
+      x-speakeasy-group: tasks
+      x-speakeasy-name-override: getSchema
+
+  # --- Devices -------------------------------------------------------------
+  - target: $["paths"]["/v2/captain/journey/device/start"]["post"]
+    update:
+      operationId: addDevice
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: add
+  - target: $["paths"]["/v2/captain/journey/device/connect"]["post"]
+    update:
+      operationId: deviceConnect
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: connect
+  - target: $["paths"]["/v2/captain/journey/device/refresh"]["post"]
+    update:
+      operationId: deviceRefresh
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: refresh
+  - target: $["paths"]["/v2/captain/journey/device/validate"]["post"]
+    update:
+      operationId: deviceValidate
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: validate
+
+  # --- Address lookup ------------------------------------------------------
+  - target: $["paths"]["/v2/captain/journey/loqate/search"]["post"]
+    update:
+      operationId: searchAddresses
+      x-speakeasy-group: addresses
+      x-speakeasy-name-override: search
+  - target: $["paths"]["/v2/captain/journey/loqate/retrieve"]["post"]
+    update:
+      operationId: retrieveAddress
+      x-speakeasy-group: addresses
+      x-speakeasy-name-override: retrieve
+
+  # --- Sandbox -------------------------------------------------------------
+  - target: $["paths"]["/v2/captain/sandbox/journeys/{journeyId}/scenarios"]["post"]
+    update:
+      operationId: createSandboxScenario
+      x-speakeasy-group: sandbox
+      x-speakeasy-name-override: createScenario
+  - target: $["paths"]["/v2/captain/sandbox/journeys/{journeyId}/scenarios"]["get"]
+    update:
+      operationId: listSandboxScenarios
+      x-speakeasy-group: sandbox
+      x-speakeasy-name-override: listScenarios
+  - target: $["paths"]["/v2/captain/sandbox/journeys/{journeyId}/scenarios/{name}"]["get"]
+    update:
+      operationId: getSandboxScenario
+      x-speakeasy-group: sandbox
+      x-speakeasy-name-override: getScenario
+  - target: $["paths"]["/v2/captain/sandbox/journeys/{journeyId}/scenarios/{name}"]["put"]
+    update:
+      operationId: putSandboxScenario
+      x-speakeasy-group: sandbox
+      x-speakeasy-name-override: putScenario
+  - target: $["paths"]["/v2/captain/sandbox/journeys/{journeyId}/scenarios/{name}"]["delete"]
+    update:
+      operationId: deleteSandboxScenario
+      x-speakeasy-group: sandbox
+      x-speakeasy-name-override: deleteScenario
+
+  # --- Upstream gap: device/connect is described as taking nothing --------
+  #
+  # The live spec declares this operation with `security: []`, no requestBody
+  # and no parameters. The static spec required a DeviceConnect bearer plus
+  # `connectToken` and `deviceInfo`, and that is what the endpoint actually
+  # wants — without this the generated `devices.connect()` accepts nothing and
+  # the device handover cannot be driven through the SDK at all.
+  #
+  # This patches a REQUEST, which is why it is tolerable where patching a
+  # response would not be. A stale request patch fails loudly with a 400; a
+  # stale response patch drops fields silently, which is the bug this whole
+  # migration exists to fix. Delete this once the live spec describes the
+  # operation properly.
+  #
+  # Shape taken from the static spec at 32440fe (.spec/spec.yaml,
+  # /journey/device/connect), which was generating a working client.
+  - target: $["components"]["securitySchemes"]
+    update:
+      DeviceConnect:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+        description: >-
+          Connect-token bearer, minted by device/start and exchanged here for
+          an end-user token. Absent from the live spec; see the overlay.
+  - target: $["paths"]["/v2/captain/journey/device/connect"]["post"]["security"]
+    update:
+      - DeviceConnect: []
+  - target: $["paths"]["/v2/captain/journey/device/connect"]["post"]
+    update:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connectToken:
+                  type: string
+                  minLength: 8
+                  maxLength: 1024
+                  description: Bearer Token credential for a connection.
+                deviceInfo:
+                  type: object
+                  properties:
+                    deviceId:
+                      type: string
+                      minLength: 16
+                      maxLength: 64
+                      description: Device Id, a unique identifier for a device.
+                    deviceName:
+                      type: string
+                    deviceType:
+                      type: string
+                  required:
+                    - deviceId
+              required:
+                - connectToken
+                - deviceInfo
+
+  # --- Upstream bug: device connect's tokenType enum has the wrong value ---
+  #
+  # The live spec declares DeviceConnectResponse.tokenType as `end_user`. The
+  # server sends `end-user`, with a hyphen — captured from a real 201 against
+  # demo on 2026-10-08, and the same spelling the static spec carried. One
+  # character, and it makes the operation unusable: the response fails
+  # validation and no end-user token ever reaches the caller.
+  #
+  # This corrects a RESPONSE, which the rest of this overlay deliberately
+  # avoids. It earns the exception on two grounds. It is verified against a
+  # live call rather than inferred, and correcting an enum value cannot lose
+  # data the way a hand-maintained response shape can — if the server ever
+  # sends something else, this fails loudly again rather than silently
+  # dropping it. Delete once the live spec spells it correctly.
+  - target: $["components"]["schemas"]["DeviceConnectResponse"]["properties"]["tokenType"]["enum"][*]
+    remove: true
+  - target: $["components"]["schemas"]["DeviceConnectResponse"]["properties"]["tokenType"]["enum"]
+    update:
+      - end-user

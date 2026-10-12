@@ -4,20 +4,27 @@
 package com.gbg.gocore;
 
 import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
+import static com.gbg.gocore.operations.Operations.AsyncRequestlessOperation;
 
 import com.gbg.gocore.models.operations.FetchInteractionRequest;
+import com.gbg.gocore.models.operations.FetchInteractionRequestBody;
 import com.gbg.gocore.models.operations.FetchInteractionSecurity;
 import com.gbg.gocore.models.operations.SubmitInteractionRequest;
 import com.gbg.gocore.models.operations.SubmitInteractionSecurity;
+import com.gbg.gocore.models.operations.UploadInteractionAssetSecurity;
 import com.gbg.gocore.models.operations.async.FetchInteractionRequestBuilder;
 import com.gbg.gocore.models.operations.async.FetchInteractionResponse;
 import com.gbg.gocore.models.operations.async.SubmitInteractionRequestBuilder;
 import com.gbg.gocore.models.operations.async.SubmitInteractionResponse;
+import com.gbg.gocore.models.operations.async.UploadInteractionAssetRequestBuilder;
+import com.gbg.gocore.models.operations.async.UploadInteractionAssetResponse;
 import com.gbg.gocore.operations.FetchInteraction;
 import com.gbg.gocore.operations.SubmitInteraction;
+import com.gbg.gocore.operations.UploadInteractionAsset;
 import com.gbg.gocore.utils.Headers;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.String;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -42,9 +49,53 @@ public class AsyncInteractions {
 
 
     /**
-     * Submit Interaction
+     * Fetch current interaction
      * 
-     * <p>Submit Interaction
+     * <p>Retrieves the current interaction state for a journey instance.
+     * 
+     * @return The async call builder
+     */
+    public FetchInteractionRequestBuilder fetch() {
+        return new FetchInteractionRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Fetch current interaction
+     * 
+     * <p>Retrieves the current interaction state for a journey instance.
+     * 
+     * @param security The security details to use for authentication.
+     * @return {@code CompletableFuture<FetchInteractionResponse>} - The async response
+     */
+    public CompletableFuture<FetchInteractionResponse> fetch(@Nonnull FetchInteractionSecurity security) {
+        return fetch(security, null, null);
+    }
+
+    /**
+     * Fetch current interaction
+     * 
+     * <p>Retrieves the current interaction state for a journey instance.
+     * 
+     * @param security The security details to use for authentication.
+     * @param view Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the compact, typed customer-facing shape. Any other value returns 400.
+     * @param body 
+     * @return {@code CompletableFuture<FetchInteractionResponse>} - The async response
+     */
+    public CompletableFuture<FetchInteractionResponse> fetch(
+            @Nonnull FetchInteractionSecurity security, @Nullable String view,
+            @Nullable FetchInteractionRequestBody body) {
+        FetchInteractionRequest request = new FetchInteractionRequest(view, body);
+        AsyncRequestOperation<FetchInteractionRequest, FetchInteractionResponse> operation
+              = new FetchInteraction.Async(sdkConfiguration, security, _headers);
+        return operation.doRequest(request)
+            .thenCompose(operation::handleResponse);
+    }
+
+
+    /**
+     * Submit interaction data
+     * 
+     * <p>Submits participant data for an interaction.
      * 
      * @return The async call builder
      */
@@ -53,9 +104,9 @@ public class AsyncInteractions {
     }
 
     /**
-     * Submit Interaction
+     * Submit interaction data
      * 
-     * <p>Submit Interaction
+     * <p>Submits participant data for an interaction.
      * 
      * @param security The security details to use for authentication.
      * @return {@code CompletableFuture<SubmitInteractionResponse>} - The async response
@@ -65,9 +116,9 @@ public class AsyncInteractions {
     }
 
     /**
-     * Submit Interaction
+     * Submit interaction data
      * 
-     * <p>Submit Interaction
+     * <p>Submits participant data for an interaction.
      * 
      * @param request The request object containing all the parameters for the API call.
      * @param security The security details to use for authentication.
@@ -82,41 +133,40 @@ public class AsyncInteractions {
 
 
     /**
-     * Fetch Interaction
+     * Stream an interaction asset to storage
      * 
-     * <p>Fetch Interaction
+     * <p>Streams a raw asset body (application/octet-stream) to storage and returns its gofs key. Identifiers
+     * are passed as X-Instance-Id, X-Interaction-Id and X-Domain-Element-Id headers. Accepts capture
+     * elements: the encrypted selfie (EncryptedSelfie/selfieImage), the plain selfie (Selfie/selfieImage),
+     * and both document sides (PrimaryDocument/side1Image, PrimaryDocument/side2Image).
+     * 
+     * <p>An element the current deployment does not accept returns 422 — submit that asset inline (base64) in
+     * the interaction submit instead.
      * 
      * @return The async call builder
      */
-    public FetchInteractionRequestBuilder fetch() {
-        return new FetchInteractionRequestBuilder(sdkConfiguration);
+    public UploadInteractionAssetRequestBuilder uploadAsset() {
+        return new UploadInteractionAssetRequestBuilder(sdkConfiguration);
     }
 
     /**
-     * Fetch Interaction
+     * Stream an interaction asset to storage
      * 
-     * <p>Fetch Interaction
+     * <p>Streams a raw asset body (application/octet-stream) to storage and returns its gofs key. Identifiers
+     * are passed as X-Instance-Id, X-Interaction-Id and X-Domain-Element-Id headers. Accepts capture
+     * elements: the encrypted selfie (EncryptedSelfie/selfieImage), the plain selfie (Selfie/selfieImage),
+     * and both document sides (PrimaryDocument/side1Image, PrimaryDocument/side2Image).
+     * 
+     * <p>An element the current deployment does not accept returns 422 — submit that asset inline (base64) in
+     * the interaction submit instead.
      * 
      * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<FetchInteractionResponse>} - The async response
+     * @return {@code CompletableFuture<UploadInteractionAssetResponse>} - The async response
      */
-    public CompletableFuture<FetchInteractionResponse> fetch(@Nonnull FetchInteractionSecurity security) {
-        return fetch(null, security);
-    }
-
-    /**
-     * Fetch Interaction
-     * 
-     * <p>Fetch Interaction
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @param security The security details to use for authentication.
-     * @return {@code CompletableFuture<FetchInteractionResponse>} - The async response
-     */
-    public CompletableFuture<FetchInteractionResponse> fetch(@Nullable FetchInteractionRequest request, @Nonnull FetchInteractionSecurity security) {
-        AsyncRequestOperation<FetchInteractionRequest, FetchInteractionResponse> operation
-              = new FetchInteraction.Async(sdkConfiguration, security, _headers);
-        return operation.doRequest(request)
+    public CompletableFuture<UploadInteractionAssetResponse> uploadAsset(@Nonnull UploadInteractionAssetSecurity security) {
+        AsyncRequestlessOperation<UploadInteractionAssetResponse> operation
+            = new UploadInteractionAsset.Async(sdkConfiguration, security, _headers);
+        return operation.doRequest()
             .thenCompose(operation::handleResponse);
     }
 

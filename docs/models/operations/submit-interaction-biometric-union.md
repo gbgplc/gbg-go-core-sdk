@@ -37,3 +37,20 @@ const value: operations.SubmitInteractionBiometric4 = {
 };
 ```
 
+### `operations.SubmitInteractionBiometric5`
+
+```typescript
+const value: operations.SubmitInteractionBiometric5 = {
+  anchorImage: "<value>",
+};
+```
+
+### `operations.SubmitInteractionBiometricStoredFace`
+
+```typescript
+const value: operations.SubmitInteractionBiometricStoredFace = {
+  type: "storedFace",
+  templateReference: "<value>",
+};
+```
+

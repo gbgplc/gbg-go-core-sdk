@@ -6,52 +6,57 @@ package com.gbg.gocore;
 import com.gbg.gocore.utils.Headers;
 
 /**
- * GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact with the GBG GO Next
- * Gen Flow Captain
+ * GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
  */
 public class AsyncGo {
     private static final Headers _headers = Headers.EMPTY;
 
-    private final AsyncTokens tokens;
-
-    private final AsyncHealth health;
-
-    private final AsyncDevices devices;
-
-    private final AsyncTasks tasks;
-
     private final AsyncJourneys journeys;
-
-    private final AsyncInstances instances;
 
     private final AsyncInteractions interactions;
 
-    public AsyncTokens tokens() {
-        return tokens;
-    }
+    private final AsyncInstances instances;
 
-    public AsyncHealth health() {
-        return health;
-    }
+    private final AsyncAddresses addresses;
 
-    public AsyncDevices devices() {
-        return devices;
-    }
+    private final AsyncTasks tasks;
 
-    public AsyncTasks tasks() {
-        return tasks;
-    }
+    private final AsyncDevices devices;
+
+    private final AsyncSandbox sandbox;
+
+    private final AsyncTokens tokens;
 
     public AsyncJourneys journeys() {
         return journeys;
+    }
+
+    public AsyncInteractions interactions() {
+        return interactions;
     }
 
     public AsyncInstances instances() {
         return instances;
     }
 
-    public AsyncInteractions interactions() {
-        return interactions;
+    public AsyncAddresses addresses() {
+        return addresses;
+    }
+
+    public AsyncTasks tasks() {
+        return tasks;
+    }
+
+    public AsyncDevices devices() {
+        return devices;
+    }
+
+    public AsyncSandbox sandbox() {
+        return sandbox;
+    }
+
+    public AsyncTokens tokens() {
+        return tokens;
     }
 
     private SDKConfiguration sdkConfiguration;
@@ -60,13 +65,14 @@ public class AsyncGo {
     AsyncGo(Go syncSDK, SDKConfiguration sdkConfiguration) {
         this.syncSDK = syncSDK;
         this.sdkConfiguration = sdkConfiguration;
-        this.tokens = new AsyncTokens(syncSDK.tokens(), sdkConfiguration);
-        this.health = new AsyncHealth(syncSDK.health(), sdkConfiguration);
-        this.devices = new AsyncDevices(syncSDK.devices(), sdkConfiguration);
-        this.tasks = new AsyncTasks(syncSDK.tasks(), sdkConfiguration);
         this.journeys = new AsyncJourneys(syncSDK.journeys(), sdkConfiguration);
-        this.instances = new AsyncInstances(syncSDK.instances(), sdkConfiguration);
         this.interactions = new AsyncInteractions(syncSDK.interactions(), sdkConfiguration);
+        this.instances = new AsyncInstances(syncSDK.instances(), sdkConfiguration);
+        this.addresses = new AsyncAddresses(syncSDK.addresses(), sdkConfiguration);
+        this.tasks = new AsyncTasks(syncSDK.tasks(), sdkConfiguration);
+        this.devices = new AsyncDevices(syncSDK.devices(), sdkConfiguration);
+        this.sandbox = new AsyncSandbox(syncSDK.sandbox(), sdkConfiguration);
+        this.tokens = new AsyncTokens(syncSDK.tokens(), sdkConfiguration);
     }
 
     /**

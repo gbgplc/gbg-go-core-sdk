@@ -20,17 +20,19 @@ import {
   RequestTimeoutError,
   UnexpectedClientError,
 } from "../models/errors/http-client-errors.js";
+import * as errors from "../models/errors/index.js";
 import { ResponseValidationError } from "../models/errors/response-validation-error.js";
 import { SDKValidationError } from "../models/errors/sdk-validation-error.js";
+import * as models from "../models/index.js";
 import * as operations from "../models/operations/index.js";
 import { APICall, APIPromise } from "../types/async.js";
 import { Result } from "../types/fp.js";
 
 /**
- * Start Journey
+ * Start a new journey
  *
  * @remarks
- * Start Journey
+ * Creates a new journey instance from a resource definition.
  *
  * If set, this operation will use {@link Security.customerAccess} from the global security.
  */
@@ -40,7 +42,8 @@ export function journeysStart(
   options?: RequestOptions,
 ): APIPromise<
   Result<
-    operations.StartJourneyResponse,
+    models.JourneyStartResponse,
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -65,7 +68,8 @@ async function $do(
 ): Promise<
   [
     Result<
-      operations.StartJourneyResponse,
+      models.JourneyStartResponse,
+      | errors.ErrorResponse
       | GoError
       | ResponseValidationError
       | ConnectionError
@@ -92,7 +96,7 @@ async function $do(
     ? null
     : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/journey/start")();
+  const path = pathToFunc("/v2/captain/journey/start")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -145,8 +149,13 @@ async function $do(
   }
   const response = doResult.value;
 
+  const responseFields = {
+    HttpMeta: { Response: response, Request: req },
+  };
+
   const [result] = await M.match<
-    operations.StartJourneyResponse,
+    models.JourneyStartResponse,
+    | errors.ErrorResponse
     | GoError
     | ResponseValidationError
     | ConnectionError
@@ -156,11 +165,12 @@ async function $do(
     | UnexpectedClientError
     | SDKValidationError
   >(
-    M.json(200, operations.StartJourneyResponse$inboundSchema),
-    M.json(201, operations.StartJourneyResponse$inboundSchema),
-    M.fail([400, 401, 403, 404, 405, "4XX"]),
-    M.fail([500, 503, "5XX"]),
-  )(response, req);
+    M.json(201, models.JourneyStartResponse$inboundSchema),
+    M.jsonErr([400, 401, 403, 404, 429], errors.ErrorResponse$inboundSchema),
+    M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
+    M.fail("4XX"),
+    M.fail("5XX"),
+  )(response, req, { extraFields: responseFields });
   if (!result.ok) {
     return [result, { status: "complete", request: req, response }];
   }

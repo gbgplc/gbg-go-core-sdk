@@ -4,7 +4,7 @@
 package com.gbg.gocore.models.operations.async;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.gbg.gocore.models.operations.DeleteInstanceResponseBody;
+import com.gbg.gocore.models.DeleteResponse;
 import com.gbg.gocore.utils.AsyncResponse;
 import com.gbg.gocore.utils.Blob;
 import com.gbg.gocore.utils.Utils;
@@ -34,22 +34,22 @@ public class DeleteInstanceResponse implements AsyncResponse {
     private HttpResponse<Blob> rawResponse;
 
     /**
-     * Delete instance response contains the Journey Instance Id
+     * Journey deleted
      */
-    private DeleteInstanceResponseBody object;
+    private DeleteResponse deleteResponse;
 
     @JsonCreator
     public DeleteInstanceResponse(
             @Nonnull String contentType,
             int statusCode,
             @Nonnull HttpResponse<Blob> rawResponse,
-            @Nullable DeleteInstanceResponseBody object) {
+            @Nullable DeleteResponse deleteResponse) {
         this.contentType = Optional.ofNullable(contentType)
             .orElseThrow(() -> new IllegalArgumentException("contentType cannot be null"));
         this.statusCode = statusCode;
         this.rawResponse = Optional.ofNullable(rawResponse)
             .orElseThrow(() -> new IllegalArgumentException("rawResponse cannot be null"));
-        this.object = object;
+        this.deleteResponse = deleteResponse;
     }
     
     public DeleteInstanceResponse(
@@ -82,10 +82,10 @@ public class DeleteInstanceResponse implements AsyncResponse {
     }
 
     /**
-     * Delete instance response contains the Journey Instance Id
+     * Journey deleted
      */
-    public Optional<DeleteInstanceResponseBody> object() {
-        return Optional.ofNullable(this.object);
+    public Optional<DeleteResponse> deleteResponse() {
+        return Optional.ofNullable(this.deleteResponse);
     }
 
     public static Builder builder() {
@@ -121,10 +121,10 @@ public class DeleteInstanceResponse implements AsyncResponse {
 
 
     /**
-     * Delete instance response contains the Journey Instance Id
+     * Journey deleted
      */
-    public DeleteInstanceResponse withObject(@Nullable DeleteInstanceResponseBody object) {
-        this.object = object;
+    public DeleteInstanceResponse withDeleteResponse(@Nullable DeleteResponse deleteResponse) {
+        this.deleteResponse = deleteResponse;
         return this;
     }
 
@@ -142,14 +142,14 @@ public class DeleteInstanceResponse implements AsyncResponse {
             Utils.enhancedDeepEquals(this.contentType, other.contentType) &&
             Utils.enhancedDeepEquals(this.statusCode, other.statusCode) &&
             Utils.enhancedDeepEquals(this.rawResponse, other.rawResponse) &&
-            Utils.enhancedDeepEquals(this.object, other.object);
+            Utils.enhancedDeepEquals(this.deleteResponse, other.deleteResponse);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             contentType, statusCode, rawResponse,
-            object);
+            deleteResponse);
     }
     
     @Override
@@ -158,7 +158,7 @@ public class DeleteInstanceResponse implements AsyncResponse {
                 "contentType", contentType,
                 "statusCode", statusCode,
                 "rawResponse", rawResponse,
-                "object", object);
+                "deleteResponse", deleteResponse);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -170,7 +170,7 @@ public class DeleteInstanceResponse implements AsyncResponse {
 
         private HttpResponse<Blob> rawResponse;
 
-        private DeleteInstanceResponseBody object;
+        private DeleteResponse deleteResponse;
 
         private Builder() {
           // force use of static builder() method
@@ -201,17 +201,17 @@ public class DeleteInstanceResponse implements AsyncResponse {
         }
 
         /**
-         * Delete instance response contains the Journey Instance Id
+         * Journey deleted
          */
-        public Builder object(@Nullable DeleteInstanceResponseBody object) {
-            this.object = object;
+        public Builder deleteResponse(@Nullable DeleteResponse deleteResponse) {
+            this.deleteResponse = deleteResponse;
             return this;
         }
 
         public DeleteInstanceResponse build() {
             return new DeleteInstanceResponse(
                 contentType, statusCode, rawResponse,
-                object);
+                deleteResponse);
         }
 
     }

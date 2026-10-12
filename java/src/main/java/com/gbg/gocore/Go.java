@@ -15,8 +15,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact with the GBG GO Next
- * Gen Flow Captain
+ * GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
  */
 public class Go {
     private static final Headers _headers = Headers.EMPTY;
@@ -26,58 +25,52 @@ public class Go {
      * SERVERS contains the list of server urls available to the SDK.
      */
     public static final String[] SERVERS = {
-
-        "https://eu.platform.go.gbgplc.com/v2/captain",
-
-        "https://us.platform.go.gbgplc.com/v2/captain",
-
-        "https://au.platform.go.gbgplc.com/v2/captain",
+        /*
+         * EU
+         */
+        "https://eu.platform.go.gbgplc.com",
+        /*
+         * US
+         */
+        "https://us.platform.go.gbgplc.com",
+        /*
+         * AU
+         */
+        "https://au.platform.go.gbgplc.com",
     };
-
-
-    private final Tokens tokens;
-
-
-    private final Health health;
-
-
-    private final Devices devices;
-
-
-    private final Tasks tasks;
 
 
     private final Journeys journeys;
 
 
-    private final Instances instances;
-
-
     private final Interactions interactions;
 
 
-    public Tokens tokens() {
-        return tokens;
-    }
+    private final Instances instances;
 
 
-    public Health health() {
-        return health;
-    }
+    private final Addresses addresses;
 
 
-    public Devices devices() {
-        return devices;
-    }
+    private final Tasks tasks;
 
 
-    public Tasks tasks() {
-        return tasks;
-    }
+    private final Devices devices;
+
+
+    private final Sandbox sandbox;
+
+
+    private final Tokens tokens;
 
 
     public Journeys journeys() {
         return journeys;
+    }
+
+
+    public Interactions interactions() {
+        return interactions;
     }
 
 
@@ -86,8 +79,28 @@ public class Go {
     }
 
 
-    public Interactions interactions() {
-        return interactions;
+    public Addresses addresses() {
+        return addresses;
+    }
+
+
+    public Tasks tasks() {
+        return tasks;
+    }
+
+
+    public Devices devices() {
+        return devices;
+    }
+
+
+    public Sandbox sandbox() {
+        return sandbox;
+    }
+
+
+    public Tokens tokens() {
+        return tokens;
     }
     private final AsyncGo asyncSDK;
 
@@ -239,13 +252,14 @@ public class Go {
 
     private Go(SDKConfiguration sdkConfiguration) {
         sdkConfiguration.initialize();
-        this.tokens = new Tokens(sdkConfiguration);
-        this.health = new Health(sdkConfiguration);
-        this.devices = new Devices(sdkConfiguration);
-        this.tasks = new Tasks(sdkConfiguration);
         this.journeys = new Journeys(sdkConfiguration);
-        this.instances = new Instances(sdkConfiguration);
         this.interactions = new Interactions(sdkConfiguration);
+        this.instances = new Instances(sdkConfiguration);
+        this.addresses = new Addresses(sdkConfiguration);
+        this.tasks = new Tasks(sdkConfiguration);
+        this.devices = new Devices(sdkConfiguration);
+        this.sandbox = new Sandbox(sdkConfiguration);
+        this.tokens = new Tokens(sdkConfiguration);
         sdkConfiguration = sdkConfiguration.hooks().sdkInit(sdkConfiguration);
         this.asyncSDK = new AsyncGo(this, sdkConfiguration);
     }

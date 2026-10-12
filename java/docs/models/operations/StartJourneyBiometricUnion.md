@@ -37,6 +37,25 @@ StartJourneyBiometricUnion value = StartJourneyBiometricUnion.of(StartJourneyBio
     .build());
 ```
 
+### [`StartJourneyBiometric5`](../../models/operations/StartJourneyBiometric5.md)
+
+```java
+StartJourneyBiometricUnion value = StartJourneyBiometricUnion.of(StartJourneyBiometric5.builder()
+    .anchorImage("<value>")
+    .build());
+```
+
+### [`StartJourneyBiometricStoredFace`](../../models/operations/StartJourneyBiometricStoredFace.md)
+
+```java
+StartJourneyBiometricUnion value = StartJourneyBiometricUnion.of(StartJourneyBiometricStoredFace.builder()
+    .type(StartJourneyBiometricType.STORED_FACE)
+    .templateReference("<value>")
+    .build());
+```
+
+**Referred Types:** [StartJourneyBiometricType](../../models/operations/StartJourneyBiometricType.md)
+
 ## Consumption Patterns
 
 ### Java 11+ (Accessor Methods)
@@ -54,6 +73,12 @@ if (value.startJourneyBiometric1().isPresent()) {
 } else if (value.startJourneyBiometric4().isPresent()) {
     com.gbg.gocore.models.operations.StartJourneyBiometric4 startJourneyBiometric4Value = value.startJourneyBiometric4().get();
     // Handle startJourneyBiometric4 variant
+} else if (value.startJourneyBiometric5().isPresent()) {
+    com.gbg.gocore.models.operations.StartJourneyBiometric5 startJourneyBiometric5Value = value.startJourneyBiometric5().get();
+    // Handle startJourneyBiometric5 variant
+} else if (value.startJourneyBiometricStoredFace().isPresent()) {
+    com.gbg.gocore.models.operations.StartJourneyBiometricStoredFace startJourneyBiometricStoredFaceValue = value.startJourneyBiometricStoredFace().get();
+    // Handle startJourneyBiometricStoredFace variant
 } else if (value.asJson().isPresent()) {
     com.fasterxml.jackson.databind.JsonNode raw = value.asJson().get();
     // Handle unknown variant fallback

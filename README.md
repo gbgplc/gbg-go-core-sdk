@@ -5,10 +5,16 @@ Developer-friendly & type-safe Typescript SDK specifically catered to leverage _
 [![Built by Speakeasy](https://img.shields.io/badge/Built_by-SPEAKEASY-374151?style=for-the-badge&labelColor=f3f4f6)](https://www.speakeasy.com/?utm_source=@gbg/go-core&utm_campaign=typescript)
 [![License: MIT](https://img.shields.io/badge/LICENSE_//_MIT-3b5bdb?style=for-the-badge&labelColor=eff6ff)](https://opensource.org/licenses/MIT)
 
+> [!IMPORTANT]
+> **Upgrading from 0.1.x?** 0.2.0 is a breaking release, and one of the breaks
+> is silent: the base URL must no longer include `/v2/captain`, or every request
+> gets a misleading 401. See [CHANGELOG.md](./CHANGELOG.md) for the full list and
+> the known gaps.
+
 <!-- Start Summary [summary] -->
 ## Summary
 
-GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact with the GBG GO Next Gen Flow Captain
+GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
 <!-- End Summary [summary] -->
 
 <!-- Start Table of Contents [toc] -->
@@ -80,10 +86,12 @@ For supported JavaScript runtimes, please consult [RUNTIMES.md](RUNTIMES.md).
 ```typescript
 import { Go } from "@gbg/go-core";
 
-const go = new Go();
+const go = new Go({
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
+});
 
 async function run() {
-  const result = await go.tokens.generate();
+  const result = await go.journeys.start();
 
   console.log(result);
 }
@@ -113,7 +121,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.tokens.generate();
+  const result = await go.journeys.start();
 
   console.log(result);
 }
@@ -131,15 +139,8 @@ import { Go } from "@gbg/go-core";
 const go = new Go();
 
 async function run() {
-  const result = await go.devices.connect({
-    deviceConnect: process.env["GO_DEVICE_CONNECT"] ?? "",
-  }, {
-    connectToken: "s4FUx8Ny8ijXRtFigz3x1_8rb9bd_5ZD",
-    deviceInfo: {
-      deviceId: "exampleDeviceId123",
-      deviceName: "deviceName",
-      deviceType: "deviceType",
-    },
+  const result = await go.interactions.fetch({}, {
+    view: "slim",
   });
 
   console.log(result);
@@ -156,35 +157,47 @@ run();
 <details open>
 <summary>Available methods</summary>
 
+### [Addresses](docs/sdks/addresses/README.md)
+
+* [search](docs/sdks/addresses/README.md#search) - Search addresses via Loqate Capture
+* [retrieve](docs/sdks/addresses/README.md#retrieve) - Retrieve full address via Loqate Capture
+
 ### [Devices](docs/sdks/devices/README.md)
 
-* [connect](docs/sdks/devices/README.md#connect) - Connect or Refresh End User Device
-* [add](docs/sdks/devices/README.md#add) - Create Connect Secret
-
-### [Health](docs/sdks/health/README.md)
-
-* [get](docs/sdks/health/README.md#get) - Obtain the flow-captain health status
+* [add](docs/sdks/devices/README.md#add) - Generate connect token
+* [connect](docs/sdks/devices/README.md#connect) - Complete the device-onboarding handshake
+* [refresh](docs/sdks/devices/README.md#refresh) - Renew a device session
+* [validate](docs/sdks/devices/README.md#validate) - Validate end-user session
 
 ### [Instances](docs/sdks/instances/README.md)
 
-* [delete](docs/sdks/instances/README.md#delete) - Delete instance
+* [handoffToken](docs/sdks/instances/README.md#handofftoken) - Mint a fresh position-scoped handoff token
+* [delete](docs/sdks/instances/README.md#delete) - Delete journey state
 
 ### [Interactions](docs/sdks/interactions/README.md)
 
-* [submit](docs/sdks/interactions/README.md#submit) - Submit Interaction
-* [fetch](docs/sdks/interactions/README.md#fetch) - Fetch Interaction
+* [fetch](docs/sdks/interactions/README.md#fetch) - Fetch current interaction
+* [submit](docs/sdks/interactions/README.md#submit) - Submit interaction data
+* [uploadAsset](docs/sdks/interactions/README.md#uploadasset) - Stream an interaction asset to storage
 
 ### [Journeys](docs/sdks/journeys/README.md)
 
-* [start](docs/sdks/journeys/README.md#start) - Start Journey
-* [getState](docs/sdks/journeys/README.md#getstate) - Get State Data
+* [start](docs/sdks/journeys/README.md#start) - Start a new journey
+* [getState](docs/sdks/journeys/README.md#getstate) - Fetch journey state
+* [getSchemas](docs/sdks/journeys/README.md#getschemas) - Fetch interaction JSON schemas
+* [terminate](docs/sdks/journeys/README.md#terminate) - Terminate journey
 
-### [Tasks](docs/sdks/tasks/README.md)
+### [Sandbox](docs/sdks/sandbox/README.md)
 
-* [list](docs/sdks/tasks/README.md#list) - Get End User Tasks
-* [update](docs/sdks/tasks/README.md#update) - Put End User Data
-* [getSchema](docs/sdks/tasks/README.md#getschema) - Get Task Schema
-* [listSchema](docs/sdks/tasks/README.md#listschema) - Get Tasks Schema
+* [createScenario](docs/sdks/sandbox/README.md#createscenario) - Create a sandbox scenario on a journey
+* [listScenarios](docs/sdks/sandbox/README.md#listscenarios) - List a journey's sandbox scenarios
+* [getScenario](docs/sdks/sandbox/README.md#getscenario) - Read a sandbox scenario
+* [putScenario](docs/sdks/sandbox/README.md#putscenario) - Replace a sandbox scenario
+* [deleteScenario](docs/sdks/sandbox/README.md#deletescenario) - Delete a sandbox scenario
+
+### [~~Tasks~~](docs/sdks/tasks/README.md)
+
+* [~~getSchema~~](docs/sdks/tasks/README.md#getschema) - Fetch V1-compat task schema :warning: **Deprecated**
 
 ### [Tokens](docs/sdks/tokens/README.md)
 
@@ -208,19 +221,28 @@ To read more about standalone functions, check [FUNCTIONS.md](./FUNCTIONS.md).
 
 <summary>Available standalone functions</summary>
 
-- [`devicesAdd`](docs/sdks/devices/README.md#add) - Create Connect Secret
-- [`devicesConnect`](docs/sdks/devices/README.md#connect) - Connect or Refresh End User Device
-- [`healthGet`](docs/sdks/health/README.md#get) - Obtain the flow-captain health status
-- [`instancesDelete`](docs/sdks/instances/README.md#delete) - Delete instance
-- [`interactionsFetch`](docs/sdks/interactions/README.md#fetch) - Fetch Interaction
-- [`interactionsSubmit`](docs/sdks/interactions/README.md#submit) - Submit Interaction
-- [`journeysGetState`](docs/sdks/journeys/README.md#getstate) - Get State Data
-- [`journeysStart`](docs/sdks/journeys/README.md#start) - Start Journey
-- [`tasksGetSchema`](docs/sdks/tasks/README.md#getschema) - Get Task Schema
-- [`tasksList`](docs/sdks/tasks/README.md#list) - Get End User Tasks
-- [`tasksListSchema`](docs/sdks/tasks/README.md#listschema) - Get Tasks Schema
-- [`tasksUpdate`](docs/sdks/tasks/README.md#update) - Put End User Data
+- [`addressesRetrieve`](docs/sdks/addresses/README.md#retrieve) - Retrieve full address via Loqate Capture
+- [`addressesSearch`](docs/sdks/addresses/README.md#search) - Search addresses via Loqate Capture
+- [`devicesAdd`](docs/sdks/devices/README.md#add) - Generate connect token
+- [`devicesConnect`](docs/sdks/devices/README.md#connect) - Complete the device-onboarding handshake
+- [`devicesRefresh`](docs/sdks/devices/README.md#refresh) - Renew a device session
+- [`devicesValidate`](docs/sdks/devices/README.md#validate) - Validate end-user session
+- [`instancesDelete`](docs/sdks/instances/README.md#delete) - Delete journey state
+- [`instancesHandoffToken`](docs/sdks/instances/README.md#handofftoken) - Mint a fresh position-scoped handoff token
+- [`interactionsFetch`](docs/sdks/interactions/README.md#fetch) - Fetch current interaction
+- [`interactionsSubmit`](docs/sdks/interactions/README.md#submit) - Submit interaction data
+- [`interactionsUploadAsset`](docs/sdks/interactions/README.md#uploadasset) - Stream an interaction asset to storage
+- [`journeysGetSchemas`](docs/sdks/journeys/README.md#getschemas) - Fetch interaction JSON schemas
+- [`journeysGetState`](docs/sdks/journeys/README.md#getstate) - Fetch journey state
+- [`journeysStart`](docs/sdks/journeys/README.md#start) - Start a new journey
+- [`journeysTerminate`](docs/sdks/journeys/README.md#terminate) - Terminate journey
+- [`sandboxCreateScenario`](docs/sdks/sandbox/README.md#createscenario) - Create a sandbox scenario on a journey
+- [`sandboxDeleteScenario`](docs/sdks/sandbox/README.md#deletescenario) - Delete a sandbox scenario
+- [`sandboxGetScenario`](docs/sdks/sandbox/README.md#getscenario) - Read a sandbox scenario
+- [`sandboxListScenarios`](docs/sdks/sandbox/README.md#listscenarios) - List a journey's sandbox scenarios
+- [`sandboxPutScenario`](docs/sdks/sandbox/README.md#putscenario) - Replace a sandbox scenario
 - [`tokensGenerate`](docs/sdks/tokens/README.md#generate) - Generate access token
+- ~~[`tasksGetSchema`](docs/sdks/tasks/README.md#getschema)~~ - Fetch V1-compat task schema :warning: **Deprecated**
 
 </details>
 <!-- End Standalone functions [standalone-funcs] -->
@@ -234,10 +256,12 @@ To change the default retry strategy for a single API call, simply provide a ret
 ```typescript
 import { Go } from "@gbg/go-core";
 
-const go = new Go();
+const go = new Go({
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
+});
 
 async function run() {
-  const result = await go.tokens.generate(undefined, {
+  const result = await go.journeys.start(undefined, {
     retries: {
       strategy: "backoff",
       backoff: {
@@ -272,10 +296,11 @@ const go = new Go({
     },
     retryConnectionErrors: false,
   },
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
 });
 
 async function run() {
-  const result = await go.tokens.generate();
+  const result = await go.journeys.start();
 
   console.log(result);
 }
@@ -290,32 +315,41 @@ run();
 
 [`GoError`](./src/models/errors/go-error.ts) is the base class for all HTTP error responses. It has the following properties:
 
-| Property            | Type       | Description                                            |
-| ------------------- | ---------- | ------------------------------------------------------ |
-| `error.message`     | `string`   | Error message                                          |
-| `error.statusCode`  | `number`   | HTTP response status code eg `404`                     |
-| `error.headers`     | `Headers`  | HTTP response headers                                  |
-| `error.body`        | `string`   | HTTP body. Can be empty string if no body is returned. |
-| `error.rawResponse` | `Response` | Raw HTTP response                                      |
+| Property            | Type       | Description                                                                             |
+| ------------------- | ---------- | --------------------------------------------------------------------------------------- |
+| `error.message`     | `string`   | Error message                                                                           |
+| `error.statusCode`  | `number`   | HTTP response status code eg `404`                                                      |
+| `error.headers`     | `Headers`  | HTTP response headers                                                                   |
+| `error.body`        | `string`   | HTTP body. Can be empty string if no body is returned.                                  |
+| `error.rawResponse` | `Response` | Raw HTTP response                                                                       |
+| `error.data$`       |            | Optional. Some errors may contain structured data. [See Error Classes](#error-classes). |
 
 ### Example
 ```typescript
 import { Go } from "@gbg/go-core";
 import * as errors from "@gbg/go-core/models/errors";
 
-const go = new Go();
+const go = new Go({
+  customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
+});
 
 async function run() {
   try {
-    const result = await go.tokens.generate();
+    const result = await go.journeys.start();
 
     console.log(result);
   } catch (error) {
+    // The base class for HTTP error responses
     if (error instanceof errors.GoError) {
       console.log(error.message);
       console.log(error.statusCode);
       console.log(error.body);
       console.log(error.headers);
+
+      // Depending on the method different errors may be thrown
+      if (error instanceof errors.ErrorResponse) {
+        console.log(error.data$.errors); // GbgError[]
+      }
     }
   }
 }
@@ -325,8 +359,9 @@ run();
 ```
 
 ### Error Classes
-**Primary error:**
+**Primary errors:**
 * [`GoError`](./src/models/errors/go-error.ts): The base class for HTTP error responses.
+  * [`ErrorResponse`](./src/models/errors/error-response.ts): *
 
 <details><summary>Less common errors (6)</summary>
 
@@ -344,6 +379,8 @@ run();
 * [`ResponseValidationError`](./src/models/errors/response-validation-error.ts): Type mismatch between the data returned from the server and the structure expected by the SDK. See `error.rawValue` for the raw value and `error.pretty()` for a nicely formatted multi-line string.
 
 </details>
+
+\* Check [the method documentation](#available-resources-and-operations) to see if the error is applicable.
 <!-- End Error Handling [errors] -->
 
 <!-- Start Server Selection [server] -->
@@ -353,11 +390,11 @@ run();
 
 You can override the default server globally by passing a server index to the `serverIdx: number` optional parameter when initializing the SDK client instance. The selected server will then be used as the default on the operations that use it. This table lists the indexes associated with the available servers:
 
-| #   | Server                                         | Description |
-| --- | ---------------------------------------------- | ----------- |
-| 0   | `https://eu.platform.go.gbgplc.com/v2/captain` |             |
-| 1   | `https://us.platform.go.gbgplc.com/v2/captain` |             |
-| 2   | `https://au.platform.go.gbgplc.com/v2/captain` |             |
+| #   | Server                              | Description |
+| --- | ----------------------------------- | ----------- |
+| 0   | `https://eu.platform.go.gbgplc.com` | EU          |
+| 1   | `https://us.platform.go.gbgplc.com` | US          |
+| 2   | `https://au.platform.go.gbgplc.com` | AU          |
 
 #### Example
 
@@ -370,7 +407,7 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.health.get();
+  const result = await go.journeys.start();
 
   console.log(result);
 }
@@ -386,12 +423,12 @@ The default server can also be overridden globally by passing a URL to the `serv
 import { Go } from "@gbg/go-core";
 
 const go = new Go({
-  serverURL: "https://au.platform.go.gbgplc.com/v2/captain",
+  serverURL: "https://au.platform.go.gbgplc.com",
   customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
 });
 
 async function run() {
-  const result = await go.health.get();
+  const result = await go.journeys.start();
 
   console.log(result);
 }
@@ -479,6 +516,65 @@ const sdk = new Go({ httpClient: httpClient });
 The SDK sends an `X-GBG-Source` request header identifying the SDK and its
 version (the same value as the user agent). GBG uses it for anonymous usage
 analytics. It carries no personal or request data.
+
+## Authenticating interaction calls
+
+Most operations take the client-level token you pass as `customerAccess`.
+
+`interactions.fetch` and `interactions.submit` are different. They accept either
+a customer token or an end-user interaction token, so they take their own
+security argument, and **the client-level token is not used for them**. If you
+do not pass one, the request goes out with no `Authorization` header and nothing
+warns you.
+
+```typescript
+const sdk = new Go({ customerAccess: customerToken });
+
+// journeys.* use the client-level token
+await sdk.journeys.start({ resourceId, context });
+
+// interactions.* need the token per call
+await sdk.interactions.fetch(
+  { interactionAccess: endUserToken },
+  { body: { instanceId } },
+);
+```
+
+Set `interactionAccess` for an end-user token or `customerAccess` for a customer
+token, not both. The per-call argument takes a token string only: unlike the
+client-level option it does not accept a function, so if you refresh tokens you
+need to resolve one before each call.
+
+## Error handling notes
+
+Two things about the generated error types are easy to get wrong.
+
+**Check `ResponseValidationError` before `SDKValidationError`.** For backwards
+compatibility `SDKValidationError` matches by shape rather than by class, so
+`responseValidationError instanceof SDKValidationError` is also `true`. Order
+your checks accordingly.
+
+```typescript
+if (err instanceof ResponseValidationError) {
+  // the server replied, but the body did not match the schema
+} else if (err instanceof SDKValidationError) {
+  // input validation failed before the request went out
+}
+```
+
+**Not every API error is an `ErrorResponse`.** Only the statuses declared in the
+spec for a given operation are typed. Undeclared ones (today: 403 on fetch and
+submit, 422 on submit, and every token failure) arrive as `GoDefaultError`.
+Handle both.
+
+## Debug logging and sensitive data
+
+The debug logger prints every request header, including the full
+`Authorization: Bearer …` value, and complete request bodies. For
+`interactions.submit` that includes base64-encoded document and selfie images.
+
+It is off unless you pass `debugLogger` or set `GO_DEBUG`. Keep it off in
+production, and do not send debug output to a shared log sink.
 
 <!-- Start Debugging [debug] -->
 ## Debugging

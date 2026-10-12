@@ -11,9 +11,18 @@ import { Params, pathToFunc } from "./url.js";
  * Contains the list of servers available to the SDK
  */
 export const ServerList = [
-  "https://eu.platform.go.gbgplc.com/v2/captain",
-  "https://us.platform.go.gbgplc.com/v2/captain",
-  "https://au.platform.go.gbgplc.com/v2/captain",
+  /**
+   * EU
+   */
+  "https://eu.platform.go.gbgplc.com",
+  /**
+   * US
+   */
+  "https://us.platform.go.gbgplc.com",
+  /**
+   * AU
+   */
+  "https://au.platform.go.gbgplc.com",
 ] as const;
 
 export type SDKOptions = {
@@ -59,8 +68,8 @@ export function serverURLFromOptions(options: SDKOptions): URL | null {
 
 export const SDK_METADATA = {
   language: "typescript",
-  openapiDocVersion: "1.0.0",
-  sdkVersion: "0.1.3",
-  genVersion: "2.937.18",
-  userAgent: "speakeasy-sdk/typescript 0.1.3 2.937.18 1.0.0 @gbg/go-core",
+  openapiDocVersion: "2.x",
+  sdkVersion: "0.2.0-alpha.0",
+  genVersion: "2.946.0",
+  userAgent: "speakeasy-sdk/typescript 0.2.0-alpha.0 2.946.0 2.x @gbg/go-core",
 } as const;

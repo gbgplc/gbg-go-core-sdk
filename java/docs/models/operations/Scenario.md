@@ -1,0 +1,12 @@
+# Scenario
+
+
+## Fields
+
+| Field                                                       | Setter Type                                                 | Getter Type                                                 | Required                                                    | Description                                                 |
+| ----------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
+| `modules`                                                   | Map\<String, [Modules](../../models/operations/Modules.md)> | Map\<String, [Modules](../../models/operations/Modules.md)> | :heavy_check_mark:                                          | N/A                                                         |
+| `defaultOutcome`                                            | @Nullable *String*                                          | Optional\<*String*>                                         | :heavy_minus_sign:                                          | N/A                                                         |
+| `defaultAdvice`                                             | @Nullable Map\<String, *Object*>                            | Optional\<Map\<String, *Object*>>                           | :heavy_minus_sign:                                          | N/A                                                         |
+| `description`                                               | @Nullable *String*                                          | Optional\<*String*>                                         | :heavy_minus_sign:                                          | N/A                                                         |
+| `additionalProperties`                                      | @Nullable Map\<String, *Object*>                            | Optional\<Map\<String, *Object*>>                           | :heavy_minus_sign:                                          | N/A                                                         |

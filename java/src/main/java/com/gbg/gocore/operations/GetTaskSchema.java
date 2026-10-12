@@ -11,9 +11,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.SecuritySource;
 import com.gbg.gocore.models.errors.APIException;
+import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.GetTaskSchemaRequest;
 import com.gbg.gocore.models.operations.GetTaskSchemaResponse;
-import com.gbg.gocore.models.operations.GetTaskSchemaResponseBody;
 import com.gbg.gocore.utils.Blob;
 import com.gbg.gocore.utils.HTTPClient;
 import com.gbg.gocore.utils.HTTPRequest;
@@ -32,6 +32,7 @@ import java.lang.String;
 import java.lang.Throwable;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -87,7 +88,7 @@ public class GetTaskSchema {
         <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/journey/task/schema");
+                    "/v2/captain/journey/task/schema");
             HTTPRequest req = new HTTPRequest(url, "POST");
             Object convertedRequest = Utils.convertToShape(
                     request,
@@ -166,16 +167,30 @@ public class GetTaskSchema {
             
             if (Utils.statusCodeMatches(response.statusCode(), "200")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return res.withObject(Utils.unmarshal(response, new TypeReference<GetTaskSchemaResponseBody>() {}));
+                    return res.withTaskSchemaResponse(Utils.unmarshal(response, new TypeReference<Map<String, Object>>() {}));
                 } else {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "405", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "404")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    throw ErrorResponse.from(response);
+                } else {
+                    throw APIException.from("Unexpected content-type received: " + contentType, response);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "500", "503")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    throw ErrorResponse.from(response);
+                } else {
+                    throw APIException.from("Unexpected content-type received: " + contentType, response);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 throw APIException.from("API error occurred", response);
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500", "503", "5XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "5XX")) {
                 // no content
                 throw APIException.from("API error occurred", response);
             }
@@ -236,17 +251,33 @@ public class GetTaskSchema {
             
             if (Utils.statusCodeMatches(response.statusCode(), "200")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
-                    return Utils.unmarshalAsync(response, new TypeReference<GetTaskSchemaResponseBody>() {})
-                            .thenApply(res::withObject);
+                    return Utils.unmarshalAsync(response, new TypeReference<Map<String, Object>>() {})
+                            .thenApply(res::withTaskSchemaResponse);
                 } else {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "405", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "404")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    return ErrorResponse.fromAsync(response)
+                            .thenCompose(CompletableFuture::failedFuture);
+                } else {
+                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "500", "503")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    return ErrorResponse.fromAsync(response)
+                            .thenCompose(CompletableFuture::failedFuture);
+                } else {
+                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 return Utils.createAsyncApiError(response, "API error occurred");
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500", "503", "5XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "5XX")) {
                 // no content
                 return Utils.createAsyncApiError(response, "API error occurred");
             }

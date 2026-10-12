@@ -3,22 +3,8 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../../lib/schemas.js";
-import { Result as SafeParseResult } from "../../types/fp.js";
-import * as types from "../../types/primitives.js";
-import { SDKValidationError } from "../errors/sdk-validation-error.js";
 
 export type DeleteInstanceRequest = {
-  /**
-   * Journey Instance Id, a unique identifier for a started journey instance.
-   */
-  instanceId: string;
-};
-
-/**
- * Delete instance response contains the Journey Instance Id
- */
-export type DeleteInstanceResponse = {
   /**
    * Journey Instance Id, a unique identifier for a started journey instance.
    */
@@ -29,41 +15,24 @@ export type DeleteInstanceResponse = {
 /** @internal */
 export type DeleteInstanceRequest$Outbound = {
   instanceId: string;
+  [additionalProperties: string]: unknown;
 };
 
 /** @internal */
 export const DeleteInstanceRequest$outboundSchema: z.ZodMiniType<
   DeleteInstanceRequest$Outbound,
   DeleteInstanceRequest
-> = z.object({
-  instanceId: z.string(),
-});
+> = z.catchall(
+  z.object({
+    instanceId: z.string(),
+  }),
+  z.any(),
+);
 
 export function deleteInstanceRequestToJSON(
   deleteInstanceRequest: DeleteInstanceRequest,
 ): string {
   return JSON.stringify(
     DeleteInstanceRequest$outboundSchema.parse(deleteInstanceRequest),
-  );
-}
-
-/** @internal */
-export const DeleteInstanceResponse$inboundSchema: z.ZodMiniType<
-  DeleteInstanceResponse,
-  unknown
-> = z.catchall(
-  z.object({
-    instanceId: types.string(),
-  }),
-  z.any(),
-);
-
-export function deleteInstanceResponseFromJSON(
-  jsonString: string,
-): SafeParseResult<DeleteInstanceResponse, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => DeleteInstanceResponse$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'DeleteInstanceResponse' from JSON`,
   );
 }

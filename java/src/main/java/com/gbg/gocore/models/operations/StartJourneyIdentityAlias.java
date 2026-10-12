@@ -51,23 +51,32 @@ public class StartJourneyIdentityAlias {
     @JsonProperty("lastNamesAtBirth")
     private List<String> lastNamesAtBirth;
 
+    /**
+     * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("fullName")
+    private String fullName;
+
     @JsonCreator
     public StartJourneyIdentityAlias(
             @JsonProperty("title") @Nullable String title,
             @JsonProperty("firstName") @Nullable String firstName,
             @JsonProperty("middleNames") @Nullable List<String> middleNames,
             @JsonProperty("lastNames") @Nullable List<String> lastNames,
-            @JsonProperty("lastNamesAtBirth") @Nullable List<String> lastNamesAtBirth) {
+            @JsonProperty("lastNamesAtBirth") @Nullable List<String> lastNamesAtBirth,
+            @JsonProperty("fullName") @Nullable String fullName) {
         this.title = title;
         this.firstName = firstName;
         this.middleNames = middleNames;
         this.lastNames = lastNames;
         this.lastNamesAtBirth = lastNamesAtBirth;
+        this.fullName = fullName;
     }
     
     public StartJourneyIdentityAlias() {
         this(null, null, null,
-            null, null);
+            null, null, null);
     }
 
     /**
@@ -103,6 +112,13 @@ public class StartJourneyIdentityAlias {
      */
     public Optional<List<String>> lastNamesAtBirth() {
         return Optional.ofNullable(this.lastNamesAtBirth);
+    }
+
+    /**
+     * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+     */
+    public Optional<String> fullName() {
+        return Optional.ofNullable(this.fullName);
     }
 
     public static Builder builder() {
@@ -155,6 +171,15 @@ public class StartJourneyIdentityAlias {
     }
 
 
+    /**
+     * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+     */
+    public StartJourneyIdentityAlias withFullName(@Nullable String fullName) {
+        this.fullName = fullName;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -169,14 +194,15 @@ public class StartJourneyIdentityAlias {
             Utils.enhancedDeepEquals(this.firstName, other.firstName) &&
             Utils.enhancedDeepEquals(this.middleNames, other.middleNames) &&
             Utils.enhancedDeepEquals(this.lastNames, other.lastNames) &&
-            Utils.enhancedDeepEquals(this.lastNamesAtBirth, other.lastNamesAtBirth);
+            Utils.enhancedDeepEquals(this.lastNamesAtBirth, other.lastNamesAtBirth) &&
+            Utils.enhancedDeepEquals(this.fullName, other.fullName);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             title, firstName, middleNames,
-            lastNames, lastNamesAtBirth);
+            lastNames, lastNamesAtBirth, fullName);
     }
     
     @Override
@@ -186,7 +212,8 @@ public class StartJourneyIdentityAlias {
                 "firstName", firstName,
                 "middleNames", middleNames,
                 "lastNames", lastNames,
-                "lastNamesAtBirth", lastNamesAtBirth);
+                "lastNamesAtBirth", lastNamesAtBirth,
+                "fullName", fullName);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -201,6 +228,8 @@ public class StartJourneyIdentityAlias {
         private List<String> lastNames;
 
         private List<String> lastNamesAtBirth;
+
+        private String fullName;
 
         private Builder() {
           // force use of static builder() method
@@ -246,10 +275,18 @@ public class StartJourneyIdentityAlias {
             return this;
         }
 
+        /**
+         * The whole name as stated, unsplit into parts — used when the alias has no meaningful name parts
+         */
+        public Builder fullName(@Nullable String fullName) {
+            this.fullName = fullName;
+            return this;
+        }
+
         public StartJourneyIdentityAlias build() {
             return new StartJourneyIdentityAlias(
                 title, firstName, middleNames,
-                lastNames, lastNamesAtBirth);
+                lastNames, lastNamesAtBirth, fullName);
         }
 
     }

@@ -46,6 +46,16 @@ public class SubmitInteractionBiometricUnion {
         Utils.checkNotNull(value, "value");
         return new SubmitInteractionBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
     }
+
+    public static SubmitInteractionBiometricUnion of(SubmitInteractionBiometric5 value) {
+        Utils.checkNotNull(value, "value");
+        return new SubmitInteractionBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
+    }
+
+    public static SubmitInteractionBiometricUnion of(SubmitInteractionBiometricStoredFace value) {
+        Utils.checkNotNull(value, "value");
+        return new SubmitInteractionBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
+    }
     
     /**
      * Returns an {@link Optional} containing the value if it is of type {@code SubmitInteractionBiometric1},
@@ -98,6 +108,32 @@ public class SubmitInteractionBiometricUnion {
         }
         return Optional.empty();
     }
+    
+    /**
+     * Returns an {@link Optional} containing the value if it is of type {@code SubmitInteractionBiometric5},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code SubmitInteractionBiometric5} value, or empty if not of this type
+     */
+    public Optional<SubmitInteractionBiometric5> submitInteractionBiometric5() {
+        if (value.value() instanceof SubmitInteractionBiometric5) {
+            return Optional.of((SubmitInteractionBiometric5) value.value());
+        }
+        return Optional.empty();
+    }
+    
+    /**
+     * Returns an {@link Optional} containing the value if it is of type {@code SubmitInteractionBiometricStoredFace},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code SubmitInteractionBiometricStoredFace} value, or empty if not of this type
+     */
+    public Optional<SubmitInteractionBiometricStoredFace> submitInteractionBiometricStoredFace() {
+        if (value.value() instanceof SubmitInteractionBiometricStoredFace) {
+            return Optional.of((SubmitInteractionBiometricStoredFace) value.value());
+        }
+        return Optional.empty();
+    }
    /**
     * Returns an {@link Optional} containing the value as a {@code JsonNode}.
     * This accessor returns the raw JSON when the value doesn't match any of the defined union types.
@@ -136,7 +172,9 @@ public class SubmitInteractionBiometricUnion {
                   TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric1>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric2>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric3>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric4>() {}, JsonShape.DEFAULT));
+                  TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric4>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric5>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometricStoredFace>() {}, JsonShape.DEFAULT));
         }
     }
     
