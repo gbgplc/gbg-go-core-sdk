@@ -32,7 +32,8 @@ generation:
     skipResponseBodyAssertions: false
 java:
   version: 0.2.0-alpha01
-  additionalDependencies: []
+  additionalDependencies:
+    - "api:com.fasterxml.jackson.core:jackson-databind:2.22.1"
   additionalPlugins: []
   artifactID: go-core-sdk
   asyncMode: enabled
