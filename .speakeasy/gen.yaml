@@ -75,7 +75,7 @@ typescript:
   inferUnionDiscriminators: true
   inputModelSuffix: input
   jsonpath: rfc9535
-  laxMode: lax
+  laxMode: strict
   legacyFileNaming: false
   maxMethodParams: 0
   methodArguments: infer-optional-args
