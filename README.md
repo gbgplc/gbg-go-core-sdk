@@ -5,6 +5,12 @@ Developer-friendly & type-safe Typescript SDK specifically catered to leverage _
 [![Built by Speakeasy](https://img.shields.io/badge/Built_by-SPEAKEASY-374151?style=for-the-badge&labelColor=f3f4f6)](https://www.speakeasy.com/?utm_source=@gbg/go-core&utm_campaign=typescript)
 [![License: MIT](https://img.shields.io/badge/LICENSE_//_MIT-3b5bdb?style=for-the-badge&labelColor=eff6ff)](https://opensource.org/licenses/MIT)
 
+> [!IMPORTANT]
+> **Upgrading from 0.1.x?** 0.2.0 is a breaking release, and one of the breaks
+> is silent: the base URL must no longer include `/v2/captain`, or every request
+> gets a misleading 401. See [CHANGELOG.md](./CHANGELOG.md) for the full list and
+> the known gaps.
+
 <!-- Start Summary [summary] -->
 ## Summary
 
@@ -510,6 +516,65 @@ const sdk = new Go({ httpClient: httpClient });
 The SDK sends an `X-GBG-Source` request header identifying the SDK and its
 version (the same value as the user agent). GBG uses it for anonymous usage
 analytics. It carries no personal or request data.
+
+## Authenticating interaction calls
+
+Most operations take the client-level token you pass as `customerAccess`.
+
+`interactions.fetch` and `interactions.submit` are different. They accept either
+a customer token or an end-user interaction token, so they take their own
+security argument, and **the client-level token is not used for them**. If you
+do not pass one, the request goes out with no `Authorization` header and nothing
+warns you.
+
+```typescript
+const sdk = new Go({ customerAccess: customerToken });
+
+// journeys.* use the client-level token
+await sdk.journeys.start({ resourceId, context });
+
+// interactions.* need the token per call
+await sdk.interactions.fetch(
+  { interactionAccess: endUserToken },
+  { body: { instanceId } },
+);
+```
+
+Set `interactionAccess` for an end-user token or `customerAccess` for a customer
+token, not both. The per-call argument takes a token string only: unlike the
+client-level option it does not accept a function, so if you refresh tokens you
+need to resolve one before each call.
+
+## Error handling notes
+
+Two things about the generated error types are easy to get wrong.
+
+**Check `ResponseValidationError` before `SDKValidationError`.** For backwards
+compatibility `SDKValidationError` matches by shape rather than by class, so
+`responseValidationError instanceof SDKValidationError` is also `true`. Order
+your checks accordingly.
+
+```typescript
+if (err instanceof ResponseValidationError) {
+  // the server replied, but the body did not match the schema
+} else if (err instanceof SDKValidationError) {
+  // input validation failed before the request went out
+}
+```
+
+**Not every API error is an `ErrorResponse`.** Only the statuses declared in the
+spec for a given operation are typed. Undeclared ones (today: 403 on fetch and
+submit, 422 on submit, and every token failure) arrive as `GoDefaultError`.
+Handle both.
+
+## Debug logging and sensitive data
+
+The debug logger prints every request header, including the full
+`Authorization: Bearer …` value, and complete request bodies. For
+`interactions.submit` that includes base64-encoded document and selfie images.
+
+It is off unless you pass `debugLogger` or set `GO_DEBUG`. Keep it off in
+production, and do not send debug output to a shared log sink.
 
 <!-- Start Debugging [debug] -->
 ## Debugging

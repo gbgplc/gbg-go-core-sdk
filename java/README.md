@@ -8,7 +8,11 @@ Developer-friendly & type-safe Java SDK specifically catered to leverage *go-cor
 
 <br /><br />
 > [!IMPORTANT]
-> This SDK is not yet ready for production use. To complete setup please follow the steps outlined in your [workspace](https://app.speakeasy.com/org/gbg/go). Delete this section before > publishing to a package manager.
+> **Upgrading from 0.1.x?** 0.2.0 is a breaking release, and two of the breaks
+> are silent: the base URL must no longer include `/v2/captain`, and the new
+> `ErrorResponse` is not an `APIException`, so existing `catch (APIException)`
+> blocks stop handling API errors. See [CHANGELOG.md](../CHANGELOG.md) for the
+> full list and the known gaps.
 
 <!-- Start Summary [summary] -->
 ## Summary
@@ -806,6 +810,55 @@ String json = myMapper.writeValueAsString(response);
 [jackson-databind]: https://github.com/FasterXML/jackson-databind
 [jackson-jsr310]: https://github.com/FasterXML/jackson-modules-java8/tree/master/datetime
 <!-- End Jackson Configuration [jackson] -->
+
+## Authenticating interaction calls
+
+Most operations take the client-level token you set on the builder.
+
+`interactions().fetch(...)` and `interactions().submit(...)` are different. They
+accept either a customer token or an end-user interaction token, so they take
+their own security argument, and the client-level token is not used for them.
+
+```java
+sdk.interactions().fetch(
+    FetchInteractionSecurity.builder()
+        .interactionAccess(endUserToken)
+        .build(),
+    null,                 // view: null for the full response, "slim" for the compact one
+    body);
+```
+
+Set `interactionAccess` for an end-user token or `customerAccess` for a customer
+token, not both.
+
+Note that argument order is not consistent across operations in this release:
+`fetch(security, view, body)` but `submit(request, security)`. The builder forms
+(`interactions().fetch()`, `interactions().submit()`) avoid depending on it.
+
+## Error handling notes
+
+`ErrorResponse` carries the modelled error statuses and extends `GoException`,
+**not** `APIException`. Catching `APIException` therefore misses every modelled
+error, including the 401 you need in order to refresh an expired token.
+
+```java
+try {
+    ...
+} catch (GoException e) {
+    // catches both ErrorResponse and APIException
+}
+```
+
+Statuses the spec does not declare for an operation (today: 403 on fetch and
+submit, 422 on submit, and every token failure) arrive as `APIException` rather
+than `ErrorResponse`.
+
+## Debug logging and sensitive data
+
+Debug logging prints request headers, including the full `Authorization` bearer
+value, and complete request bodies. For interaction submits that includes
+base64-encoded document and selfie images. Keep it off in production and do not
+send debug output to a shared log sink.
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
 
