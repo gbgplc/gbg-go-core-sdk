@@ -31,7 +31,7 @@ generation:
     generateNewTests: true
     skipResponseBodyAssertions: false
 java:
-  version: 0.1.0-alpha01
+  version: 0.1.0-alpha01.1
   additionalDependencies: []
   additionalPlugins: []
   artifactID: go-core-sdk
