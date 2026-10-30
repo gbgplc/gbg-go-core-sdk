@@ -7,6 +7,131 @@ version together.
 `RELEASES.md` is a generator-written log of every build. This file is the
 human-readable one: what changed, what breaks, and what to do about it.
 
+## 0.2.0-alpha.1 (TypeScript `0.2.0-alpha.1`, Java `0.2.0-alpha02`)
+
+Previous release: TypeScript `0.2.0-alpha.0`, Java `0.2.0-alpha01`.
+
+Regenerated from Captain's corrected spec, which closes most of the known gaps
+listed under the previous release. Coming from 0.1.x, read both sections: this
+one reverses the base URL change below.
+
+### Fixed
+
+- **Full and slim fetch responses are told apart reliably.** Both fetch
+  operations now carry a `view` field (`"full"` or `"slim"`), and the SDK picks
+  the shape from it instead of counting matched fields. In Java this ends the
+  slim branch being chosen for every interaction fetch, which dropped `context`.
+- **Responses with a missing required field now fail** with
+  `ResponseValidationError` (TypeScript) instead of being filled in with blanks
+  (`""`, `0`, `false`). Before, a reply missing `instanceId` decoded as
+  `instanceId: ""` and calling code carried on.
+- **403 and 503 are typed** on fetch, submit and state fetch, as
+  `ErrorResponse`.
+- **Token failures are typed** as `OAuthErrorResponse`, with the OAuth `error`
+  and `error_description`.
+- **`outstandingGroups[].cardinality` is an open string**, so a new value no
+  longer fails the whole response in TypeScript.
+- **Java: `JSON.getMapper()` works without adding jackson-databind** to your own
+  build. It is now a compile dependency of the SDK.
+
+### Breaking
+
+#### 1. The base URL includes `/v2/captain` again
+
+The spec moved `/v2/captain` back from each path into the server URL. This
+reverses breaking change 1 of `0.2.0-alpha.0`: the base URL is the same as in
+0.1.x and the developer guide.
+
+If you pass a bare host to `serverURL`, every request now goes to `/journey/...`
+and gets a 404. Add `/v2/captain`, or drop `serverURL` and use the built-in
+server list.
+
+```ts
+// 0.2.0-alpha.0
+new Go({ serverURL: "https://eu.platform.go.gbgplc.com" })
+// 0.2.0-alpha.1, and 0.1.x
+new Go({ serverURL: "https://eu.platform.go.gbgplc.com/v2/captain" })
+```
+
+Token generation is unaffected: it has its own server.
+
+#### 2. Fetch responses are a union on `view`
+
+`interactions.fetch` and `journeys.getState` return one of three things: the
+full shape, the slim shape, or an unknown body with the raw JSON kept, when
+`view` is missing or unrecognised.
+
+```ts
+const res = await sdk.interactions.fetch(security, { body: { instanceId } });
+if (res.view === "full") { /* InteractionFetchResponse */ }
+else if (res.view === "slim") { /* SlimInteractionFetchResponse */ }
+else { /* isUnknown: true, body in res.raw */ }
+```
+
+In Java, `oneOf()` returns an interface (`FetchInteractionResponseBody`,
+`GetJourneyStateResponseBody`). Use `instanceof` against
+`InteractionFetchResponse`, `SlimInteractionFetchResponse` or
+`UnknownFetchInteractionResponseBody` (and the state equivalents) in place of
+the `interactionFetchResponse()` / `slimInteractionFetchResponse()` accessors,
+which are gone.
+
+#### 3. Sandbox is now test scenarios
+
+Captain renamed sandbox to test scenarios and retired the old routes, which now
+answer 404. So the sandbox methods in `0.2.0-alpha.0` no longer work against
+live Go.
+
+| 0.2.0-alpha.0 | 0.2.0-alpha.1 |
+| --- | --- |
+| `sandbox.createScenario` | `testScenarios.create` |
+| `sandbox.listScenarios` | `testScenarios.list` |
+| `sandbox.getScenario` | `testScenarios.get` |
+| `sandbox.putScenario` | `testScenarios.put` |
+| `sandbox.deleteScenario` | `testScenarios.delete` |
+| `SandboxScenario*` types | `TestScenario*` |
+
+The journey start response carries `test` and `scenario` in place of `sandbox`.
+
+#### 4. `devices.connect` takes the token once
+
+The connect token is the bearer credential only. The request body is optional,
+no longer has `connectToken`, and its `deviceInfo` is deprecated (Captain reads
+device details from request headers).
+
+```ts
+// before
+await sdk.devices.connect({ deviceConnect: token }, { connectToken: token, deviceInfo });
+// after
+await sdk.devices.connect({ deviceConnect: token });
+```
+
+```java
+// before
+sdk.devices().connect(DeviceConnectRequest.builder()...build(), security);
+// after
+sdk.devices().connect(security);
+```
+
+#### 5. Java type renames
+
+- `StartJourneySubject` is `StartJourneyContextSubject`.
+- `DeviceConnectRequest` and `DeviceInfo` moved from `models.operations` to
+  `models`.
+- `InteractionFetchResponseOutstandingGroup` and
+  `SlimInteractionFetchResponseOutstandingGroup` are one `OutstandingGroup`; the
+  two `*Cardinality` enums are gone (see Fixed).
+
+### Known gaps
+
+- **There is still no way to prefill a journey.** The start request declares
+  only `resourceId`, `context` and `scenario`. See breaking change 7 below.
+- **`InteractionSubmitResponse.status` only defines `success`.** In TypeScript
+  this is a closed enum, so a new value fails the whole response.
+- **422 on submit is not declared**, so it arrives as `GoDefaultError`
+  (TypeScript) or `APIException` (Java).
+- **The full fetch shape is less typed than the slim one.** `outstanding` and
+  `instructions` are untyped in full and `string[]` in slim.
+
 ## 0.2.0-alpha (TypeScript `0.2.0-alpha.0`, Java `0.2.0-alpha01`)
 
 Previous release: TypeScript `0.1.3`, Java `0.1.0-alpha01`.
