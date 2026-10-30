@@ -14,7 +14,7 @@ Retrieves the current interaction state for a journey instance.
 
 ### Example Usage: error
 
-<!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/v2/captain/journey/interaction/fetch" example="error" -->
+<!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="error" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -63,7 +63,7 @@ run();
 ```
 ### Example Usage: processing
 
-<!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/v2/captain/journey/interaction/fetch" example="processing" -->
+<!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="processing" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -112,7 +112,7 @@ run();
 ```
 ### Example Usage: success
 
-<!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/v2/captain/journey/interaction/fetch" example="success" -->
+<!-- UsageSnippet language="typescript" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="success" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -178,8 +178,8 @@ run();
 
 | Error Type            | Status Code           | Content Type          |
 | --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404         | application/json      |
-| errors.ErrorResponse  | 500                   | application/json      |
+| errors.ErrorResponse  | 400, 401, 403, 404    | application/json      |
+| errors.ErrorResponse  | 500, 503              | application/json      |
 | errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |
 
 ## submit
@@ -188,7 +188,7 @@ Submits participant data for an interaction.
 
 ### Example Usage: error
 
-<!-- UsageSnippet language="typescript" operationID="submitInteraction" method="post" path="/v2/captain/journey/interaction/submit" example="error" -->
+<!-- UsageSnippet language="typescript" operationID="submitInteraction" method="post" path="/journey/interaction/submit" example="error" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -233,7 +233,7 @@ run();
 ```
 ### Example Usage: success
 
-<!-- UsageSnippet language="typescript" operationID="submitInteraction" method="post" path="/v2/captain/journey/interaction/submit" example="success" -->
+<!-- UsageSnippet language="typescript" operationID="submitInteraction" method="post" path="/journey/interaction/submit" example="success" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -293,11 +293,11 @@ run();
 
 ### Errors
 
-| Error Type            | Status Code           | Content Type          |
-| --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 409, 429    | application/json      |
-| errors.ErrorResponse  | 500                   | application/json      |
-| errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |
+| Error Type              | Status Code             | Content Type            |
+| ----------------------- | ----------------------- | ----------------------- |
+| errors.ErrorResponse    | 400, 401, 403, 409, 429 | application/json        |
+| errors.ErrorResponse    | 500, 503                | application/json        |
+| errors.GoDefaultError   | 4XX, 5XX                | \*/\*                   |
 
 ## uploadAsset
 
@@ -305,7 +305,7 @@ Streams a raw asset body (application/octet-stream) to storage and returns its g
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="uploadInteractionAsset" method="post" path="/v2/captain/journey/interaction/asset/upload" -->
+<!-- UsageSnippet language="typescript" operationID="uploadInteractionAsset" method="post" path="/journey/interaction/asset/upload" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -364,8 +364,8 @@ run();
 
 ### Errors
 
-| Error Type                   | Status Code                  | Content Type                 |
-| ---------------------------- | ---------------------------- | ---------------------------- |
-| errors.ErrorResponse         | 400, 401, 403, 409, 422, 429 | application/json             |
-| errors.ErrorResponse         | 500, 503                     | application/json             |
-| errors.GoDefaultError        | 4XX, 5XX                     | \*/\*                        |
+| Error Type                        | Status Code                       | Content Type                      |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| errors.ErrorResponse              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
+| errors.ErrorResponse              | 500, 503                          | application/json                  |
+| errors.GoDefaultError             | 4XX, 5XX                          | \*/\*                             |

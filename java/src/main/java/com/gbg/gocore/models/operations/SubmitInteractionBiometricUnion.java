@@ -56,6 +56,11 @@ public class SubmitInteractionBiometricUnion {
         Utils.checkNotNull(value, "value");
         return new SubmitInteractionBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
     }
+
+    public static SubmitInteractionBiometricUnion of(SubmitInteractionBiometricOrphanedStoredFace value) {
+        Utils.checkNotNull(value, "value");
+        return new SubmitInteractionBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
+    }
     
     /**
      * Returns an {@link Optional} containing the value if it is of type {@code SubmitInteractionBiometric1},
@@ -134,6 +139,19 @@ public class SubmitInteractionBiometricUnion {
         }
         return Optional.empty();
     }
+    
+    /**
+     * Returns an {@link Optional} containing the value if it is of type {@code SubmitInteractionBiometricOrphanedStoredFace},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code SubmitInteractionBiometricOrphanedStoredFace} value, or empty if not of this type
+     */
+    public Optional<SubmitInteractionBiometricOrphanedStoredFace> submitInteractionBiometricOrphanedStoredFace() {
+        if (value.value() instanceof SubmitInteractionBiometricOrphanedStoredFace) {
+            return Optional.of((SubmitInteractionBiometricOrphanedStoredFace) value.value());
+        }
+        return Optional.empty();
+    }
    /**
     * Returns an {@link Optional} containing the value as a {@code JsonNode}.
     * This accessor returns the raw JSON when the value doesn't match any of the defined union types.
@@ -174,7 +192,8 @@ public class SubmitInteractionBiometricUnion {
                   TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric3>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric4>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometric5>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometricStoredFace>() {}, JsonShape.DEFAULT));
+                  TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometricStoredFace>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<SubmitInteractionBiometricOrphanedStoredFace>() {}, JsonShape.DEFAULT));
         }
     }
     

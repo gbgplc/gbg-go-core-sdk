@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export type CurrentAddressLocation = {
@@ -199,10 +198,10 @@ export const CurrentAddressLocation$inboundSchema: z.ZodMiniType<
   CurrentAddressLocation,
   unknown
 > = z.object({
-  latitude: types.optional(types.string()),
-  longitude: types.optional(types.string()),
-  geoAccuracy: types.optional(types.string()),
-  what3words: types.optional(types.string()),
+  latitude: z.optional(z.string()),
+  longitude: z.optional(z.string()),
+  geoAccuracy: z.optional(z.string()),
+  what3words: z.optional(z.string()),
 });
 
 export function currentAddressLocationFromJSON(
@@ -220,24 +219,24 @@ export const CurrentAddress$inboundSchema: z.ZodMiniType<
   CurrentAddress,
   unknown
 > = z.object({
-  lines: types.optional(z.array(types.string())),
-  addressString: types.optional(types.string()),
-  premise: types.optional(types.string()),
-  building: types.optional(types.string()),
-  subBuilding: types.optional(types.string()),
-  thoroughfare: types.optional(types.string()),
-  dependentThoroughfare: types.optional(types.string()),
-  locality: types.optional(types.string()),
-  dependentLocality: types.optional(types.string()),
-  doubleDependentLocality: types.optional(types.string()),
-  postalCode: types.optional(types.string()),
-  postBox: types.optional(types.string()),
-  country: types.optional(types.string()),
-  superAdministrativeArea: types.optional(types.string()),
-  administrativeArea: types.optional(types.string()),
-  subAdministrativeArea: types.optional(types.string()),
-  organization: types.optional(types.string()),
-  location: types.optional(z.lazy(() => CurrentAddressLocation$inboundSchema)),
+  lines: z.optional(z.array(z.string())),
+  addressString: z.optional(z.string()),
+  premise: z.optional(z.string()),
+  building: z.optional(z.string()),
+  subBuilding: z.optional(z.string()),
+  thoroughfare: z.optional(z.string()),
+  dependentThoroughfare: z.optional(z.string()),
+  locality: z.optional(z.string()),
+  dependentLocality: z.optional(z.string()),
+  doubleDependentLocality: z.optional(z.string()),
+  postalCode: z.optional(z.string()),
+  postBox: z.optional(z.string()),
+  country: z.optional(z.string()),
+  superAdministrativeArea: z.optional(z.string()),
+  administrativeArea: z.optional(z.string()),
+  subAdministrativeArea: z.optional(z.string()),
+  organization: z.optional(z.string()),
+  location: z.optional(z.lazy(() => CurrentAddressLocation$inboundSchema)),
 });
 
 export function currentAddressFromJSON(
@@ -255,10 +254,10 @@ export const PlaceOfBirthLocation$inboundSchema: z.ZodMiniType<
   PlaceOfBirthLocation,
   unknown
 > = z.object({
-  latitude: types.optional(types.string()),
-  longitude: types.optional(types.string()),
-  geoAccuracy: types.optional(types.string()),
-  what3words: types.optional(types.string()),
+  latitude: z.optional(z.string()),
+  longitude: z.optional(z.string()),
+  geoAccuracy: z.optional(z.string()),
+  what3words: z.optional(z.string()),
 });
 
 export function placeOfBirthLocationFromJSON(
@@ -274,24 +273,24 @@ export function placeOfBirthLocationFromJSON(
 /** @internal */
 export const PlaceOfBirth$inboundSchema: z.ZodMiniType<PlaceOfBirth, unknown> =
   z.object({
-    lines: types.optional(z.array(types.string())),
-    addressString: types.optional(types.string()),
-    premise: types.optional(types.string()),
-    building: types.optional(types.string()),
-    subBuilding: types.optional(types.string()),
-    thoroughfare: types.optional(types.string()),
-    dependentThoroughfare: types.optional(types.string()),
-    locality: types.optional(types.string()),
-    dependentLocality: types.optional(types.string()),
-    doubleDependentLocality: types.optional(types.string()),
-    postalCode: types.optional(types.string()),
-    postBox: types.optional(types.string()),
-    country: types.optional(types.string()),
-    superAdministrativeArea: types.optional(types.string()),
-    administrativeArea: types.optional(types.string()),
-    subAdministrativeArea: types.optional(types.string()),
-    organization: types.optional(types.string()),
-    location: types.optional(z.lazy(() => PlaceOfBirthLocation$inboundSchema)),
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(z.lazy(() => PlaceOfBirthLocation$inboundSchema)),
   });
 
 export function placeOfBirthFromJSON(
@@ -307,9 +306,9 @@ export function placeOfBirthFromJSON(
 /** @internal */
 export const IdNumber$inboundSchema: z.ZodMiniType<IdNumber, unknown> = z
   .object({
-    type: types.string(),
-    idNumber: types.string(),
-    country: types.optional(types.string()),
+    type: z.string(),
+    idNumber: z.string(),
+    country: z.optional(z.string()),
   });
 
 export function idNumberFromJSON(
@@ -325,16 +324,16 @@ export function idNumberFromJSON(
 /** @internal */
 export const SlimIdentity$inboundSchema: z.ZodMiniType<SlimIdentity, unknown> =
   z.object({
-    title: types.optional(types.string()),
-    firstName: types.optional(types.string()),
-    middleNames: types.optional(z.array(types.string())),
-    lastNames: types.optional(z.array(types.string())),
-    lastNamesAtBirth: types.optional(z.array(types.string())),
-    dateOfBirth: types.optional(types.string()),
-    gender: types.optional(types.string()),
-    currentAddress: types.optional(z.lazy(() => CurrentAddress$inboundSchema)),
-    placeOfBirth: types.optional(z.lazy(() => PlaceOfBirth$inboundSchema)),
-    idNumbers: types.optional(z.array(z.lazy(() => IdNumber$inboundSchema))),
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    dateOfBirth: z.optional(z.string()),
+    gender: z.optional(z.string()),
+    currentAddress: z.optional(z.lazy(() => CurrentAddress$inboundSchema)),
+    placeOfBirth: z.optional(z.lazy(() => PlaceOfBirth$inboundSchema)),
+    idNumbers: z.optional(z.array(z.lazy(() => IdNumber$inboundSchema))),
   });
 
 export function slimIdentityFromJSON(

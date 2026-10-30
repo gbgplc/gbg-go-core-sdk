@@ -7,16 +7,18 @@ import { safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
-import { GbgError, GbgError$inboundSchema } from "./gbg-error.js";
+import {
+  SlimModuleStepError,
+  SlimModuleStepError$inboundSchema,
+} from "./slim-module-step-error.js";
 import {
   SlimVerifiedData,
   SlimVerifiedData$inboundSchema,
 } from "./slim-verified-data.js";
 
 /**
- * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. `error` means it ended in failure: either a module reported a terminal error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead.
+ * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g. a data source was unavailable) and the journey continued past it, as configured (on a state fetch each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a module reported a terminal error (journeys run without per-step module error handling, which includes every journey on engine 2), a module that could not be found or routed at all, a step whose output broke its declared contract, or the platform abandoning the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead.
  */
 export const SlimResultStatus = {
   Pending: "pending",
@@ -25,7 +27,7 @@ export const SlimResultStatus = {
   Timeout: "timeout",
 } as const;
 /**
- * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. `error` means it ended in failure: either a module reported a terminal error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead.
+ * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g. a data source was unavailable) and the journey continued past it, as configured (on a state fetch each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a module reported a terminal error (journeys run without per-step module error handling, which includes every journey on engine 2), a module that could not be found or routed at all, a step whose output broke its declared contract, or the platform abandoning the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead.
  */
 export type SlimResultStatus = OpenEnum<typeof SlimResultStatus>;
 
@@ -41,11 +43,14 @@ export type SlimResultOutcomeClassification = OpenEnum<
 export type SlimResult = {
   outcome?: string | undefined;
   /**
-   * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. `error` means it ended in failure: either a module reported a terminal error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead.
+   * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g. a data source was unavailable) and the journey continued past it, as configured (on a state fetch each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a module reported a terminal error (journeys run without per-step module error handling, which includes every journey on engine 2), a module that could not be found or routed at all, a step whose output broke its declared contract, or the platform abandoning the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead.
    */
   status?: SlimResultStatus | undefined;
   outcomeClassification?: SlimResultOutcomeClassification | null | undefined;
-  errors?: Array<GbgError> | undefined;
+  /**
+   * Customer-safe errors. Failed module steps are listed as they happen, so `errors` can appear while the journey is still `pending`. For an `error`/`timeout` journey the first entry describes the journey failure. One further entry is listed per failed module step (codes 5021 step failed, 5022 step timed out, 5023 step could not be started), on a `complete` journey too, in step order. On a state fetch the failed steps carry the same entry on `steps[].error`.
+   */
+  errors?: Array<SlimModuleStepError> | undefined;
   /**
    * Verified-output slice (OQ-A). May be transiently ABSENT on a journey already reporting `status: complete`: the certified view materializes just after the completion signal, so a client reading `data` the instant it sees `complete` may need to re-poll once. Absent `data` means "not yet available", not "no verified data". (Read-after-write closure tracked in GGO-16738.)
    */
@@ -67,13 +72,13 @@ export const SlimResultOutcomeClassification$inboundSchema: z.ZodMiniType<
 /** @internal */
 export const SlimResult$inboundSchema: z.ZodMiniType<SlimResult, unknown> = z
   .object({
-    outcome: types.optional(types.string()),
-    status: types.optional(SlimResultStatus$inboundSchema),
+    outcome: z.optional(z.string()),
+    status: z.optional(SlimResultStatus$inboundSchema),
     outcomeClassification: z.optional(
       z.nullable(SlimResultOutcomeClassification$inboundSchema),
     ),
-    errors: types.optional(z.array(GbgError$inboundSchema)),
-    data: types.optional(SlimVerifiedData$inboundSchema),
+    errors: z.optional(z.array(SlimModuleStepError$inboundSchema)),
+    data: z.optional(SlimVerifiedData$inboundSchema),
   });
 
 export function slimResultFromJSON(

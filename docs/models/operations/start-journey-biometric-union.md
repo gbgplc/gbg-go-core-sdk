@@ -54,3 +54,12 @@ const value: operations.StartJourneyBiometricStoredFace = {
 };
 ```
 
+### `operations.StartJourneyBiometricOrphanedStoredFace`
+
+```typescript
+const value: operations.StartJourneyBiometricOrphanedStoredFace = {
+  type: "orphanedStoredFace",
+  templateReference: "<value>",
+};
+```
+

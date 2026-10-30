@@ -4,26 +4,15 @@
 
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
-import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
+import {
+  OutstandingGroup,
+  OutstandingGroup$inboundSchema,
+} from "./outstanding-group.js";
 
 export type InteractionFetchResponseJourney = {
   status: string;
-};
-
-export const InteractionFetchResponseCardinality = {
-  AtLeastOne: "at-least-one",
-} as const;
-export type InteractionFetchResponseCardinality = ClosedEnum<
-  typeof InteractionFetchResponseCardinality
->;
-
-export type InteractionFetchResponseOutstandingGroup = {
-  elementId: string;
-  cardinality: InteractionFetchResponseCardinality;
-  refs: Array<string>;
 };
 
 export type InteractionFetchResponseJoinedDevice = {
@@ -31,6 +20,7 @@ export type InteractionFetchResponseJoinedDevice = {
 };
 
 export type InteractionFetchResponse = {
+  view: "full";
   instanceId: string;
   interactionId?: string | undefined;
   journey: InteractionFetchResponseJourney;
@@ -38,9 +28,7 @@ export type InteractionFetchResponse = {
   context?: { [k: string]: any } | undefined;
   instructions?: any | undefined;
   outstanding?: any | undefined;
-  outstandingGroups?:
-    | Array<InteractionFetchResponseOutstandingGroup>
-    | undefined;
+  outstandingGroups?: Array<OutstandingGroup> | undefined;
   processing?: boolean | undefined;
   result?: { [k: string]: any } | undefined;
   joinedDevice?: InteractionFetchResponseJoinedDevice | undefined;
@@ -51,7 +39,7 @@ export const InteractionFetchResponseJourney$inboundSchema: z.ZodMiniType<
   InteractionFetchResponseJourney,
   unknown
 > = z.object({
-  status: types.string(),
+  status: z.string(),
 });
 
 export function interactionFetchResponseJourneyFromJSON(
@@ -65,40 +53,11 @@ export function interactionFetchResponseJourneyFromJSON(
 }
 
 /** @internal */
-export const InteractionFetchResponseCardinality$inboundSchema: z.ZodMiniEnum<
-  typeof InteractionFetchResponseCardinality
-> = z.enum(InteractionFetchResponseCardinality);
-
-/** @internal */
-export const InteractionFetchResponseOutstandingGroup$inboundSchema:
-  z.ZodMiniType<InteractionFetchResponseOutstandingGroup, unknown> = z.object({
-    elementId: types.string(),
-    cardinality: InteractionFetchResponseCardinality$inboundSchema,
-    refs: z.array(types.string()),
-  });
-
-export function interactionFetchResponseOutstandingGroupFromJSON(
-  jsonString: string,
-): SafeParseResult<
-  InteractionFetchResponseOutstandingGroup,
-  SDKValidationError
-> {
-  return safeParse(
-    jsonString,
-    (x) =>
-      InteractionFetchResponseOutstandingGroup$inboundSchema.parse(
-        JSON.parse(x),
-      ),
-    `Failed to parse 'InteractionFetchResponseOutstandingGroup' from JSON`,
-  );
-}
-
-/** @internal */
 export const InteractionFetchResponseJoinedDevice$inboundSchema: z.ZodMiniType<
   InteractionFetchResponseJoinedDevice,
   unknown
 > = z.object({
-  connected: types.boolean(),
+  connected: z.boolean(),
 });
 
 export function interactionFetchResponseJoinedDeviceFromJSON(
@@ -117,21 +76,18 @@ export const InteractionFetchResponse$inboundSchema: z.ZodMiniType<
   InteractionFetchResponse,
   unknown
 > = z.object({
-  instanceId: types.string(),
-  interactionId: types.optional(types.string()),
+  view: z.literal("full"),
+  instanceId: z.string(),
+  interactionId: z.optional(z.string()),
   journey: z.lazy(() => InteractionFetchResponseJourney$inboundSchema),
-  interaction: types.optional(z.record(z.string(), z.any())),
-  context: types.optional(z.record(z.string(), z.any())),
-  instructions: types.optional(z.any()),
-  outstanding: types.optional(z.any()),
-  outstandingGroups: types.optional(
-    z.array(
-      z.lazy(() => InteractionFetchResponseOutstandingGroup$inboundSchema),
-    ),
-  ),
-  processing: types.optional(types.boolean()),
-  result: types.optional(z.record(z.string(), z.any())),
-  joinedDevice: types.optional(
+  interaction: z.optional(z.record(z.string(), z.any())),
+  context: z.optional(z.record(z.string(), z.any())),
+  instructions: z.optional(z.any()),
+  outstanding: z.optional(z.any()),
+  outstandingGroups: z.optional(z.array(OutstandingGroup$inboundSchema)),
+  processing: z.optional(z.boolean()),
+  result: z.optional(z.record(z.string(), z.any())),
+  joinedDevice: z.optional(
     z.lazy(() => InteractionFetchResponseJoinedDevice$inboundSchema),
   ),
 });

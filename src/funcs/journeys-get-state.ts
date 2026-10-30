@@ -96,7 +96,7 @@ async function $do(
   const payload = parsed.value;
   const body = encodeJSON("body", payload?.body, { explode: true });
 
-  const path = pathToFunc("/v2/captain/journey/state/fetch")();
+  const path = pathToFunc("/journey/state/fetch")();
 
   const query = encodeFormQuery({
     "view": payload?.view,
@@ -171,7 +171,7 @@ async function $do(
     | SDKValidationError
   >(
     M.json(200, operations.GetJourneyStateResponse$inboundSchema),
-    M.jsonErr([400, 401, 404], errors.ErrorResponse$inboundSchema),
+    M.jsonErr([400, 401, 403, 404], errors.ErrorResponse$inboundSchema),
     M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
     M.fail("4XX"),
     M.fail("5XX"),

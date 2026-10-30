@@ -100,7 +100,7 @@ async function $do(
     ? null
     : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/v2/captain/journey/interaction/submit")();
+  const path = pathToFunc("/journey/interaction/submit")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -183,8 +183,8 @@ async function $do(
     | SDKValidationError
   >(
     M.json(200, models.InteractionSubmitResponse$inboundSchema),
-    M.jsonErr([400, 401, 409, 429], errors.ErrorResponse$inboundSchema),
-    M.jsonErr(500, errors.ErrorResponse$inboundSchema),
+    M.jsonErr([400, 401, 403, 409, 429], errors.ErrorResponse$inboundSchema),
+    M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
     M.fail("4XX"),
     M.fail("5XX"),
   )(response, req, { extraFields: responseFields });

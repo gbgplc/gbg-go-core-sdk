@@ -4,7 +4,7 @@
 
 // Not needed if lax mode
 import * as z from "zod/v4-mini";
-import { startCountingDefaultToZeroValue } from "./default-to-zero-value.js";
+import { isUnknown as isDiscriminatedUnionUnknown } from "./discriminated-union.js";
 import { RFCDate } from "./rfcdate.js";
 import { startCountingUnrecognized } from "./unrecognized.js";
 
@@ -34,12 +34,11 @@ export function smartUnion<
       const errors: z.core.$ZodRawIssue[][] = [];
 
       const parentUnrecognizedCtr = startCountingUnrecognized();
-      const parentZeroDefaultCtr = startCountingDefaultToZeroValue();
 
       // Filter out invalid options
       for (const option of options) {
         const unrecognizedCtr = startCountingUnrecognized();
-        const zeroDefaultCtr = startCountingDefaultToZeroValue();
+
         const result = option._zod.run({ value: input, issues: [] }, {
           async: false,
         });
@@ -47,7 +46,7 @@ export function smartUnion<
           throw new z.core.$ZodAsyncError();
         }
         const inexactCount = unrecognizedCtr.end();
-        const zeroDefaultCount = zeroDefaultCtr.end();
+        const zeroDefaultCount = 0;
         if (result.issues.length === 0) {
           candidates.push({
             data: result.value,
@@ -63,7 +62,6 @@ export function smartUnion<
       // No valid options
       if (candidates.length === 0) {
         parentUnrecognizedCtr.end(0);
-        parentZeroDefaultCtr.end(0);
         ctx.issues.push({
           input: input,
           code: "invalid_union",
@@ -89,7 +87,6 @@ export function smartUnion<
 
       // The cost of this union should be the cost of the best candidate not all the candidates
       parentUnrecognizedCtr.end(best.inexactCount);
-      parentZeroDefaultCtr.end(best.zeroDefaultCount);
 
       return best.data;
     }),
@@ -127,7 +124,7 @@ function countFieldsRecursive(parsed: unknown): number {
 
   while (index < queue.length) {
     const value = queue[index++];
-    if (value === undefined) {
+    if (value === undefined || isDiscriminatedUnionUnknown(value)) {
       continue;
     }
 

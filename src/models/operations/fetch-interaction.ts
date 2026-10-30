@@ -5,9 +5,10 @@
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
 import { safeParse } from "../../lib/schemas.js";
+import * as discriminatedUnionTypes from "../../types/discriminated-union.js";
+import { discriminatedUnion } from "../../types/discriminated-union.js";
 import { ClosedEnum } from "../../types/enums.js";
 import { Result as SafeParseResult } from "../../types/fp.js";
-import { smartUnion } from "../../types/smart-union.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 import * as models from "../index.js";
 
@@ -44,7 +45,8 @@ export type FetchInteractionRequest = {
  */
 export type FetchInteractionResponse =
   | models.InteractionFetchResponse
-  | models.SlimInteractionFetchResponse;
+  | models.SlimInteractionFetchResponse
+  | discriminatedUnionTypes.Unknown<"view">;
 
 /** @internal */
 export type FetchInteractionSecurity$Outbound = {
@@ -138,10 +140,10 @@ export function fetchInteractionRequestToJSON(
 export const FetchInteractionResponse$inboundSchema: z.ZodMiniType<
   FetchInteractionResponse,
   unknown
-> = smartUnion([
-  models.InteractionFetchResponse$inboundSchema,
-  models.SlimInteractionFetchResponse$inboundSchema,
-]);
+> = discriminatedUnion("view", {
+  full: models.InteractionFetchResponse$inboundSchema,
+  slim: models.SlimInteractionFetchResponse$inboundSchema,
+});
 
 export function fetchInteractionResponseFromJSON(
   jsonString: string,

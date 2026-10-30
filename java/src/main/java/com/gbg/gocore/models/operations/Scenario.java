@@ -36,6 +36,13 @@ public class Scenario {
     @JsonProperty("defaultAdvice")
     private Map<String, Object> defaultAdvice;
 
+    /**
+     * Fallback subject values applied when a module entry has no subject of its own.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("defaultSubject")
+    private DefaultSubject defaultSubject;
+
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("description")
@@ -50,12 +57,14 @@ public class Scenario {
             @JsonProperty("modules") @Nonnull Map<String, Modules> modules,
             @JsonProperty("defaultOutcome") @Nullable String defaultOutcome,
             @JsonProperty("defaultAdvice") @Nullable Map<String, Object> defaultAdvice,
+            @JsonProperty("defaultSubject") @Nullable DefaultSubject defaultSubject,
             @JsonProperty("description") @Nullable String description) {
         modules = Utils.emptyMapIfNull(modules);
         this.modules = Optional.ofNullable(modules)
             .orElseThrow(() -> new IllegalArgumentException("modules cannot be null"));
         this.defaultOutcome = defaultOutcome;
         this.defaultAdvice = defaultAdvice;
+        this.defaultSubject = defaultSubject;
         this.description = description;
         this.additionalProperties = new HashMap<>();
     }
@@ -63,7 +72,7 @@ public class Scenario {
     public Scenario(
             @Nonnull Map<String, Modules> modules) {
         this(modules, null, null,
-            null);
+            null, null);
     }
 
     public Map<String, Modules> modules() {
@@ -76,6 +85,13 @@ public class Scenario {
 
     public Optional<Map<String, Object>> defaultAdvice() {
         return Optional.ofNullable(this.defaultAdvice);
+    }
+
+    /**
+     * Fallback subject values applied when a module entry has no subject of its own.
+     */
+    public Optional<DefaultSubject> defaultSubject() {
+        return Optional.ofNullable(this.defaultSubject);
     }
 
     public Optional<String> description() {
@@ -106,6 +122,15 @@ public class Scenario {
 
     public Scenario withDefaultAdvice(@Nullable Map<String, Object> defaultAdvice) {
         this.defaultAdvice = defaultAdvice;
+        return this;
+    }
+
+
+    /**
+     * Fallback subject values applied when a module entry has no subject of its own.
+     */
+    public Scenario withDefaultSubject(@Nullable DefaultSubject defaultSubject) {
+        this.defaultSubject = defaultSubject;
         return this;
     }
 
@@ -143,6 +168,7 @@ public class Scenario {
             Utils.enhancedDeepEquals(this.modules, other.modules) &&
             Utils.enhancedDeepEquals(this.defaultOutcome, other.defaultOutcome) &&
             Utils.enhancedDeepEquals(this.defaultAdvice, other.defaultAdvice) &&
+            Utils.enhancedDeepEquals(this.defaultSubject, other.defaultSubject) &&
             Utils.enhancedDeepEquals(this.description, other.description) &&
             Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
@@ -151,7 +177,7 @@ public class Scenario {
     public int hashCode() {
         return Utils.enhancedHash(
             modules, defaultOutcome, defaultAdvice,
-            description, additionalProperties);
+            defaultSubject, description, additionalProperties);
     }
     
     @Override
@@ -160,6 +186,7 @@ public class Scenario {
                 "modules", modules,
                 "defaultOutcome", defaultOutcome,
                 "defaultAdvice", defaultAdvice,
+                "defaultSubject", defaultSubject,
                 "description", description,
                 "additionalProperties", additionalProperties);
     }
@@ -172,6 +199,8 @@ public class Scenario {
         private String defaultOutcome;
 
         private Map<String, Object> defaultAdvice;
+
+        private DefaultSubject defaultSubject;
 
         private String description;
 
@@ -193,6 +222,14 @@ public class Scenario {
 
         public Builder defaultAdvice(@Nullable Map<String, Object> defaultAdvice) {
             this.defaultAdvice = defaultAdvice;
+            return this;
+        }
+
+        /**
+         * Fallback subject values applied when a module entry has no subject of its own.
+         */
+        public Builder defaultSubject(@Nullable DefaultSubject defaultSubject) {
+            this.defaultSubject = defaultSubject;
             return this;
         }
 
@@ -218,7 +255,7 @@ public class Scenario {
         public Scenario build() {
             return new Scenario(
                 modules, defaultOutcome, defaultAdvice,
-                description)
+                defaultSubject, description)
                 .withAdditionalProperties(additionalProperties);
         }
 

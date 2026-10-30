@@ -96,7 +96,7 @@ async function $do(
     ? null
     : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/v2/captain/journey/device/start")();
+  const path = pathToFunc("/journey/device/start")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",

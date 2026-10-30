@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export type Schema = {
@@ -22,8 +21,8 @@ export type SchemaFetchResponse = {
 
 /** @internal */
 export const Schema$inboundSchema: z.ZodMiniType<Schema, unknown> = z.object({
-  interactionId: types.string(),
-  instruction: types.optional(types.string()),
+  interactionId: z.string(),
+  instruction: z.optional(z.string()),
   schema: z.record(z.string(), z.any()),
 });
 
@@ -42,8 +41,8 @@ export const SchemaFetchResponse$inboundSchema: z.ZodMiniType<
   SchemaFetchResponse,
   unknown
 > = z.object({
-  deliveryId: types.string(),
-  resolvedVersion: types.string(),
+  deliveryId: z.string(),
+  resolvedVersion: z.string(),
   schemas: z.array(z.lazy(() => Schema$inboundSchema)),
 });
 

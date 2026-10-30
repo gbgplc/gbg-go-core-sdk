@@ -77,7 +77,7 @@ async function $do(
     APICall,
   ]
 > {
-  const path = pathToFunc("/v2/captain/journey/device/validate")();
+  const path = pathToFunc("/journey/device/validate")();
 
   const headers = new Headers(compactMap({
     Accept: "application/json",

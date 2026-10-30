@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -19,7 +20,11 @@ import java.util.Map;
 import java.util.Optional;
 
 
-public class SlimInteractionFetchResponse {
+public class SlimInteractionFetchResponse implements FetchInteractionResponseBody {
+
+    @JsonProperty("view")
+    private SlimInteractionFetchResponseView view;
+
 
     @JsonProperty("instanceId")
     private String instanceId;
@@ -51,7 +56,7 @@ public class SlimInteractionFetchResponse {
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("outstandingGroups")
-    private List<SlimInteractionFetchResponseOutstandingGroup> outstandingGroups;
+    private List<OutstandingGroup> outstandingGroups;
 
 
     @JsonInclude(Include.NON_ABSENT)
@@ -70,16 +75,19 @@ public class SlimInteractionFetchResponse {
 
     @JsonCreator
     public SlimInteractionFetchResponse(
+            @JsonProperty("view") @Nonnull SlimInteractionFetchResponseView view,
             @JsonProperty("instanceId") @Nonnull String instanceId,
             @JsonProperty("interactionId") @Nullable String interactionId,
             @JsonProperty("journey") @Nonnull SlimInteractionFetchResponseJourney journey,
             @JsonProperty("interaction") @Nullable Map<String, Object> interaction,
             @JsonProperty("processing") @Nullable Boolean processing,
             @JsonProperty("outstanding") @Nullable List<String> outstanding,
-            @JsonProperty("outstandingGroups") @Nullable List<SlimInteractionFetchResponseOutstandingGroup> outstandingGroups,
+            @JsonProperty("outstandingGroups") @Nullable List<OutstandingGroup> outstandingGroups,
             @JsonProperty("instructions") @Nullable List<String> instructions,
             @JsonProperty("result") @Nullable SlimResult result,
             @JsonProperty("joinedDevice") @Nullable SlimInteractionFetchResponseJoinedDevice joinedDevice) {
+        this.view = Optional.ofNullable(view)
+            .orElseThrow(() -> new IllegalArgumentException("view cannot be null"));
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
         this.interactionId = interactionId;
@@ -95,12 +103,18 @@ public class SlimInteractionFetchResponse {
     }
     
     public SlimInteractionFetchResponse(
+            @Nonnull SlimInteractionFetchResponseView view,
             @Nonnull String instanceId,
             @Nonnull SlimInteractionFetchResponseJourney journey) {
-        this(instanceId, null, journey,
+        this(view, instanceId, null,
+            journey, null, null,
             null, null, null,
-            null, null, null,
-            null);
+            null, null);
+    }
+
+    @Override
+    public String view() {
+        return Utils.discriminatorToString(view);
     }
 
     public String instanceId() {
@@ -127,7 +141,7 @@ public class SlimInteractionFetchResponse {
         return Optional.ofNullable(this.outstanding);
     }
 
-    public Optional<List<SlimInteractionFetchResponseOutstandingGroup>> outstandingGroups() {
+    public Optional<List<OutstandingGroup>> outstandingGroups() {
         return Optional.ofNullable(this.outstandingGroups);
     }
 
@@ -145,6 +159,12 @@ public class SlimInteractionFetchResponse {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public SlimInteractionFetchResponse withView(@Nonnull SlimInteractionFetchResponseView view) {
+        this.view = Utils.checkNotNull(view, "view");
+        return this;
     }
 
 
@@ -184,7 +204,7 @@ public class SlimInteractionFetchResponse {
     }
 
 
-    public SlimInteractionFetchResponse withOutstandingGroups(@Nullable List<SlimInteractionFetchResponseOutstandingGroup> outstandingGroups) {
+    public SlimInteractionFetchResponse withOutstandingGroups(@Nullable List<OutstandingGroup> outstandingGroups) {
         this.outstandingGroups = outstandingGroups;
         return this;
     }
@@ -218,6 +238,7 @@ public class SlimInteractionFetchResponse {
         }
         SlimInteractionFetchResponse other = (SlimInteractionFetchResponse) o;
         return 
+            Utils.enhancedDeepEquals(this.view, other.view) &&
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
             Utils.enhancedDeepEquals(this.interactionId, other.interactionId) &&
             Utils.enhancedDeepEquals(this.journey, other.journey) &&
@@ -233,15 +254,16 @@ public class SlimInteractionFetchResponse {
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            instanceId, interactionId, journey,
-            interaction, processing, outstanding,
-            outstandingGroups, instructions, result,
-            joinedDevice);
+            view, instanceId, interactionId,
+            journey, interaction, processing,
+            outstanding, outstandingGroups, instructions,
+            result, joinedDevice);
     }
     
     @Override
     public String toString() {
         return Utils.toString(SlimInteractionFetchResponse.class,
+                "view", view,
                 "instanceId", instanceId,
                 "interactionId", interactionId,
                 "journey", journey,
@@ -257,6 +279,8 @@ public class SlimInteractionFetchResponse {
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
+        private SlimInteractionFetchResponseView view;
+
         private String instanceId;
 
         private String interactionId;
@@ -269,7 +293,7 @@ public class SlimInteractionFetchResponse {
 
         private List<String> outstanding;
 
-        private List<SlimInteractionFetchResponseOutstandingGroup> outstandingGroups;
+        private List<OutstandingGroup> outstandingGroups;
 
         private List<String> instructions;
 
@@ -279,6 +303,11 @@ public class SlimInteractionFetchResponse {
 
         private Builder() {
           // force use of static builder() method
+        }
+
+        public Builder view(@Nonnull SlimInteractionFetchResponseView view) {
+            this.view = Utils.checkNotNull(view, "view");
+            return this;
         }
 
         public Builder instanceId(@Nonnull String instanceId) {
@@ -311,7 +340,7 @@ public class SlimInteractionFetchResponse {
             return this;
         }
 
-        public Builder outstandingGroups(@Nullable List<SlimInteractionFetchResponseOutstandingGroup> outstandingGroups) {
+        public Builder outstandingGroups(@Nullable List<OutstandingGroup> outstandingGroups) {
             this.outstandingGroups = outstandingGroups;
             return this;
         }
@@ -333,10 +362,10 @@ public class SlimInteractionFetchResponse {
 
         public SlimInteractionFetchResponse build() {
             return new SlimInteractionFetchResponse(
-                instanceId, interactionId, journey,
-                interaction, processing, outstanding,
-                outstandingGroups, instructions, result,
-                joinedDevice);
+                view, instanceId, interactionId,
+                journey, interaction, processing,
+                outstanding, outstandingGroups, instructions,
+                result, joinedDevice);
         }
 
     }

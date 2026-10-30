@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export type AggregatedFieldBoundingBox = {
@@ -67,10 +66,10 @@ export const AggregatedFieldBoundingBox$inboundSchema: z.ZodMiniType<
   AggregatedFieldBoundingBox,
   unknown
 > = z.object({
-  x: types.number(),
-  y: types.number(),
-  width: types.number(),
-  height: types.number(),
+  x: z.number(),
+  y: z.number(),
+  width: z.number(),
+  height: z.number(),
 });
 
 export function aggregatedFieldBoundingBoxFromJSON(
@@ -88,12 +87,12 @@ export const AggregatedFieldRegionOfInterest$inboundSchema: z.ZodMiniType<
   AggregatedFieldRegionOfInterest,
   unknown
 > = z.object({
-  boundingBox: types.optional(
+  boundingBox: z.optional(
     z.lazy(() => AggregatedFieldBoundingBox$inboundSchema),
   ),
-  side: types.string(),
-  spectrum: types.optional(types.string()),
-  imageId: types.optional(types.string()),
+  side: z.string(),
+  spectrum: z.optional(z.string()),
+  imageId: z.optional(z.string()),
 });
 
 export function aggregatedFieldRegionOfInterestFromJSON(
@@ -111,11 +110,11 @@ export const AggregatedField$inboundSchema: z.ZodMiniType<
   AggregatedField,
   unknown
 > = z.object({
-  label: types.string(),
-  value: types.string(),
-  source: types.string(),
-  isNonLatin: types.boolean(),
-  regionOfInterest: types.optional(
+  label: z.string(),
+  value: z.string(),
+  source: z.string(),
+  isNonLatin: z.boolean(),
+  regionOfInterest: z.optional(
     z.lazy(() => AggregatedFieldRegionOfInterest$inboundSchema),
   ),
 });
@@ -135,10 +134,10 @@ export const DetailBoundingBox$inboundSchema: z.ZodMiniType<
   DetailBoundingBox,
   unknown
 > = z.object({
-  x: types.number(),
-  y: types.number(),
-  width: types.number(),
-  height: types.number(),
+  x: z.number(),
+  y: z.number(),
+  width: z.number(),
+  height: z.number(),
 });
 
 export function detailBoundingBoxFromJSON(
@@ -156,10 +155,10 @@ export const DetailRegionOfInterest$inboundSchema: z.ZodMiniType<
   DetailRegionOfInterest,
   unknown
 > = z.object({
-  boundingBox: types.optional(z.lazy(() => DetailBoundingBox$inboundSchema)),
-  side: types.string(),
-  spectrum: types.optional(types.string()),
-  imageId: types.optional(types.string()),
+  boundingBox: z.optional(z.lazy(() => DetailBoundingBox$inboundSchema)),
+  side: z.string(),
+  spectrum: z.optional(z.string()),
+  imageId: z.optional(z.string()),
 });
 
 export function detailRegionOfInterestFromJSON(
@@ -174,11 +173,11 @@ export function detailRegionOfInterestFromJSON(
 
 /** @internal */
 export const Detail$inboundSchema: z.ZodMiniType<Detail, unknown> = z.object({
-  label: types.string(),
-  value: types.string(),
-  source: types.string(),
-  isNonLatin: types.boolean(),
-  regionOfInterest: types.optional(
+  label: z.string(),
+  value: z.string(),
+  source: z.string(),
+  isNonLatin: z.boolean(),
+  regionOfInterest: z.optional(
     z.lazy(() => DetailRegionOfInterest$inboundSchema),
   ),
 });
@@ -198,7 +197,7 @@ export const ExtractedField$inboundSchema: z.ZodMiniType<
   ExtractedField,
   unknown
 > = z.object({
-  label: types.string(),
+  label: z.string(),
   details: z.array(z.lazy(() => Detail$inboundSchema)),
 });
 
@@ -217,10 +216,10 @@ export const SlimExtraction$inboundSchema: z.ZodMiniType<
   SlimExtraction,
   unknown
 > = z.object({
-  aggregatedFields: types.optional(
+  aggregatedFields: z.optional(
     z.array(z.lazy(() => AggregatedField$inboundSchema)),
   ),
-  extractedFields: types.optional(
+  extractedFields: z.optional(
     z.array(z.lazy(() => ExtractedField$inboundSchema)),
   ),
 });

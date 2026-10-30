@@ -15,7 +15,7 @@ Creates a new journey instance from a resource definition.
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="startJourney" method="post" path="/v2/captain/journey/start" example="Default" -->
+<!-- UsageSnippet language="java" operationID="startJourney" method="post" path="/journey/start" example="Default" -->
 ```java
 package hello.world;
 
@@ -54,11 +54,11 @@ public class Application {
 
 ### Errors
 
-| Error Type                  | Status Code                 | Content Type                |
-| --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 403, 404, 429     | application/json            |
-| models/errors/ErrorResponse | 500, 503                    | application/json            |
-| models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |
+| Error Type                   | Status Code                  | Content Type                 |
+| ---------------------------- | ---------------------------- | ---------------------------- |
+| models/errors/ErrorResponse  | 400, 401, 403, 404, 422, 429 | application/json             |
+| models/errors/ErrorResponse  | 500, 503                     | application/json             |
+| models/errors/APIException   | 4XX, 5XX                     | \*/\*                        |
 
 ## getState
 
@@ -66,14 +66,11 @@ Retrieves the current state of a journey instance.
 
 ### Example Usage: Completed
 
-<!-- UsageSnippet language="java" operationID="getJourneyState" method="post" path="/v2/captain/journey/state/fetch" example="Completed" -->
+<!-- UsageSnippet language="java" operationID="getJourneyState" method="post" path="/journey/state/fetch" example="Completed" -->
 ```java
 package hello.world;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.SlimStateFetchResponse;
-import com.gbg.gocore.models.StateFetchResponse;
 import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.GetJourneyStateResponse;
 import com.gbg.gocore.models.operations.GetJourneyStateResponseBody;
@@ -93,15 +90,15 @@ public class Application {
 
         if (res.oneOf().isPresent()) {
             GetJourneyStateResponseBody unionValue = res.oneOf().get();
-            if (unionValue.stateFetchResponse().isPresent()) {
-                StateFetchResponse stateFetchResponseValue = unionValue.stateFetchResponse().get();
-                // Handle stateFetchResponse variant
-            } else if (unionValue.slimStateFetchResponse().isPresent()) {
-                SlimStateFetchResponse slimStateFetchResponseValue = unionValue.slimStateFetchResponse().get();
-                // Handle slimStateFetchResponse variant
-            } else if (unionValue.asJson().isPresent()) {
-                JsonNode raw = unionValue.asJson().get();
-                // Handle unknown variant fallback
+            switch (unionValue.view()) {
+                case "full":
+                    // Handle full discriminator variant
+                    break;
+                case "slim":
+                    // Handle slim discriminator variant
+                    break;
+                default:
+                    // Handle unknown discriminator variant
             }
         }
     }
@@ -109,14 +106,11 @@ public class Application {
 ```
 ### Example Usage: InProgress
 
-<!-- UsageSnippet language="java" operationID="getJourneyState" method="post" path="/v2/captain/journey/state/fetch" example="InProgress" -->
+<!-- UsageSnippet language="java" operationID="getJourneyState" method="post" path="/journey/state/fetch" example="InProgress" -->
 ```java
 package hello.world;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.SlimStateFetchResponse;
-import com.gbg.gocore.models.StateFetchResponse;
 import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.GetJourneyStateResponse;
 import com.gbg.gocore.models.operations.GetJourneyStateResponseBody;
@@ -136,15 +130,15 @@ public class Application {
 
         if (res.oneOf().isPresent()) {
             GetJourneyStateResponseBody unionValue = res.oneOf().get();
-            if (unionValue.stateFetchResponse().isPresent()) {
-                StateFetchResponse stateFetchResponseValue = unionValue.stateFetchResponse().get();
-                // Handle stateFetchResponse variant
-            } else if (unionValue.slimStateFetchResponse().isPresent()) {
-                SlimStateFetchResponse slimStateFetchResponseValue = unionValue.slimStateFetchResponse().get();
-                // Handle slimStateFetchResponse variant
-            } else if (unionValue.asJson().isPresent()) {
-                JsonNode raw = unionValue.asJson().get();
-                // Handle unknown variant fallback
+            switch (unionValue.view()) {
+                case "full":
+                    // Handle full discriminator variant
+                    break;
+                case "slim":
+                    // Handle slim discriminator variant
+                    break;
+                default:
+                    // Handle unknown discriminator variant
             }
         }
     }
@@ -166,7 +160,7 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404               | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404          | application/json            |
 | models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |
 
@@ -201,7 +195,7 @@ identifier `POST /journey/interaction/submit` expects — that one comes from
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="getJourneySchemas" method="post" path="/v2/captain/journey/schema/fetch" -->
+<!-- UsageSnippet language="java" operationID="getJourneySchemas" method="post" path="/journey/schema/fetch" -->
 ```java
 package hello.world;
 
@@ -242,7 +236,7 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404, 422          | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404, 422     | application/json            |
 | models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |
 
@@ -252,7 +246,7 @@ Terminates an active journey instance.
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="terminateJourney" method="post" path="/v2/captain/journey/terminate" -->
+<!-- UsageSnippet language="java" operationID="terminateJourney" method="post" path="/journey/terminate" -->
 ```java
 package hello.world;
 
@@ -293,6 +287,6 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404, 409          | application/json            |
-| models/errors/ErrorResponse | 500                         | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404, 409     | application/json            |
+| models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |

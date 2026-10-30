@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -19,7 +20,11 @@ import java.util.Map;
 import java.util.Optional;
 
 
-public class InteractionFetchResponse {
+public class InteractionFetchResponse implements FetchInteractionResponseBody {
+
+    @JsonProperty("view")
+    private InteractionFetchResponseView view;
+
 
     @JsonProperty("instanceId")
     private String instanceId;
@@ -56,7 +61,7 @@ public class InteractionFetchResponse {
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("outstandingGroups")
-    private List<InteractionFetchResponseOutstandingGroup> outstandingGroups;
+    private List<OutstandingGroup> outstandingGroups;
 
 
     @JsonInclude(Include.NON_ABSENT)
@@ -75,6 +80,7 @@ public class InteractionFetchResponse {
 
     @JsonCreator
     public InteractionFetchResponse(
+            @JsonProperty("view") @Nonnull InteractionFetchResponseView view,
             @JsonProperty("instanceId") @Nonnull String instanceId,
             @JsonProperty("interactionId") @Nullable String interactionId,
             @JsonProperty("journey") @Nonnull InteractionFetchResponseJourney journey,
@@ -82,10 +88,12 @@ public class InteractionFetchResponse {
             @JsonProperty("context") @Nullable Map<String, Object> context,
             @JsonProperty("instructions") @Nullable Object instructions,
             @JsonProperty("outstanding") @Nullable Object outstanding,
-            @JsonProperty("outstandingGroups") @Nullable List<InteractionFetchResponseOutstandingGroup> outstandingGroups,
+            @JsonProperty("outstandingGroups") @Nullable List<OutstandingGroup> outstandingGroups,
             @JsonProperty("processing") @Nullable Boolean processing,
             @JsonProperty("result") @Nullable Map<String, Object> result,
             @JsonProperty("joinedDevice") @Nullable InteractionFetchResponseJoinedDevice joinedDevice) {
+        this.view = Optional.ofNullable(view)
+            .orElseThrow(() -> new IllegalArgumentException("view cannot be null"));
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
         this.interactionId = interactionId;
@@ -102,12 +110,18 @@ public class InteractionFetchResponse {
     }
     
     public InteractionFetchResponse(
+            @Nonnull InteractionFetchResponseView view,
             @Nonnull String instanceId,
             @Nonnull InteractionFetchResponseJourney journey) {
-        this(instanceId, null, journey,
+        this(view, instanceId, null,
+            journey, null, null,
             null, null, null,
-            null, null, null,
-            null, null);
+            null, null, null);
+    }
+
+    @Override
+    public String view() {
+        return Utils.discriminatorToString(view);
     }
 
     public String instanceId() {
@@ -138,7 +152,7 @@ public class InteractionFetchResponse {
         return Optional.ofNullable(this.outstanding);
     }
 
-    public Optional<List<InteractionFetchResponseOutstandingGroup>> outstandingGroups() {
+    public Optional<List<OutstandingGroup>> outstandingGroups() {
         return Optional.ofNullable(this.outstandingGroups);
     }
 
@@ -156,6 +170,12 @@ public class InteractionFetchResponse {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public InteractionFetchResponse withView(@Nonnull InteractionFetchResponseView view) {
+        this.view = Utils.checkNotNull(view, "view");
+        return this;
     }
 
 
@@ -201,7 +221,7 @@ public class InteractionFetchResponse {
     }
 
 
-    public InteractionFetchResponse withOutstandingGroups(@Nullable List<InteractionFetchResponseOutstandingGroup> outstandingGroups) {
+    public InteractionFetchResponse withOutstandingGroups(@Nullable List<OutstandingGroup> outstandingGroups) {
         this.outstandingGroups = outstandingGroups;
         return this;
     }
@@ -235,6 +255,7 @@ public class InteractionFetchResponse {
         }
         InteractionFetchResponse other = (InteractionFetchResponse) o;
         return 
+            Utils.enhancedDeepEquals(this.view, other.view) &&
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
             Utils.enhancedDeepEquals(this.interactionId, other.interactionId) &&
             Utils.enhancedDeepEquals(this.journey, other.journey) &&
@@ -251,15 +272,16 @@ public class InteractionFetchResponse {
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            instanceId, interactionId, journey,
-            interaction, context, instructions,
-            outstanding, outstandingGroups, processing,
-            result, joinedDevice);
+            view, instanceId, interactionId,
+            journey, interaction, context,
+            instructions, outstanding, outstandingGroups,
+            processing, result, joinedDevice);
     }
     
     @Override
     public String toString() {
         return Utils.toString(InteractionFetchResponse.class,
+                "view", view,
                 "instanceId", instanceId,
                 "interactionId", interactionId,
                 "journey", journey,
@@ -276,6 +298,8 @@ public class InteractionFetchResponse {
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
+        private InteractionFetchResponseView view;
+
         private String instanceId;
 
         private String interactionId;
@@ -290,7 +314,7 @@ public class InteractionFetchResponse {
 
         private Object outstanding;
 
-        private List<InteractionFetchResponseOutstandingGroup> outstandingGroups;
+        private List<OutstandingGroup> outstandingGroups;
 
         private Boolean processing;
 
@@ -300,6 +324,11 @@ public class InteractionFetchResponse {
 
         private Builder() {
           // force use of static builder() method
+        }
+
+        public Builder view(@Nonnull InteractionFetchResponseView view) {
+            this.view = Utils.checkNotNull(view, "view");
+            return this;
         }
 
         public Builder instanceId(@Nonnull String instanceId) {
@@ -337,7 +366,7 @@ public class InteractionFetchResponse {
             return this;
         }
 
-        public Builder outstandingGroups(@Nullable List<InteractionFetchResponseOutstandingGroup> outstandingGroups) {
+        public Builder outstandingGroups(@Nullable List<OutstandingGroup> outstandingGroups) {
             this.outstandingGroups = outstandingGroups;
             return this;
         }
@@ -359,10 +388,10 @@ public class InteractionFetchResponse {
 
         public InteractionFetchResponse build() {
             return new InteractionFetchResponse(
-                instanceId, interactionId, journey,
-                interaction, context, instructions,
-                outstanding, outstandingGroups, processing,
-                result, joinedDevice);
+                view, instanceId, interactionId,
+                journey, interaction, context,
+                instructions, outstanding, outstandingGroups,
+                processing, result, joinedDevice);
         }
 
     }

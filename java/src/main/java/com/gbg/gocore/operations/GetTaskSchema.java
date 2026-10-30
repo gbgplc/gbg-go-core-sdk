@@ -88,7 +88,7 @@ public class GetTaskSchema {
         <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/v2/captain/journey/task/schema");
+                    "/journey/task/schema");
             HTTPRequest req = new HTTPRequest(url, "POST");
             Object convertedRequest = Utils.convertToShape(
                     request,
@@ -172,7 +172,7 @@ public class GetTaskSchema {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "404")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     throw ErrorResponse.from(response);
                 } else {
@@ -257,7 +257,7 @@ public class GetTaskSchema {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "404")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     return ErrorResponse.fromAsync(response)
                             .thenCompose(CompletableFuture::failedFuture);

@@ -3,117 +3,28 @@
  */
 package com.gbg.gocore.models.operations;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.gbg.gocore.models.SlimStateFetchResponse;
-import com.gbg.gocore.models.StateFetchResponse;
-import com.gbg.gocore.utils.OneOfDeserializer;
-import com.gbg.gocore.utils.TypedObject;
-import com.gbg.gocore.utils.Utils.JsonShape;
-import com.gbg.gocore.utils.Utils.TypeReferenceWithShape;
-import com.gbg.gocore.utils.Utils;
-import java.lang.Override;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import java.lang.String;
-import java.lang.SuppressWarnings;
-import java.util.Optional;
 
 /**
  * GetJourneyStateResponseBody
  * 
  * <p>Journey state (full by default; slim with ?view=slim)
  */
-@JsonDeserialize(using = GetJourneyStateResponseBody._Deserializer.class)
-public class GetJourneyStateResponseBody {
+@JsonTypeInfo(
+        use = Id.CUSTOM,
+        property = "view",
+        include = As.EXISTING_PROPERTY,
+        visible = true,
+        defaultImpl = UnknownGetJourneyStateResponseBody.class
+)
+@JsonTypeIdResolver(GetJourneyStateResponseBodyTypeIdResolver.class)
+public interface GetJourneyStateResponseBody {
 
-    @JsonValue
-    private final TypedObject value;
-    
-    private GetJourneyStateResponseBody(TypedObject value) {
-        this.value = value;
-    }
-
-    public static GetJourneyStateResponseBody of(StateFetchResponse value) {
-        Utils.checkNotNull(value, "value");
-        return new GetJourneyStateResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
-    }
-
-    public static GetJourneyStateResponseBody of(SlimStateFetchResponse value) {
-        Utils.checkNotNull(value, "value");
-        return new GetJourneyStateResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
-    }
-    
-    /**
-     * Returns an {@link Optional} containing the value if it is of type {@code StateFetchResponse},
-     * otherwise returns an empty {@link Optional}.
-     *
-     * @return an {@link Optional} containing the {@code StateFetchResponse} value, or empty if not of this type
-     */
-    public Optional<StateFetchResponse> stateFetchResponse() {
-        if (value.value() instanceof StateFetchResponse) {
-            return Optional.of((StateFetchResponse) value.value());
-        }
-        return Optional.empty();
-    }
-    
-    /**
-     * Returns an {@link Optional} containing the value if it is of type {@code SlimStateFetchResponse},
-     * otherwise returns an empty {@link Optional}.
-     *
-     * @return an {@link Optional} containing the {@code SlimStateFetchResponse} value, or empty if not of this type
-     */
-    public Optional<SlimStateFetchResponse> slimStateFetchResponse() {
-        if (value.value() instanceof SlimStateFetchResponse) {
-            return Optional.of((SlimStateFetchResponse) value.value());
-        }
-        return Optional.empty();
-    }
-   /**
-    * Returns an {@link Optional} containing the value as a {@code JsonNode}.
-    * This accessor returns the raw JSON when the value doesn't match any of the defined union types.
-    *
-    * @return an {@link Optional} containing the {@code JsonNode} value, or empty if value matched a known type
-    */
-   public Optional<JsonNode> asJson() {
-       if (value.value() instanceof JsonNode) {
-           return Optional.of((JsonNode) value.value());
-       }
-       return Optional.empty();
-   }
-    
-    @Override
-    public boolean equals(java.lang.Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        GetJourneyStateResponseBody other = (GetJourneyStateResponseBody) o;
-        return Utils.enhancedDeepEquals(this.value.value(), other.value.value());
-    }
-    
-    @Override
-    public int hashCode() {
-        return Utils.enhancedHash(value.value());
-    }
-    
-    @SuppressWarnings("serial")
-    public static final class _Deserializer extends OneOfDeserializer<GetJourneyStateResponseBody> {
-
-        public _Deserializer() {
-            super(GetJourneyStateResponseBody.class, false,
-                  TypeReferenceWithShape.of(new TypeReference<StateFetchResponse>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<SlimStateFetchResponse>() {}, JsonShape.DEFAULT));
-        }
-    }
-    
-    @Override
-    public String toString() {
-        return Utils.toString(GetJourneyStateResponseBody.class,
-                "value", value);
-    }
+    String view();
 
 }
 

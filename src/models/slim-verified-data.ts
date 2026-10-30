@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 import { SlimDocument, SlimDocument$inboundSchema } from "./slim-document.js";
 import { SlimIdentity, SlimIdentity$inboundSchema } from "./slim-identity.js";
@@ -23,8 +22,8 @@ export const SlimVerifiedData$inboundSchema: z.ZodMiniType<
   SlimVerifiedData,
   unknown
 > = z.object({
-  identity: types.optional(SlimIdentity$inboundSchema),
-  documents: types.optional(z.array(SlimDocument$inboundSchema)),
+  identity: z.optional(SlimIdentity$inboundSchema),
+  documents: z.optional(z.array(SlimDocument$inboundSchema)),
 });
 
 export function slimVerifiedDataFromJSON(

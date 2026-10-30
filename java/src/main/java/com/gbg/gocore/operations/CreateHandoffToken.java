@@ -92,7 +92,7 @@ public class CreateHandoffToken {
             String url = Utils.generateURL(
                     klass,
                     this.baseUrl,
-                    "/v2/captain/journey/instance/{instanceId}/handoff-token",
+                    "/journey/instance/{instanceId}/handoff-token",
                     request, null);
             HTTPRequest req = new HTTPRequest(url, "POST");
             req.addHeader("Accept", "application/json")

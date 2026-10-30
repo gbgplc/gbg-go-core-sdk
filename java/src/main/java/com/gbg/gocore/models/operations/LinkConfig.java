@@ -69,18 +69,35 @@ public class LinkConfig {
     @JsonProperty("resumeExpiryMinutes")
     private Long resumeExpiryMinutes;
 
+    /**
+     * Reminders for an invite journey: the invite link is sent again every intervalMinutes, at most
+     * maxReminders times, until the journey finishes or the link expires (ttlMinutes), whichever comes
+     * first. Resolved as ONE unit, not per member: the first tier that sets it (journey start, then
+     * delivery, then organization) wins, and an interval from one tier is never combined with a count from
+     * another. Absent everywhere means off.
+     * 
+     * <p>A journey without an invite ignores it. Captain refuses an interval below its operator floor with a
+     * 400 naming the tier. Frozen at journey start: editing it later does not reach a running journey.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("reminders")
+    private Reminders reminders;
+
     @JsonCreator
     public LinkConfig(
             @JsonProperty("ttlMinutes") @Nullable Long ttlMinutes,
             @JsonProperty("resumeMode") @Nullable ResumeMode resumeMode,
-            @JsonProperty("resumeExpiryMinutes") @Nullable Long resumeExpiryMinutes) {
+            @JsonProperty("resumeExpiryMinutes") @Nullable Long resumeExpiryMinutes,
+            @JsonProperty("reminders") @Nullable Reminders reminders) {
         this.ttlMinutes = ttlMinutes;
         this.resumeMode = resumeMode;
         this.resumeExpiryMinutes = resumeExpiryMinutes;
+        this.reminders = reminders;
     }
     
     public LinkConfig() {
-        this(null, null, null);
+        this(null, null, null,
+            null);
     }
 
     /**
@@ -120,6 +137,20 @@ public class LinkConfig {
      */
     public Optional<Long> resumeExpiryMinutes() {
         return Optional.ofNullable(this.resumeExpiryMinutes);
+    }
+
+    /**
+     * Reminders for an invite journey: the invite link is sent again every intervalMinutes, at most
+     * maxReminders times, until the journey finishes or the link expires (ttlMinutes), whichever comes
+     * first. Resolved as ONE unit, not per member: the first tier that sets it (journey start, then
+     * delivery, then organization) wins, and an interval from one tier is never combined with a count from
+     * another. Absent everywhere means off.
+     * 
+     * <p>A journey without an invite ignores it. Captain refuses an interval below its operator floor with a
+     * 400 naming the tier. Frozen at journey start: editing it later does not reach a running journey.
+     */
+    public Optional<Reminders> reminders() {
+        return Optional.ofNullable(this.reminders);
     }
 
     public static Builder builder() {
@@ -172,6 +203,22 @@ public class LinkConfig {
     }
 
 
+    /**
+     * Reminders for an invite journey: the invite link is sent again every intervalMinutes, at most
+     * maxReminders times, until the journey finishes or the link expires (ttlMinutes), whichever comes
+     * first. Resolved as ONE unit, not per member: the first tier that sets it (journey start, then
+     * delivery, then organization) wins, and an interval from one tier is never combined with a count from
+     * another. Absent everywhere means off.
+     * 
+     * <p>A journey without an invite ignores it. Captain refuses an interval below its operator floor with a
+     * 400 naming the tier. Frozen at journey start: editing it later does not reach a running journey.
+     */
+    public LinkConfig withReminders(@Nullable Reminders reminders) {
+        this.reminders = reminders;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -184,13 +231,15 @@ public class LinkConfig {
         return 
             Utils.enhancedDeepEquals(this.ttlMinutes, other.ttlMinutes) &&
             Utils.enhancedDeepEquals(this.resumeMode, other.resumeMode) &&
-            Utils.enhancedDeepEquals(this.resumeExpiryMinutes, other.resumeExpiryMinutes);
+            Utils.enhancedDeepEquals(this.resumeExpiryMinutes, other.resumeExpiryMinutes) &&
+            Utils.enhancedDeepEquals(this.reminders, other.reminders);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            ttlMinutes, resumeMode, resumeExpiryMinutes);
+            ttlMinutes, resumeMode, resumeExpiryMinutes,
+            reminders);
     }
     
     @Override
@@ -198,7 +247,8 @@ public class LinkConfig {
         return Utils.toString(LinkConfig.class,
                 "ttlMinutes", ttlMinutes,
                 "resumeMode", resumeMode,
-                "resumeExpiryMinutes", resumeExpiryMinutes);
+                "resumeExpiryMinutes", resumeExpiryMinutes,
+                "reminders", reminders);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -209,6 +259,8 @@ public class LinkConfig {
         private ResumeMode resumeMode;
 
         private Long resumeExpiryMinutes;
+
+        private Reminders reminders;
 
         private Builder() {
           // force use of static builder() method
@@ -256,9 +308,25 @@ public class LinkConfig {
             return this;
         }
 
+        /**
+         * Reminders for an invite journey: the invite link is sent again every intervalMinutes, at most
+         * maxReminders times, until the journey finishes or the link expires (ttlMinutes), whichever comes
+         * first. Resolved as ONE unit, not per member: the first tier that sets it (journey start, then
+         * delivery, then organization) wins, and an interval from one tier is never combined with a count from
+         * another. Absent everywhere means off.
+         * 
+         * <p>A journey without an invite ignores it. Captain refuses an interval below its operator floor with a
+         * 400 naming the tier. Frozen at journey start: editing it later does not reach a running journey.
+         */
+        public Builder reminders(@Nullable Reminders reminders) {
+            this.reminders = reminders;
+            return this;
+        }
+
         public LinkConfig build() {
             return new LinkConfig(
-                ttlMinutes, resumeMode, resumeExpiryMinutes);
+                ttlMinutes, resumeMode, resumeExpiryMinutes,
+                reminders);
         }
 
     }

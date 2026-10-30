@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export type TerminateResponse = {
@@ -17,7 +16,7 @@ export const TerminateResponse$inboundSchema: z.ZodMiniType<
   TerminateResponse,
   unknown
 > = z.object({
-  instanceId: types.string(),
+  instanceId: z.string(),
 });
 
 export function terminateResponseFromJSON(

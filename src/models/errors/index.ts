@@ -6,5 +6,6 @@ export * from "./error-response.js";
 export * from "./go-default-error.js";
 export * from "./go-error.js";
 export * from "./http-client-errors.js";
+export * from "./o-auth-error-response.js";
 export * from "./response-validation-error.js";
 export * from "./sdk-validation-error.js";

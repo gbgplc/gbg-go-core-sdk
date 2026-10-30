@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gbg.gocore.models.operations.GetJourneyStateResponseBody;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -17,7 +18,11 @@ import java.util.Map;
 import java.util.Optional;
 
 
-public class StateFetchResponse {
+public class StateFetchResponse implements GetJourneyStateResponseBody {
+
+    @JsonProperty("view")
+    private StateFetchResponseView view;
+
 
     @JsonProperty("instanceId")
     private String instanceId;
@@ -38,10 +43,13 @@ public class StateFetchResponse {
 
     @JsonCreator
     public StateFetchResponse(
+            @JsonProperty("view") @Nonnull StateFetchResponseView view,
             @JsonProperty("instanceId") @Nonnull String instanceId,
             @JsonProperty("status") @Nonnull String status,
             @JsonProperty("context") @Nullable Map<String, Object> context,
             @JsonProperty("result") @Nullable Map<String, Object> result) {
+        this.view = Optional.ofNullable(view)
+            .orElseThrow(() -> new IllegalArgumentException("view cannot be null"));
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
         this.status = Optional.ofNullable(status)
@@ -51,10 +59,16 @@ public class StateFetchResponse {
     }
     
     public StateFetchResponse(
+            @Nonnull StateFetchResponseView view,
             @Nonnull String instanceId,
             @Nonnull String status) {
-        this(instanceId, status, null,
-            null);
+        this(view, instanceId, status,
+            null, null);
+    }
+
+    @Override
+    public String view() {
+        return Utils.discriminatorToString(view);
     }
 
     public String instanceId() {
@@ -75,6 +89,12 @@ public class StateFetchResponse {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public StateFetchResponse withView(@Nonnull StateFetchResponseView view) {
+        this.view = Utils.checkNotNull(view, "view");
+        return this;
     }
 
 
@@ -112,6 +132,7 @@ public class StateFetchResponse {
         }
         StateFetchResponse other = (StateFetchResponse) o;
         return 
+            Utils.enhancedDeepEquals(this.view, other.view) &&
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
             Utils.enhancedDeepEquals(this.status, other.status) &&
             Utils.enhancedDeepEquals(this.context, other.context) &&
@@ -121,13 +142,14 @@ public class StateFetchResponse {
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            instanceId, status, context,
-            result);
+            view, instanceId, status,
+            context, result);
     }
     
     @Override
     public String toString() {
         return Utils.toString(StateFetchResponse.class,
+                "view", view,
                 "instanceId", instanceId,
                 "status", status,
                 "context", context,
@@ -136,6 +158,8 @@ public class StateFetchResponse {
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
+
+        private StateFetchResponseView view;
 
         private String instanceId;
 
@@ -147,6 +171,11 @@ public class StateFetchResponse {
 
         private Builder() {
           // force use of static builder() method
+        }
+
+        public Builder view(@Nonnull StateFetchResponseView view) {
+            this.view = Utils.checkNotNull(view, "view");
+            return this;
         }
 
         public Builder instanceId(@Nonnull String instanceId) {
@@ -171,8 +200,8 @@ public class StateFetchResponse {
 
         public StateFetchResponse build() {
             return new StateFetchResponse(
-                instanceId, status, context,
-                result);
+                view, instanceId, status,
+                context, result);
         }
 
     }

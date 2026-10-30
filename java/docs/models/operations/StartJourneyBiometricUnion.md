@@ -49,12 +49,23 @@ StartJourneyBiometricUnion value = StartJourneyBiometricUnion.of(StartJourneyBio
 
 ```java
 StartJourneyBiometricUnion value = StartJourneyBiometricUnion.of(StartJourneyBiometricStoredFace.builder()
-    .type(StartJourneyBiometricType.STORED_FACE)
+    .type(StartJourneyTypeStoredFace.STORED_FACE)
     .templateReference("<value>")
     .build());
 ```
 
-**Referred Types:** [StartJourneyBiometricType](../../models/operations/StartJourneyBiometricType.md)
+**Referred Types:** [StartJourneyTypeStoredFace](../../models/operations/StartJourneyTypeStoredFace.md)
+
+### [`StartJourneyBiometricOrphanedStoredFace`](../../models/operations/StartJourneyBiometricOrphanedStoredFace.md)
+
+```java
+StartJourneyBiometricUnion value = StartJourneyBiometricUnion.of(StartJourneyBiometricOrphanedStoredFace.builder()
+    .type(StartJourneyTypeOrphanedStoredFace.ORPHANED_STORED_FACE)
+    .templateReference("<value>")
+    .build());
+```
+
+**Referred Types:** [StartJourneyTypeOrphanedStoredFace](../../models/operations/StartJourneyTypeOrphanedStoredFace.md)
 
 ## Consumption Patterns
 
@@ -79,6 +90,9 @@ if (value.startJourneyBiometric1().isPresent()) {
 } else if (value.startJourneyBiometricStoredFace().isPresent()) {
     com.gbg.gocore.models.operations.StartJourneyBiometricStoredFace startJourneyBiometricStoredFaceValue = value.startJourneyBiometricStoredFace().get();
     // Handle startJourneyBiometricStoredFace variant
+} else if (value.startJourneyBiometricOrphanedStoredFace().isPresent()) {
+    com.gbg.gocore.models.operations.StartJourneyBiometricOrphanedStoredFace startJourneyBiometricOrphanedStoredFaceValue = value.startJourneyBiometricOrphanedStoredFace().get();
+    // Handle startJourneyBiometricOrphanedStoredFace variant
 } else if (value.asJson().isPresent()) {
     com.fasterxml.jackson.databind.JsonNode raw = value.asJson().get();
     // Handle unknown variant fallback

@@ -6,10 +6,10 @@ Developer-friendly & type-safe Typescript SDK specifically catered to leverage _
 [![License: MIT](https://img.shields.io/badge/LICENSE_//_MIT-3b5bdb?style=for-the-badge&labelColor=eff6ff)](https://opensource.org/licenses/MIT)
 
 > [!IMPORTANT]
-> **Upgrading from 0.1.x?** 0.2.0 is a breaking release, and one of the breaks
-> is silent: the base URL must no longer include `/v2/captain`, or every request
-> gets a misleading 401. See [CHANGELOG.md](./CHANGELOG.md) for the full list and
-> the known gaps.
+> **Upgrading?** 0.2.0 is a breaking release. If you are on `0.2.0-alpha.0`,
+> note that the base URL includes `/v2/captain` again, as it did in 0.1.x, so a
+> bare host now gets a 404. See [CHANGELOG.md](./CHANGELOG.md) for the full list
+> and the known gaps.
 
 <!-- Start Summary [summary] -->
 ## Summary
@@ -32,6 +32,9 @@ GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
   * [Server Selection](#server-selection)
   * [Custom HTTP Client](#custom-http-client)
   * [Analytics](#analytics)
+  * [Authenticating interaction calls](#authenticating-interaction-calls)
+  * [Error handling notes](#error-handling-notes)
+  * [Debug logging and sensitive data](#debug-logging-and-sensitive-data)
   * [Debugging](#debugging)
 * [Development](#development)
   * [Maturity](#maturity)
@@ -187,17 +190,17 @@ run();
 * [getSchemas](docs/sdks/journeys/README.md#getschemas) - Fetch interaction JSON schemas
 * [terminate](docs/sdks/journeys/README.md#terminate) - Terminate journey
 
-### [Sandbox](docs/sdks/sandbox/README.md)
-
-* [createScenario](docs/sdks/sandbox/README.md#createscenario) - Create a sandbox scenario on a journey
-* [listScenarios](docs/sdks/sandbox/README.md#listscenarios) - List a journey's sandbox scenarios
-* [getScenario](docs/sdks/sandbox/README.md#getscenario) - Read a sandbox scenario
-* [putScenario](docs/sdks/sandbox/README.md#putscenario) - Replace a sandbox scenario
-* [deleteScenario](docs/sdks/sandbox/README.md#deletescenario) - Delete a sandbox scenario
-
 ### [~~Tasks~~](docs/sdks/tasks/README.md)
 
 * [~~getSchema~~](docs/sdks/tasks/README.md#getschema) - Fetch V1-compat task schema :warning: **Deprecated**
+
+### [TestScenarios](docs/sdks/testscenarios/README.md)
+
+* [create](docs/sdks/testscenarios/README.md#create) - Create a test scenario on a journey
+* [list](docs/sdks/testscenarios/README.md#list) - List a journey's test scenarios
+* [get](docs/sdks/testscenarios/README.md#get) - Read a test scenario
+* [put](docs/sdks/testscenarios/README.md#put) - Replace a test scenario
+* [delete](docs/sdks/testscenarios/README.md#delete) - Delete a test scenario
 
 ### [Tokens](docs/sdks/tokens/README.md)
 
@@ -236,11 +239,11 @@ To read more about standalone functions, check [FUNCTIONS.md](./FUNCTIONS.md).
 - [`journeysGetState`](docs/sdks/journeys/README.md#getstate) - Fetch journey state
 - [`journeysStart`](docs/sdks/journeys/README.md#start) - Start a new journey
 - [`journeysTerminate`](docs/sdks/journeys/README.md#terminate) - Terminate journey
-- [`sandboxCreateScenario`](docs/sdks/sandbox/README.md#createscenario) - Create a sandbox scenario on a journey
-- [`sandboxDeleteScenario`](docs/sdks/sandbox/README.md#deletescenario) - Delete a sandbox scenario
-- [`sandboxGetScenario`](docs/sdks/sandbox/README.md#getscenario) - Read a sandbox scenario
-- [`sandboxListScenarios`](docs/sdks/sandbox/README.md#listscenarios) - List a journey's sandbox scenarios
-- [`sandboxPutScenario`](docs/sdks/sandbox/README.md#putscenario) - Replace a sandbox scenario
+- [`testScenariosCreate`](docs/sdks/testscenarios/README.md#create) - Create a test scenario on a journey
+- [`testScenariosDelete`](docs/sdks/testscenarios/README.md#delete) - Delete a test scenario
+- [`testScenariosGet`](docs/sdks/testscenarios/README.md#get) - Read a test scenario
+- [`testScenariosList`](docs/sdks/testscenarios/README.md#list) - List a journey's test scenarios
+- [`testScenariosPut`](docs/sdks/testscenarios/README.md#put) - Replace a test scenario
 - [`tokensGenerate`](docs/sdks/tokens/README.md#generate) - Generate access token
 - ~~[`tasksGetSchema`](docs/sdks/tasks/README.md#getschema)~~ - Fetch V1-compat task schema :warning: **Deprecated**
 
@@ -363,7 +366,7 @@ run();
 * [`GoError`](./src/models/errors/go-error.ts): The base class for HTTP error responses.
   * [`ErrorResponse`](./src/models/errors/error-response.ts): *
 
-<details><summary>Less common errors (6)</summary>
+<details><summary>Less common errors (7)</summary>
 
 <br />
 
@@ -376,6 +379,7 @@ run();
 
 
 **Inherit from [`GoError`](./src/models/errors/go-error.ts)**:
+* [`OAuthErrorResponse`](./src/models/errors/o-auth-error-response.ts): Invalid request. Check your credentials. Applicable to 1 of 22 methods.*
 * [`ResponseValidationError`](./src/models/errors/response-validation-error.ts): Type mismatch between the data returned from the server and the structure expected by the SDK. See `error.rawValue` for the raw value and `error.pretty()` for a nicely formatted multi-line string.
 
 </details>
@@ -390,11 +394,11 @@ run();
 
 You can override the default server globally by passing a server index to the `serverIdx: number` optional parameter when initializing the SDK client instance. The selected server will then be used as the default on the operations that use it. This table lists the indexes associated with the available servers:
 
-| #   | Server                              | Description |
-| --- | ----------------------------------- | ----------- |
-| 0   | `https://eu.platform.go.gbgplc.com` | EU          |
-| 1   | `https://us.platform.go.gbgplc.com` | US          |
-| 2   | `https://au.platform.go.gbgplc.com` | AU          |
+| #   | Server                                         | Description |
+| --- | ---------------------------------------------- | ----------- |
+| 0   | `https://eu.platform.go.gbgplc.com/v2/captain` | EU          |
+| 1   | `https://us.platform.go.gbgplc.com/v2/captain` | US          |
+| 2   | `https://au.platform.go.gbgplc.com/v2/captain` | AU          |
 
 #### Example
 
@@ -423,7 +427,7 @@ The default server can also be overridden globally by passing a URL to the `serv
 import { Go } from "@gbg/go-core";
 
 const go = new Go({
-  serverURL: "https://au.platform.go.gbgplc.com",
+  serverURL: "https://au.platform.go.gbgplc.com/v2/captain",
   customerAccess: process.env["GO_CUSTOMER_ACCESS"] ?? "",
 });
 
@@ -563,9 +567,9 @@ if (err instanceof ResponseValidationError) {
 ```
 
 **Not every API error is an `ErrorResponse`.** Only the statuses declared in the
-spec for a given operation are typed. Undeclared ones (today: 403 on fetch and
-submit, 422 on submit, and every token failure) arrive as `GoDefaultError`.
-Handle both.
+spec for a given operation are typed. Token failures arrive as
+`OAuthErrorResponse`, with the OAuth `error` and `error_description`. Undeclared
+statuses (today: 422 on submit) arrive as `GoDefaultError`. Handle all three.
 
 ## Debug logging and sensitive data
 

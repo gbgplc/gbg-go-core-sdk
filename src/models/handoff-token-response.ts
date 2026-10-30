@@ -7,7 +7,6 @@ import { safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export const DevicePosition = {
@@ -33,9 +32,9 @@ export const HandoffTokenResponse$inboundSchema: z.ZodMiniType<
   HandoffTokenResponse,
   unknown
 > = z.object({
-  instanceUrl: types.string(),
+  instanceUrl: z.string(),
   devicePosition: DevicePosition$inboundSchema,
-  expiresIn: types.number(),
+  expiresIn: z.number(),
 });
 
 export function handoffTokenResponseFromJSON(

@@ -17,7 +17,7 @@ V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="getTaskSchema" method="post" path="/v2/captain/journey/task/schema" example="Default" -->
+<!-- UsageSnippet language="typescript" operationID="getTaskSchema" method="post" path="/journey/task/schema" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -78,6 +78,6 @@ run();
 
 | Error Type            | Status Code           | Content Type          |
 | --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404         | application/json      |
+| errors.ErrorResponse  | 400, 401, 403, 404    | application/json      |
 | errors.ErrorResponse  | 500, 503              | application/json      |
 | errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |

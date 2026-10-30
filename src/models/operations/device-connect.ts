@@ -9,23 +9,6 @@ export type DeviceConnectSecurity = {
   deviceConnect: string;
 };
 
-export type DeviceInfo = {
-  /**
-   * Device Id, a unique identifier for a device.
-   */
-  deviceId: string;
-  deviceName?: string | undefined;
-  deviceType?: string | undefined;
-};
-
-export type DeviceConnectRequest = {
-  /**
-   * Bearer Token credential for a connection.
-   */
-  connectToken: string;
-  deviceInfo: DeviceInfo;
-};
-
 /** @internal */
 export type DeviceConnectSecurity$Outbound = {
   DeviceConnect: string;
@@ -51,49 +34,5 @@ export function deviceConnectSecurityToJSON(
 ): string {
   return JSON.stringify(
     DeviceConnectSecurity$outboundSchema.parse(deviceConnectSecurity),
-  );
-}
-
-/** @internal */
-export type DeviceInfo$Outbound = {
-  deviceId: string;
-  deviceName?: string | undefined;
-  deviceType?: string | undefined;
-};
-
-/** @internal */
-export const DeviceInfo$outboundSchema: z.ZodMiniType<
-  DeviceInfo$Outbound,
-  DeviceInfo
-> = z.object({
-  deviceId: z.string(),
-  deviceName: z.optional(z.string()),
-  deviceType: z.optional(z.string()),
-});
-
-export function deviceInfoToJSON(deviceInfo: DeviceInfo): string {
-  return JSON.stringify(DeviceInfo$outboundSchema.parse(deviceInfo));
-}
-
-/** @internal */
-export type DeviceConnectRequest$Outbound = {
-  connectToken: string;
-  deviceInfo: DeviceInfo$Outbound;
-};
-
-/** @internal */
-export const DeviceConnectRequest$outboundSchema: z.ZodMiniType<
-  DeviceConnectRequest$Outbound,
-  DeviceConnectRequest
-> = z.object({
-  connectToken: z.string(),
-  deviceInfo: z.lazy(() => DeviceInfo$outboundSchema),
-});
-
-export function deviceConnectRequestToJSON(
-  deviceConnectRequest: DeviceConnectRequest,
-): string {
-  return JSON.stringify(
-    DeviceConnectRequest$outboundSchema.parse(deviceConnectRequest),
   );
 }

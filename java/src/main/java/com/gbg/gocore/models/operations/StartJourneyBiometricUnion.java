@@ -56,6 +56,11 @@ public class StartJourneyBiometricUnion {
         Utils.checkNotNull(value, "value");
         return new StartJourneyBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
     }
+
+    public static StartJourneyBiometricUnion of(StartJourneyBiometricOrphanedStoredFace value) {
+        Utils.checkNotNull(value, "value");
+        return new StartJourneyBiometricUnion(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
+    }
     
     /**
      * Returns an {@link Optional} containing the value if it is of type {@code StartJourneyBiometric1},
@@ -134,6 +139,19 @@ public class StartJourneyBiometricUnion {
         }
         return Optional.empty();
     }
+    
+    /**
+     * Returns an {@link Optional} containing the value if it is of type {@code StartJourneyBiometricOrphanedStoredFace},
+     * otherwise returns an empty {@link Optional}.
+     *
+     * @return an {@link Optional} containing the {@code StartJourneyBiometricOrphanedStoredFace} value, or empty if not of this type
+     */
+    public Optional<StartJourneyBiometricOrphanedStoredFace> startJourneyBiometricOrphanedStoredFace() {
+        if (value.value() instanceof StartJourneyBiometricOrphanedStoredFace) {
+            return Optional.of((StartJourneyBiometricOrphanedStoredFace) value.value());
+        }
+        return Optional.empty();
+    }
    /**
     * Returns an {@link Optional} containing the value as a {@code JsonNode}.
     * This accessor returns the raw JSON when the value doesn't match any of the defined union types.
@@ -174,7 +192,8 @@ public class StartJourneyBiometricUnion {
                   TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric3>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric4>() {}, JsonShape.DEFAULT),
                   TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometric5>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometricStoredFace>() {}, JsonShape.DEFAULT));
+                  TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometricStoredFace>() {}, JsonShape.DEFAULT),
+                  TypeReferenceWithShape.of(new TypeReference<StartJourneyBiometricOrphanedStoredFace>() {}, JsonShape.DEFAULT));
         }
     }
     

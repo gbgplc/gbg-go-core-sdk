@@ -8,11 +8,11 @@ info:
   license:
     name: "Proprietary"
 servers:
-  - url: https://eu.platform.go.gbgplc.com
+  - url: https://eu.platform.go.gbgplc.com/v2/captain
     description: EU
-  - url: https://us.platform.go.gbgplc.com
+  - url: https://us.platform.go.gbgplc.com/v2/captain
     description: US
-  - url: https://au.platform.go.gbgplc.com
+  - url: https://au.platform.go.gbgplc.com/v2/captain
     description: AU
 tags:
   - name: "Authentication"
@@ -23,8 +23,8 @@ tags:
     description: "User interaction management (End-User Token required)"
   - name: "Device"
     description: "Device authentication and token exchange"
-  - name: "Sandbox"
-    description: "Sandbox scenario management (Customer Token required)"
+  - name: "Test scenarios"
+    description: "Test scenario management (Customer Token required)"
 security: []
 components:
   securitySchemes:
@@ -39,12 +39,29 @@ components:
       bearerFormat: "JWT"
       description: "End-User JWT token for end-user scoped operations. Required for: interaction/fetch, interaction/submit, device/validate"
     DeviceConnect:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: >-
-        Connect-token bearer, minted by device/start and exchanged here for an end-user token. Absent from the live spec; see the overlay.
+      type: "http"
+      scheme: "bearer"
+      description: "Single-use bearer credential for completing the device handshake. See the partner integration guide."
   schemas:
+    DeviceConnectRequest:
+      type: "object"
+      properties:
+        deviceInfo:
+          type: "object"
+          properties:
+            deviceId:
+              type: "string"
+              minLength: 1
+              maxLength: 64
+            deviceName:
+              type: "string"
+              maxLength: 256
+            deviceType:
+              type: "string"
+              maxLength: 128
+          required:
+            - "deviceId"
+      description: "Optional. `deviceInfo` is deprecated; device metadata is now read from request headers."
     JourneyStartResponse:
       type: "object"
       properties:
@@ -62,17 +79,27 @@ components:
             - "pending"
         message:
           type: "string"
-        waitedSeconds:
-          type: "integer"
-          minimum: 0
         state:
           $ref: "#/components/schemas/StateFetchResponse"
+        test:
+          type: "boolean"
+          enum:
+            - true
+          description: "Present and `true` only when the journey was started as a test scenario."
+        scenario:
+          type: "string"
+          description: "The test scenario that was applied: its name, or \"inline\" for a scenario supplied in the request body. Present only together with `test: true`."
+          example: "inline"
       required:
         - "instanceId"
         - "status"
     StateFetchResponse:
       type: "object"
       properties:
+        view:
+          type: "string"
+          enum:
+            - "full"
         instanceId:
           type: "string"
         status:
@@ -84,6 +111,7 @@ components:
           type: "object"
           additionalProperties: {}
       required:
+        - "view"
         - "instanceId"
         - "status"
     ErrorResponse:
@@ -130,6 +158,10 @@ components:
     InteractionFetchResponse:
       type: "object"
       properties:
+        view:
+          type: "string"
+          enum:
+            - "full"
         instanceId:
           type: "string"
         interactionId:
@@ -152,22 +184,7 @@ components:
         outstandingGroups:
           type: "array"
           items:
-            type: "object"
-            properties:
-              elementId:
-                type: "string"
-              cardinality:
-                type: "string"
-                enum:
-                  - "at-least-one"
-              refs:
-                type: "array"
-                items:
-                  type: "string"
-            required:
-              - "elementId"
-              - "cardinality"
-              - "refs"
+            $ref: "#/components/schemas/OutstandingGroup"
         processing:
           type: "boolean"
         result:
@@ -181,11 +198,33 @@ components:
           required:
             - "connected"
       required:
+        - "view"
         - "instanceId"
         - "journey"
+    OutstandingGroup:
+      type: "object"
+      properties:
+        elementId:
+          type: "string"
+        cardinality:
+          type: "string"
+          example: "at-least-one"
+          description: "How many of `refs` are needed. Only 'at-least-one' today; more values may be added."
+        refs:
+          type: "array"
+          items:
+            type: "string"
+      required:
+        - "elementId"
+        - "cardinality"
+        - "refs"
     SlimInteractionFetchResponse:
       type: "object"
       properties:
+        view:
+          type: "string"
+          enum:
+            - "slim"
         instanceId:
           type: "string"
         interactionId:
@@ -214,22 +253,7 @@ components:
         outstandingGroups:
           type: "array"
           items:
-            type: "object"
-            properties:
-              elementId:
-                type: "string"
-              cardinality:
-                type: "string"
-                enum:
-                  - "at-least-one"
-              refs:
-                type: "array"
-                items:
-                  type: "string"
-            required:
-              - "elementId"
-              - "cardinality"
-              - "refs"
+            $ref: "#/components/schemas/OutstandingGroup"
         instructions:
           type: "array"
           items:
@@ -244,6 +268,7 @@ components:
           required:
             - "connected"
       required:
+        - "view"
         - "instanceId"
         - "journey"
     SlimResult:
@@ -258,7 +283,7 @@ components:
             - "complete"
             - "error"
             - "timeout"
-          description: "Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. `error` means it ended in failure: either a module reported a terminal error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: \"error\"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead."
+          description: "Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete` means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g. a data source was unavailable) and the journey continued past it, as configured (on a state fetch each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a module reported a terminal error (journeys run without per-step module error handling, which includes every journey on engine 2), a module that could not be found or routed at all, a step whose output broke its declared contract, or the platform abandoning the journey before it could finish (a deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a running journey once its state has materialized. `timeout` is part of this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`. When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass an evaluation and then fail before finishing, leaving a positive classification beside `status: \"error\"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read a positive classification as success. Note also that an `error` caused by abandonment is generally NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a retry; start a new journey instead."
         outcomeClassification:
           type:
             - "string"
@@ -271,10 +296,31 @@ components:
         errors:
           type: "array"
           items:
-            $ref: "#/components/schemas/GbgError"
+            $ref: "#/components/schemas/SlimModuleStepError"
           minItems: 1
+          description: "Customer-safe errors. Failed module steps are listed as they happen, so `errors` can appear while the journey is still `pending`. For an `error`/`timeout` journey the first entry describes the journey failure. One further entry is listed per failed module step (codes 5021 step failed, 5022 step timed out, 5023 step could not be started), on a `complete` journey too, in step order. On a state fetch the failed steps carry the same entry on `steps[].error`."
         data:
           $ref: "#/components/schemas/SlimVerifiedData"
+    SlimModuleStepError:
+      allOf:
+        - $ref: "#/components/schemas/GbgError"
+        - type: "object"
+          properties:
+            cause:
+              type: "object"
+              properties:
+                code:
+                  type: "string"
+                  description: "The module's own error code, as emitted (e.g. `5012`, `BD10003`). Present only when the module emitted a structured code; look it up in the module or GBG Errors Catalog documentation."
+                correlationId:
+                  type: "string"
+                  description: "The upstream service's trace id for the failed request (e.g. SIP's `gbg-correlation-id`), taken from the same error as `code`."
+                moduleId:
+                  type: "string"
+                  description: "The module the failed step ran. On an interaction fetch, which carries no step history, `cause` has only `moduleId`/`variantId`; the module code and correlation id are on the state fetch."
+                variantId:
+                  type: "string"
+                  description: "The module variant (configuration) the step ran."
     SlimVerifiedData:
       type: "object"
       properties:
@@ -801,6 +847,10 @@ components:
     SlimStateFetchResponse:
       type: "object"
       properties:
+        view:
+          type: "string"
+          enum:
+            - "slim"
         instanceId:
           type: "string"
         status:
@@ -818,6 +868,7 @@ components:
         result:
           $ref: "#/components/schemas/SlimResult"
       required:
+        - "view"
         - "instanceId"
         - "status"
     SlimJourney:
@@ -851,6 +902,15 @@ components:
             - "negative"
             - "neutral"
             - null
+        status:
+          type: "string"
+          enum:
+            - "error"
+          description: "Present only when this module step failed. The journey may still have continued past it."
+        error:
+          allOf:
+            - $ref: "#/components/schemas/SlimModuleStepError"
+            - description: "Why this module step failed, in fixed customer-safe wording: 5021 step failed, 5022 step timed out, 5023 step could not be started. Never the module or supplier text."
       required:
         - "nodeId"
     SchemaFetchResponse:
@@ -932,7 +992,7 @@ components:
         tokenType:
           type: "string"
           enum:
-            - end-user
+            - "end-user"
         expiresIn:
           type: "number"
         instanceId:
@@ -943,6 +1003,10 @@ components:
           type: "string"
         credentialExpiresIn:
           type: "number"
+        resumeMode:
+          type: "string"
+        linkExpiresAt:
+          type: "string"
       required:
         - "endUserToken"
         - "tokenType"
@@ -994,7 +1058,7 @@ components:
         - "instanceId"
         - "orgId"
         - "expiresAt"
-    SandboxScenarioWritten:
+    TestScenarioWritten:
       type: "object"
       properties:
         name:
@@ -1009,7 +1073,7 @@ components:
         - "name"
         - "journeyId"
         - "tier"
-    CreateSandboxScenarioRequest:
+    CreateTestScenarioRequest:
       type: "object"
       properties:
         name:
@@ -1020,26 +1084,28 @@ components:
         data:
           type: "object"
           minProperties: 1
-          description: "Scenario payload (ScenarioPayload). Requires `modules`; optionally `defaultOutcome`, `description`, and extra passthrough fields. Validated by the store against the same schema the sandbox runtime enforces, so an accepted document is guaranteed runnable."
+          description: "Scenario payload (ScenarioPayload). Requires `modules`, keyed by journey graph node id (GGO-18452 / GGO-16394); optionally `defaultOutcome`, `defaultSubject`, `description`, and extra passthrough fields. Validated by the store against the same schema the test scenario runtime enforces, so an accepted document is guaranteed runnable."
           example:
             description: "Fraud flagged on the second module"
             modules:
-              idVerification:
+              node-id-verification-1:
                 outcome: "Pass"
-                subject: {}
-              fraudCheck:
+                subject:
+                  documents:
+                    - type: "PrimaryDocument"
+                      classification: "Passport"
+              node-fraud-check-1:
                 outcome: "Flag"
-                subject: {}
             defaultOutcome: "Complete"
       required:
         - "name"
         - "data"
       additionalProperties: false
-    SandboxScenarioList:
+    TestScenarioList:
       type: "array"
       items:
-        $ref: "#/components/schemas/SandboxScenarioSummary"
-    SandboxScenarioSummary:
+        $ref: "#/components/schemas/TestScenarioSummary"
+    TestScenarioSummary:
       type: "object"
       properties:
         name:
@@ -1065,7 +1131,7 @@ components:
         - "name"
         - "tier"
         - "editable"
-    SandboxScenario:
+    TestScenario:
       type: "object"
       properties:
         name:
@@ -1093,22 +1159,24 @@ components:
         - "journeyId"
         - "tier"
         - "data"
-    UpdateSandboxScenarioRequest:
+    UpdateTestScenarioRequest:
       type: "object"
       properties:
         data:
           type: "object"
           minProperties: 1
-          description: "Scenario payload (ScenarioPayload). Requires `modules`; optionally `defaultOutcome`, `description`, and extra passthrough fields. Validated by the store against the same schema the sandbox runtime enforces, so an accepted document is guaranteed runnable."
+          description: "Scenario payload (ScenarioPayload). Requires `modules`, keyed by journey graph node id (GGO-18452 / GGO-16394); optionally `defaultOutcome`, `defaultSubject`, `description`, and extra passthrough fields. Validated by the store against the same schema the test scenario runtime enforces, so an accepted document is guaranteed runnable."
           example:
             description: "Fraud flagged on the second module"
             modules:
-              idVerification:
+              node-id-verification-1:
                 outcome: "Pass"
-                subject: {}
-              fraudCheck:
+                subject:
+                  documents:
+                    - type: "PrimaryDocument"
+                      classification: "Passport"
+              node-fraud-check-1:
                 outcome: "Flag"
-                subject: {}
             defaultOutcome: "Complete"
       required:
         - "data"
@@ -1163,9 +1231,20 @@ components:
         - "client_secret"
         - "grant_type"
         - "scope"
+    OAuthErrorResponse:
+      type: "object"
+      properties:
+        error:
+          type: "string"
+          description: "OAuth 2.0 error code, e.g. invalid_request, invalid_client, invalid_grant, unauthorized_client, unsupported_grant_type, invalid_scope."
+        error_description:
+          type: "string"
+          description: "Human-readable detail. Not always present."
+      required:
+        - "error"
   parameters: {}
 paths:
-  /v2/captain/journey/start:
+  /journey/start:
     post:
       tags:
         - "Journey"
@@ -1556,7 +1635,7 @@ paths:
                                 properties:
                                   type:
                                     type: "string"
-                                    description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
+                                    description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
                                   email:
                                     type: "string"
                                     minLength: 1
@@ -2258,9 +2337,11 @@ paths:
                               side1Image:
                                 type: "string"
                                 minLength: 1
+                                contentMediaType: "image/*"
                               side2Image:
                                 type: "string"
                                 minLength: 1
+                                contentMediaType: "image/*"
                               side1Device:
                                 type: "object"
                                 properties:
@@ -3023,7 +3104,7 @@ paths:
                                       properties:
                                         type:
                                           type: "string"
-                                          description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
+                                          description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
                                         email:
                                           type: "string"
                                           minLength: 1
@@ -3080,6 +3161,10 @@ paths:
                                 type: "string"
                                 pattern: "^\\d{4}-\\d{2}-\\d{2}$"
                                 description: "Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601"
+                              acquisitionDate:
+                                type: "string"
+                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                description: "Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601"
                               previousFirstName:
                                 type: "string"
                                 minLength: 1
@@ -3117,9 +3202,11 @@ paths:
                                   face1Image:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                   face2Image:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "face1Image"
                                   - "face2Image"
@@ -3132,9 +3219,11 @@ paths:
                                   selfieImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                   anchorImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "selfieImage"
                                   - "anchorImage"
@@ -3147,6 +3236,7 @@ paths:
                                   faceImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "faceImage"
                               - type: "object"
@@ -3158,6 +3248,7 @@ paths:
                                   selfieImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                   selfieImageEncryption:
                                     type: "boolean"
                                 required:
@@ -3171,6 +3262,7 @@ paths:
                                   anchorImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "anchorImage"
                               - type: "object"
@@ -3182,6 +3274,26 @@ paths:
                                     enum:
                                       - "storedFace"
                                   templateReference:
+                                    type: "string"
+                                    minLength: 1
+                                  collectionReference:
+                                    type: "string"
+                                    minLength: 1
+                                required:
+                                  - "type"
+                                  - "templateReference"
+                              - type: "object"
+                                properties:
+                                  id:
+                                    type: "string"
+                                  type:
+                                    type: "string"
+                                    enum:
+                                      - "orphanedStoredFace"
+                                  templateReference:
+                                    type: "string"
+                                    minLength: 1
+                                  collectionReference:
                                     type: "string"
                                     minLength: 1
                                 required:
@@ -3349,7 +3461,7 @@ paths:
                               accountNumber:
                                 type: "string"
                                 minLength: 1
-                                description: "Account number"
+                                description: "Account number in its domestic form. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when both are supplied they are not cross-checked."
                               sortCode:
                                 type: "string"
                                 description: "UK sort code"
@@ -3358,7 +3470,7 @@ paths:
                                 description: "US ABA routing number"
                               iban:
                                 type: "string"
-                                description: "International Bank Account Number"
+                                description: "International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616 mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough."
                               bic:
                                 type: "string"
                                 description: "BIC/SWIFT code"
@@ -3377,7 +3489,6 @@ paths:
                                 description: "Account classification, e.g. current, savings"
                             required:
                               - "type"
-                              - "accountNumber"
                         kba:
                           type: "object"
                           properties:
@@ -3429,6 +3540,49 @@ paths:
                           required:
                             - "questions"
                             - "answers"
+                        documentTypeSelection:
+                          type: "object"
+                          properties:
+                            offered:
+                              type: "array"
+                              items:
+                                type: "string"
+                                enum:
+                                  - "australiaPassport"
+                                  - "australiaDrivingLicense"
+                                  - "australiaBirthCertificate"
+                                  - "australiaCentrelink"
+                                  - "australiaCitizenshipCertificate"
+                                  - "australiaVisa"
+                                  - "australiaMedicare"
+                                  - "australiaImmicard"
+                                  - "australiaMarriageCertificate"
+                                  - "australiaChangeOfNameCertificate"
+                                  - "australiaElectoralRoll"
+                                  - "newZealandPassport"
+                                  - "newZealandDrivingLicense"
+                                  - "newZealandBirthCertificate"
+                                  - "newZealandCitizenshipCertificate"
+                                  - "noneOfThese"
+                            selected:
+                              type: "string"
+                              enum:
+                                - "australiaPassport"
+                                - "australiaDrivingLicense"
+                                - "australiaBirthCertificate"
+                                - "australiaCentrelink"
+                                - "australiaCitizenshipCertificate"
+                                - "australiaVisa"
+                                - "australiaMedicare"
+                                - "australiaImmicard"
+                                - "australiaMarriageCertificate"
+                                - "australiaChangeOfNameCertificate"
+                                - "australiaElectoralRoll"
+                                - "newZealandPassport"
+                                - "newZealandDrivingLicense"
+                                - "newZealandBirthCertificate"
+                                - "newZealandCitizenshipCertificate"
+                                - "noneOfThese"
                         uid:
                           type: "string"
                     config:
@@ -3447,7 +3601,7 @@ paths:
                         syncWaitSeconds:
                           type: "integer"
                           exclusiveMinimum: 0
-                          description: "How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55 today). Send a smaller value if your own HTTP client gives up sooner. A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the response says how long the call waited."
+                          description: "How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means wait up to the platform ceiling, which is the load balancer's idle timeout minus 10 seconds (50 today). Send a smaller value if your own HTTP client gives up sooner. A value above the ceiling is clamped, not rejected, and the clamp is logged."
                         linkConfig:
                           type: "object"
                           properties:
@@ -3465,6 +3619,23 @@ paths:
                               type: "integer"
                               minimum: 1
                               description: "Resume-credential lifetime in minutes, ABSOLUTE from the applicant first connecting — not from link issue, and not sliding from last use. Nothing renews it: returning many times neither extends nor shortens it. Valid only when resumeMode is resume; supplying it alongside off is rejected. Clamped downward only. It may fall AFTER the link expires, which is deliberate — the link bounds starting, this bounds coming back. Because nothing renews it, a small value is a total journey budget rather than an idle timeout, and will cut off an applicant who never stopped working."
+                            reminders:
+                              type: "object"
+                              properties:
+                                intervalMinutes:
+                                  type: "integer"
+                                  minimum: 1
+                                  description: "Minutes between one send of the invite link and the next reminder."
+                                maxReminders:
+                                  type: "integer"
+                                  minimum: 0
+                                  maximum: 5
+                                  description: "Reminders sent after the first invite, at most 5. 0 turns reminders off."
+                              required:
+                                - "intervalMinutes"
+                                - "maxReminders"
+                              additionalProperties: false
+                              description: "Reminders for an invite journey: the invite link is sent again every intervalMinutes, at most maxReminders times, until the journey finishes or the link expires (ttlMinutes), whichever comes first. Resolved as ONE unit, not per member: the first tier that sets it (journey start, then delivery, then organization) wins, and an interval from one tier is never combined with a count from another. Absent everywhere means off. A journey without an invite ignores it. Captain refuses an interval below its operator floor with a 400 naming the tier. Frozen at journey start: editing it later does not reach a running journey."
                           additionalProperties: false
                           description: "Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved independently across the per-journey, delivery, organization and system-default tiers, then clamped down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the delivery-token and connect-secret records, read at connect, and enforced when a resume credential is minted and exchanged. None of the resolved values is echoed on any response — the journey-start log line is where the resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery resource's linkConfig, then to the organization's value, then to the deprecated flat deliveryUrlTtlMinutes, then to the system default."
                         overlay:
@@ -3500,6 +3671,9 @@ paths:
                           advice:
                             type: "object"
                             additionalProperties: {}
+                          subject:
+                            type: "object"
+                            description: "Domain-element values this module override returns in result.subject."
                         required:
                           - "outcome"
                         additionalProperties: {}
@@ -3508,6 +3682,9 @@ paths:
                     defaultAdvice:
                       type: "object"
                       additionalProperties: {}
+                    defaultSubject:
+                      type: "object"
+                      description: "Fallback subject values applied when a module entry has no subject of its own."
                     description:
                       type: "string"
                   required:
@@ -3536,13 +3713,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "403":
-          description: "Forbidden — sandbox mode is disabled on this captain instance, OR the requesting organisation is on the per-org sandbox denylist (GGO-16240)"
+          description: "Forbidden — test scenarios are disabled on this service, OR test scenarios are not enabled for the requesting organisation (GGO-16240)"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Delivery / resource not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Test scenario exists but its stored payload is invalid"
           content:
             application/json:
               schema:
@@ -3568,7 +3751,7 @@ paths:
       operationId: startJourney
       x-speakeasy-group: journeys
       x-speakeasy-name-override: start
-  /v2/captain/journey/interaction/fetch:
+  /journey/interaction/fetch:
     post:
       tags:
         - "Interaction"
@@ -3612,9 +3795,14 @@ paths:
           content:
             application/json:
               schema:
-                anyOf:
+                oneOf:
                   - $ref: "#/components/schemas/InteractionFetchResponse"
                   - $ref: "#/components/schemas/SlimInteractionFetchResponse"
+                discriminator:
+                  propertyName: "view"
+                  mapping:
+                    full: "#/components/schemas/InteractionFetchResponse"
+                    slim: "#/components/schemas/SlimInteractionFetchResponse"
         "400":
           description: "Validation error"
           content:
@@ -3623,6 +3811,12 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Forbidden: the token lacks the permission or scope for this read"
           content:
             application/json:
               schema:
@@ -3639,10 +3833,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: "Service unavailable (retryable)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
       operationId: fetchInteraction
       x-speakeasy-group: interactions
       x-speakeasy-name-override: fetch
-  /v2/captain/journey/interaction/submit:
+  /journey/interaction/submit:
     post:
       tags:
         - "Interaction"
@@ -4051,7 +4251,7 @@ paths:
                                 properties:
                                   type:
                                     type: "string"
-                                    description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
+                                    description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
                                   email:
                                     type: "string"
                                     minLength: 1
@@ -4753,9 +4953,11 @@ paths:
                               side1Image:
                                 type: "string"
                                 minLength: 1
+                                contentMediaType: "image/*"
                               side2Image:
                                 type: "string"
                                 minLength: 1
+                                contentMediaType: "image/*"
                               side1Device:
                                 type: "object"
                                 properties:
@@ -5518,7 +5720,7 @@ paths:
                                       properties:
                                         type:
                                           type: "string"
-                                          description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
+                                          description: "Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal')."
                                         email:
                                           type: "string"
                                           minLength: 1
@@ -5575,6 +5777,10 @@ paths:
                                 type: "string"
                                 pattern: "^\\d{4}-\\d{2}-\\d{2}$"
                                 description: "Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601"
+                              acquisitionDate:
+                                type: "string"
+                                pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+                                description: "Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601"
                               previousFirstName:
                                 type: "string"
                                 minLength: 1
@@ -5612,9 +5818,11 @@ paths:
                                   face1Image:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                   face2Image:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "face1Image"
                                   - "face2Image"
@@ -5627,9 +5835,11 @@ paths:
                                   selfieImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                   anchorImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "selfieImage"
                                   - "anchorImage"
@@ -5642,6 +5852,7 @@ paths:
                                   faceImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "faceImage"
                               - type: "object"
@@ -5653,6 +5864,7 @@ paths:
                                   selfieImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                   selfieImageEncryption:
                                     type: "boolean"
                                 required:
@@ -5666,6 +5878,7 @@ paths:
                                   anchorImage:
                                     type: "string"
                                     minLength: 1
+                                    contentMediaType: "image/*"
                                 required:
                                   - "anchorImage"
                               - type: "object"
@@ -5677,6 +5890,26 @@ paths:
                                     enum:
                                       - "storedFace"
                                   templateReference:
+                                    type: "string"
+                                    minLength: 1
+                                  collectionReference:
+                                    type: "string"
+                                    minLength: 1
+                                required:
+                                  - "type"
+                                  - "templateReference"
+                              - type: "object"
+                                properties:
+                                  id:
+                                    type: "string"
+                                  type:
+                                    type: "string"
+                                    enum:
+                                      - "orphanedStoredFace"
+                                  templateReference:
+                                    type: "string"
+                                    minLength: 1
+                                  collectionReference:
                                     type: "string"
                                     minLength: 1
                                 required:
@@ -5844,7 +6077,7 @@ paths:
                               accountNumber:
                                 type: "string"
                                 minLength: 1
-                                description: "Account number"
+                                description: "Account number in its domestic form. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when both are supplied they are not cross-checked."
                               sortCode:
                                 type: "string"
                                 description: "UK sort code"
@@ -5853,7 +6086,7 @@ paths:
                                 description: "US ABA routing number"
                               iban:
                                 type: "string"
-                                description: "International Bank Account Number"
+                                description: "International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616 mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough."
                               bic:
                                 type: "string"
                                 description: "BIC/SWIFT code"
@@ -5872,7 +6105,6 @@ paths:
                                 description: "Account classification, e.g. current, savings"
                             required:
                               - "type"
-                              - "accountNumber"
                         kba:
                           type: "object"
                           properties:
@@ -5924,6 +6156,49 @@ paths:
                           required:
                             - "questions"
                             - "answers"
+                        documentTypeSelection:
+                          type: "object"
+                          properties:
+                            offered:
+                              type: "array"
+                              items:
+                                type: "string"
+                                enum:
+                                  - "australiaPassport"
+                                  - "australiaDrivingLicense"
+                                  - "australiaBirthCertificate"
+                                  - "australiaCentrelink"
+                                  - "australiaCitizenshipCertificate"
+                                  - "australiaVisa"
+                                  - "australiaMedicare"
+                                  - "australiaImmicard"
+                                  - "australiaMarriageCertificate"
+                                  - "australiaChangeOfNameCertificate"
+                                  - "australiaElectoralRoll"
+                                  - "newZealandPassport"
+                                  - "newZealandDrivingLicense"
+                                  - "newZealandBirthCertificate"
+                                  - "newZealandCitizenshipCertificate"
+                                  - "noneOfThese"
+                            selected:
+                              type: "string"
+                              enum:
+                                - "australiaPassport"
+                                - "australiaDrivingLicense"
+                                - "australiaBirthCertificate"
+                                - "australiaCentrelink"
+                                - "australiaCitizenshipCertificate"
+                                - "australiaVisa"
+                                - "australiaMedicare"
+                                - "australiaImmicard"
+                                - "australiaMarriageCertificate"
+                                - "australiaChangeOfNameCertificate"
+                                - "australiaElectoralRoll"
+                                - "newZealandPassport"
+                                - "newZealandDrivingLicense"
+                                - "newZealandBirthCertificate"
+                                - "newZealandCitizenshipCertificate"
+                                - "noneOfThese"
                         uid:
                           type: "string"
                     reviewers:
@@ -5976,6 +6251,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Forbidden: the token lacks the permission, or the step belongs to the other device"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "409":
           description: "Conflict. Two distinct outcomes share this status and are told apart by the error code, NOT by the status: `4003/INVALID_FIELD` — every submitted domain element is present but invalid, so correcting the data and retrying can succeed; `4009/JOURNEY_NOT_ACTIVE` — the journey has already completed, failed or been abandoned, so retrying this request can never succeed and the client should start a new journey rather than offer a retry."
           content:
@@ -5994,10 +6275,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: "Service unavailable (retryable)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
       operationId: submitInteraction
       x-speakeasy-group: interactions
       x-speakeasy-name-override: submit
-  /v2/captain/journey/interaction/asset/upload:
+  /journey/interaction/asset/upload:
     post:
       tags:
         - "Interaction"
@@ -6039,6 +6326,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Instance not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "409":
           description: "Element is not being collected by the current interaction"
           content:
@@ -6072,7 +6365,7 @@ paths:
       operationId: uploadInteractionAsset
       x-speakeasy-group: interactions
       x-speakeasy-name-override: uploadAsset
-  /v2/captain/journey/instance/{instanceId}/handoff-token:
+  /journey/instance/{instanceId}/handoff-token:
     post:
       tags:
         - "Interaction"
@@ -6133,7 +6426,7 @@ paths:
       operationId: createHandoffToken
       x-speakeasy-group: instances
       x-speakeasy-name-override: handoffToken
-  /v2/captain/journey/loqate/search:
+  /journey/loqate/search:
     post:
       tags:
         - "Interaction"
@@ -6189,6 +6482,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Insufficient permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Instance not found"
           content:
@@ -6210,7 +6509,7 @@ paths:
       operationId: searchAddresses
       x-speakeasy-group: addresses
       x-speakeasy-name-override: search
-  /v2/captain/journey/loqate/retrieve:
+  /journey/loqate/retrieve:
     post:
       tags:
         - "Interaction"
@@ -6259,6 +6558,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Insufficient permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Instance not found"
           content:
@@ -6280,7 +6585,7 @@ paths:
       operationId: retrieveAddress
       x-speakeasy-group: addresses
       x-speakeasy-name-override: retrieve
-  /v2/captain/journey/state/fetch:
+  /journey/state/fetch:
     post:
       tags:
         - "Journey"
@@ -6318,9 +6623,14 @@ paths:
           content:
             application/json:
               schema:
-                anyOf:
+                oneOf:
                   - $ref: "#/components/schemas/StateFetchResponse"
                   - $ref: "#/components/schemas/SlimStateFetchResponse"
+                discriminator:
+                  propertyName: "view"
+                  mapping:
+                    full: "#/components/schemas/StateFetchResponse"
+                    slim: "#/components/schemas/SlimStateFetchResponse"
         "400":
           description: "Validation error"
           content:
@@ -6329,6 +6639,12 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Insufficient permissions"
           content:
             application/json:
               schema:
@@ -6354,7 +6670,7 @@ paths:
       operationId: getJourneyState
       x-speakeasy-group: journeys
       x-speakeasy-name-override: getState
-  /v2/captain/journey/schema/fetch:
+  /journey/schema/fetch:
     post:
       tags:
         - "Journey"
@@ -6404,6 +6720,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Insufficient permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Delivery / interaction / flow not found"
           content:
@@ -6431,7 +6753,7 @@ paths:
       operationId: getJourneySchemas
       x-speakeasy-group: journeys
       x-speakeasy-name-override: getSchemas
-  /v2/captain/journey/task/schema:
+  /journey/task/schema:
     post:
       tags:
         - "Journey"
@@ -6474,6 +6796,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Insufficient permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Journey / active interaction not found"
           content:
@@ -6495,7 +6823,7 @@ paths:
       operationId: getTaskSchema
       x-speakeasy-group: tasks
       x-speakeasy-name-override: getSchema
-  /v2/captain/journey/terminate:
+  /journey/terminate:
     post:
       tags:
         - "Journey"
@@ -6539,6 +6867,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Insufficient permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Journey not found"
           content:
@@ -6557,10 +6891,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: "Service unavailable (retryable)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
       operationId: terminateJourney
       x-speakeasy-group: journeys
       x-speakeasy-name-override: terminate
-  /v2/captain/journey/state/delete:
+  /journey/state/delete:
     post:
       tags:
         - "Journey"
@@ -6602,6 +6942,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "Insufficient permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: "Journey not found"
           content:
@@ -6614,10 +6960,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: "Service unavailable (retryable)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
       operationId: deleteInstance
       x-speakeasy-group: instances
       x-speakeasy-name-override: delete
-  /v2/captain/journey/device/start:
+  /journey/device/start:
     post:
       tags:
         - "Device"
@@ -6690,7 +7042,7 @@ paths:
       operationId: addDevice
       x-speakeasy-group: devices
       x-speakeasy-name-override: add
-  /v2/captain/journey/device/connect:
+  /journey/device/connect:
     post:
       tags:
         - "Device"
@@ -6698,6 +7050,12 @@ paths:
       description: "Completes the device-onboarding handshake. See partner integration guide."
       security:
         - DeviceConnect: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceConnectRequest"
       responses:
         "201":
           description: "End-user token issued"
@@ -6726,36 +7084,7 @@ paths:
       operationId: deviceConnect
       x-speakeasy-group: devices
       x-speakeasy-name-override: connect
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                connectToken:
-                  type: string
-                  minLength: 8
-                  maxLength: 1024
-                  description: Bearer Token credential for a connection.
-                deviceInfo:
-                  type: object
-                  properties:
-                    deviceId:
-                      type: string
-                      minLength: 16
-                      maxLength: 64
-                      description: Device Id, a unique identifier for a device.
-                    deviceName:
-                      type: string
-                    deviceType:
-                      type: string
-                  required:
-                    - deviceId
-              required:
-                - connectToken
-                - deviceInfo
-  /v2/captain/journey/device/refresh:
+  /journey/device/refresh:
     post:
       tags:
         - "Device"
@@ -6784,7 +7113,7 @@ paths:
       operationId: deviceRefresh
       x-speakeasy-group: devices
       x-speakeasy-name-override: refresh
-  /v2/captain/journey/device/validate:
+  /journey/device/validate:
     post:
       tags:
         - "Device"
@@ -6814,12 +7143,12 @@ paths:
       operationId: deviceValidate
       x-speakeasy-group: devices
       x-speakeasy-name-override: validate
-  /v2/captain/sandbox/journeys/{journeyId}/scenarios:
+  /test/journeys/{journeyId}/scenarios:
     post:
       tags:
-        - "Sandbox"
-      summary: "Create a sandbox scenario on a journey"
-      description: "Creates an org-tier sandbox scenario belonging to the journey in the path. Returns 409 if the name is taken on that journey (the same name may exist on other journeys). The scenario is resolvable at journey-start, for runs of that journey only, via the x-gbg-scenario header. Org is taken from the token."
+        - "Test scenarios"
+      summary: "Create a test scenario on a journey"
+      description: "Creates an org-tier test scenario belonging to the journey in the path. Returns 409 if the name is taken on that journey (the same name may exist on other journeys). The scenario is resolvable at journey-start, for runs of that journey only, via the x-gbg-scenario header. Org is taken from the token."
       security:
         - CustomerAccess: []
       parameters:
@@ -6836,14 +7165,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateSandboxScenarioRequest"
+              $ref: "#/components/schemas/CreateTestScenarioRequest"
       responses:
         "201":
           description: "Created"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SandboxScenarioWritten"
+                $ref: "#/components/schemas/TestScenarioWritten"
         "400":
           description: "Validation error"
           content:
@@ -6868,20 +7197,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Sandbox scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+        "500":
+          description: "A stored scenario could not be read"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-      operationId: createSandboxScenario
-      x-speakeasy-group: sandbox
-      x-speakeasy-name-override: createScenario
+        "503":
+          description: "Test scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      operationId: createTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: create
     get:
       tags:
-        - "Sandbox"
-      summary: "List a journey's sandbox scenarios"
-      description: "Lists the org's sandbox scenarios belonging to the journey in the path — never another journey's. Pass includePlatform=true to also return read-only GBG-provided platform scenarios (available on every journey); an org scenario shadows a platform scenario of the same name."
+        - "Test scenarios"
+      summary: "List a journey's test scenarios"
+      description: "Lists the org's test scenarios belonging to the journey in the path — never another journey's. Pass includePlatform=true to also return read-only GBG-provided platform scenarios (available on every journey); an org scenario shadows a platform scenario of the same name."
       security:
         - CustomerAccess: []
       parameters:
@@ -6910,7 +7245,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SandboxScenarioList"
+                $ref: "#/components/schemas/TestScenarioList"
         "400":
           description: "Validation error"
           content:
@@ -6929,21 +7264,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Sandbox scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+        "500":
+          description: "A stored scenario could not be read"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-      operationId: listSandboxScenarios
-      x-speakeasy-group: sandbox
-      x-speakeasy-name-override: listScenarios
-  /v2/captain/sandbox/journeys/{journeyId}/scenarios/{name}:
+        "503":
+          description: "Test scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      operationId: listTestScenarios
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: list
+  /test/journeys/{journeyId}/scenarios/{name}:
     get:
       tags:
-        - "Sandbox"
-      summary: "Read a sandbox scenario"
-      description: "Reads one org-tier sandbox scenario of the journey in the path. By default does not fall back to the platform tier or to another journey, so a name that exists only at platform level, or only on another journey, returns 404. Pass includePlatform=true to fall back to the read-only GBG-provided scenario of that name; the response `tier` says which tier served it. Another journey is never consulted either way."
+        - "Test scenarios"
+      summary: "Read a test scenario"
+      description: "Reads one org-tier test scenario of the journey in the path. By default does not fall back to the platform tier or to another journey, so a name that exists only at platform level, or only on another journey, returns 404. Pass includePlatform=true to fall back to the read-only GBG-provided scenario of that name; the response `tier` says which tier served it. Another journey is never consulted either way."
       security:
         - CustomerAccess: []
       parameters:
@@ -6981,7 +7322,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SandboxScenario"
+                $ref: "#/components/schemas/TestScenario"
         "400":
           description: "Validation error"
           content:
@@ -7006,20 +7347,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Sandbox scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+        "500":
+          description: "A stored scenario could not be read"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-      operationId: getSandboxScenario
-      x-speakeasy-group: sandbox
-      x-speakeasy-name-override: getScenario
+        "503":
+          description: "Test scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      operationId: getTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: get
     put:
       tags:
-        - "Sandbox"
-      summary: "Replace a sandbox scenario"
-      description: "Replaces an existing org-tier sandbox scenario of the journey in the path. Returns 404 if it does not exist on that journey — use POST to create. Requires UPDATE:journey; creating (POST) requires CREATE:journey, so an edit-only grant cannot mint new scenarios through this endpoint."
+        - "Test scenarios"
+      summary: "Replace a test scenario"
+      description: "Replaces an existing org-tier test scenario of the journey in the path. Returns 404 if it does not exist on that journey — use POST to create. Requires UPDATE:journey; creating (POST) requires CREATE:journey, so an edit-only grant cannot mint new scenarios through this endpoint."
       security:
         - CustomerAccess: []
       parameters:
@@ -7045,14 +7392,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateSandboxScenarioRequest"
+              $ref: "#/components/schemas/UpdateTestScenarioRequest"
       responses:
         "200":
           description: "Saved"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SandboxScenarioWritten"
+                $ref: "#/components/schemas/TestScenarioWritten"
         "400":
           description: "Validation error"
           content:
@@ -7077,20 +7424,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Sandbox scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+        "500":
+          description: "A stored scenario could not be read"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-      operationId: putSandboxScenario
-      x-speakeasy-group: sandbox
-      x-speakeasy-name-override: putScenario
+        "503":
+          description: "Test scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      operationId: putTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: put
     delete:
       tags:
-        - "Sandbox"
-      summary: "Delete a sandbox scenario"
-      description: "Deletes an org-tier sandbox scenario of the journey in the path by archiving it: it disappears from listings and journey-start resolution, but its version history is retained and creating the same name again restores it. A platform scenario of the same name, previously shadowed by this one on this journey, becomes resolvable again at journey-start."
+        - "Test scenarios"
+      summary: "Delete a test scenario"
+      description: "Deletes an org-tier test scenario of the journey in the path by archiving it: it disappears from listings and journey-start resolution, but its version history is retained and creating the same name again restores it. A platform scenario of the same name, previously shadowed by this one on this journey, becomes resolvable again at journey-start."
       security:
         - CustomerAccess: []
       parameters:
@@ -7139,15 +7492,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        "503":
-          description: "Sandbox scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+        "500":
+          description: "A stored scenario could not be read"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-      operationId: deleteSandboxScenario
-      x-speakeasy-group: sandbox
-      x-speakeasy-name-override: deleteScenario
+        "503":
+          description: "Test scenario management unavailable — either not enabled on this deployment, or a transient storage failure. Retryable; see the Retry-After header on storage failures."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      operationId: deleteTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: delete
   /as/token.oauth2:
     post:
       summary: "Generate access token"
@@ -7186,8 +7545,16 @@ paths:
                     description: "The type of token, usually 'Bearer'."
         "400":
           description: "Invalid request. Check your credentials."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OAuthErrorResponse"
         "401":
           description: "Unauthorized request. Invalid client or user credentials."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OAuthErrorResponse"
       tags:
         - "Authentication"
       operationId: postAsTokenOauth2

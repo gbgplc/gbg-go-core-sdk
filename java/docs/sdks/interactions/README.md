@@ -14,14 +14,11 @@ Retrieves the current interaction state for a journey instance.
 
 ### Example Usage: error
 
-<!-- UsageSnippet language="java" operationID="fetchInteraction" method="post" path="/v2/captain/journey/interaction/fetch" example="error" -->
+<!-- UsageSnippet language="java" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="error" -->
 ```java
 package hello.world;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.InteractionFetchResponse;
-import com.gbg.gocore.models.SlimInteractionFetchResponse;
 import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
@@ -44,15 +41,15 @@ public class Application {
 
         if (res.oneOf().isPresent()) {
             FetchInteractionResponseBody unionValue = res.oneOf().get();
-            if (unionValue.interactionFetchResponse().isPresent()) {
-                InteractionFetchResponse interactionFetchResponseValue = unionValue.interactionFetchResponse().get();
-                // Handle interactionFetchResponse variant
-            } else if (unionValue.slimInteractionFetchResponse().isPresent()) {
-                SlimInteractionFetchResponse slimInteractionFetchResponseValue = unionValue.slimInteractionFetchResponse().get();
-                // Handle slimInteractionFetchResponse variant
-            } else if (unionValue.asJson().isPresent()) {
-                JsonNode raw = unionValue.asJson().get();
-                // Handle unknown variant fallback
+            switch (unionValue.view()) {
+                case "full":
+                    // Handle full discriminator variant
+                    break;
+                case "slim":
+                    // Handle slim discriminator variant
+                    break;
+                default:
+                    // Handle unknown discriminator variant
             }
         }
     }
@@ -60,14 +57,11 @@ public class Application {
 ```
 ### Example Usage: processing
 
-<!-- UsageSnippet language="java" operationID="fetchInteraction" method="post" path="/v2/captain/journey/interaction/fetch" example="processing" -->
+<!-- UsageSnippet language="java" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="processing" -->
 ```java
 package hello.world;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.InteractionFetchResponse;
-import com.gbg.gocore.models.SlimInteractionFetchResponse;
 import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
@@ -90,15 +84,15 @@ public class Application {
 
         if (res.oneOf().isPresent()) {
             FetchInteractionResponseBody unionValue = res.oneOf().get();
-            if (unionValue.interactionFetchResponse().isPresent()) {
-                InteractionFetchResponse interactionFetchResponseValue = unionValue.interactionFetchResponse().get();
-                // Handle interactionFetchResponse variant
-            } else if (unionValue.slimInteractionFetchResponse().isPresent()) {
-                SlimInteractionFetchResponse slimInteractionFetchResponseValue = unionValue.slimInteractionFetchResponse().get();
-                // Handle slimInteractionFetchResponse variant
-            } else if (unionValue.asJson().isPresent()) {
-                JsonNode raw = unionValue.asJson().get();
-                // Handle unknown variant fallback
+            switch (unionValue.view()) {
+                case "full":
+                    // Handle full discriminator variant
+                    break;
+                case "slim":
+                    // Handle slim discriminator variant
+                    break;
+                default:
+                    // Handle unknown discriminator variant
             }
         }
     }
@@ -106,14 +100,11 @@ public class Application {
 ```
 ### Example Usage: success
 
-<!-- UsageSnippet language="java" operationID="fetchInteraction" method="post" path="/v2/captain/journey/interaction/fetch" example="success" -->
+<!-- UsageSnippet language="java" operationID="fetchInteraction" method="post" path="/journey/interaction/fetch" example="success" -->
 ```java
 package hello.world;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.InteractionFetchResponse;
-import com.gbg.gocore.models.SlimInteractionFetchResponse;
 import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
@@ -136,15 +127,15 @@ public class Application {
 
         if (res.oneOf().isPresent()) {
             FetchInteractionResponseBody unionValue = res.oneOf().get();
-            if (unionValue.interactionFetchResponse().isPresent()) {
-                InteractionFetchResponse interactionFetchResponseValue = unionValue.interactionFetchResponse().get();
-                // Handle interactionFetchResponse variant
-            } else if (unionValue.slimInteractionFetchResponse().isPresent()) {
-                SlimInteractionFetchResponse slimInteractionFetchResponseValue = unionValue.slimInteractionFetchResponse().get();
-                // Handle slimInteractionFetchResponse variant
-            } else if (unionValue.asJson().isPresent()) {
-                JsonNode raw = unionValue.asJson().get();
-                // Handle unknown variant fallback
+            switch (unionValue.view()) {
+                case "full":
+                    // Handle full discriminator variant
+                    break;
+                case "slim":
+                    // Handle slim discriminator variant
+                    break;
+                default:
+                    // Handle unknown discriminator variant
             }
         }
     }
@@ -167,8 +158,8 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404               | application/json            |
-| models/errors/ErrorResponse | 500                         | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404          | application/json            |
+| models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |
 
 ## submit
@@ -177,7 +168,7 @@ Submits participant data for an interaction.
 
 ### Example Usage: error
 
-<!-- UsageSnippet language="java" operationID="submitInteraction" method="post" path="/v2/captain/journey/interaction/submit" example="error" -->
+<!-- UsageSnippet language="java" operationID="submitInteraction" method="post" path="/journey/interaction/submit" example="error" -->
 ```java
 package hello.world;
 
@@ -208,7 +199,7 @@ public class Application {
 ```
 ### Example Usage: success
 
-<!-- UsageSnippet language="java" operationID="submitInteraction" method="post" path="/v2/captain/journey/interaction/submit" example="success" -->
+<!-- UsageSnippet language="java" operationID="submitInteraction" method="post" path="/journey/interaction/submit" example="success" -->
 ```java
 package hello.world;
 
@@ -253,8 +244,8 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 409, 429          | application/json            |
-| models/errors/ErrorResponse | 500                         | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 409, 429     | application/json            |
+| models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |
 
 ## uploadAsset
@@ -263,7 +254,7 @@ Streams a raw asset body (application/octet-stream) to storage and returns its g
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="uploadInteractionAsset" method="post" path="/v2/captain/journey/interaction/asset/upload" -->
+<!-- UsageSnippet language="java" operationID="uploadInteractionAsset" method="post" path="/journey/interaction/asset/upload" -->
 ```java
 package hello.world;
 
@@ -305,8 +296,8 @@ public class Application {
 
 ### Errors
 
-| Error Type                   | Status Code                  | Content Type                 |
-| ---------------------------- | ---------------------------- | ---------------------------- |
-| models/errors/ErrorResponse  | 400, 401, 403, 409, 422, 429 | application/json             |
-| models/errors/ErrorResponse  | 500, 503                     | application/json             |
-| models/errors/APIException   | 4XX, 5XX                     | \*/\*                        |
+| Error Type                        | Status Code                       | Content Type                      |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| models/errors/ErrorResponse       | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
+| models/errors/ErrorResponse       | 500, 503                          | application/json                  |
+| models/errors/APIException        | 4XX, 5XX                          | \*/\*                             |

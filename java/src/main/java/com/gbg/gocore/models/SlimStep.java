@@ -36,24 +36,40 @@ public class SlimStep {
     @JsonProperty("outcomeClassification")
     private JsonNullable<SlimStepOutcomeClassification> outcomeClassification;
 
+    /**
+     * Present only when this module step failed. The journey may still have continued past it.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("status")
+    private SlimStepStatus status;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("error")
+    private SlimModuleStepError error;
+
     @JsonCreator
     public SlimStep(
             @JsonProperty("nodeId") @Nonnull String nodeId,
             @JsonProperty("name") @Nullable String name,
             @JsonProperty("outcome") @Nullable String outcome,
-            @JsonProperty("outcomeClassification") @Nullable JsonNullable<SlimStepOutcomeClassification> outcomeClassification) {
+            @JsonProperty("outcomeClassification") @Nullable JsonNullable<SlimStepOutcomeClassification> outcomeClassification,
+            @JsonProperty("status") @Nullable SlimStepStatus status,
+            @JsonProperty("error") @Nullable SlimModuleStepError error) {
         this.nodeId = Optional.ofNullable(nodeId)
             .orElseThrow(() -> new IllegalArgumentException("nodeId cannot be null"));
         this.name = name;
         this.outcome = outcome;
         this.outcomeClassification = Optional.ofNullable(outcomeClassification)
             .orElse(JsonNullable.undefined());
+        this.status = status;
+        this.error = error;
     }
     
     public SlimStep(
             @Nonnull String nodeId) {
         this(nodeId, null, null,
-            null);
+            null, null, null);
     }
 
     public String nodeId() {
@@ -70,6 +86,17 @@ public class SlimStep {
 
     public JsonNullable<SlimStepOutcomeClassification> outcomeClassification() {
         return this.outcomeClassification;
+    }
+
+    /**
+     * Present only when this module step failed. The journey may still have continued past it.
+     */
+    public Optional<SlimStepStatus> status() {
+        return Optional.ofNullable(this.status);
+    }
+
+    public Optional<SlimModuleStepError> error() {
+        return Optional.ofNullable(this.error);
     }
 
     public static Builder builder() {
@@ -101,6 +128,21 @@ public class SlimStep {
     }
 
 
+    /**
+     * Present only when this module step failed. The journey may still have continued past it.
+     */
+    public SlimStep withStatus(@Nullable SlimStepStatus status) {
+        this.status = status;
+        return this;
+    }
+
+
+    public SlimStep withError(@Nullable SlimModuleStepError error) {
+        this.error = error;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -114,14 +156,16 @@ public class SlimStep {
             Utils.enhancedDeepEquals(this.nodeId, other.nodeId) &&
             Utils.enhancedDeepEquals(this.name, other.name) &&
             Utils.enhancedDeepEquals(this.outcome, other.outcome) &&
-            Utils.enhancedDeepEquals(this.outcomeClassification, other.outcomeClassification);
+            Utils.enhancedDeepEquals(this.outcomeClassification, other.outcomeClassification) &&
+            Utils.enhancedDeepEquals(this.status, other.status) &&
+            Utils.enhancedDeepEquals(this.error, other.error);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             nodeId, name, outcome,
-            outcomeClassification);
+            outcomeClassification, status, error);
     }
     
     @Override
@@ -130,7 +174,9 @@ public class SlimStep {
                 "nodeId", nodeId,
                 "name", name,
                 "outcome", outcome,
-                "outcomeClassification", outcomeClassification);
+                "outcomeClassification", outcomeClassification,
+                "status", status,
+                "error", error);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -143,6 +189,10 @@ public class SlimStep {
         private String outcome;
 
         private JsonNullable<SlimStepOutcomeClassification> outcomeClassification;
+
+        private SlimStepStatus status;
+
+        private SlimModuleStepError error;
 
         private Builder() {
           // force use of static builder() method
@@ -168,10 +218,23 @@ public class SlimStep {
             return this;
         }
 
+        /**
+         * Present only when this module step failed. The journey may still have continued past it.
+         */
+        public Builder status(@Nullable SlimStepStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder error(@Nullable SlimModuleStepError error) {
+            this.error = error;
+            return this;
+        }
+
         public SlimStep build() {
             return new SlimStep(
                 nodeId, name, outcome,
-                outcomeClassification);
+                outcomeClassification, status, error);
         }
 
     }

@@ -15,7 +15,7 @@ Generates a one-time connect token for device onboarding.
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="addDevice" method="post" path="/v2/captain/journey/device/start" example="Default" -->
+<!-- UsageSnippet language="java" operationID="addDevice" method="post" path="/journey/device/start" example="Default" -->
 ```java
 package hello.world;
 
@@ -66,16 +66,14 @@ Completes the device-onboarding handshake. See partner integration guide.
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="deviceConnect" method="post" path="/v2/captain/journey/device/connect" example="Default" -->
+<!-- UsageSnippet language="java" operationID="deviceConnect" method="post" path="/journey/device/connect" example="Default" -->
 ```java
 package hello.world;
 
 import com.gbg.gocore.Go;
 import com.gbg.gocore.models.errors.ErrorResponse;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectResponse;
 import com.gbg.gocore.models.operations.DeviceConnectSecurity;
-import com.gbg.gocore.models.operations.DeviceInfo;
 import java.lang.Exception;
 
 public class Application {
@@ -85,15 +83,7 @@ public class Application {
         Go sdk = Go.builder()
             .build();
 
-        DeviceConnectRequest req = DeviceConnectRequest.builder()
-                .connectToken("<value>")
-                .deviceInfo(DeviceInfo.builder()
-                    .deviceId("<id>")
-                    .build())
-                .build();
-
         DeviceConnectResponse res = sdk.devices().connect()
-                .request(req)
                 .security(DeviceConnectSecurity.builder()
                     .deviceConnect(System.getenv().getOrDefault("DEVICE_CONNECT", ""))
                     .build())
@@ -110,7 +100,7 @@ public class Application {
 
 | Parameter                                                                                                  | Type                                                                                                       | Required                                                                                                   | Description                                                                                                |
 | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `request`                                                                                                  | [DeviceConnectRequest](../../models/operations/DeviceConnectRequest.md)                                    | :heavy_check_mark:                                                                                         | The request object to use for the request.                                                                 |
+| `request`                                                                                                  | [DeviceConnectRequest](../../models/shared/DeviceConnectRequest.md)                                        | :heavy_check_mark:                                                                                         | The request object to use for the request.                                                                 |
 | `security`                                                                                                 | [com.gbg.gocore.models.operations.DeviceConnectSecurity](../../models/operations/DeviceConnectSecurity.md) | :heavy_check_mark:                                                                                         | The security requirements to use for the request.                                                          |
 
 ### Response
@@ -131,7 +121,7 @@ Renews a device session. See partner integration guide.
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="deviceRefresh" method="post" path="/v2/captain/journey/device/refresh" -->
+<!-- UsageSnippet language="java" operationID="deviceRefresh" method="post" path="/journey/device/refresh" -->
 ```java
 package hello.world;
 
@@ -175,7 +165,7 @@ Validates an end-user JWT and returns session information.
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="deviceValidate" method="post" path="/v2/captain/journey/device/validate" -->
+<!-- UsageSnippet language="java" operationID="deviceValidate" method="post" path="/journey/device/validate" -->
 ```java
 package hello.world;
 

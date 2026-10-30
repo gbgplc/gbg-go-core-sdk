@@ -15,7 +15,7 @@ Creates a new journey instance from a resource definition.
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="startJourney" method="post" path="/v2/captain/journey/start" example="Default" -->
+<!-- UsageSnippet language="typescript" operationID="startJourney" method="post" path="/journey/start" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -74,11 +74,11 @@ run();
 
 ### Errors
 
-| Error Type              | Status Code             | Content Type            |
-| ----------------------- | ----------------------- | ----------------------- |
-| errors.ErrorResponse    | 400, 401, 403, 404, 429 | application/json        |
-| errors.ErrorResponse    | 500, 503                | application/json        |
-| errors.GoDefaultError   | 4XX, 5XX                | \*/\*                   |
+| Error Type                   | Status Code                  | Content Type                 |
+| ---------------------------- | ---------------------------- | ---------------------------- |
+| errors.ErrorResponse         | 400, 401, 403, 404, 422, 429 | application/json             |
+| errors.ErrorResponse         | 500, 503                     | application/json             |
+| errors.GoDefaultError        | 4XX, 5XX                     | \*/\*                        |
 
 ## getState
 
@@ -86,7 +86,7 @@ Retrieves the current state of a journey instance.
 
 ### Example Usage: Completed
 
-<!-- UsageSnippet language="typescript" operationID="getJourneyState" method="post" path="/v2/captain/journey/state/fetch" example="Completed" -->
+<!-- UsageSnippet language="typescript" operationID="getJourneyState" method="post" path="/journey/state/fetch" example="Completed" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -135,7 +135,7 @@ run();
 ```
 ### Example Usage: InProgress
 
-<!-- UsageSnippet language="typescript" operationID="getJourneyState" method="post" path="/v2/captain/journey/state/fetch" example="InProgress" -->
+<!-- UsageSnippet language="typescript" operationID="getJourneyState" method="post" path="/journey/state/fetch" example="InProgress" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -200,7 +200,7 @@ run();
 
 | Error Type            | Status Code           | Content Type          |
 | --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404         | application/json      |
+| errors.ErrorResponse  | 400, 401, 403, 404    | application/json      |
 | errors.ErrorResponse  | 500, 503              | application/json      |
 | errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |
 
@@ -235,7 +235,7 @@ identifier `POST /journey/interaction/submit` expects — that one comes from
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="getJourneySchemas" method="post" path="/v2/captain/journey/schema/fetch" -->
+<!-- UsageSnippet language="typescript" operationID="getJourneySchemas" method="post" path="/journey/schema/fetch" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -294,11 +294,11 @@ run();
 
 ### Errors
 
-| Error Type            | Status Code           | Content Type          |
-| --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404, 422    | application/json      |
-| errors.ErrorResponse  | 500, 503              | application/json      |
-| errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |
+| Error Type              | Status Code             | Content Type            |
+| ----------------------- | ----------------------- | ----------------------- |
+| errors.ErrorResponse    | 400, 401, 403, 404, 422 | application/json        |
+| errors.ErrorResponse    | 500, 503                | application/json        |
+| errors.GoDefaultError   | 4XX, 5XX                | \*/\*                   |
 
 ## terminate
 
@@ -306,7 +306,7 @@ Terminates an active journey instance.
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="terminateJourney" method="post" path="/v2/captain/journey/terminate" -->
+<!-- UsageSnippet language="typescript" operationID="terminateJourney" method="post" path="/journey/terminate" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -365,8 +365,8 @@ run();
 
 ### Errors
 
-| Error Type            | Status Code           | Content Type          |
-| --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404, 409    | application/json      |
-| errors.ErrorResponse  | 500                   | application/json      |
-| errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |
+| Error Type              | Status Code             | Content Type            |
+| ----------------------- | ----------------------- | ----------------------- |
+| errors.ErrorResponse    | 400, 401, 403, 404, 409 | application/json        |
+| errors.ErrorResponse    | 500, 503                | application/json        |
+| errors.GoDefaultError   | 4XX, 5XX                | \*/\*                   |

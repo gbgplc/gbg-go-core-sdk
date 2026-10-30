@@ -6,7 +6,6 @@ import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export const DeviceStartResponseTokenType = {
@@ -33,10 +32,10 @@ export const DeviceStartResponse$inboundSchema: z.ZodMiniType<
   DeviceStartResponse,
   unknown
 > = z.object({
-  connectToken: types.string(),
+  connectToken: z.string(),
   tokenType: DeviceStartResponseTokenType$inboundSchema,
-  expiresIn: types.number(),
-  scope: z.array(types.string()),
+  expiresIn: z.number(),
+  scope: z.array(z.string()),
 });
 
 export function deviceStartResponseFromJSON(

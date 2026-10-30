@@ -13,7 +13,7 @@ Mints a fresh page-mode delivery-token + connect-secret pair pointing at the sam
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="createHandoffToken" method="post" path="/v2/captain/journey/instance/{instanceId}/handoff-token" -->
+<!-- UsageSnippet language="typescript" operationID="createHandoffToken" method="post" path="/journey/instance/{instanceId}/handoff-token" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -89,7 +89,7 @@ Permanently deletes a completed journey instance (REQ-02-002).
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="deleteInstance" method="post" path="/v2/captain/journey/state/delete" -->
+<!-- UsageSnippet language="typescript" operationID="deleteInstance" method="post" path="/journey/state/delete" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -150,6 +150,6 @@ run();
 
 | Error Type            | Status Code           | Content Type          |
 | --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404         | application/json      |
-| errors.ErrorResponse  | 500                   | application/json      |
+| errors.ErrorResponse  | 400, 401, 403, 404    | application/json      |
+| errors.ErrorResponse  | 500, 503              | application/json      |
 | errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |

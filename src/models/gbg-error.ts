@@ -7,10 +7,9 @@ import { safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
-export const LocationEnum = {
+export const GbgErrorLocation = {
   Path: "Path",
   Authorization: "Authorization",
   Header: "Header",
@@ -20,28 +19,30 @@ export const LocationEnum = {
   Service: "Service",
   Flow: "Flow",
 } as const;
-export type LocationEnum = OpenEnum<typeof LocationEnum>;
+export type GbgErrorLocation = OpenEnum<typeof GbgErrorLocation>;
 
 export type GbgError = {
   code: string;
   name: string;
   problem: string;
   action: string;
-  location?: LocationEnum | undefined;
+  location?: GbgErrorLocation | undefined;
 };
 
 /** @internal */
-export const LocationEnum$inboundSchema: z.ZodMiniType<LocationEnum, unknown> =
-  openEnums.inboundSchema(LocationEnum);
+export const GbgErrorLocation$inboundSchema: z.ZodMiniType<
+  GbgErrorLocation,
+  unknown
+> = openEnums.inboundSchema(GbgErrorLocation);
 
 /** @internal */
 export const GbgError$inboundSchema: z.ZodMiniType<GbgError, unknown> = z
   .object({
-    code: types.string(),
-    name: types.string(),
-    problem: types.string(),
-    action: types.string(),
-    location: types.optional(LocationEnum$inboundSchema),
+    code: z.string(),
+    name: z.string(),
+    problem: z.string(),
+    action: z.string(),
+    location: z.optional(GbgErrorLocation$inboundSchema),
   });
 
 export function gbgErrorFromJSON(

@@ -101,9 +101,9 @@ async function $do(
       charEncoding: "percent",
     }),
   };
-  const path = pathToFunc(
-    "/v2/captain/journey/instance/{instanceId}/handoff-token",
-  )(pathParams);
+  const path = pathToFunc("/journey/instance/{instanceId}/handoff-token")(
+    pathParams,
+  );
 
   const headers = new Headers(compactMap({
     Accept: "application/json",

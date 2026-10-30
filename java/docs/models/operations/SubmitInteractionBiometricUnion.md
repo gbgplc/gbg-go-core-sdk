@@ -49,12 +49,23 @@ SubmitInteractionBiometricUnion value = SubmitInteractionBiometricUnion.of(Submi
 
 ```java
 SubmitInteractionBiometricUnion value = SubmitInteractionBiometricUnion.of(SubmitInteractionBiometricStoredFace.builder()
-    .type(SubmitInteractionBiometricType.STORED_FACE)
+    .type(SubmitInteractionTypeStoredFace.STORED_FACE)
     .templateReference("<value>")
     .build());
 ```
 
-**Referred Types:** [SubmitInteractionBiometricType](../../models/operations/SubmitInteractionBiometricType.md)
+**Referred Types:** [SubmitInteractionTypeStoredFace](../../models/operations/SubmitInteractionTypeStoredFace.md)
+
+### [`SubmitInteractionBiometricOrphanedStoredFace`](../../models/operations/SubmitInteractionBiometricOrphanedStoredFace.md)
+
+```java
+SubmitInteractionBiometricUnion value = SubmitInteractionBiometricUnion.of(SubmitInteractionBiometricOrphanedStoredFace.builder()
+    .type(SubmitInteractionTypeOrphanedStoredFace.ORPHANED_STORED_FACE)
+    .templateReference("<value>")
+    .build());
+```
+
+**Referred Types:** [SubmitInteractionTypeOrphanedStoredFace](../../models/operations/SubmitInteractionTypeOrphanedStoredFace.md)
 
 ## Consumption Patterns
 
@@ -79,6 +90,9 @@ if (value.submitInteractionBiometric1().isPresent()) {
 } else if (value.submitInteractionBiometricStoredFace().isPresent()) {
     com.gbg.gocore.models.operations.SubmitInteractionBiometricStoredFace submitInteractionBiometricStoredFaceValue = value.submitInteractionBiometricStoredFace().get();
     // Handle submitInteractionBiometricStoredFace variant
+} else if (value.submitInteractionBiometricOrphanedStoredFace().isPresent()) {
+    com.gbg.gocore.models.operations.SubmitInteractionBiometricOrphanedStoredFace submitInteractionBiometricOrphanedStoredFaceValue = value.submitInteractionBiometricOrphanedStoredFace().get();
+    // Handle submitInteractionBiometricOrphanedStoredFace variant
 } else if (value.asJson().isPresent()) {
     com.fasterxml.jackson.databind.JsonNode raw = value.asJson().get();
     // Handle unknown variant fallback

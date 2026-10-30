@@ -35,7 +35,7 @@ public class GbgError {
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("location")
-    private LocationEnum location;
+    private GbgErrorLocation location;
 
     @JsonCreator
     public GbgError(
@@ -43,7 +43,7 @@ public class GbgError {
             @JsonProperty("name") @Nonnull String name,
             @JsonProperty("problem") @Nonnull String problem,
             @JsonProperty("action") @Nonnull String action,
-            @JsonProperty("location") @Nullable LocationEnum location) {
+            @JsonProperty("location") @Nullable GbgErrorLocation location) {
         this.code = Optional.ofNullable(code)
             .orElseThrow(() -> new IllegalArgumentException("code cannot be null"));
         this.name = Optional.ofNullable(name)
@@ -80,7 +80,7 @@ public class GbgError {
         return this.action;
     }
 
-    public Optional<LocationEnum> location() {
+    public Optional<GbgErrorLocation> location() {
         return Optional.ofNullable(this.location);
     }
 
@@ -113,7 +113,7 @@ public class GbgError {
     }
 
 
-    public GbgError withLocation(@Nullable LocationEnum location) {
+    public GbgError withLocation(@Nullable GbgErrorLocation location) {
         this.location = location;
         return this;
     }
@@ -164,7 +164,7 @@ public class GbgError {
 
         private String action;
 
-        private LocationEnum location;
+        private GbgErrorLocation location;
 
         private Builder() {
           // force use of static builder() method
@@ -190,7 +190,7 @@ public class GbgError {
             return this;
         }
 
-        public Builder location(@Nullable LocationEnum location) {
+        public Builder location(@Nullable GbgErrorLocation location) {
             this.location = location;
             return this;
         }

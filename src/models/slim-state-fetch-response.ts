@@ -7,7 +7,6 @@ import { safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 import { SlimJourney, SlimJourney$inboundSchema } from "./slim-journey.js";
 import { SlimResult, SlimResult$inboundSchema } from "./slim-result.js";
@@ -23,6 +22,7 @@ export type SlimStateFetchResponseStatus = OpenEnum<
 >;
 
 export type SlimStateFetchResponse = {
+  view: "slim";
   instanceId: string;
   status: SlimStateFetchResponseStatus;
   journey?: SlimJourney | undefined;
@@ -41,11 +41,12 @@ export const SlimStateFetchResponse$inboundSchema: z.ZodMiniType<
   SlimStateFetchResponse,
   unknown
 > = z.object({
-  instanceId: types.string(),
+  view: z.literal("slim"),
+  instanceId: z.string(),
   status: SlimStateFetchResponseStatus$inboundSchema,
-  journey: types.optional(SlimJourney$inboundSchema),
-  steps: types.optional(z.array(SlimStep$inboundSchema)),
-  result: types.optional(SlimResult$inboundSchema),
+  journey: z.optional(SlimJourney$inboundSchema),
+  steps: z.optional(z.array(SlimStep$inboundSchema)),
+  result: z.optional(SlimResult$inboundSchema),
 });
 
 export function slimStateFetchResponseFromJSON(

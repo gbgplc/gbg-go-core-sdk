@@ -8,11 +8,11 @@ Developer-friendly & type-safe Java SDK specifically catered to leverage *go-cor
 
 <br /><br />
 > [!IMPORTANT]
-> **Upgrading from 0.1.x?** 0.2.0 is a breaking release, and two of the breaks
-> are silent: the base URL must no longer include `/v2/captain`, and the new
-> `ErrorResponse` is not an `APIException`, so existing `catch (APIException)`
-> blocks stop handling API errors. See [CHANGELOG.md](../CHANGELOG.md) for the
-> full list and the known gaps.
+> **Upgrading?** 0.2.0 is a breaking release, and one of the breaks is silent:
+> the new `ErrorResponse` is not an `APIException`, so existing
+> `catch (APIException)` blocks stop handling API errors. If you are on
+> `0.2.0-alpha01`, the base URL includes `/v2/captain` again, as it did in 0.1.x.
+> See [CHANGELOG.md](../CHANGELOG.md) for the full list and the known gaps.
 
 <!-- Start Summary [summary] -->
 ## Summary
@@ -34,6 +34,9 @@ GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
   * [Custom HTTP Client](#custom-http-client)
   * [Debugging](#debugging)
   * [Jackson Configuration](#jackson-configuration)
+  * [Authenticating interaction calls](#authenticating-interaction-calls)
+  * [Error handling notes](#error-handling-notes)
+  * [Debug logging and sensitive data](#debug-logging-and-sensitive-data)
 * [Development](#development)
   * [Maturity](#maturity)
   * [Contributions](#contributions)
@@ -51,7 +54,7 @@ The samples below show how a published SDK artifact is used:
 
 Gradle:
 ```groovy
-implementation 'com.gbg:go-core-sdk:0.2.0-alpha01'
+implementation 'com.gbg:go-core-sdk:0.2.0-alpha02'
 ```
 
 Maven:
@@ -59,7 +62,7 @@ Maven:
 <dependency>
     <groupId>com.gbg</groupId>
     <artifactId>go-core-sdk</artifactId>
-    <version>0.2.0-alpha01</version>
+    <version>0.2.0-alpha02</version>
 </dependency>
 ```
 
@@ -261,10 +264,7 @@ Some operations in this SDK require the security scheme to be specified at the r
 ```java
 package hello.world;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.InteractionFetchResponse;
-import com.gbg.gocore.models.SlimInteractionFetchResponse;
 import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponse;
 import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
@@ -287,15 +287,15 @@ public class Application {
 
         if (res.oneOf().isPresent()) {
             FetchInteractionResponseBody unionValue = res.oneOf().get();
-            if (unionValue.interactionFetchResponse().isPresent()) {
-                InteractionFetchResponse interactionFetchResponseValue = unionValue.interactionFetchResponse().get();
-                // Handle interactionFetchResponse variant
-            } else if (unionValue.slimInteractionFetchResponse().isPresent()) {
-                SlimInteractionFetchResponse slimInteractionFetchResponseValue = unionValue.slimInteractionFetchResponse().get();
-                // Handle slimInteractionFetchResponse variant
-            } else if (unionValue.asJson().isPresent()) {
-                JsonNode raw = unionValue.asJson().get();
-                // Handle unknown variant fallback
+            switch (unionValue.view()) {
+                case "full":
+                    // Handle full discriminator variant
+                    break;
+                case "slim":
+                    // Handle slim discriminator variant
+                    break;
+                default:
+                    // Handle unknown discriminator variant
             }
         }
     }
@@ -339,17 +339,17 @@ public class Application {
 * [getSchemas](docs/sdks/journeys/README.md#getschemas) - Fetch interaction JSON schemas
 * [terminate](docs/sdks/journeys/README.md#terminate) - Terminate journey
 
-### [Sandbox](docs/sdks/sandbox/README.md)
-
-* [createScenario](docs/sdks/sandbox/README.md#createscenario) - Create a sandbox scenario on a journey
-* [listScenarios](docs/sdks/sandbox/README.md#listscenarios) - List a journey's sandbox scenarios
-* [getScenario](docs/sdks/sandbox/README.md#getscenario) - Read a sandbox scenario
-* [putScenario](docs/sdks/sandbox/README.md#putscenario) - Replace a sandbox scenario
-* [deleteScenario](docs/sdks/sandbox/README.md#deletescenario) - Delete a sandbox scenario
-
 ### [~~Tasks~~](docs/sdks/tasks/README.md)
 
 * [~~getSchema~~](docs/sdks/tasks/README.md#getschema) - Fetch V1-compat task schema :warning: **Deprecated**
+
+### [TestScenarios](docs/sdks/testscenarios/README.md)
+
+* [create](docs/sdks/testscenarios/README.md#create) - Create a test scenario on a journey
+* [list](docs/sdks/testscenarios/README.md#list) - List a journey's test scenarios
+* [get](docs/sdks/testscenarios/README.md#get) - Read a test scenario
+* [put](docs/sdks/testscenarios/README.md#put) - Replace a test scenario
+* [delete](docs/sdks/testscenarios/README.md#delete) - Delete a test scenario
 
 ### [Tokens](docs/sdks/tokens/README.md)
 
@@ -444,7 +444,7 @@ public class Application {
 * [`GoException`](./src/main/java/models/errors/GoException.java): The base class for HTTP error responses.
   * [`com.gbg.gocore.models.errors.ErrorResponse`](./src/main/java/models/errors/com.gbg.gocore.models.errors.ErrorResponse.java): *
 
-<details><summary>Less common errors (6)</summary>
+<details><summary>Less common errors (7)</summary>
 
 <br />
 
@@ -454,6 +454,7 @@ public class Application {
 many more subclasses in the JDK platform).
 
 **Inherit from [`GoException`](./src/main/java/models/errors/GoException.java)**:
+* [`com.gbg.gocore.models.errors.OAuthErrorResponse`](./src/main/java/models/errors/com.gbg.gocore.models.errors.OAuthErrorResponse.java): Invalid request. Check your credentials. Applicable to 1 of 22 methods.*
 
 
 </details>
@@ -468,11 +469,11 @@ many more subclasses in the JDK platform).
 
 You can override the default server globally using the `.serverIndex(int serverIdx)` builder method when initializing the SDK client instance. The selected server will then be used as the default on the operations that use it. This table lists the indexes associated with the available servers:
 
-| #   | Server                              | Description |
-| --- | ----------------------------------- | ----------- |
-| 0   | `https://eu.platform.go.gbgplc.com` | EU          |
-| 1   | `https://us.platform.go.gbgplc.com` | US          |
-| 2   | `https://au.platform.go.gbgplc.com` | AU          |
+| #   | Server                                         | Description |
+| --- | ---------------------------------------------- | ----------- |
+| 0   | `https://eu.platform.go.gbgplc.com/v2/captain` | EU          |
+| 1   | `https://us.platform.go.gbgplc.com/v2/captain` | US          |
+| 2   | `https://au.platform.go.gbgplc.com/v2/captain` | AU          |
 
 #### Example
 
@@ -519,7 +520,7 @@ public class Application {
     public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
-                .serverURL("https://au.platform.go.gbgplc.com")
+                .serverURL("https://au.platform.go.gbgplc.com/v2/captain")
                 .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
@@ -540,12 +541,13 @@ The server URL can also be overridden on a per-operation basis, provided a serve
 package hello.world;
 
 import com.gbg.gocore.Go;
+import com.gbg.gocore.models.errors.OAuthErrorResponse;
 import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws OAuthErrorResponse, Exception {
 
         Go sdk = Go.builder()
             .build();
@@ -849,9 +851,9 @@ try {
 }
 ```
 
-Statuses the spec does not declare for an operation (today: 403 on fetch and
-submit, 422 on submit, and every token failure) arrive as `APIException` rather
-than `ErrorResponse`.
+Token failures arrive as `OAuthErrorResponse`, which also extends
+`GoException`. Statuses the spec does not declare for an operation (today: 422
+on submit) arrive as `APIException`.
 
 ## Debug logging and sensitive data
 

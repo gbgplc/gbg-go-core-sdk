@@ -4,8 +4,9 @@
 
 import * as z from "zod/v4-mini";
 import { safeParse } from "../../lib/schemas.js";
+import * as discriminatedUnionTypes from "../../types/discriminated-union.js";
+import { discriminatedUnion } from "../../types/discriminated-union.js";
 import { Result as SafeParseResult } from "../../types/fp.js";
-import { smartUnion } from "../../types/smart-union.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 import * as models from "../index.js";
 
@@ -29,8 +30,9 @@ export type GetJourneyStateRequest = {
  * Journey state (full by default; slim with ?view=slim)
  */
 export type GetJourneyStateResponse =
-  | models.StateFetchResponse
-  | models.SlimStateFetchResponse;
+  | (models.StateFetchResponse & { view: "full" })
+  | models.SlimStateFetchResponse
+  | discriminatedUnionTypes.Unknown<"view">;
 
 /** @internal */
 export type GetJourneyStateRequestBody$Outbound = {
@@ -84,10 +86,13 @@ export function getJourneyStateRequestToJSON(
 export const GetJourneyStateResponse$inboundSchema: z.ZodMiniType<
   GetJourneyStateResponse,
   unknown
-> = smartUnion([
-  models.StateFetchResponse$inboundSchema,
-  models.SlimStateFetchResponse$inboundSchema,
-]);
+> = discriminatedUnion("view", {
+  full: z.intersection(
+    models.StateFetchResponse$inboundSchema,
+    z.object({ view: z.literal("full") }),
+  ),
+  slim: models.SlimStateFetchResponse$inboundSchema,
+});
 
 export function getJourneyStateResponseFromJSON(
   jsonString: string,

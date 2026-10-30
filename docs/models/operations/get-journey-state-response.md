@@ -9,6 +9,7 @@ Journey state (full by default; slim with ?view=slim)
 
 ```typescript
 const value: models.StateFetchResponse = {
+  view: "full",
   instanceId: "<id>",
   status: "<value>",
 };
@@ -18,6 +19,7 @@ const value: models.StateFetchResponse = {
 
 ```typescript
 const value: models.SlimStateFetchResponse = {
+  view: "slim",
   instanceId: "<id>",
   status: "Error",
 };

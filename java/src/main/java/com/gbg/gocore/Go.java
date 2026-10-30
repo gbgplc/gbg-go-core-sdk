@@ -28,15 +28,15 @@ public class Go {
         /*
          * EU
          */
-        "https://eu.platform.go.gbgplc.com",
+        "https://eu.platform.go.gbgplc.com/v2/captain",
         /*
          * US
          */
-        "https://us.platform.go.gbgplc.com",
+        "https://us.platform.go.gbgplc.com/v2/captain",
         /*
          * AU
          */
-        "https://au.platform.go.gbgplc.com",
+        "https://au.platform.go.gbgplc.com/v2/captain",
     };
 
 
@@ -58,7 +58,7 @@ public class Go {
     private final Devices devices;
 
 
-    private final Sandbox sandbox;
+    private final TestScenarios testScenarios;
 
 
     private final Tokens tokens;
@@ -94,8 +94,8 @@ public class Go {
     }
 
 
-    public Sandbox sandbox() {
-        return sandbox;
+    public TestScenarios testScenarios() {
+        return testScenarios;
     }
 
 
@@ -258,7 +258,7 @@ public class Go {
         this.addresses = new Addresses(sdkConfiguration);
         this.tasks = new Tasks(sdkConfiguration);
         this.devices = new Devices(sdkConfiguration);
-        this.sandbox = new Sandbox(sdkConfiguration);
+        this.testScenarios = new TestScenarios(sdkConfiguration);
         this.tokens = new Tokens(sdkConfiguration);
         sdkConfiguration = sdkConfiguration.hooks().sdkInit(sdkConfiguration);
         this.asyncSDK = new AsyncGo(this, sdkConfiguration);

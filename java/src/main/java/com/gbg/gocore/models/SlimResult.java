@@ -24,19 +24,25 @@ public class SlimResult {
 
     /**
      * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete`
-     * means the journey finished. `error` means it ended in failure: either a module reported a terminal
-     * error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or
-     * execution timeout, or a spin).
+     * means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g.
      * 
-     * <p>Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a
-     * running journey once its state has materialized. `timeout` is part of this range but is not
-     * currently emitted at journey level — an elapsed deadline surfaces as `error`.
+     * <p>a data source was unavailable) and the journey continued past it, as configured (on a state fetch
+     * each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a
+     * module reported a terminal error (journeys run without per-step module error handling, which
+     * includes every journey on engine 2), a module that could not be found or routed at all, a step whose
+     * output broke its declared contract, or the platform abandoning the journey before it could finish (a
+     * deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather
+     * than as a distinct value.
      * 
-     * <p>When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
+     * <p>`pending` is reported for a running journey once its state has materialized. `timeout` is part of
+     * this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`.
+     * When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
      * an evaluation and then fail before finishing, leaving a positive classification beside `status:
-     * "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read
-     * a positive classification as success. Note also that an `error` caused by abandonment is generally
-     * NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
+     * "error"`.
+     * 
+     * <p>Both are true — the evaluation did pass — but the journey did not complete, so do not read a
+     * positive classification as success. Note also that an `error` caused by abandonment is generally NOT
+     * retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
      * retry; start a new journey instead.
      */
     @JsonInclude(Include.NON_ABSENT)
@@ -48,10 +54,18 @@ public class SlimResult {
     @JsonProperty("outcomeClassification")
     private JsonNullable<SlimResultOutcomeClassification> outcomeClassification;
 
-
+    /**
+     * Customer-safe errors. Failed module steps are listed as they happen, so `errors` can appear while
+     * the journey is still `pending`. For an `error`/`timeout` journey the first entry describes the
+     * journey failure.
+     * 
+     * <p>One further entry is listed per failed module step (codes 5021 step failed, 5022 step timed out,
+     * 5023 step could not be started), on a `complete` journey too, in step order. On a state fetch the
+     * failed steps carry the same entry on `steps[].error`.
+     */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("errors")
-    private List<GbgError> errors;
+    private List<SlimModuleStepError> errors;
 
     /**
      * Verified-output slice (OQ-A). May be transiently ABSENT on a journey already reporting `status:
@@ -70,7 +84,7 @@ public class SlimResult {
             @JsonProperty("outcome") @Nullable String outcome,
             @JsonProperty("status") @Nullable SlimResultStatus status,
             @JsonProperty("outcomeClassification") @Nullable JsonNullable<SlimResultOutcomeClassification> outcomeClassification,
-            @JsonProperty("errors") @Nullable List<GbgError> errors,
+            @JsonProperty("errors") @Nullable List<SlimModuleStepError> errors,
             @JsonProperty("data") @Nullable SlimVerifiedData data) {
         this.outcome = outcome;
         this.status = status;
@@ -91,19 +105,25 @@ public class SlimResult {
 
     /**
      * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete`
-     * means the journey finished. `error` means it ended in failure: either a module reported a terminal
-     * error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or
-     * execution timeout, or a spin).
+     * means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g.
      * 
-     * <p>Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a
-     * running journey once its state has materialized. `timeout` is part of this range but is not
-     * currently emitted at journey level — an elapsed deadline surfaces as `error`.
+     * <p>a data source was unavailable) and the journey continued past it, as configured (on a state fetch
+     * each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a
+     * module reported a terminal error (journeys run without per-step module error handling, which
+     * includes every journey on engine 2), a module that could not be found or routed at all, a step whose
+     * output broke its declared contract, or the platform abandoning the journey before it could finish (a
+     * deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather
+     * than as a distinct value.
      * 
-     * <p>When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
+     * <p>`pending` is reported for a running journey once its state has materialized. `timeout` is part of
+     * this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`.
+     * When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
      * an evaluation and then fail before finishing, leaving a positive classification beside `status:
-     * "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read
-     * a positive classification as success. Note also that an `error` caused by abandonment is generally
-     * NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
+     * "error"`.
+     * 
+     * <p>Both are true — the evaluation did pass — but the journey did not complete, so do not read a
+     * positive classification as success. Note also that an `error` caused by abandonment is generally NOT
+     * retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
      * retry; start a new journey instead.
      */
     public Optional<SlimResultStatus> status() {
@@ -114,7 +134,16 @@ public class SlimResult {
         return this.outcomeClassification;
     }
 
-    public Optional<List<GbgError>> errors() {
+    /**
+     * Customer-safe errors. Failed module steps are listed as they happen, so `errors` can appear while
+     * the journey is still `pending`. For an `error`/`timeout` journey the first entry describes the
+     * journey failure.
+     * 
+     * <p>One further entry is listed per failed module step (codes 5021 step failed, 5022 step timed out,
+     * 5023 step could not be started), on a `complete` journey too, in step order. On a state fetch the
+     * failed steps carry the same entry on `steps[].error`.
+     */
+    public Optional<List<SlimModuleStepError>> errors() {
         return Optional.ofNullable(this.errors);
     }
 
@@ -143,19 +172,25 @@ public class SlimResult {
 
     /**
      * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete`
-     * means the journey finished. `error` means it ended in failure: either a module reported a terminal
-     * error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or
-     * execution timeout, or a spin).
+     * means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g.
      * 
-     * <p>Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a
-     * running journey once its state has materialized. `timeout` is part of this range but is not
-     * currently emitted at journey level — an elapsed deadline surfaces as `error`.
+     * <p>a data source was unavailable) and the journey continued past it, as configured (on a state fetch
+     * each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a
+     * module reported a terminal error (journeys run without per-step module error handling, which
+     * includes every journey on engine 2), a module that could not be found or routed at all, a step whose
+     * output broke its declared contract, or the platform abandoning the journey before it could finish (a
+     * deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather
+     * than as a distinct value.
      * 
-     * <p>When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
+     * <p>`pending` is reported for a running journey once its state has materialized. `timeout` is part of
+     * this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`.
+     * When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
      * an evaluation and then fail before finishing, leaving a positive classification beside `status:
-     * "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read
-     * a positive classification as success. Note also that an `error` caused by abandonment is generally
-     * NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
+     * "error"`.
+     * 
+     * <p>Both are true — the evaluation did pass — but the journey did not complete, so do not read a
+     * positive classification as success. Note also that an `error` caused by abandonment is generally NOT
+     * retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
      * retry; start a new journey instead.
      */
     public SlimResult withStatus(@Nullable SlimResultStatus status) {
@@ -170,7 +205,16 @@ public class SlimResult {
     }
 
 
-    public SlimResult withErrors(@Nullable List<GbgError> errors) {
+    /**
+     * Customer-safe errors. Failed module steps are listed as they happen, so `errors` can appear while
+     * the journey is still `pending`. For an `error`/`timeout` journey the first entry describes the
+     * journey failure.
+     * 
+     * <p>One further entry is listed per failed module step (codes 5021 step failed, 5022 step timed out,
+     * 5023 step could not be started), on a `complete` journey too, in step order. On a state fetch the
+     * failed steps carry the same entry on `steps[].error`.
+     */
+    public SlimResult withErrors(@Nullable List<SlimModuleStepError> errors) {
         this.errors = errors;
         return this;
     }
@@ -233,7 +277,7 @@ public class SlimResult {
 
         private JsonNullable<SlimResultOutcomeClassification> outcomeClassification;
 
-        private List<GbgError> errors;
+        private List<SlimModuleStepError> errors;
 
         private SlimVerifiedData data;
 
@@ -248,19 +292,25 @@ public class SlimResult {
 
         /**
          * Headline result state, and the AUTHORITATIVE signal for whether the journey succeeded. `complete`
-         * means the journey finished. `error` means it ended in failure: either a module reported a terminal
-         * error, or the platform abandoned the journey before it could finish (a deadlock, an interaction or
-         * execution timeout, or a spin).
+         * means the journey finished. A `complete` journey may still list `errors`: a module step failed (e.g.
          * 
-         * <p>Abandonment is reported as `error` rather than as a distinct value. `pending` is reported for a
-         * running journey once its state has materialized. `timeout` is part of this range but is not
-         * currently emitted at journey level — an elapsed deadline surfaces as `error`.
+         * <p>a data source was unavailable) and the journey continued past it, as configured (on a state fetch
+         * each failed step is also marked on `steps[]`). `error` means it ended in failure — for example a
+         * module reported a terminal error (journeys run without per-step module error handling, which
+         * includes every journey on engine 2), a module that could not be found or routed at all, a step whose
+         * output broke its declared contract, or the platform abandoning the journey before it could finish (a
+         * deadlock, an interaction or execution timeout, or a spin). Abandonment is reported as `error` rather
+         * than as a distinct value.
          * 
-         * <p>When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
+         * <p>`pending` is reported for a running journey once its state has materialized. `timeout` is part of
+         * this range but is not currently emitted at journey level — an elapsed deadline surfaces as `error`.
+         * When `status` disagrees with `outcome` or `outcomeClassification`, `status` wins: a journey can pass
          * an evaluation and then fail before finishing, leaving a positive classification beside `status:
-         * "error"`. Both are true — the evaluation did pass — but the journey did not complete, so do not read
-         * a positive classification as success. Note also that an `error` caused by abandonment is generally
-         * NOT retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
+         * "error"`.
+         * 
+         * <p>Both are true — the evaluation did pass — but the journey did not complete, so do not read a
+         * positive classification as success. Note also that an `error` caused by abandonment is generally NOT
+         * retryable — a deadlocked journey deadlocks again — even though the accompanying error advises a
          * retry; start a new journey instead.
          */
         public Builder status(@Nullable SlimResultStatus status) {
@@ -273,7 +323,16 @@ public class SlimResult {
             return this;
         }
 
-        public Builder errors(@Nullable List<GbgError> errors) {
+        /**
+         * Customer-safe errors. Failed module steps are listed as they happen, so `errors` can appear while
+         * the journey is still `pending`. For an `error`/`timeout` journey the first entry describes the
+         * journey failure.
+         * 
+         * <p>One further entry is listed per failed module step (codes 5021 step failed, 5022 step timed out,
+         * 5023 step could not be started), on a `complete` journey too, in step order. On a state fetch the
+         * failed steps carry the same entry on `steps[].error`.
+         */
+        public Builder errors(@Nullable List<SlimModuleStepError> errors) {
             this.errors = errors;
             return this;
         }

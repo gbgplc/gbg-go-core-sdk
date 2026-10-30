@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export type DeviceRefreshResponse = {
@@ -23,13 +22,13 @@ export const DeviceRefreshResponse$inboundSchema: z.ZodMiniType<
   DeviceRefreshResponse,
   unknown
 > = z.object({
-  endUserToken: types.string(),
-  expiresIn: types.number(),
-  instanceId: types.string(),
-  resumeCredential: types.string(),
-  credentialExpiresAt: types.string(),
-  credentialExpiresIn: types.number(),
-  linkExpiresAt: types.string(),
+  endUserToken: z.string(),
+  expiresIn: z.number(),
+  instanceId: z.string(),
+  resumeCredential: z.string(),
+  credentialExpiresAt: z.string(),
+  credentialExpiresIn: z.number(),
+  linkExpiresAt: z.string(),
 });
 
 export function deviceRefreshResponseFromJSON(

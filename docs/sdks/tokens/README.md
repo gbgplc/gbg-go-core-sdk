@@ -68,6 +68,7 @@ run();
 
 ### Errors
 
-| Error Type            | Status Code           | Content Type          |
-| --------------------- | --------------------- | --------------------- |
-| errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |
+| Error Type                | Status Code               | Content Type              |
+| ------------------------- | ------------------------- | ------------------------- |
+| errors.OAuthErrorResponse | 400, 401                  | application/json          |
+| errors.GoDefaultError     | 4XX, 5XX                  | \*/\*                     |

@@ -328,7 +328,7 @@ export type SubmitInteractionIdentityPhone = {
 
 export type SubmitInteractionIdentityEmail = {
   /**
-   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -1424,7 +1424,7 @@ export type SubmitInteractionDocumentPhone = {
 
 export type SubmitInteractionDocumentEmail = {
   /**
-   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -1620,6 +1620,10 @@ export type SubmitInteractionDocument = {
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
   dateOfEvent?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  acquisitionDate?: string | undefined;
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
@@ -1630,17 +1634,32 @@ export type SubmitInteractionDocument = {
   nameLine4?: string | undefined;
 };
 
-export const SubmitInteractionBiometricType = {
+export const SubmitInteractionTypeOrphanedStoredFace = {
+  OrphanedStoredFace: "orphanedStoredFace",
+} as const;
+export type SubmitInteractionTypeOrphanedStoredFace = ClosedEnum<
+  typeof SubmitInteractionTypeOrphanedStoredFace
+>;
+
+export type SubmitInteractionBiometricOrphanedStoredFace = {
+  id?: string | undefined;
+  type: SubmitInteractionTypeOrphanedStoredFace;
+  templateReference: string;
+  collectionReference?: string | undefined;
+};
+
+export const SubmitInteractionTypeStoredFace = {
   StoredFace: "storedFace",
 } as const;
-export type SubmitInteractionBiometricType = ClosedEnum<
-  typeof SubmitInteractionBiometricType
+export type SubmitInteractionTypeStoredFace = ClosedEnum<
+  typeof SubmitInteractionTypeStoredFace
 >;
 
 export type SubmitInteractionBiometricStoredFace = {
   id?: string | undefined;
-  type: SubmitInteractionBiometricType;
+  type: SubmitInteractionTypeStoredFace;
   templateReference: string;
+  collectionReference?: string | undefined;
 };
 
 export type SubmitInteractionBiometric5 = {
@@ -1680,6 +1699,7 @@ export type SubmitInteractionBiometricUnion =
   | SubmitInteractionBiometric1
   | SubmitInteractionBiometric2
   | SubmitInteractionBiometricStoredFace
+  | SubmitInteractionBiometricOrphanedStoredFace
   | SubmitInteractionBiometric3
   | SubmitInteractionBiometric4
   | SubmitInteractionBiometric5;
@@ -1774,9 +1794,9 @@ export type SubmitInteractionAccount = {
    */
   type: string;
   /**
-   * Account number
+   * Account number in its domestic form. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when both are supplied they are not cross-checked.
    */
-  accountNumber: string;
+  accountNumber?: string | undefined;
   /**
    * UK sort code
    */
@@ -1786,7 +1806,7 @@ export type SubmitInteractionAccount = {
    */
   routingNumber?: string | undefined;
   /**
-   * International Bank Account Number
+   * International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616 mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough.
    */
   iban?: string | undefined;
   /**
@@ -1833,6 +1853,55 @@ export type SubmitInteractionKba = {
   answers: Array<SubmitInteractionAnswer>;
 };
 
+export const SubmitInteractionOffered = {
+  AustraliaPassport: "australiaPassport",
+  AustraliaDrivingLicense: "australiaDrivingLicense",
+  AustraliaBirthCertificate: "australiaBirthCertificate",
+  AustraliaCentrelink: "australiaCentrelink",
+  AustraliaCitizenshipCertificate: "australiaCitizenshipCertificate",
+  AustraliaVisa: "australiaVisa",
+  AustraliaMedicare: "australiaMedicare",
+  AustraliaImmicard: "australiaImmicard",
+  AustraliaMarriageCertificate: "australiaMarriageCertificate",
+  AustraliaChangeOfNameCertificate: "australiaChangeOfNameCertificate",
+  AustraliaElectoralRoll: "australiaElectoralRoll",
+  NewZealandPassport: "newZealandPassport",
+  NewZealandDrivingLicense: "newZealandDrivingLicense",
+  NewZealandBirthCertificate: "newZealandBirthCertificate",
+  NewZealandCitizenshipCertificate: "newZealandCitizenshipCertificate",
+  NoneOfThese: "noneOfThese",
+} as const;
+export type SubmitInteractionOffered = ClosedEnum<
+  typeof SubmitInteractionOffered
+>;
+
+export const SubmitInteractionSelected = {
+  AustraliaPassport: "australiaPassport",
+  AustraliaDrivingLicense: "australiaDrivingLicense",
+  AustraliaBirthCertificate: "australiaBirthCertificate",
+  AustraliaCentrelink: "australiaCentrelink",
+  AustraliaCitizenshipCertificate: "australiaCitizenshipCertificate",
+  AustraliaVisa: "australiaVisa",
+  AustraliaMedicare: "australiaMedicare",
+  AustraliaImmicard: "australiaImmicard",
+  AustraliaMarriageCertificate: "australiaMarriageCertificate",
+  AustraliaChangeOfNameCertificate: "australiaChangeOfNameCertificate",
+  AustraliaElectoralRoll: "australiaElectoralRoll",
+  NewZealandPassport: "newZealandPassport",
+  NewZealandDrivingLicense: "newZealandDrivingLicense",
+  NewZealandBirthCertificate: "newZealandBirthCertificate",
+  NewZealandCitizenshipCertificate: "newZealandCitizenshipCertificate",
+  NoneOfThese: "noneOfThese",
+} as const;
+export type SubmitInteractionSelected = ClosedEnum<
+  typeof SubmitInteractionSelected
+>;
+
+export type SubmitInteractionDocumentTypeSelection = {
+  offered?: Array<SubmitInteractionOffered> | undefined;
+  selected?: SubmitInteractionSelected | undefined;
+};
+
 export type SubmitInteractionSubject = {
   identity?: SubmitInteractionIdentity | undefined;
   entities?: Array<SubmitInteractionEntity> | undefined;
@@ -1842,6 +1911,7 @@ export type SubmitInteractionSubject = {
       | SubmitInteractionBiometric1
       | SubmitInteractionBiometric2
       | SubmitInteractionBiometricStoredFace
+      | SubmitInteractionBiometricOrphanedStoredFace
       | SubmitInteractionBiometric3
       | SubmitInteractionBiometric4
       | SubmitInteractionBiometric5
@@ -1851,6 +1921,7 @@ export type SubmitInteractionSubject = {
   consent?: Array<SubmitInteractionConsent> | undefined;
   accounts?: Array<SubmitInteractionAccount> | undefined;
   kba?: SubmitInteractionKba | undefined;
+  documentTypeSelection?: SubmitInteractionDocumentTypeSelection | undefined;
   uid?: string | undefined;
 };
 
@@ -4653,6 +4724,7 @@ export type SubmitInteractionDocument$Outbound = {
   registrationYear?: string | undefined;
   partyRole?: string | undefined;
   dateOfEvent?: string | undefined;
+  acquisitionDate?: string | undefined;
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
@@ -4785,6 +4857,7 @@ export const SubmitInteractionDocument$outboundSchema: z.ZodMiniType<
   registrationYear: z.optional(z.string()),
   partyRole: z.optional(z.string()),
   dateOfEvent: z.optional(z.string()),
+  acquisitionDate: z.optional(z.string()),
   previousFirstName: z.optional(z.string()),
   previousMiddleName: z.optional(z.string()),
   previousSurname: z.optional(z.string()),
@@ -4804,15 +4877,53 @@ export function submitInteractionDocumentToJSON(
 }
 
 /** @internal */
-export const SubmitInteractionBiometricType$outboundSchema: z.ZodMiniEnum<
-  typeof SubmitInteractionBiometricType
-> = z.enum(SubmitInteractionBiometricType);
+export const SubmitInteractionTypeOrphanedStoredFace$outboundSchema:
+  z.ZodMiniEnum<typeof SubmitInteractionTypeOrphanedStoredFace> = z.enum(
+    SubmitInteractionTypeOrphanedStoredFace,
+  );
+
+/** @internal */
+export type SubmitInteractionBiometricOrphanedStoredFace$Outbound = {
+  id?: string | undefined;
+  type: string;
+  templateReference: string;
+  collectionReference?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionBiometricOrphanedStoredFace$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionBiometricOrphanedStoredFace$Outbound,
+    SubmitInteractionBiometricOrphanedStoredFace
+  > = z.object({
+    id: z.optional(z.string()),
+    type: SubmitInteractionTypeOrphanedStoredFace$outboundSchema,
+    templateReference: z.string(),
+    collectionReference: z.optional(z.string()),
+  });
+
+export function submitInteractionBiometricOrphanedStoredFaceToJSON(
+  submitInteractionBiometricOrphanedStoredFace:
+    SubmitInteractionBiometricOrphanedStoredFace,
+): string {
+  return JSON.stringify(
+    SubmitInteractionBiometricOrphanedStoredFace$outboundSchema.parse(
+      submitInteractionBiometricOrphanedStoredFace,
+    ),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionTypeStoredFace$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionTypeStoredFace
+> = z.enum(SubmitInteractionTypeStoredFace);
 
 /** @internal */
 export type SubmitInteractionBiometricStoredFace$Outbound = {
   id?: string | undefined;
   type: string;
   templateReference: string;
+  collectionReference?: string | undefined;
 };
 
 /** @internal */
@@ -4821,8 +4932,9 @@ export const SubmitInteractionBiometricStoredFace$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometricStoredFace
 > = z.object({
   id: z.optional(z.string()),
-  type: SubmitInteractionBiometricType$outboundSchema,
+  type: SubmitInteractionTypeStoredFace$outboundSchema,
   templateReference: z.string(),
+  collectionReference: z.optional(z.string()),
 });
 
 export function submitInteractionBiometricStoredFaceToJSON(
@@ -4981,6 +5093,7 @@ export type SubmitInteractionBiometricUnion$Outbound =
   | SubmitInteractionBiometric1$Outbound
   | SubmitInteractionBiometric2$Outbound
   | SubmitInteractionBiometricStoredFace$Outbound
+  | SubmitInteractionBiometricOrphanedStoredFace$Outbound
   | SubmitInteractionBiometric3$Outbound
   | SubmitInteractionBiometric4$Outbound
   | SubmitInteractionBiometric5$Outbound;
@@ -4993,6 +5106,7 @@ export const SubmitInteractionBiometricUnion$outboundSchema: z.ZodMiniType<
   z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric2$outboundSchema),
   z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
+  z.lazy(() => SubmitInteractionBiometricOrphanedStoredFace$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
   z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
@@ -5308,7 +5422,7 @@ export function submitInteractionConsentToJSON(
 /** @internal */
 export type SubmitInteractionAccount$Outbound = {
   type: string;
-  accountNumber: string;
+  accountNumber?: string | undefined;
   sortCode?: string | undefined;
   routingNumber?: string | undefined;
   iban?: string | undefined;
@@ -5325,7 +5439,7 @@ export const SubmitInteractionAccount$outboundSchema: z.ZodMiniType<
   SubmitInteractionAccount
 > = z.object({
   type: z.string(),
-  accountNumber: z.string(),
+  accountNumber: z.optional(z.string()),
   sortCode: z.optional(z.string()),
   routingNumber: z.optional(z.string()),
   iban: z.optional(z.string()),
@@ -5441,6 +5555,43 @@ export function submitInteractionKbaToJSON(
 }
 
 /** @internal */
+export const SubmitInteractionOffered$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionOffered
+> = z.enum(SubmitInteractionOffered);
+
+/** @internal */
+export const SubmitInteractionSelected$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionSelected
+> = z.enum(SubmitInteractionSelected);
+
+/** @internal */
+export type SubmitInteractionDocumentTypeSelection$Outbound = {
+  offered?: Array<string> | undefined;
+  selected?: string | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionDocumentTypeSelection$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionDocumentTypeSelection$Outbound,
+    SubmitInteractionDocumentTypeSelection
+  > = z.object({
+    offered: z.optional(z.array(SubmitInteractionOffered$outboundSchema)),
+    selected: z.optional(SubmitInteractionSelected$outboundSchema),
+  });
+
+export function submitInteractionDocumentTypeSelectionToJSON(
+  submitInteractionDocumentTypeSelection:
+    SubmitInteractionDocumentTypeSelection,
+): string {
+  return JSON.stringify(
+    SubmitInteractionDocumentTypeSelection$outboundSchema.parse(
+      submitInteractionDocumentTypeSelection,
+    ),
+  );
+}
+
+/** @internal */
 export type SubmitInteractionSubject$Outbound = {
   identity?: SubmitInteractionIdentity$Outbound | undefined;
   entities?: Array<SubmitInteractionEntity$Outbound> | undefined;
@@ -5450,6 +5601,7 @@ export type SubmitInteractionSubject$Outbound = {
       | SubmitInteractionBiometric1$Outbound
       | SubmitInteractionBiometric2$Outbound
       | SubmitInteractionBiometricStoredFace$Outbound
+      | SubmitInteractionBiometricOrphanedStoredFace$Outbound
       | SubmitInteractionBiometric3$Outbound
       | SubmitInteractionBiometric4$Outbound
       | SubmitInteractionBiometric5$Outbound
@@ -5459,6 +5611,9 @@ export type SubmitInteractionSubject$Outbound = {
   consent?: Array<SubmitInteractionConsent$Outbound> | undefined;
   accounts?: Array<SubmitInteractionAccount$Outbound> | undefined;
   kba?: SubmitInteractionKba$Outbound | undefined;
+  documentTypeSelection?:
+    | SubmitInteractionDocumentTypeSelection$Outbound
+    | undefined;
   uid?: string | undefined;
 };
 
@@ -5481,7 +5636,10 @@ export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
         SubmitInteractionBiometric2$outboundSchema
       ),
       z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
-      z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
+      z.lazy(() => SubmitInteractionBiometricOrphanedStoredFace$outboundSchema),
+      z.lazy(() =>
+        SubmitInteractionBiometric3$outboundSchema
+      ),
       z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
       z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
     ])),
@@ -5496,6 +5654,9 @@ export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
     z.array(z.lazy(() => SubmitInteractionAccount$outboundSchema)),
   ),
   kba: z.optional(z.lazy(() => SubmitInteractionKba$outboundSchema)),
+  documentTypeSelection: z.optional(
+    z.lazy(() => SubmitInteractionDocumentTypeSelection$outboundSchema),
+  ),
   uid: z.optional(z.string()),
 });
 

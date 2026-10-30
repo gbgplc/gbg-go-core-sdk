@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export type SlimJourney = {
@@ -19,11 +18,11 @@ export type SlimJourney = {
 /** @internal */
 export const SlimJourney$inboundSchema: z.ZodMiniType<SlimJourney, unknown> = z
   .object({
-    id: types.optional(types.string()),
-    name: types.optional(types.string()),
-    version: types.optional(types.string()),
-    startedAt: types.optional(types.string()),
-    endedAt: types.optional(types.string()),
+    id: z.optional(z.string()),
+    name: z.optional(z.string()),
+    version: z.optional(z.string()),
+    startedAt: z.optional(z.string()),
+    endedAt: z.optional(z.string()),
   });
 
 export function slimJourneyFromJSON(

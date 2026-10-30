@@ -17,7 +17,7 @@ V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="getTaskSchema" method="post" path="/v2/captain/journey/task/schema" example="Default" -->
+<!-- UsageSnippet language="java" operationID="getTaskSchema" method="post" path="/journey/task/schema" example="Default" -->
 ```java
 package hello.world;
 
@@ -58,6 +58,6 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404               | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404          | application/json            |
 | models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |

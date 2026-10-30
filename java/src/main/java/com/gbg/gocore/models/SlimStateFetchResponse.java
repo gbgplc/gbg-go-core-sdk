@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gbg.gocore.models.operations.GetJourneyStateResponseBody;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -16,7 +17,11 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class SlimStateFetchResponse {
+public class SlimStateFetchResponse implements GetJourneyStateResponseBody {
+
+    @JsonProperty("view")
+    private SlimStateFetchResponseView view;
+
 
     @JsonProperty("instanceId")
     private String instanceId;
@@ -42,11 +47,14 @@ public class SlimStateFetchResponse {
 
     @JsonCreator
     public SlimStateFetchResponse(
+            @JsonProperty("view") @Nonnull SlimStateFetchResponseView view,
             @JsonProperty("instanceId") @Nonnull String instanceId,
             @JsonProperty("status") @Nonnull SlimStateFetchResponseStatus status,
             @JsonProperty("journey") @Nullable SlimJourney journey,
             @JsonProperty("steps") @Nullable List<SlimStep> steps,
             @JsonProperty("result") @Nullable SlimResult result) {
+        this.view = Optional.ofNullable(view)
+            .orElseThrow(() -> new IllegalArgumentException("view cannot be null"));
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
         this.status = Optional.ofNullable(status)
@@ -57,10 +65,16 @@ public class SlimStateFetchResponse {
     }
     
     public SlimStateFetchResponse(
+            @Nonnull SlimStateFetchResponseView view,
             @Nonnull String instanceId,
             @Nonnull SlimStateFetchResponseStatus status) {
-        this(instanceId, status, null,
-            null, null);
+        this(view, instanceId, status,
+            null, null, null);
+    }
+
+    @Override
+    public String view() {
+        return Utils.discriminatorToString(view);
     }
 
     public String instanceId() {
@@ -85,6 +99,12 @@ public class SlimStateFetchResponse {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public SlimStateFetchResponse withView(@Nonnull SlimStateFetchResponseView view) {
+        this.view = Utils.checkNotNull(view, "view");
+        return this;
     }
 
 
@@ -128,6 +148,7 @@ public class SlimStateFetchResponse {
         }
         SlimStateFetchResponse other = (SlimStateFetchResponse) o;
         return 
+            Utils.enhancedDeepEquals(this.view, other.view) &&
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
             Utils.enhancedDeepEquals(this.status, other.status) &&
             Utils.enhancedDeepEquals(this.journey, other.journey) &&
@@ -138,13 +159,14 @@ public class SlimStateFetchResponse {
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            instanceId, status, journey,
-            steps, result);
+            view, instanceId, status,
+            journey, steps, result);
     }
     
     @Override
     public String toString() {
         return Utils.toString(SlimStateFetchResponse.class,
+                "view", view,
                 "instanceId", instanceId,
                 "status", status,
                 "journey", journey,
@@ -154,6 +176,8 @@ public class SlimStateFetchResponse {
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
+
+        private SlimStateFetchResponseView view;
 
         private String instanceId;
 
@@ -167,6 +191,11 @@ public class SlimStateFetchResponse {
 
         private Builder() {
           // force use of static builder() method
+        }
+
+        public Builder view(@Nonnull SlimStateFetchResponseView view) {
+            this.view = Utils.checkNotNull(view, "view");
+            return this;
         }
 
         public Builder instanceId(@Nonnull String instanceId) {
@@ -196,8 +225,8 @@ public class SlimStateFetchResponse {
 
         public SlimStateFetchResponse build() {
             return new SlimStateFetchResponse(
-                instanceId, status, journey,
-                steps, result);
+                view, instanceId, status,
+                journey, steps, result);
         }
 
     }

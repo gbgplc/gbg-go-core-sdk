@@ -31,6 +31,13 @@ public class Modules {
     @JsonProperty("advice")
     private Map<String, Object> advice;
 
+    /**
+     * Domain-element values this module override returns in result.subject.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("subject")
+    private ModulesSubject subject;
+
 
     @JsonIgnore
     private Map<String, Object> additionalProperties;
@@ -38,16 +45,18 @@ public class Modules {
     @JsonCreator
     public Modules(
             @JsonProperty("outcome") @Nonnull String outcome,
-            @JsonProperty("advice") @Nullable Map<String, Object> advice) {
+            @JsonProperty("advice") @Nullable Map<String, Object> advice,
+            @JsonProperty("subject") @Nullable ModulesSubject subject) {
         this.outcome = Optional.ofNullable(outcome)
             .orElseThrow(() -> new IllegalArgumentException("outcome cannot be null"));
         this.advice = advice;
+        this.subject = subject;
         this.additionalProperties = new HashMap<>();
     }
     
     public Modules(
             @Nonnull String outcome) {
-        this(outcome, null);
+        this(outcome, null, null);
     }
 
     public String outcome() {
@@ -56,6 +65,13 @@ public class Modules {
 
     public Optional<Map<String, Object>> advice() {
         return Optional.ofNullable(this.advice);
+    }
+
+    /**
+     * Domain-element values this module override returns in result.subject.
+     */
+    public Optional<ModulesSubject> subject() {
+        return Optional.ofNullable(this.subject);
     }
 
     @JsonAnyGetter
@@ -76,6 +92,15 @@ public class Modules {
 
     public Modules withAdvice(@Nullable Map<String, Object> advice) {
         this.advice = advice;
+        return this;
+    }
+
+
+    /**
+     * Domain-element values this module override returns in result.subject.
+     */
+    public Modules withSubject(@Nullable ModulesSubject subject) {
+        this.subject = subject;
         return this;
     }
 
@@ -106,13 +131,15 @@ public class Modules {
         return 
             Utils.enhancedDeepEquals(this.outcome, other.outcome) &&
             Utils.enhancedDeepEquals(this.advice, other.advice) &&
+            Utils.enhancedDeepEquals(this.subject, other.subject) &&
             Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            outcome, advice, additionalProperties);
+            outcome, advice, subject,
+            additionalProperties);
     }
     
     @Override
@@ -120,6 +147,7 @@ public class Modules {
         return Utils.toString(Modules.class,
                 "outcome", outcome,
                 "advice", advice,
+                "subject", subject,
                 "additionalProperties", additionalProperties);
     }
 
@@ -129,6 +157,8 @@ public class Modules {
         private String outcome;
 
         private Map<String, Object> advice;
+
+        private ModulesSubject subject;
 
         private Map<String, Object> additionalProperties = new HashMap<>();
 
@@ -143,6 +173,14 @@ public class Modules {
 
         public Builder advice(@Nullable Map<String, Object> advice) {
             this.advice = advice;
+            return this;
+        }
+
+        /**
+         * Domain-element values this module override returns in result.subject.
+         */
+        public Builder subject(@Nullable ModulesSubject subject) {
+            this.subject = subject;
             return this;
         }
 
@@ -162,7 +200,7 @@ public class Modules {
 
         public Modules build() {
             return new Modules(
-                outcome, advice)
+                outcome, advice, subject)
                 .withAdditionalProperties(additionalProperties);
         }
 

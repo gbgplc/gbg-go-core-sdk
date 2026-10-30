@@ -37,7 +37,7 @@ export class Devices extends ClientSDK {
    */
   async connect(
     security: operations.DeviceConnectSecurity,
-    request: operations.DeviceConnectRequest,
+    request?: models.DeviceConnectRequest | undefined,
     options?: RequestOptions,
   ): Promise<models.DeviceConnectResponse> {
     return unwrapAsync(devicesConnect(

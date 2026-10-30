@@ -58,11 +58,10 @@ public class Config {
 
     /**
      * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
-     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 10 seconds (50
      * today). Send a smaller value if your own HTTP client gives up sooner.
      * 
-     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
-     * response says how long the call waited.
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged.
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("syncWaitSeconds")
@@ -159,11 +158,10 @@ public class Config {
 
     /**
      * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
-     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 10 seconds (50
      * today). Send a smaller value if your own HTTP client gives up sooner.
      * 
-     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
-     * response says how long the call waited.
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged.
      */
     public Optional<Long> syncWaitSeconds() {
         return Optional.ofNullable(this.syncWaitSeconds);
@@ -247,11 +245,10 @@ public class Config {
 
     /**
      * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
-     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+     * wait up to the platform ceiling, which is the load balancer's idle timeout minus 10 seconds (50
      * today). Send a smaller value if your own HTTP client gives up sooner.
      * 
-     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
-     * response says how long the call waited.
+     * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged.
      */
     public Config withSyncWaitSeconds(@Nullable Long syncWaitSeconds) {
         this.syncWaitSeconds = syncWaitSeconds;
@@ -405,11 +402,10 @@ public class Config {
 
         /**
          * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means
-         * wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55
+         * wait up to the platform ceiling, which is the load balancer's idle timeout minus 10 seconds (50
          * today). Send a smaller value if your own HTTP client gives up sooner.
          * 
-         * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the
-         * response says how long the call waited.
+         * <p>A value above the ceiling is clamped, not rejected, and the clamp is logged.
          */
         public Builder syncWaitSeconds(@Nullable Long syncWaitSeconds) {
             this.syncWaitSeconds = syncWaitSeconds;

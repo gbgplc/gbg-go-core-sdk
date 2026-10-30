@@ -5,10 +5,13 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
-import { ClosedEnum, OpenEnum } from "../types/enums.js";
+import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
+import {
+  OutstandingGroup,
+  OutstandingGroup$inboundSchema,
+} from "./outstanding-group.js";
 import { SlimResult, SlimResult$inboundSchema } from "./slim-result.js";
 
 export const SlimInteractionFetchResponseStatus = {
@@ -25,33 +28,19 @@ export type SlimInteractionFetchResponseJourney = {
   status: SlimInteractionFetchResponseStatus;
 };
 
-export const SlimInteractionFetchResponseCardinality = {
-  AtLeastOne: "at-least-one",
-} as const;
-export type SlimInteractionFetchResponseCardinality = ClosedEnum<
-  typeof SlimInteractionFetchResponseCardinality
->;
-
-export type SlimInteractionFetchResponseOutstandingGroup = {
-  elementId: string;
-  cardinality: SlimInteractionFetchResponseCardinality;
-  refs: Array<string>;
-};
-
 export type SlimInteractionFetchResponseJoinedDevice = {
   connected: boolean;
 };
 
 export type SlimInteractionFetchResponse = {
+  view: "slim";
   instanceId: string;
   interactionId?: string | undefined;
   journey: SlimInteractionFetchResponseJourney;
   interaction?: { [k: string]: any } | undefined;
   processing?: boolean | undefined;
   outstanding?: Array<string> | undefined;
-  outstandingGroups?:
-    | Array<SlimInteractionFetchResponseOutstandingGroup>
-    | undefined;
+  outstandingGroups?: Array<OutstandingGroup> | undefined;
   instructions?: Array<string> | undefined;
   result?: SlimResult | undefined;
   joinedDevice?: SlimInteractionFetchResponseJoinedDevice | undefined;
@@ -83,40 +72,9 @@ export function slimInteractionFetchResponseJourneyFromJSON(
 }
 
 /** @internal */
-export const SlimInteractionFetchResponseCardinality$inboundSchema:
-  z.ZodMiniEnum<typeof SlimInteractionFetchResponseCardinality> = z.enum(
-    SlimInteractionFetchResponseCardinality,
-  );
-
-/** @internal */
-export const SlimInteractionFetchResponseOutstandingGroup$inboundSchema:
-  z.ZodMiniType<SlimInteractionFetchResponseOutstandingGroup, unknown> = z
-    .object({
-      elementId: types.string(),
-      cardinality: SlimInteractionFetchResponseCardinality$inboundSchema,
-      refs: z.array(types.string()),
-    });
-
-export function slimInteractionFetchResponseOutstandingGroupFromJSON(
-  jsonString: string,
-): SafeParseResult<
-  SlimInteractionFetchResponseOutstandingGroup,
-  SDKValidationError
-> {
-  return safeParse(
-    jsonString,
-    (x) =>
-      SlimInteractionFetchResponseOutstandingGroup$inboundSchema.parse(
-        JSON.parse(x),
-      ),
-    `Failed to parse 'SlimInteractionFetchResponseOutstandingGroup' from JSON`,
-  );
-}
-
-/** @internal */
 export const SlimInteractionFetchResponseJoinedDevice$inboundSchema:
   z.ZodMiniType<SlimInteractionFetchResponseJoinedDevice, unknown> = z.object({
-    connected: types.boolean(),
+    connected: z.boolean(),
   });
 
 export function slimInteractionFetchResponseJoinedDeviceFromJSON(
@@ -140,20 +98,17 @@ export const SlimInteractionFetchResponse$inboundSchema: z.ZodMiniType<
   SlimInteractionFetchResponse,
   unknown
 > = z.object({
-  instanceId: types.string(),
-  interactionId: types.optional(types.string()),
+  view: z.literal("slim"),
+  instanceId: z.string(),
+  interactionId: z.optional(z.string()),
   journey: z.lazy(() => SlimInteractionFetchResponseJourney$inboundSchema),
-  interaction: types.optional(z.record(z.string(), z.any())),
-  processing: types.optional(types.boolean()),
-  outstanding: types.optional(z.array(types.string())),
-  outstandingGroups: types.optional(
-    z.array(z.lazy(() =>
-      SlimInteractionFetchResponseOutstandingGroup$inboundSchema
-    )),
-  ),
-  instructions: types.optional(z.array(types.string())),
-  result: types.optional(SlimResult$inboundSchema),
-  joinedDevice: types.optional(
+  interaction: z.optional(z.record(z.string(), z.any())),
+  processing: z.optional(z.boolean()),
+  outstanding: z.optional(z.array(z.string())),
+  outstandingGroups: z.optional(z.array(OutstandingGroup$inboundSchema)),
+  instructions: z.optional(z.array(z.string())),
+  result: z.optional(SlimResult$inboundSchema),
+  joinedDevice: z.optional(
     z.lazy(() => SlimInteractionFetchResponseJoinedDevice$inboundSchema),
   ),
 });

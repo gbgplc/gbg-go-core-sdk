@@ -7,7 +7,6 @@ import { safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 import {
   StateFetchResponse,
@@ -30,8 +29,15 @@ export type JourneyStartResponse = {
   instanceUrl?: string | undefined;
   status: JourneyStartResponseStatus;
   message?: string | undefined;
-  waitedSeconds?: number | undefined;
   state?: StateFetchResponse | undefined;
+  /**
+   * Present and `true` only when the journey was started as a test scenario.
+   */
+  test?: true | undefined;
+  /**
+   * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request body. Present only together with `test: true`.
+   */
+  scenario?: string | undefined;
 };
 
 /** @internal */
@@ -45,12 +51,13 @@ export const JourneyStartResponse$inboundSchema: z.ZodMiniType<
   JourneyStartResponse,
   unknown
 > = z.object({
-  instanceId: types.string(),
-  instanceUrl: types.optional(types.string()),
+  instanceId: z.string(),
+  instanceUrl: z.optional(z.string()),
   status: JourneyStartResponseStatus$inboundSchema,
-  message: types.optional(types.string()),
-  waitedSeconds: types.optional(types.number()),
-  state: types.optional(StateFetchResponse$inboundSchema),
+  message: z.optional(z.string()),
+  state: z.optional(StateFetchResponse$inboundSchema),
+  test: z.optional(z.literal(true)),
+  scenario: z.optional(z.string()),
 });
 
 export function journeyStartResponseFromJSON(

@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 import {
   SlimExtraction,
@@ -63,10 +62,10 @@ export type SlimDocument = {
 
 /** @internal */
 export const Side$inboundSchema: z.ZodMiniType<Side, unknown> = z.object({
-  side: types.string(),
-  id: types.string(),
-  documentQuality: types.string(),
-  documentQualityScore: types.number(),
+  side: z.string(),
+  id: z.string(),
+  documentQuality: z.string(),
+  documentQualityScore: z.number(),
 });
 
 export function sideFromJSON(
@@ -84,18 +83,18 @@ export const Classification$inboundSchema: z.ZodMiniType<
   Classification,
   unknown
 > = z.object({
-  ids: types.optional(z.array(types.string())),
-  category: types.optional(types.string()),
-  type: types.optional(types.string()),
-  subtype: types.optional(types.string()),
-  isDoubleSided: types.optional(types.boolean()),
-  hasNFC: types.optional(types.boolean()),
-  year: types.optional(types.string()),
-  countryCode: types.optional(types.string()),
-  countryName: types.optional(types.string()),
-  stateCode: types.optional(types.string()),
-  stateName: types.optional(types.string()),
-  sides: types.optional(z.array(z.lazy(() => Side$inboundSchema))),
+  ids: z.optional(z.array(z.string())),
+  category: z.optional(z.string()),
+  type: z.optional(z.string()),
+  subtype: z.optional(z.string()),
+  isDoubleSided: z.optional(z.boolean()),
+  hasNFC: z.optional(z.boolean()),
+  year: z.optional(z.string()),
+  countryCode: z.optional(z.string()),
+  countryName: z.optional(z.string()),
+  stateCode: z.optional(z.string()),
+  stateName: z.optional(z.string()),
+  sides: z.optional(z.array(z.lazy(() => Side$inboundSchema))),
 });
 
 export function classificationFromJSON(
@@ -111,17 +110,17 @@ export function classificationFromJSON(
 /** @internal */
 export const SlimDocument$inboundSchema: z.ZodMiniType<SlimDocument, unknown> =
   z.object({
-    type: types.optional(types.string()),
-    category: types.optional(types.string()),
-    subType: types.optional(types.string()),
-    format: types.optional(types.string()),
-    number: types.optional(types.string()),
-    issueDate: types.optional(types.string()),
-    expiryDate: types.optional(types.string()),
-    country: types.optional(types.string()),
-    classification: types.optional(z.lazy(() => Classification$inboundSchema)),
-    extraction: types.optional(SlimExtraction$inboundSchema),
-    validation: types.optional(SlimValidation$inboundSchema),
+    type: z.optional(z.string()),
+    category: z.optional(z.string()),
+    subType: z.optional(z.string()),
+    format: z.optional(z.string()),
+    number: z.optional(z.string()),
+    issueDate: z.optional(z.string()),
+    expiryDate: z.optional(z.string()),
+    country: z.optional(z.string()),
+    classification: z.optional(z.lazy(() => Classification$inboundSchema)),
+    extraction: z.optional(SlimExtraction$inboundSchema),
+    validation: z.optional(SlimValidation$inboundSchema),
   });
 
 export function slimDocumentFromJSON(

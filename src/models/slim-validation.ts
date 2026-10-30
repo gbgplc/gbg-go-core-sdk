@@ -5,7 +5,6 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export type ValidationCheckBoundingBox = {
@@ -66,10 +65,10 @@ export const ValidationCheckBoundingBox$inboundSchema: z.ZodMiniType<
   ValidationCheckBoundingBox,
   unknown
 > = z.object({
-  x: types.number(),
-  y: types.number(),
-  width: types.number(),
-  height: types.number(),
+  x: z.number(),
+  y: z.number(),
+  width: z.number(),
+  height: z.number(),
 });
 
 export function validationCheckBoundingBoxFromJSON(
@@ -87,12 +86,12 @@ export const ValidationCheckRegionOfInterest$inboundSchema: z.ZodMiniType<
   ValidationCheckRegionOfInterest,
   unknown
 > = z.object({
-  boundingBox: types.optional(
+  boundingBox: z.optional(
     z.lazy(() => ValidationCheckBoundingBox$inboundSchema),
   ),
-  side: types.string(),
-  spectrum: types.optional(types.string()),
-  imageId: types.optional(types.string()),
+  side: z.string(),
+  spectrum: z.optional(z.string()),
+  imageId: z.optional(z.string()),
 });
 
 export function validationCheckRegionOfInterestFromJSON(
@@ -110,14 +109,14 @@ export const ValidationCheck$inboundSchema: z.ZodMiniType<
   ValidationCheck,
   unknown
 > = z.object({
-  name: types.string(),
-  title: types.string(),
-  validationResult: types.string(),
-  weight: types.string(),
-  regionOfInterests: types.optional(
+  name: z.string(),
+  title: z.string(),
+  validationResult: z.string(),
+  weight: z.string(),
+  regionOfInterests: z.optional(
     z.array(z.lazy(() => ValidationCheckRegionOfInterest$inboundSchema)),
   ),
-  type: types.string(),
+  type: z.string(),
 });
 
 export function validationCheckFromJSON(
@@ -135,10 +134,10 @@ export const AggregatedValidationCheckBoundingBox$inboundSchema: z.ZodMiniType<
   AggregatedValidationCheckBoundingBox,
   unknown
 > = z.object({
-  x: types.number(),
-  y: types.number(),
-  width: types.number(),
-  height: types.number(),
+  x: z.number(),
+  y: z.number(),
+  width: z.number(),
+  height: z.number(),
 });
 
 export function aggregatedValidationCheckBoundingBoxFromJSON(
@@ -155,12 +154,12 @@ export function aggregatedValidationCheckBoundingBoxFromJSON(
 /** @internal */
 export const AggregatedValidationCheckRegionOfInterest$inboundSchema:
   z.ZodMiniType<AggregatedValidationCheckRegionOfInterest, unknown> = z.object({
-    boundingBox: types.optional(
+    boundingBox: z.optional(
       z.lazy(() => AggregatedValidationCheckBoundingBox$inboundSchema),
     ),
-    side: types.string(),
-    spectrum: types.optional(types.string()),
-    imageId: types.optional(types.string()),
+    side: z.string(),
+    spectrum: z.optional(z.string()),
+    imageId: z.optional(z.string()),
   });
 
 export function aggregatedValidationCheckRegionOfInterestFromJSON(
@@ -184,16 +183,16 @@ export const AggregatedValidationCheck$inboundSchema: z.ZodMiniType<
   AggregatedValidationCheck,
   unknown
 > = z.object({
-  name: types.string(),
-  title: types.string(),
-  validationResult: types.string(),
-  weight: types.string(),
-  regionOfInterests: types.optional(
+  name: z.string(),
+  title: z.string(),
+  validationResult: z.string(),
+  weight: z.string(),
+  regionOfInterests: z.optional(
     z.array(
       z.lazy(() => AggregatedValidationCheckRegionOfInterest$inboundSchema),
     ),
   ),
-  type: types.string(),
+  type: z.string(),
 });
 
 export function aggregatedValidationCheckFromJSON(
@@ -211,10 +210,10 @@ export const SlimValidation$inboundSchema: z.ZodMiniType<
   SlimValidation,
   unknown
 > = z.object({
-  validationChecks: types.optional(
+  validationChecks: z.optional(
     z.array(z.lazy(() => ValidationCheck$inboundSchema)),
   ),
-  aggregatedValidationChecks: types.optional(
+  aggregatedValidationChecks: z.optional(
     z.array(z.lazy(() => AggregatedValidationCheck$inboundSchema)),
   ),
 });

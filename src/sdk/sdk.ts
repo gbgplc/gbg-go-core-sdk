@@ -8,8 +8,8 @@ import { Devices } from "./devices.js";
 import { Instances } from "./instances.js";
 import { Interactions } from "./interactions.js";
 import { Journeys } from "./journeys.js";
-import { Sandbox } from "./sandbox.js";
 import { Tasks } from "./tasks.js";
+import { TestScenarios } from "./test-scenarios.js";
 import { Tokens } from "./tokens.js";
 
 export class Go extends ClientSDK {
@@ -43,9 +43,9 @@ export class Go extends ClientSDK {
     return (this._devices ??= new Devices(this._options));
   }
 
-  private _sandbox?: Sandbox;
-  get sandbox(): Sandbox {
-    return (this._sandbox ??= new Sandbox(this._options));
+  private _testScenarios?: TestScenarios;
+  get testScenarios(): TestScenarios {
+    return (this._testScenarios ??= new TestScenarios(this._options));
   }
 
   private _tokens?: Tokens;

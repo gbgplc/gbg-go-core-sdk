@@ -6,7 +6,6 @@ import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
 export const DeleteResponseStatus = {
@@ -30,9 +29,9 @@ export const DeleteResponse$inboundSchema: z.ZodMiniType<
   DeleteResponse,
   unknown
 > = z.object({
-  instanceId: types.string(),
+  instanceId: z.string(),
   status: DeleteResponseStatus$inboundSchema,
-  message: types.string(),
+  message: z.string(),
 });
 
 export function deleteResponseFromJSON(

@@ -7,10 +7,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.gbg.gocore.utils.LazySingletonValue;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import java.lang.Long;
+import java.lang.Boolean;
 import java.lang.Override;
 import java.lang.String;
 import java.util.Optional;
@@ -37,13 +39,23 @@ public class JourneyStartResponse {
 
 
     @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("waitedSeconds")
-    private Long waitedSeconds;
-
-
-    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("state")
     private StateFetchResponse state;
+
+    /**
+     * Present and `true` only when the journey was started as a test scenario.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("test")
+    private Boolean test;
+
+    /**
+     * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request
+     * body. Present only together with `test: true`.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("scenario")
+    private String scenario;
 
     @JsonCreator
     public JourneyStartResponse(
@@ -51,16 +63,17 @@ public class JourneyStartResponse {
             @JsonProperty("instanceUrl") @Nullable String instanceUrl,
             @JsonProperty("status") @Nonnull JourneyStartResponseStatus status,
             @JsonProperty("message") @Nullable String message,
-            @JsonProperty("waitedSeconds") @Nullable Long waitedSeconds,
-            @JsonProperty("state") @Nullable StateFetchResponse state) {
+            @JsonProperty("state") @Nullable StateFetchResponse state,
+            @JsonProperty("scenario") @Nullable String scenario) {
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
         this.instanceUrl = instanceUrl;
         this.status = Optional.ofNullable(status)
             .orElseThrow(() -> new IllegalArgumentException("status cannot be null"));
         this.message = message;
-        this.waitedSeconds = waitedSeconds;
         this.state = state;
+        this.test = Builder._SINGLETON_VALUE_Test.value();
+        this.scenario = scenario;
     }
     
     public JourneyStartResponse(
@@ -86,12 +99,23 @@ public class JourneyStartResponse {
         return Optional.ofNullable(this.message);
     }
 
-    public Optional<Long> waitedSeconds() {
-        return Optional.ofNullable(this.waitedSeconds);
-    }
-
     public Optional<StateFetchResponse> state() {
         return Optional.ofNullable(this.state);
+    }
+
+    /**
+     * Present and `true` only when the journey was started as a test scenario.
+     */
+    public Optional<Boolean> test() {
+        return Optional.ofNullable(this.test);
+    }
+
+    /**
+     * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request
+     * body. Present only together with `test: true`.
+     */
+    public Optional<String> scenario() {
+        return Optional.ofNullable(this.scenario);
     }
 
     public static Builder builder() {
@@ -123,14 +147,18 @@ public class JourneyStartResponse {
     }
 
 
-    public JourneyStartResponse withWaitedSeconds(@Nullable Long waitedSeconds) {
-        this.waitedSeconds = waitedSeconds;
+    public JourneyStartResponse withState(@Nullable StateFetchResponse state) {
+        this.state = state;
         return this;
     }
 
 
-    public JourneyStartResponse withState(@Nullable StateFetchResponse state) {
-        this.state = state;
+    /**
+     * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request
+     * body. Present only together with `test: true`.
+     */
+    public JourneyStartResponse withScenario(@Nullable String scenario) {
+        this.scenario = scenario;
         return this;
     }
 
@@ -149,15 +177,17 @@ public class JourneyStartResponse {
             Utils.enhancedDeepEquals(this.instanceUrl, other.instanceUrl) &&
             Utils.enhancedDeepEquals(this.status, other.status) &&
             Utils.enhancedDeepEquals(this.message, other.message) &&
-            Utils.enhancedDeepEquals(this.waitedSeconds, other.waitedSeconds) &&
-            Utils.enhancedDeepEquals(this.state, other.state);
+            Utils.enhancedDeepEquals(this.state, other.state) &&
+            Utils.enhancedDeepEquals(this.test, other.test) &&
+            Utils.enhancedDeepEquals(this.scenario, other.scenario);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             instanceId, instanceUrl, status,
-            message, waitedSeconds, state);
+            message, state, test,
+            scenario);
     }
     
     @Override
@@ -167,8 +197,9 @@ public class JourneyStartResponse {
                 "instanceUrl", instanceUrl,
                 "status", status,
                 "message", message,
-                "waitedSeconds", waitedSeconds,
-                "state", state);
+                "state", state,
+                "test", test,
+                "scenario", scenario);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -182,9 +213,9 @@ public class JourneyStartResponse {
 
         private String message;
 
-        private Long waitedSeconds;
-
         private StateFetchResponse state;
+
+        private String scenario;
 
         private Builder() {
           // force use of static builder() method
@@ -210,21 +241,31 @@ public class JourneyStartResponse {
             return this;
         }
 
-        public Builder waitedSeconds(@Nullable Long waitedSeconds) {
-            this.waitedSeconds = waitedSeconds;
+        public Builder state(@Nullable StateFetchResponse state) {
+            this.state = state;
             return this;
         }
 
-        public Builder state(@Nullable StateFetchResponse state) {
-            this.state = state;
+        /**
+         * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request
+         * body. Present only together with `test: true`.
+         */
+        public Builder scenario(@Nullable String scenario) {
+            this.scenario = scenario;
             return this;
         }
 
         public JourneyStartResponse build() {
             return new JourneyStartResponse(
                 instanceId, instanceUrl, status,
-                message, waitedSeconds, state);
+                message, state, scenario);
         }
 
+
+        private static final LazySingletonValue<Boolean> _SINGLETON_VALUE_Test =
+                new LazySingletonValue<>(
+                        "test",
+                        "true",
+                        new TypeReference<Boolean>() {});
     }
 }

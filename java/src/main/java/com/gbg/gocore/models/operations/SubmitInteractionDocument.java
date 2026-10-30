@@ -541,6 +541,14 @@ public class SubmitInteractionDocument {
     @JsonProperty("dateOfEvent")
     private String dateOfEvent;
 
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("acquisitionDate")
+    private String acquisitionDate;
+
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("previousFirstName")
@@ -684,6 +692,7 @@ public class SubmitInteractionDocument {
             @JsonProperty("registrationYear") @Nullable String registrationYear,
             @JsonProperty("partyRole") @Nullable String partyRole,
             @JsonProperty("dateOfEvent") @Nullable String dateOfEvent,
+            @JsonProperty("acquisitionDate") @Nullable String acquisitionDate,
             @JsonProperty("previousFirstName") @Nullable String previousFirstName,
             @JsonProperty("previousMiddleName") @Nullable String previousMiddleName,
             @JsonProperty("previousSurname") @Nullable String previousSurname,
@@ -794,6 +803,7 @@ public class SubmitInteractionDocument {
         this.registrationYear = registrationYear;
         this.partyRole = partyRole;
         this.dateOfEvent = dateOfEvent;
+        this.acquisitionDate = acquisitionDate;
         this.previousFirstName = previousFirstName;
         this.previousMiddleName = previousMiddleName;
         this.previousSurname = previousSurname;
@@ -842,7 +852,7 @@ public class SubmitInteractionDocument {
             null, null, null,
             null, null, null,
             null, null, null,
-            null);
+            null, null);
     }
 
     public Optional<String> oneDBarcode() {
@@ -1275,6 +1285,14 @@ public class SubmitInteractionDocument {
      */
     public Optional<String> dateOfEvent() {
         return Optional.ofNullable(this.dateOfEvent);
+    }
+
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    public Optional<String> acquisitionDate() {
+        return Optional.ofNullable(this.acquisitionDate);
     }
 
     public Optional<String> previousFirstName() {
@@ -1948,6 +1966,16 @@ public class SubmitInteractionDocument {
     }
 
 
+    /**
+     * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+     * to ISO 8601
+     */
+    public SubmitInteractionDocument withAcquisitionDate(@Nullable String acquisitionDate) {
+        this.acquisitionDate = acquisitionDate;
+        return this;
+    }
+
+
     public SubmitInteractionDocument withPreviousFirstName(@Nullable String previousFirstName) {
         this.previousFirstName = previousFirstName;
         return this;
@@ -2107,6 +2135,7 @@ public class SubmitInteractionDocument {
             Utils.enhancedDeepEquals(this.registrationYear, other.registrationYear) &&
             Utils.enhancedDeepEquals(this.partyRole, other.partyRole) &&
             Utils.enhancedDeepEquals(this.dateOfEvent, other.dateOfEvent) &&
+            Utils.enhancedDeepEquals(this.acquisitionDate, other.acquisitionDate) &&
             Utils.enhancedDeepEquals(this.previousFirstName, other.previousFirstName) &&
             Utils.enhancedDeepEquals(this.previousMiddleName, other.previousMiddleName) &&
             Utils.enhancedDeepEquals(this.previousSurname, other.previousSurname) &&
@@ -2153,10 +2182,10 @@ public class SubmitInteractionDocument {
             expiryMonth, cardColour, cardStatus,
             subject, country, certificateFormat,
             registrationNumber, registrationDate, registrationYear,
-            partyRole, dateOfEvent, previousFirstName,
-            previousMiddleName, previousSurname, individualReferenceNumber,
-            nameLine1, nameLine2, nameLine3,
-            nameLine4);
+            partyRole, dateOfEvent, acquisitionDate,
+            previousFirstName, previousMiddleName, previousSurname,
+            individualReferenceNumber, nameLine1, nameLine2,
+            nameLine3, nameLine4);
     }
     
     @Override
@@ -2263,6 +2292,7 @@ public class SubmitInteractionDocument {
                 "registrationYear", registrationYear,
                 "partyRole", partyRole,
                 "dateOfEvent", dateOfEvent,
+                "acquisitionDate", acquisitionDate,
                 "previousFirstName", previousFirstName,
                 "previousMiddleName", previousMiddleName,
                 "previousSurname", previousSurname,
@@ -2477,6 +2507,8 @@ public class SubmitInteractionDocument {
         private String partyRole;
 
         private String dateOfEvent;
+
+        private String acquisitionDate;
 
         private String previousFirstName;
 
@@ -3031,6 +3063,15 @@ public class SubmitInteractionDocument {
             return this;
         }
 
+        /**
+         * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
+         * to ISO 8601
+         */
+        public Builder acquisitionDate(@Nullable String acquisitionDate) {
+            this.acquisitionDate = acquisitionDate;
+            return this;
+        }
+
         public Builder previousFirstName(@Nullable String previousFirstName) {
             this.previousFirstName = previousFirstName;
             return this;
@@ -3106,10 +3147,10 @@ public class SubmitInteractionDocument {
                 expiryMonth, cardColour, cardStatus,
                 subject, country, certificateFormat,
                 registrationNumber, registrationDate, registrationYear,
-                partyRole, dateOfEvent, previousFirstName,
-                previousMiddleName, previousSurname, individualReferenceNumber,
-                nameLine1, nameLine2, nameLine3,
-                nameLine4);
+                partyRole, dateOfEvent, acquisitionDate,
+                previousFirstName, previousMiddleName, previousSurname,
+                individualReferenceNumber, nameLine1, nameLine2,
+                nameLine3, nameLine4);
         }
 
     }

@@ -25,7 +25,7 @@ public class StartJourneyContext {
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("subject")
-    private StartJourneySubject subject;
+    private StartJourneyContextSubject subject;
 
 
     @JsonProperty("config")
@@ -37,7 +37,7 @@ public class StartJourneyContext {
 
     @JsonCreator
     public StartJourneyContext(
-            @JsonProperty("subject") @Nullable StartJourneySubject subject,
+            @JsonProperty("subject") @Nullable StartJourneyContextSubject subject,
             @JsonProperty("config") @Nonnull Config config) {
         this.subject = subject;
         this.config = Optional.ofNullable(config)
@@ -50,7 +50,7 @@ public class StartJourneyContext {
         this(null, config);
     }
 
-    public Optional<StartJourneySubject> subject() {
+    public Optional<StartJourneyContextSubject> subject() {
         return Optional.ofNullable(this.subject);
     }
 
@@ -68,7 +68,7 @@ public class StartJourneyContext {
     }
 
 
-    public StartJourneyContext withSubject(@Nullable StartJourneySubject subject) {
+    public StartJourneyContext withSubject(@Nullable StartJourneyContextSubject subject) {
         this.subject = subject;
         return this;
     }
@@ -126,7 +126,7 @@ public class StartJourneyContext {
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
-        private StartJourneySubject subject;
+        private StartJourneyContextSubject subject;
 
         private Config config;
 
@@ -136,7 +136,7 @@ public class StartJourneyContext {
           // force use of static builder() method
         }
 
-        public Builder subject(@Nullable StartJourneySubject subject) {
+        public Builder subject(@Nullable StartJourneyContextSubject subject) {
             this.subject = subject;
             return this;
         }

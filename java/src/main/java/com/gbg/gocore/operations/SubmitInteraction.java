@@ -94,7 +94,7 @@ public class SubmitInteraction {
         <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/v2/captain/journey/interaction/submit");
+                    "/journey/interaction/submit");
             HTTPRequest req = new HTTPRequest(url, "POST");
             Object convertedRequest = Utils.convertToShape(
                     request,
@@ -182,14 +182,14 @@ public class SubmitInteraction {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "409", "429")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "409", "429")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     throw ErrorResponse.from(response);
                 } else {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "500", "503")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     throw ErrorResponse.from(response);
                 } else {
@@ -271,7 +271,7 @@ public class SubmitInteraction {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "409", "429")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "409", "429")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     return ErrorResponse.fromAsync(response)
                             .thenCompose(CompletableFuture::failedFuture);
@@ -279,7 +279,7 @@ public class SubmitInteraction {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "500", "503")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     return ErrorResponse.fromAsync(response)
                             .thenCompose(CompletableFuture::failedFuture);

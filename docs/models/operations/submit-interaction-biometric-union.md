@@ -54,3 +54,12 @@ const value: operations.SubmitInteractionBiometricStoredFace = {
 };
 ```
 
+### `operations.SubmitInteractionBiometricOrphanedStoredFace`
+
+```typescript
+const value: operations.SubmitInteractionBiometricOrphanedStoredFace = {
+  type: "orphanedStoredFace",
+  templateReference: "<value>",
+};
+```
+

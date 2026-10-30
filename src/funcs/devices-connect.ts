@@ -37,7 +37,7 @@ import { Result } from "../types/fp.js";
 export function devicesConnect(
   client: GoCore,
   security: operations.DeviceConnectSecurity,
-  request: operations.DeviceConnectRequest,
+  request?: models.DeviceConnectRequest | undefined,
   options?: RequestOptions,
 ): APIPromise<
   Result<
@@ -64,7 +64,7 @@ export function devicesConnect(
 async function $do(
   client: GoCore,
   security: operations.DeviceConnectSecurity,
-  request: operations.DeviceConnectRequest,
+  request?: models.DeviceConnectRequest | undefined,
   options?: RequestOptions,
 ): Promise<
   [
@@ -85,16 +85,19 @@ async function $do(
 > {
   const parsed = safeParse(
     request,
-    (value) => z.parse(operations.DeviceConnectRequest$outboundSchema, value),
+    (value) =>
+      z.parse(z.optional(models.DeviceConnectRequest$outboundSchema), value),
     "Input validation failed",
   );
   if (!parsed.ok) {
     return [parsed, { status: "invalid" }];
   }
   const payload = parsed.value;
-  const body = encodeJSON("body", payload, { explode: true });
+  const body = payload === undefined
+    ? null
+    : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/v2/captain/journey/device/connect")();
+  const path = pathToFunc("/journey/device/connect")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",

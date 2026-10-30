@@ -58,6 +58,11 @@ public class SubmitInteractionSubject {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("documentTypeSelection")
+    private SubmitInteractionDocumentTypeSelection documentTypeSelection;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("uid")
     private String uid;
 
@@ -71,6 +76,7 @@ public class SubmitInteractionSubject {
             @JsonProperty("consent") @Nullable List<SubmitInteractionConsent> consent,
             @JsonProperty("accounts") @Nullable List<SubmitInteractionAccount> accounts,
             @JsonProperty("kba") @Nullable SubmitInteractionKba kba,
+            @JsonProperty("documentTypeSelection") @Nullable SubmitInteractionDocumentTypeSelection documentTypeSelection,
             @JsonProperty("uid") @Nullable String uid) {
         this.identity = identity;
         this.entities = entities;
@@ -80,13 +86,15 @@ public class SubmitInteractionSubject {
         this.consent = consent;
         this.accounts = accounts;
         this.kba = kba;
+        this.documentTypeSelection = documentTypeSelection;
         this.uid = uid;
     }
     
     public SubmitInteractionSubject() {
         this(null, null, null,
             null, null, null,
-            null, null, null);
+            null, null, null,
+            null);
     }
 
     public Optional<SubmitInteractionIdentity> identity() {
@@ -119,6 +127,10 @@ public class SubmitInteractionSubject {
 
     public Optional<SubmitInteractionKba> kba() {
         return Optional.ofNullable(this.kba);
+    }
+
+    public Optional<SubmitInteractionDocumentTypeSelection> documentTypeSelection() {
+        return Optional.ofNullable(this.documentTypeSelection);
     }
 
     public Optional<String> uid() {
@@ -178,6 +190,12 @@ public class SubmitInteractionSubject {
     }
 
 
+    public SubmitInteractionSubject withDocumentTypeSelection(@Nullable SubmitInteractionDocumentTypeSelection documentTypeSelection) {
+        this.documentTypeSelection = documentTypeSelection;
+        return this;
+    }
+
+
     public SubmitInteractionSubject withUid(@Nullable String uid) {
         this.uid = uid;
         return this;
@@ -202,6 +220,7 @@ public class SubmitInteractionSubject {
             Utils.enhancedDeepEquals(this.consent, other.consent) &&
             Utils.enhancedDeepEquals(this.accounts, other.accounts) &&
             Utils.enhancedDeepEquals(this.kba, other.kba) &&
+            Utils.enhancedDeepEquals(this.documentTypeSelection, other.documentTypeSelection) &&
             Utils.enhancedDeepEquals(this.uid, other.uid);
     }
     
@@ -210,7 +229,8 @@ public class SubmitInteractionSubject {
         return Utils.enhancedHash(
             identity, entities, documents,
             biometrics, sessions, consent,
-            accounts, kba, uid);
+            accounts, kba, documentTypeSelection,
+            uid);
     }
     
     @Override
@@ -224,6 +244,7 @@ public class SubmitInteractionSubject {
                 "consent", consent,
                 "accounts", accounts,
                 "kba", kba,
+                "documentTypeSelection", documentTypeSelection,
                 "uid", uid);
     }
 
@@ -245,6 +266,8 @@ public class SubmitInteractionSubject {
         private List<SubmitInteractionAccount> accounts;
 
         private SubmitInteractionKba kba;
+
+        private SubmitInteractionDocumentTypeSelection documentTypeSelection;
 
         private String uid;
 
@@ -292,6 +315,11 @@ public class SubmitInteractionSubject {
             return this;
         }
 
+        public Builder documentTypeSelection(@Nullable SubmitInteractionDocumentTypeSelection documentTypeSelection) {
+            this.documentTypeSelection = documentTypeSelection;
+            return this;
+        }
+
         public Builder uid(@Nullable String uid) {
             this.uid = uid;
             return this;
@@ -301,7 +329,8 @@ public class SubmitInteractionSubject {
             return new SubmitInteractionSubject(
                 identity, entities, documents,
                 biometrics, sessions, consent,
-                accounts, kba, uid);
+                accounts, kba, documentTypeSelection,
+                uid);
         }
 
     }

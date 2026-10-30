@@ -88,7 +88,7 @@ public class DeleteInstance {
         <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/v2/captain/journey/state/delete");
+                    "/journey/state/delete");
             HTTPRequest req = new HTTPRequest(url, "POST");
             Object convertedRequest = Utils.convertToShape(
                     request,
@@ -172,14 +172,14 @@ public class DeleteInstance {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "404")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     throw ErrorResponse.from(response);
                 } else {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "500", "503")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     throw ErrorResponse.from(response);
                 } else {
@@ -257,7 +257,7 @@ public class DeleteInstance {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "404")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     return ErrorResponse.fromAsync(response)
                             .thenCompose(CompletableFuture::failedFuture);
@@ -265,7 +265,7 @@ public class DeleteInstance {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "500")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "500", "503")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     return ErrorResponse.fromAsync(response)
                             .thenCompose(CompletableFuture::failedFuture);

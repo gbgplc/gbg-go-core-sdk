@@ -13,7 +13,7 @@ Server-side proxy for the Loqate Capture Find endpoint. Returns address suggesti
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="searchAddresses" method="post" path="/v2/captain/journey/loqate/search" -->
+<!-- UsageSnippet language="java" operationID="searchAddresses" method="post" path="/journey/loqate/search" -->
 ```java
 package hello.world;
 
@@ -58,7 +58,7 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404               | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404          | application/json            |
 | models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |
 
@@ -68,7 +68,7 @@ Server-side proxy for the Loqate Capture Retrieve endpoint. Returns the full add
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="retrieveAddress" method="post" path="/v2/captain/journey/loqate/retrieve" -->
+<!-- UsageSnippet language="java" operationID="retrieveAddress" method="post" path="/journey/loqate/retrieve" -->
 ```java
 package hello.world;
 
@@ -113,6 +113,6 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404               | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404          | application/json            |
 | models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |

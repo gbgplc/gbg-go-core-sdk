@@ -100,7 +100,7 @@ async function $do(
     ? null
     : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/v2/captain/journey/task/schema")();
+  const path = pathToFunc("/journey/task/schema")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -170,7 +170,7 @@ async function $do(
     | SDKValidationError
   >(
     M.json(200, z.record(z.string(), z.any())),
-    M.jsonErr([400, 401, 404], errors.ErrorResponse$inboundSchema),
+    M.jsonErr([400, 401, 403, 404], errors.ErrorResponse$inboundSchema),
     M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
     M.fail("4XX"),
     M.fail("5XX"),

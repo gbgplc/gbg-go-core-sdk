@@ -90,7 +90,7 @@ public class UploadInteractionAsset {
         HttpRequest buildRequest() throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/v2/captain/journey/interaction/asset/upload");
+                    "/journey/interaction/asset/upload");
             HTTPRequest req = new HTTPRequest(url, "POST");
             req.addHeader("Accept", "application/json")
                     .addHeader("user-agent", SDKConfiguration.USER_AGENT);
@@ -168,7 +168,7 @@ public class UploadInteractionAsset {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "409", "422", "429")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "409", "422", "429")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     throw ErrorResponse.from(response);
                 } else {
@@ -257,7 +257,7 @@ public class UploadInteractionAsset {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "409", "422", "429")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "403", "404", "409", "422", "429")) {
                 if (Utils.contentTypeMatches(contentType, "application/json")) {
                     return ErrorResponse.fromAsync(response)
                             .thenCompose(CompletableFuture::failedFuture);

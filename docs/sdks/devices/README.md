@@ -15,7 +15,7 @@ Generates a one-time connect token for device onboarding.
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="addDevice" method="post" path="/v2/captain/journey/device/start" example="Default" -->
+<!-- UsageSnippet language="typescript" operationID="addDevice" method="post" path="/journey/device/start" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -86,7 +86,7 @@ Completes the device-onboarding handshake. See partner integration guide.
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="deviceConnect" method="post" path="/v2/captain/journey/device/connect" example="Default" -->
+<!-- UsageSnippet language="typescript" operationID="deviceConnect" method="post" path="/journey/device/connect" example="Default" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -95,11 +95,6 @@ const go = new Go();
 async function run() {
   const result = await go.devices.connect({
     deviceConnect: process.env["GO_DEVICE_CONNECT"] ?? "",
-  }, {
-    connectToken: "<value>",
-    deviceInfo: {
-      deviceId: "<id>",
-    },
   });
 
   console.log(result);
@@ -123,11 +118,6 @@ const go = new GoCore();
 async function run() {
   const res = await devicesConnect(go, {
     deviceConnect: process.env["GO_DEVICE_CONNECT"] ?? "",
-  }, {
-    connectToken: "<value>",
-    deviceInfo: {
-      deviceId: "<id>",
-    },
   });
   if (res.ok) {
     const { value: result } = res;
@@ -144,7 +134,7 @@ run();
 
 | Parameter                                                                                                                                                                      | Type                                                                                                                                                                           | Required                                                                                                                                                                       | Description                                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `request`                                                                                                                                                                      | [operations.DeviceConnectRequest](../../models/operations/device-connect-request.md)                                                                                           | :heavy_check_mark:                                                                                                                                                             | The request object to use for the request.                                                                                                                                     |
+| `request`                                                                                                                                                                      | [models.DeviceConnectRequest](../../models/device-connect-request.md)                                                                                                          | :heavy_check_mark:                                                                                                                                                             | The request object to use for the request.                                                                                                                                     |
 | `security`                                                                                                                                                                     | [operations.DeviceConnectSecurity](../../models/operations/device-connect-security.md)                                                                                         | :heavy_check_mark:                                                                                                                                                             | The security requirements to use for the request.                                                                                                                              |
 | `options`                                                                                                                                                                      | RequestOptions                                                                                                                                                                 | :heavy_minus_sign:                                                                                                                                                             | Used to set various options for making HTTP requests.                                                                                                                          |
 | `options.fetchOptions`                                                                                                                                                         | [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request#options)                                                                                        | :heavy_minus_sign:                                                                                                                                                             | Options that are passed to the underlying HTTP request. This can be used to inject extra headers for examples. All `Request` options, except `method` and `body`, are allowed. |
@@ -168,7 +158,7 @@ Renews a device session. See partner integration guide.
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="deviceRefresh" method="post" path="/v2/captain/journey/device/refresh" -->
+<!-- UsageSnippet language="typescript" operationID="deviceRefresh" method="post" path="/journey/device/refresh" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -234,7 +224,7 @@ Validates an end-user JWT and returns session information.
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="deviceValidate" method="post" path="/v2/captain/journey/device/validate" -->
+<!-- UsageSnippet language="typescript" operationID="deviceValidate" method="post" path="/journey/device/validate" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 

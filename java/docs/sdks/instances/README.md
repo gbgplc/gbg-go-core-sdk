@@ -13,7 +13,7 @@ Mints a fresh page-mode delivery-token + connect-secret pair pointing at the sam
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="createHandoffToken" method="post" path="/v2/captain/journey/instance/{instanceId}/handoff-token" -->
+<!-- UsageSnippet language="java" operationID="createHandoffToken" method="post" path="/journey/instance/{instanceId}/handoff-token" -->
 ```java
 package hello.world;
 
@@ -69,7 +69,7 @@ Permanently deletes a completed journey instance (REQ-02-002).
 
 ### Example Usage
 
-<!-- UsageSnippet language="java" operationID="deleteInstance" method="post" path="/v2/captain/journey/state/delete" -->
+<!-- UsageSnippet language="java" operationID="deleteInstance" method="post" path="/journey/state/delete" -->
 ```java
 package hello.world;
 
@@ -110,6 +110,6 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 404               | application/json            |
-| models/errors/ErrorResponse | 500                         | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404          | application/json            |
+| models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |

@@ -13,7 +13,7 @@ Server-side proxy for the Loqate Capture Find endpoint. Returns address suggesti
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="searchAddresses" method="post" path="/v2/captain/journey/loqate/search" -->
+<!-- UsageSnippet language="typescript" operationID="searchAddresses" method="post" path="/journey/loqate/search" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -75,7 +75,7 @@ run();
 
 | Error Type            | Status Code           | Content Type          |
 | --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404         | application/json      |
+| errors.ErrorResponse  | 400, 401, 403, 404    | application/json      |
 | errors.ErrorResponse  | 500, 503              | application/json      |
 | errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |
 
@@ -85,7 +85,7 @@ Server-side proxy for the Loqate Capture Retrieve endpoint. Returns the full add
 
 ### Example Usage
 
-<!-- UsageSnippet language="typescript" operationID="retrieveAddress" method="post" path="/v2/captain/journey/loqate/retrieve" -->
+<!-- UsageSnippet language="typescript" operationID="retrieveAddress" method="post" path="/journey/loqate/retrieve" -->
 ```typescript
 import { Go } from "@gbg/go-core";
 
@@ -147,6 +147,6 @@ run();
 
 | Error Type            | Status Code           | Content Type          |
 | --------------------- | --------------------- | --------------------- |
-| errors.ErrorResponse  | 400, 401, 404         | application/json      |
+| errors.ErrorResponse  | 400, 401, 403, 404    | application/json      |
 | errors.ErrorResponse  | 500, 503              | application/json      |
 | errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |

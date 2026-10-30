@@ -5,10 +5,13 @@
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
-import { OpenEnum } from "../types/enums.js";
+import { ClosedEnum, OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
+import {
+  SlimModuleStepError,
+  SlimModuleStepError$inboundSchema,
+} from "./slim-module-step-error.js";
 
 export const SlimStepOutcomeClassification = {
   Positive: "positive",
@@ -19,11 +22,27 @@ export type SlimStepOutcomeClassification = OpenEnum<
   typeof SlimStepOutcomeClassification
 >;
 
+/**
+ * Present only when this module step failed. The journey may still have continued past it.
+ */
+export const SlimStepStatus = {
+  Error: "error",
+} as const;
+/**
+ * Present only when this module step failed. The journey may still have continued past it.
+ */
+export type SlimStepStatus = ClosedEnum<typeof SlimStepStatus>;
+
 export type SlimStep = {
   nodeId: string;
   name?: string | undefined;
   outcome?: string | undefined;
   outcomeClassification?: SlimStepOutcomeClassification | null | undefined;
+  /**
+   * Present only when this module step failed. The journey may still have continued past it.
+   */
+  status?: SlimStepStatus | undefined;
+  error?: SlimModuleStepError | undefined;
 };
 
 /** @internal */
@@ -33,14 +52,21 @@ export const SlimStepOutcomeClassification$inboundSchema: z.ZodMiniType<
 > = openEnums.inboundSchema(SlimStepOutcomeClassification);
 
 /** @internal */
+export const SlimStepStatus$inboundSchema: z.ZodMiniEnum<
+  typeof SlimStepStatus
+> = z.enum(SlimStepStatus);
+
+/** @internal */
 export const SlimStep$inboundSchema: z.ZodMiniType<SlimStep, unknown> = z
   .object({
-    nodeId: types.string(),
-    name: types.optional(types.string()),
-    outcome: types.optional(types.string()),
+    nodeId: z.string(),
+    name: z.optional(z.string()),
+    outcome: z.optional(z.string()),
     outcomeClassification: z.optional(
       z.nullable(SlimStepOutcomeClassification$inboundSchema),
     ),
+    status: z.optional(SlimStepStatus$inboundSchema),
+    error: z.optional(SlimModuleStepError$inboundSchema),
   });
 
 export function slimStepFromJSON(

@@ -23,7 +23,7 @@ public class AsyncGo {
 
     private final AsyncDevices devices;
 
-    private final AsyncSandbox sandbox;
+    private final AsyncTestScenarios testScenarios;
 
     private final AsyncTokens tokens;
 
@@ -51,8 +51,8 @@ public class AsyncGo {
         return devices;
     }
 
-    public AsyncSandbox sandbox() {
-        return sandbox;
+    public AsyncTestScenarios testScenarios() {
+        return testScenarios;
     }
 
     public AsyncTokens tokens() {
@@ -71,7 +71,7 @@ public class AsyncGo {
         this.addresses = new AsyncAddresses(syncSDK.addresses(), sdkConfiguration);
         this.tasks = new AsyncTasks(syncSDK.tasks(), sdkConfiguration);
         this.devices = new AsyncDevices(syncSDK.devices(), sdkConfiguration);
-        this.sandbox = new AsyncSandbox(syncSDK.sandbox(), sdkConfiguration);
+        this.testScenarios = new AsyncTestScenarios(syncSDK.testScenarios(), sdkConfiguration);
         this.tokens = new AsyncTokens(syncSDK.tokens(), sdkConfiguration);
     }
 

@@ -23,40 +23,52 @@ public class SubmitInteractionBiometricStoredFace {
 
 
     @JsonProperty("type")
-    private SubmitInteractionBiometricType type;
+    private SubmitInteractionTypeStoredFace type;
 
 
     @JsonProperty("templateReference")
     private String templateReference;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("collectionReference")
+    private String collectionReference;
+
     @JsonCreator
     public SubmitInteractionBiometricStoredFace(
             @JsonProperty("id") @Nullable String id,
-            @JsonProperty("type") @Nonnull SubmitInteractionBiometricType type,
-            @JsonProperty("templateReference") @Nonnull String templateReference) {
+            @JsonProperty("type") @Nonnull SubmitInteractionTypeStoredFace type,
+            @JsonProperty("templateReference") @Nonnull String templateReference,
+            @JsonProperty("collectionReference") @Nullable String collectionReference) {
         this.id = id;
         this.type = Optional.ofNullable(type)
             .orElseThrow(() -> new IllegalArgumentException("type cannot be null"));
         this.templateReference = Optional.ofNullable(templateReference)
             .orElseThrow(() -> new IllegalArgumentException("templateReference cannot be null"));
+        this.collectionReference = collectionReference;
     }
     
     public SubmitInteractionBiometricStoredFace(
-            @Nonnull SubmitInteractionBiometricType type,
+            @Nonnull SubmitInteractionTypeStoredFace type,
             @Nonnull String templateReference) {
-        this(null, type, templateReference);
+        this(null, type, templateReference,
+            null);
     }
 
     public Optional<String> id() {
         return Optional.ofNullable(this.id);
     }
 
-    public SubmitInteractionBiometricType type() {
+    public SubmitInteractionTypeStoredFace type() {
         return this.type;
     }
 
     public String templateReference() {
         return this.templateReference;
+    }
+
+    public Optional<String> collectionReference() {
+        return Optional.ofNullable(this.collectionReference);
     }
 
     public static Builder builder() {
@@ -70,7 +82,7 @@ public class SubmitInteractionBiometricStoredFace {
     }
 
 
-    public SubmitInteractionBiometricStoredFace withType(@Nonnull SubmitInteractionBiometricType type) {
+    public SubmitInteractionBiometricStoredFace withType(@Nonnull SubmitInteractionTypeStoredFace type) {
         this.type = Utils.checkNotNull(type, "type");
         return this;
     }
@@ -78,6 +90,12 @@ public class SubmitInteractionBiometricStoredFace {
 
     public SubmitInteractionBiometricStoredFace withTemplateReference(@Nonnull String templateReference) {
         this.templateReference = Utils.checkNotNull(templateReference, "templateReference");
+        return this;
+    }
+
+
+    public SubmitInteractionBiometricStoredFace withCollectionReference(@Nullable String collectionReference) {
+        this.collectionReference = collectionReference;
         return this;
     }
 
@@ -94,13 +112,15 @@ public class SubmitInteractionBiometricStoredFace {
         return 
             Utils.enhancedDeepEquals(this.id, other.id) &&
             Utils.enhancedDeepEquals(this.type, other.type) &&
-            Utils.enhancedDeepEquals(this.templateReference, other.templateReference);
+            Utils.enhancedDeepEquals(this.templateReference, other.templateReference) &&
+            Utils.enhancedDeepEquals(this.collectionReference, other.collectionReference);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            id, type, templateReference);
+            id, type, templateReference,
+            collectionReference);
     }
     
     @Override
@@ -108,7 +128,8 @@ public class SubmitInteractionBiometricStoredFace {
         return Utils.toString(SubmitInteractionBiometricStoredFace.class,
                 "id", id,
                 "type", type,
-                "templateReference", templateReference);
+                "templateReference", templateReference,
+                "collectionReference", collectionReference);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -116,9 +137,11 @@ public class SubmitInteractionBiometricStoredFace {
 
         private String id;
 
-        private SubmitInteractionBiometricType type;
+        private SubmitInteractionTypeStoredFace type;
 
         private String templateReference;
+
+        private String collectionReference;
 
         private Builder() {
           // force use of static builder() method
@@ -129,7 +152,7 @@ public class SubmitInteractionBiometricStoredFace {
             return this;
         }
 
-        public Builder type(@Nonnull SubmitInteractionBiometricType type) {
+        public Builder type(@Nonnull SubmitInteractionTypeStoredFace type) {
             this.type = Utils.checkNotNull(type, "type");
             return this;
         }
@@ -139,9 +162,15 @@ public class SubmitInteractionBiometricStoredFace {
             return this;
         }
 
+        public Builder collectionReference(@Nullable String collectionReference) {
+            this.collectionReference = collectionReference;
+            return this;
+        }
+
         public SubmitInteractionBiometricStoredFace build() {
             return new SubmitInteractionBiometricStoredFace(
-                id, type, templateReference);
+                id, type, templateReference,
+                collectionReference);
         }
 
     }

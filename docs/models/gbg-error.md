@@ -15,10 +15,10 @@ let value: GbgError = {
 
 ## Fields
 
-| Field                                             | Type                                              | Required                                          | Description                                       |
-| ------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------- |
-| `code`                                            | *string*                                          | :heavy_check_mark:                                | N/A                                               |
-| `name`                                            | *string*                                          | :heavy_check_mark:                                | N/A                                               |
-| `problem`                                         | *string*                                          | :heavy_check_mark:                                | N/A                                               |
-| `action`                                          | *string*                                          | :heavy_check_mark:                                | N/A                                               |
-| `location`                                        | [models.LocationEnum](../models/location-enum.md) | :heavy_minus_sign:                                | N/A                                               |
+| Field                                                      | Type                                                       | Required                                                   | Description                                                |
+| ---------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------- |
+| `code`                                                     | *string*                                                   | :heavy_check_mark:                                         | N/A                                                        |
+| `name`                                                     | *string*                                                   | :heavy_check_mark:                                         | N/A                                                        |
+| `problem`                                                  | *string*                                                   | :heavy_check_mark:                                         | N/A                                                        |
+| `action`                                                   | *string*                                                   | :heavy_check_mark:                                         | N/A                                                        |
+| `location`                                                 | [models.GbgErrorLocation](../models/gbg-error-location.md) | :heavy_minus_sign:                                         | N/A                                                        |

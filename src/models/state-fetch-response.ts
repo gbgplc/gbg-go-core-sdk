@@ -4,11 +4,17 @@
 
 import * as z from "zod/v4-mini";
 import { safeParse } from "../lib/schemas.js";
+import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
-import * as types from "../types/primitives.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
+export const ViewEnum = {
+  Full: "full",
+} as const;
+export type ViewEnum = ClosedEnum<typeof ViewEnum>;
+
 export type StateFetchResponse = {
+  view: ViewEnum;
   instanceId: string;
   status: string;
   context?: { [k: string]: any } | undefined;
@@ -16,14 +22,20 @@ export type StateFetchResponse = {
 };
 
 /** @internal */
+export const ViewEnum$inboundSchema: z.ZodMiniEnum<typeof ViewEnum> = z.enum(
+  ViewEnum,
+);
+
+/** @internal */
 export const StateFetchResponse$inboundSchema: z.ZodMiniType<
   StateFetchResponse,
   unknown
 > = z.object({
-  instanceId: types.string(),
-  status: types.string(),
-  context: types.optional(z.record(z.string(), z.any())),
-  result: types.optional(z.record(z.string(), z.any())),
+  view: ViewEnum$inboundSchema,
+  instanceId: z.string(),
+  status: z.string(),
+  context: z.optional(z.record(z.string(), z.any())),
+  result: z.optional(z.record(z.string(), z.any())),
 });
 
 export function stateFetchResponseFromJSON(

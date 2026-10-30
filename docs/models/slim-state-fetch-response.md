@@ -6,6 +6,7 @@
 import { SlimStateFetchResponse } from "@gbg/go-core/models";
 
 let value: SlimStateFetchResponse = {
+  view: "slim",
   instanceId: "<id>",
   status: "Error",
 };
@@ -15,6 +16,7 @@ let value: SlimStateFetchResponse = {
 
 | Field                                                                                | Type                                                                                 | Required                                                                             | Description                                                                          |
 | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `view`                                                                               | *"slim"*                                                                             | :heavy_check_mark:                                                                   | N/A                                                                                  |
 | `instanceId`                                                                         | *string*                                                                             | :heavy_check_mark:                                                                   | N/A                                                                                  |
 | `status`                                                                             | [models.SlimStateFetchResponseStatus](../models/slim-state-fetch-response-status.md) | :heavy_check_mark:                                                                   | N/A                                                                                  |
 | `journey`                                                                            | [models.SlimJourney](../models/slim-journey.md)                                      | :heavy_minus_sign:                                                                   | N/A                                                                                  |

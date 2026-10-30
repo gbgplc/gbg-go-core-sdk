@@ -48,6 +48,16 @@ public class DeviceConnectResponse {
     @JsonProperty("credentialExpiresIn")
     private Double credentialExpiresIn;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("resumeMode")
+    private String resumeMode;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("linkExpiresAt")
+    private String linkExpiresAt;
+
     @JsonCreator
     public DeviceConnectResponse(
             @JsonProperty("endUserToken") @Nonnull String endUserToken,
@@ -56,7 +66,9 @@ public class DeviceConnectResponse {
             @JsonProperty("instanceId") @Nonnull String instanceId,
             @JsonProperty("resumeCredential") @Nullable String resumeCredential,
             @JsonProperty("credentialExpiresAt") @Nullable String credentialExpiresAt,
-            @JsonProperty("credentialExpiresIn") @Nullable Double credentialExpiresIn) {
+            @JsonProperty("credentialExpiresIn") @Nullable Double credentialExpiresIn,
+            @JsonProperty("resumeMode") @Nullable String resumeMode,
+            @JsonProperty("linkExpiresAt") @Nullable String linkExpiresAt) {
         this.endUserToken = Optional.ofNullable(endUserToken)
             .orElseThrow(() -> new IllegalArgumentException("endUserToken cannot be null"));
         this.tokenType = Optional.ofNullable(tokenType)
@@ -67,6 +79,8 @@ public class DeviceConnectResponse {
         this.resumeCredential = resumeCredential;
         this.credentialExpiresAt = credentialExpiresAt;
         this.credentialExpiresIn = credentialExpiresIn;
+        this.resumeMode = resumeMode;
+        this.linkExpiresAt = linkExpiresAt;
     }
     
     public DeviceConnectResponse(
@@ -76,7 +90,7 @@ public class DeviceConnectResponse {
             @Nonnull String instanceId) {
         this(endUserToken, tokenType, expiresIn,
             instanceId, null, null,
-            null);
+            null, null, null);
     }
 
     public String endUserToken() {
@@ -105,6 +119,14 @@ public class DeviceConnectResponse {
 
     public Optional<Double> credentialExpiresIn() {
         return Optional.ofNullable(this.credentialExpiresIn);
+    }
+
+    public Optional<String> resumeMode() {
+        return Optional.ofNullable(this.resumeMode);
+    }
+
+    public Optional<String> linkExpiresAt() {
+        return Optional.ofNullable(this.linkExpiresAt);
     }
 
     public static Builder builder() {
@@ -154,6 +176,18 @@ public class DeviceConnectResponse {
     }
 
 
+    public DeviceConnectResponse withResumeMode(@Nullable String resumeMode) {
+        this.resumeMode = resumeMode;
+        return this;
+    }
+
+
+    public DeviceConnectResponse withLinkExpiresAt(@Nullable String linkExpiresAt) {
+        this.linkExpiresAt = linkExpiresAt;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -170,7 +204,9 @@ public class DeviceConnectResponse {
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
             Utils.enhancedDeepEquals(this.resumeCredential, other.resumeCredential) &&
             Utils.enhancedDeepEquals(this.credentialExpiresAt, other.credentialExpiresAt) &&
-            Utils.enhancedDeepEquals(this.credentialExpiresIn, other.credentialExpiresIn);
+            Utils.enhancedDeepEquals(this.credentialExpiresIn, other.credentialExpiresIn) &&
+            Utils.enhancedDeepEquals(this.resumeMode, other.resumeMode) &&
+            Utils.enhancedDeepEquals(this.linkExpiresAt, other.linkExpiresAt);
     }
     
     @Override
@@ -178,7 +214,7 @@ public class DeviceConnectResponse {
         return Utils.enhancedHash(
             endUserToken, tokenType, expiresIn,
             instanceId, resumeCredential, credentialExpiresAt,
-            credentialExpiresIn);
+            credentialExpiresIn, resumeMode, linkExpiresAt);
     }
     
     @Override
@@ -190,7 +226,9 @@ public class DeviceConnectResponse {
                 "instanceId", instanceId,
                 "resumeCredential", resumeCredential,
                 "credentialExpiresAt", credentialExpiresAt,
-                "credentialExpiresIn", credentialExpiresIn);
+                "credentialExpiresIn", credentialExpiresIn,
+                "resumeMode", resumeMode,
+                "linkExpiresAt", linkExpiresAt);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -209,6 +247,10 @@ public class DeviceConnectResponse {
         private String credentialExpiresAt;
 
         private Double credentialExpiresIn;
+
+        private String resumeMode;
+
+        private String linkExpiresAt;
 
         private Builder() {
           // force use of static builder() method
@@ -249,11 +291,21 @@ public class DeviceConnectResponse {
             return this;
         }
 
+        public Builder resumeMode(@Nullable String resumeMode) {
+            this.resumeMode = resumeMode;
+            return this;
+        }
+
+        public Builder linkExpiresAt(@Nullable String linkExpiresAt) {
+            this.linkExpiresAt = linkExpiresAt;
+            return this;
+        }
+
         public DeviceConnectResponse build() {
             return new DeviceConnectResponse(
                 endUserToken, tokenType, expiresIn,
                 instanceId, resumeCredential, credentialExpiresAt,
-                credentialExpiresIn);
+                credentialExpiresIn, resumeMode, linkExpiresAt);
         }
 
     }

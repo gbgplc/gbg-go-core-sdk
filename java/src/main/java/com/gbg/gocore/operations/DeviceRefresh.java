@@ -83,7 +83,7 @@ public class DeviceRefresh {
         HttpRequest buildRequest() throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/v2/captain/journey/device/refresh");
+                    "/journey/device/refresh");
             HTTPRequest req = new HTTPRequest(url, "POST");
             req.addHeader("Accept", "application/json")
                     .addHeader("user-agent", SDKConfiguration.USER_AGENT);

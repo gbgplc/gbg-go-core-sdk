@@ -76,7 +76,7 @@ async function $do(
     APICall,
   ]
 > {
-  const path = pathToFunc("/v2/captain/journey/interaction/asset/upload")();
+  const path = pathToFunc("/journey/interaction/asset/upload")();
 
   const headers = new Headers(compactMap({
     Accept: "application/json",
@@ -158,7 +158,7 @@ async function $do(
   >(
     M.json(200, operations.UploadInteractionAssetResponse$inboundSchema),
     M.jsonErr(
-      [400, 401, 403, 409, 422, 429],
+      [400, 401, 403, 404, 409, 422, 429],
       errors.ErrorResponse$inboundSchema,
     ),
     M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),

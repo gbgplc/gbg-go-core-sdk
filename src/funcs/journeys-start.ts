@@ -96,7 +96,7 @@ async function $do(
     ? null
     : encodeJSON("body", payload, { explode: true });
 
-  const path = pathToFunc("/v2/captain/journey/start")();
+  const path = pathToFunc("/journey/start")();
 
   const headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -166,7 +166,10 @@ async function $do(
     | SDKValidationError
   >(
     M.json(201, models.JourneyStartResponse$inboundSchema),
-    M.jsonErr([400, 401, 403, 404, 429], errors.ErrorResponse$inboundSchema),
+    M.jsonErr(
+      [400, 401, 403, 404, 422, 429],
+      errors.ErrorResponse$inboundSchema,
+    ),
     M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
     M.fail("4XX"),
     M.fail("5XX"),

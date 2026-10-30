@@ -316,7 +316,7 @@ export type StartJourneyIdentityPhone = {
 
 export type StartJourneyIdentityEmail = {
   /**
-   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -1396,7 +1396,7 @@ export type StartJourneyDocumentPhone = {
 
 export type StartJourneyDocumentEmail = {
   /**
-   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other'. Three map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work' or 'other' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
+   * Email type discriminator. Canonical values: 'personal', 'work', 'home', 'other', 'unknown'. Four map to a domain element by exact match: 'personal' -> PersonalEmail, 'work' -> WorkEmail, 'other' -> OtherEmails, 'unknown' -> UnknownEmail (the domainElementId used to collect them). 'home' is the only canonical value with no domain element: a 'home' email is accepted and stored but cannot be retrieved through any v2 read (it matches no getter); use 'personal', 'work', 'other' or 'unknown' to have the email surfaced. Legacy inputs normalize at the API boundary (e.g. 'email' -> 'personal').
    */
   type: string;
   /**
@@ -1590,6 +1590,10 @@ export type StartJourneyDocument = {
    * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
    */
   dateOfEvent?: string | undefined;
+  /**
+   * Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601
+   */
+  acquisitionDate?: string | undefined;
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
@@ -1600,17 +1604,32 @@ export type StartJourneyDocument = {
   nameLine4?: string | undefined;
 };
 
-export const StartJourneyBiometricType = {
+export const StartJourneyTypeOrphanedStoredFace = {
+  OrphanedStoredFace: "orphanedStoredFace",
+} as const;
+export type StartJourneyTypeOrphanedStoredFace = ClosedEnum<
+  typeof StartJourneyTypeOrphanedStoredFace
+>;
+
+export type StartJourneyBiometricOrphanedStoredFace = {
+  id?: string | undefined;
+  type: StartJourneyTypeOrphanedStoredFace;
+  templateReference: string;
+  collectionReference?: string | undefined;
+};
+
+export const StartJourneyTypeStoredFace = {
   StoredFace: "storedFace",
 } as const;
-export type StartJourneyBiometricType = ClosedEnum<
-  typeof StartJourneyBiometricType
+export type StartJourneyTypeStoredFace = ClosedEnum<
+  typeof StartJourneyTypeStoredFace
 >;
 
 export type StartJourneyBiometricStoredFace = {
   id?: string | undefined;
-  type: StartJourneyBiometricType;
+  type: StartJourneyTypeStoredFace;
   templateReference: string;
+  collectionReference?: string | undefined;
 };
 
 export type StartJourneyBiometric5 = {
@@ -1650,6 +1669,7 @@ export type StartJourneyBiometricUnion =
   | StartJourneyBiometric1
   | StartJourneyBiometric2
   | StartJourneyBiometricStoredFace
+  | StartJourneyBiometricOrphanedStoredFace
   | StartJourneyBiometric3
   | StartJourneyBiometric4
   | StartJourneyBiometric5;
@@ -1744,9 +1764,9 @@ export type StartJourneyAccount = {
    */
   type: string;
   /**
-   * Account number
+   * Account number in its domestic form. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when both are supplied they are not cross-checked.
    */
-  accountNumber: string;
+  accountNumber?: string | undefined;
   /**
    * UK sort code
    */
@@ -1756,7 +1776,7 @@ export type StartJourneyAccount = {
    */
   routingNumber?: string | undefined;
   /**
-   * International Bank Account Number
+   * International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616 mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier — `accountNumber` or `iban` — and either alone is enough.
    */
   iban?: string | undefined;
   /**
@@ -1803,7 +1823,52 @@ export type StartJourneyKba = {
   answers: Array<StartJourneyAnswer>;
 };
 
-export type StartJourneySubject = {
+export const StartJourneyOffered = {
+  AustraliaPassport: "australiaPassport",
+  AustraliaDrivingLicense: "australiaDrivingLicense",
+  AustraliaBirthCertificate: "australiaBirthCertificate",
+  AustraliaCentrelink: "australiaCentrelink",
+  AustraliaCitizenshipCertificate: "australiaCitizenshipCertificate",
+  AustraliaVisa: "australiaVisa",
+  AustraliaMedicare: "australiaMedicare",
+  AustraliaImmicard: "australiaImmicard",
+  AustraliaMarriageCertificate: "australiaMarriageCertificate",
+  AustraliaChangeOfNameCertificate: "australiaChangeOfNameCertificate",
+  AustraliaElectoralRoll: "australiaElectoralRoll",
+  NewZealandPassport: "newZealandPassport",
+  NewZealandDrivingLicense: "newZealandDrivingLicense",
+  NewZealandBirthCertificate: "newZealandBirthCertificate",
+  NewZealandCitizenshipCertificate: "newZealandCitizenshipCertificate",
+  NoneOfThese: "noneOfThese",
+} as const;
+export type StartJourneyOffered = ClosedEnum<typeof StartJourneyOffered>;
+
+export const StartJourneySelected = {
+  AustraliaPassport: "australiaPassport",
+  AustraliaDrivingLicense: "australiaDrivingLicense",
+  AustraliaBirthCertificate: "australiaBirthCertificate",
+  AustraliaCentrelink: "australiaCentrelink",
+  AustraliaCitizenshipCertificate: "australiaCitizenshipCertificate",
+  AustraliaVisa: "australiaVisa",
+  AustraliaMedicare: "australiaMedicare",
+  AustraliaImmicard: "australiaImmicard",
+  AustraliaMarriageCertificate: "australiaMarriageCertificate",
+  AustraliaChangeOfNameCertificate: "australiaChangeOfNameCertificate",
+  AustraliaElectoralRoll: "australiaElectoralRoll",
+  NewZealandPassport: "newZealandPassport",
+  NewZealandDrivingLicense: "newZealandDrivingLicense",
+  NewZealandBirthCertificate: "newZealandBirthCertificate",
+  NewZealandCitizenshipCertificate: "newZealandCitizenshipCertificate",
+  NoneOfThese: "noneOfThese",
+} as const;
+export type StartJourneySelected = ClosedEnum<typeof StartJourneySelected>;
+
+export type StartJourneyDocumentTypeSelection = {
+  offered?: Array<StartJourneyOffered> | undefined;
+  selected?: StartJourneySelected | undefined;
+};
+
+export type StartJourneyContextSubject = {
   identity?: StartJourneyIdentity | undefined;
   entities?: Array<StartJourneyEntity> | undefined;
   documents?: Array<StartJourneyDocument> | undefined;
@@ -1812,6 +1877,7 @@ export type StartJourneySubject = {
       | StartJourneyBiometric1
       | StartJourneyBiometric2
       | StartJourneyBiometricStoredFace
+      | StartJourneyBiometricOrphanedStoredFace
       | StartJourneyBiometric3
       | StartJourneyBiometric4
       | StartJourneyBiometric5
@@ -1821,6 +1887,7 @@ export type StartJourneySubject = {
   consent?: Array<StartJourneyConsent> | undefined;
   accounts?: Array<StartJourneyAccount> | undefined;
   kba?: StartJourneyKba | undefined;
+  documentTypeSelection?: StartJourneyDocumentTypeSelection | undefined;
   uid?: string | undefined;
 };
 
@@ -1835,6 +1902,20 @@ export const ResumeMode = {
  * How resume behaves for this delivery: off (no credential minted — pre-resume behavior) or resume (the applicant may return until an absolute deadline). There is no park setting and no park behavior; what park expressed is the window resume already grants. resume uses resumeExpiryMinutes and off uses no lifetime member at all — supplying one under off is rejected. An operator bound can only cap this DOWN, never raise it.
  */
 export type ResumeMode = ClosedEnum<typeof ResumeMode>;
+
+/**
+ * Reminders for an invite journey: the invite link is sent again every intervalMinutes, at most maxReminders times, until the journey finishes or the link expires (ttlMinutes), whichever comes first. Resolved as ONE unit, not per member: the first tier that sets it (journey start, then delivery, then organization) wins, and an interval from one tier is never combined with a count from another. Absent everywhere means off. A journey without an invite ignores it. Captain refuses an interval below its operator floor with a 400 naming the tier. Frozen at journey start: editing it later does not reach a running journey.
+ */
+export type Reminders = {
+  /**
+   * Minutes between one send of the invite link and the next reminder.
+   */
+  intervalMinutes: number;
+  /**
+   * Reminders sent after the first invite, at most 5. 0 turns reminders off.
+   */
+  maxReminders: number;
+};
 
 /**
  * Per-journey link lifetime and resume behavior. Every member is optional, and each is resolved independently across the per-journey, delivery, organization and system-default tiers, then clamped down to the operator bounds. All three members reach runtime behavior: ttlMinutes bounds how long the link stays startable, and the resolved resumeMode and resumeExpiryMinutes are frozen onto the delivery-token and connect-secret records, read at connect, and enforced when a resume credential is minted and exchanged. None of the resolved values is echoed on any response — the journey-start log line is where the resolved mode, its tier and any clamp are reported. An absent ttlMinutes falls back to the delivery resource's linkConfig, then to the organization's value, then to the deprecated flat deliveryUrlTtlMinutes, then to the system default.
@@ -1852,6 +1933,10 @@ export type LinkConfig = {
    * Resume-credential lifetime in minutes, ABSOLUTE from the applicant first connecting — not from link issue, and not sliding from last use. Nothing renews it: returning many times neither extends nor shortens it. Valid only when resumeMode is resume; supplying it alongside off is rejected. Clamped downward only. It may fall AFTER the link expires, which is deliberate — the link bounds starting, this bounds coming back. Because nothing renews it, a small value is a total journey budget rather than an idle timeout, and will cut off an applicant who never stopped working.
    */
   resumeExpiryMinutes?: number | undefined;
+  /**
+   * Reminders for an invite journey: the invite link is sent again every intervalMinutes, at most maxReminders times, until the journey finishes or the link expires (ttlMinutes), whichever comes first. Resolved as ONE unit, not per member: the first tier that sets it (journey start, then delivery, then organization) wins, and an interval from one tier is never combined with a count from another. Absent everywhere means off. A journey without an invite ignores it. Captain refuses an interval below its operator floor with a 400 naming the tier. Frozen at journey start: editing it later does not reach a running journey.
+   */
+  reminders?: Reminders | undefined;
 };
 
 /**
@@ -1876,7 +1961,7 @@ export type Config = {
    */
   inlineResult?: boolean | undefined;
   /**
-   * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means wait up to the platform ceiling, which is the load balancer's idle timeout minus 5 seconds (55 today). Send a smaller value if your own HTTP client gives up sooner. A value above the ceiling is clamped, not rejected, and the clamp is logged; waitedSeconds in the response says how long the call waited.
+   * How many seconds the caller is willing to wait; requires inlineResult: true. Optional: absent means wait up to the platform ceiling, which is the load balancer's idle timeout minus 10 seconds (50 today). Send a smaller value if your own HTTP client gives up sooner. A value above the ceiling is clamped, not rejected, and the clamp is logged.
    */
   syncWaitSeconds?: number | undefined;
   /**
@@ -1891,21 +1976,39 @@ export type Config = {
 };
 
 export type StartJourneyContext = {
-  subject?: StartJourneySubject | undefined;
+  subject?: StartJourneyContextSubject | undefined;
   config: Config;
   [additionalProperties: string]: unknown;
 };
 
+/**
+ * Domain-element values this module override returns in result.subject.
+ */
+export type ModulesSubject = {};
+
 export type Modules = {
   outcome: string;
   advice?: { [k: string]: any } | undefined;
+  /**
+   * Domain-element values this module override returns in result.subject.
+   */
+  subject?: ModulesSubject | undefined;
   [additionalProperties: string]: unknown;
 };
+
+/**
+ * Fallback subject values applied when a module entry has no subject of its own.
+ */
+export type DefaultSubject = {};
 
 export type Scenario = {
   modules: { [k: string]: Modules };
   defaultOutcome?: string | undefined;
   defaultAdvice?: { [k: string]: any } | undefined;
+  /**
+   * Fallback subject values applied when a module entry has no subject of its own.
+   */
+  defaultSubject?: DefaultSubject | undefined;
   description?: string | undefined;
   [additionalProperties: string]: unknown;
 };
@@ -4493,6 +4596,7 @@ export type StartJourneyDocument$Outbound = {
   registrationYear?: string | undefined;
   partyRole?: string | undefined;
   dateOfEvent?: string | undefined;
+  acquisitionDate?: string | undefined;
   previousFirstName?: string | undefined;
   previousMiddleName?: string | undefined;
   previousSurname?: string | undefined;
@@ -4611,6 +4715,7 @@ export const StartJourneyDocument$outboundSchema: z.ZodMiniType<
   registrationYear: z.optional(z.string()),
   partyRole: z.optional(z.string()),
   dateOfEvent: z.optional(z.string()),
+  acquisitionDate: z.optional(z.string()),
   previousFirstName: z.optional(z.string()),
   previousMiddleName: z.optional(z.string()),
   previousSurname: z.optional(z.string()),
@@ -4630,15 +4735,52 @@ export function startJourneyDocumentToJSON(
 }
 
 /** @internal */
-export const StartJourneyBiometricType$outboundSchema: z.ZodMiniEnum<
-  typeof StartJourneyBiometricType
-> = z.enum(StartJourneyBiometricType);
+export const StartJourneyTypeOrphanedStoredFace$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyTypeOrphanedStoredFace
+> = z.enum(StartJourneyTypeOrphanedStoredFace);
+
+/** @internal */
+export type StartJourneyBiometricOrphanedStoredFace$Outbound = {
+  id?: string | undefined;
+  type: string;
+  templateReference: string;
+  collectionReference?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyBiometricOrphanedStoredFace$outboundSchema:
+  z.ZodMiniType<
+    StartJourneyBiometricOrphanedStoredFace$Outbound,
+    StartJourneyBiometricOrphanedStoredFace
+  > = z.object({
+    id: z.optional(z.string()),
+    type: StartJourneyTypeOrphanedStoredFace$outboundSchema,
+    templateReference: z.string(),
+    collectionReference: z.optional(z.string()),
+  });
+
+export function startJourneyBiometricOrphanedStoredFaceToJSON(
+  startJourneyBiometricOrphanedStoredFace:
+    StartJourneyBiometricOrphanedStoredFace,
+): string {
+  return JSON.stringify(
+    StartJourneyBiometricOrphanedStoredFace$outboundSchema.parse(
+      startJourneyBiometricOrphanedStoredFace,
+    ),
+  );
+}
+
+/** @internal */
+export const StartJourneyTypeStoredFace$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyTypeStoredFace
+> = z.enum(StartJourneyTypeStoredFace);
 
 /** @internal */
 export type StartJourneyBiometricStoredFace$Outbound = {
   id?: string | undefined;
   type: string;
   templateReference: string;
+  collectionReference?: string | undefined;
 };
 
 /** @internal */
@@ -4647,8 +4789,9 @@ export const StartJourneyBiometricStoredFace$outboundSchema: z.ZodMiniType<
   StartJourneyBiometricStoredFace
 > = z.object({
   id: z.optional(z.string()),
-  type: StartJourneyBiometricType$outboundSchema,
+  type: StartJourneyTypeStoredFace$outboundSchema,
   templateReference: z.string(),
+  collectionReference: z.optional(z.string()),
 });
 
 export function startJourneyBiometricStoredFaceToJSON(
@@ -4797,6 +4940,7 @@ export type StartJourneyBiometricUnion$Outbound =
   | StartJourneyBiometric1$Outbound
   | StartJourneyBiometric2$Outbound
   | StartJourneyBiometricStoredFace$Outbound
+  | StartJourneyBiometricOrphanedStoredFace$Outbound
   | StartJourneyBiometric3$Outbound
   | StartJourneyBiometric4$Outbound
   | StartJourneyBiometric5$Outbound;
@@ -4809,6 +4953,7 @@ export const StartJourneyBiometricUnion$outboundSchema: z.ZodMiniType<
   z.lazy(() => StartJourneyBiometric1$outboundSchema),
   z.lazy(() => StartJourneyBiometric2$outboundSchema),
   z.lazy(() => StartJourneyBiometricStoredFace$outboundSchema),
+  z.lazy(() => StartJourneyBiometricOrphanedStoredFace$outboundSchema),
   z.lazy(() => StartJourneyBiometric3$outboundSchema),
   z.lazy(() => StartJourneyBiometric4$outboundSchema),
   z.lazy(() => StartJourneyBiometric5$outboundSchema),
@@ -5112,7 +5257,7 @@ export function startJourneyConsentToJSON(
 /** @internal */
 export type StartJourneyAccount$Outbound = {
   type: string;
-  accountNumber: string;
+  accountNumber?: string | undefined;
   sortCode?: string | undefined;
   routingNumber?: string | undefined;
   iban?: string | undefined;
@@ -5129,7 +5274,7 @@ export const StartJourneyAccount$outboundSchema: z.ZodMiniType<
   StartJourneyAccount
 > = z.object({
   type: z.string(),
-  accountNumber: z.string(),
+  accountNumber: z.optional(z.string()),
   sortCode: z.optional(z.string()),
   routingNumber: z.optional(z.string()),
   iban: z.optional(z.string()),
@@ -5243,7 +5388,42 @@ export function startJourneyKbaToJSON(
 }
 
 /** @internal */
-export type StartJourneySubject$Outbound = {
+export const StartJourneyOffered$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyOffered
+> = z.enum(StartJourneyOffered);
+
+/** @internal */
+export const StartJourneySelected$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneySelected
+> = z.enum(StartJourneySelected);
+
+/** @internal */
+export type StartJourneyDocumentTypeSelection$Outbound = {
+  offered?: Array<string> | undefined;
+  selected?: string | undefined;
+};
+
+/** @internal */
+export const StartJourneyDocumentTypeSelection$outboundSchema: z.ZodMiniType<
+  StartJourneyDocumentTypeSelection$Outbound,
+  StartJourneyDocumentTypeSelection
+> = z.object({
+  offered: z.optional(z.array(StartJourneyOffered$outboundSchema)),
+  selected: z.optional(StartJourneySelected$outboundSchema),
+});
+
+export function startJourneyDocumentTypeSelectionToJSON(
+  startJourneyDocumentTypeSelection: StartJourneyDocumentTypeSelection,
+): string {
+  return JSON.stringify(
+    StartJourneyDocumentTypeSelection$outboundSchema.parse(
+      startJourneyDocumentTypeSelection,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyContextSubject$Outbound = {
   identity?: StartJourneyIdentity$Outbound | undefined;
   entities?: Array<StartJourneyEntity$Outbound> | undefined;
   documents?: Array<StartJourneyDocument$Outbound> | undefined;
@@ -5252,6 +5432,7 @@ export type StartJourneySubject$Outbound = {
       | StartJourneyBiometric1$Outbound
       | StartJourneyBiometric2$Outbound
       | StartJourneyBiometricStoredFace$Outbound
+      | StartJourneyBiometricOrphanedStoredFace$Outbound
       | StartJourneyBiometric3$Outbound
       | StartJourneyBiometric4$Outbound
       | StartJourneyBiometric5$Outbound
@@ -5261,13 +5442,16 @@ export type StartJourneySubject$Outbound = {
   consent?: Array<StartJourneyConsent$Outbound> | undefined;
   accounts?: Array<StartJourneyAccount$Outbound> | undefined;
   kba?: StartJourneyKba$Outbound | undefined;
+  documentTypeSelection?:
+    | StartJourneyDocumentTypeSelection$Outbound
+    | undefined;
   uid?: string | undefined;
 };
 
 /** @internal */
-export const StartJourneySubject$outboundSchema: z.ZodMiniType<
-  StartJourneySubject$Outbound,
-  StartJourneySubject
+export const StartJourneyContextSubject$outboundSchema: z.ZodMiniType<
+  StartJourneyContextSubject$Outbound,
+  StartJourneyContextSubject
 > = z.object({
   identity: z.optional(z.lazy(() => StartJourneyIdentity$outboundSchema)),
   entities: z.optional(
@@ -5283,6 +5467,7 @@ export const StartJourneySubject$outboundSchema: z.ZodMiniType<
         StartJourneyBiometric2$outboundSchema
       ),
       z.lazy(() => StartJourneyBiometricStoredFace$outboundSchema),
+      z.lazy(() => StartJourneyBiometricOrphanedStoredFace$outboundSchema),
       z.lazy(() => StartJourneyBiometric3$outboundSchema),
       z.lazy(() => StartJourneyBiometric4$outboundSchema),
       z.lazy(() => StartJourneyBiometric5$outboundSchema),
@@ -5298,14 +5483,17 @@ export const StartJourneySubject$outboundSchema: z.ZodMiniType<
     z.array(z.lazy(() => StartJourneyAccount$outboundSchema)),
   ),
   kba: z.optional(z.lazy(() => StartJourneyKba$outboundSchema)),
+  documentTypeSelection: z.optional(
+    z.lazy(() => StartJourneyDocumentTypeSelection$outboundSchema),
+  ),
   uid: z.optional(z.string()),
 });
 
-export function startJourneySubjectToJSON(
-  startJourneySubject: StartJourneySubject,
+export function startJourneyContextSubjectToJSON(
+  startJourneyContextSubject: StartJourneyContextSubject,
 ): string {
   return JSON.stringify(
-    StartJourneySubject$outboundSchema.parse(startJourneySubject),
+    StartJourneyContextSubject$outboundSchema.parse(startJourneyContextSubject),
   );
 }
 
@@ -5314,10 +5502,30 @@ export const ResumeMode$outboundSchema: z.ZodMiniEnum<typeof ResumeMode> = z
   .enum(ResumeMode);
 
 /** @internal */
+export type Reminders$Outbound = {
+  intervalMinutes: number;
+  maxReminders: number;
+};
+
+/** @internal */
+export const Reminders$outboundSchema: z.ZodMiniType<
+  Reminders$Outbound,
+  Reminders
+> = z.object({
+  intervalMinutes: z.int(),
+  maxReminders: z.int(),
+});
+
+export function remindersToJSON(reminders: Reminders): string {
+  return JSON.stringify(Reminders$outboundSchema.parse(reminders));
+}
+
+/** @internal */
 export type LinkConfig$Outbound = {
   ttlMinutes?: number | undefined;
   resumeMode?: string | undefined;
   resumeExpiryMinutes?: number | undefined;
+  reminders?: Reminders$Outbound | undefined;
 };
 
 /** @internal */
@@ -5328,6 +5536,7 @@ export const LinkConfig$outboundSchema: z.ZodMiniType<
   ttlMinutes: z.optional(z.int()),
   resumeMode: z.optional(ResumeMode$outboundSchema),
   resumeExpiryMinutes: z.optional(z.int()),
+  reminders: z.optional(z.lazy(() => Reminders$outboundSchema)),
 });
 
 export function linkConfigToJSON(linkConfig: LinkConfig): string {
@@ -5382,7 +5591,7 @@ export function configToJSON(config: Config): string {
 
 /** @internal */
 export type StartJourneyContext$Outbound = {
-  subject?: StartJourneySubject$Outbound | undefined;
+  subject?: StartJourneyContextSubject$Outbound | undefined;
   config: Config$Outbound;
   [additionalProperties: string]: unknown;
 };
@@ -5393,7 +5602,9 @@ export const StartJourneyContext$outboundSchema: z.ZodMiniType<
   StartJourneyContext
 > = z.catchall(
   z.object({
-    subject: z.optional(z.lazy(() => StartJourneySubject$outboundSchema)),
+    subject: z.optional(
+      z.lazy(() => StartJourneyContextSubject$outboundSchema),
+    ),
     config: z.lazy(() => Config$outboundSchema),
   }),
   z.any(),
@@ -5408,9 +5619,23 @@ export function startJourneyContextToJSON(
 }
 
 /** @internal */
+export type ModulesSubject$Outbound = {};
+
+/** @internal */
+export const ModulesSubject$outboundSchema: z.ZodMiniType<
+  ModulesSubject$Outbound,
+  ModulesSubject
+> = z.object({});
+
+export function modulesSubjectToJSON(modulesSubject: ModulesSubject): string {
+  return JSON.stringify(ModulesSubject$outboundSchema.parse(modulesSubject));
+}
+
+/** @internal */
 export type Modules$Outbound = {
   outcome: string;
   advice?: { [k: string]: any } | undefined;
+  subject?: ModulesSubject$Outbound | undefined;
   [additionalProperties: string]: unknown;
 };
 
@@ -5420,6 +5645,7 @@ export const Modules$outboundSchema: z.ZodMiniType<Modules$Outbound, Modules> =
     z.object({
       outcome: z.string(),
       advice: z.optional(z.record(z.string(), z.any())),
+      subject: z.optional(z.lazy(() => ModulesSubject$outboundSchema)),
     }),
     z.any(),
   );
@@ -5429,10 +5655,24 @@ export function modulesToJSON(modules: Modules): string {
 }
 
 /** @internal */
+export type DefaultSubject$Outbound = {};
+
+/** @internal */
+export const DefaultSubject$outboundSchema: z.ZodMiniType<
+  DefaultSubject$Outbound,
+  DefaultSubject
+> = z.object({});
+
+export function defaultSubjectToJSON(defaultSubject: DefaultSubject): string {
+  return JSON.stringify(DefaultSubject$outboundSchema.parse(defaultSubject));
+}
+
+/** @internal */
 export type Scenario$Outbound = {
   modules: { [k: string]: Modules$Outbound };
   defaultOutcome?: string | undefined;
   defaultAdvice?: { [k: string]: any } | undefined;
+  defaultSubject?: DefaultSubject$Outbound | undefined;
   description?: string | undefined;
   [additionalProperties: string]: unknown;
 };
@@ -5446,6 +5686,7 @@ export const Scenario$outboundSchema: z.ZodMiniType<
     modules: z.record(z.string(), z.lazy(() => Modules$outboundSchema)),
     defaultOutcome: z.optional(z.string()),
     defaultAdvice: z.optional(z.record(z.string(), z.any())),
+    defaultSubject: z.optional(z.lazy(() => DefaultSubject$outboundSchema)),
     description: z.optional(z.string()),
   }),
   z.any(),

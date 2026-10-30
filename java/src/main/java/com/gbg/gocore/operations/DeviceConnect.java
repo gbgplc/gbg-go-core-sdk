@@ -10,9 +10,9 @@ import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.SecuritySource;
+import com.gbg.gocore.models.DeviceConnectRequest;
 import com.gbg.gocore.models.errors.APIException;
 import com.gbg.gocore.models.errors.ErrorResponse;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectResponse;
 import com.gbg.gocore.models.operations.DeviceConnectSecurity;
 import com.gbg.gocore.utils.Blob;
@@ -28,7 +28,6 @@ import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import java.io.InputStream;
 import java.lang.Exception;
-import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.String;
 import java.lang.Throwable;
@@ -94,7 +93,7 @@ public class DeviceConnect {
         <T, U>HttpRequest buildRequest(T request, TypeReference<U> typeReference) throws Exception {
             String url = Utils.generateURL(
                     this.baseUrl,
-                    "/v2/captain/journey/device/connect");
+                    "/journey/device/connect");
             HTTPRequest req = new HTTPRequest(url, "POST");
             Object convertedRequest = Utils.convertToShape(
                     request,
@@ -105,9 +104,6 @@ public class DeviceConnect {
                     "",
                     "json",
                     false);
-            if (serializedRequestBody == null) {
-                throw new IllegalArgumentException("Request body is required");
-            }
             req.setBody(Optional.ofNullable(serializedRequestBody));
             req.addHeader("Accept", "application/json")
                     .addHeader("user-agent", SDKConfiguration.USER_AGENT);
