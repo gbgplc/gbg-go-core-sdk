@@ -1,0 +1,9 @@
+# SlimValidation
+
+
+## Fields
+
+| Field                                                                                 | Setter Type                                                                           | Getter Type                                                                           | Required                                                                              | Description                                                                           |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `validationChecks`                                                                    | @Nullable List\<[ValidationCheck](../models/ValidationCheck.md)>                      | Optional\<List\<[ValidationCheck](../models/ValidationCheck.md)>>                     | :heavy_minus_sign:                                                                    | N/A                                                                                   |
+| `aggregatedValidationChecks`                                                          | @Nullable List\<[AggregatedValidationCheck](../models/AggregatedValidationCheck.md)>  | Optional\<List\<[AggregatedValidationCheck](../models/AggregatedValidationCheck.md)>> | :heavy_minus_sign:                                                                    | N/A                                                                                   |

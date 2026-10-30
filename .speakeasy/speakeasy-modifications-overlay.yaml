@@ -2,140 +2,166 @@ overlay: 1.0.0
 x-speakeasy-jsonpath: rfc9535
 info:
   title: Speakeasy Modifications
-  version: 0.0.3
+  version: 0.1.0
   x-speakeasy-metadata:
     after: ""
     before: ""
     type: speakeasy-modifications
+
+# The source is now the live, dynamically generated spec served by Captain at
+# /v2/captain/openapi.json. It describes the API faithfully but was not written
+# with SDK generation in mind, so this overlay supplies what a generator needs
+# and the server has no reason to publish:
+#
+#   - method names, because the live spec carries no operationIds
+#   - the US and AU hosts, because each region's spec advertises only itself
+#
+# Paths are relative to the server URL, which carries the /v2/captain base
+# path. The token endpoint is the exception: it declares its own server.
+#
+# Nothing here should ever describe the *shape of a response*. Hand-maintaining
+# response schemas is what left the published SDK silently dropping the journey
+# result; the live spec is the only thing that tracks the server, so let it.
+
 actions:
-  - target: $["paths"]["/journey/state/fetch"]["post"]
+  # --- Servers -------------------------------------------------------------
+  # `update` merges, and merging into an array appends, so replacing the list
+  # takes a remove first. Without this the EU entry is duplicated.
+  - target: $["servers"][*]
+    remove: true
+  - target: $["servers"]
     update:
-      x-speakeasy-group: journeys
-      x-speakeasy-name-override: getState
-    x-speakeasy-metadata:
-      after: sdk.journeys.getState()
-      before: sdk.Customer APIs.getJourneyState()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/update"]["post"]
+      - url: https://eu.platform.go.gbgplc.com/v2/captain
+        description: EU
+      - url: https://us.platform.go.gbgplc.com/v2/captain
+        description: US
+      - url: https://au.platform.go.gbgplc.com/v2/captain
+        description: AU
+
+  # --- Authentication ------------------------------------------------------
+  - target: $["paths"]["/as/token.oauth2"]["post"]
     update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: update
-    x-speakeasy-metadata:
-      after: sdk.tasks.update()
-      before: sdk.End User APIs.updateTask()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/list"]["post"]
-    update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: list
-    x-speakeasy-metadata:
-      after: sdk.tasks.list()
-      before: sdk.End User APIs.getTasks()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/schema"]["post"]
-    update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: getSchema
-    x-speakeasy-metadata:
-      after: sdk.tasks.getSchema()
-      before: sdk.Customer APIs.getTaskSchema()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/device/start"]["post"]
-    update:
-      x-speakeasy-group: devices
-      x-speakeasy-name-override: add
-    x-speakeasy-metadata:
-      after: sdk.devices.add()
-      before: sdk.Customer APIs.addDevice()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/device/connect"]["post"]
-    update:
-      x-speakeasy-group: devices
-      x-speakeasy-name-override: connect
-    x-speakeasy-metadata:
-      after: sdk.devices.connect()
-      before: sdk.End User APIs.deviceConnect()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/state/delete"]["post"]
-    update:
-      x-speakeasy-group: instances
-      x-speakeasy-name-override: delete
-    x-speakeasy-metadata:
-      after: sdk.instances.delete()
-      before: sdk.Customer APIs.deleteInstance()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/task/list/schema"]["post"]
-    update:
-      x-speakeasy-group: tasks
-      x-speakeasy-name-override: listSchema
-    x-speakeasy-metadata:
-      after: sdk.tasks.listSchema()
-      before: sdk.Customer APIs.getTasksSchema()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/health"]["get"]
-    update:
-      x-speakeasy-name-override: get
-    x-speakeasy-metadata:
-      after: sdk.health.get()
-      before: sdk.Health.health()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/interaction/submit"]["post"]
-    update:
-      x-speakeasy-group: interactions
-      x-speakeasy-name-override: submit
-    x-speakeasy-metadata:
-      after: sdk.interactions.submit()
-      before: sdk.Interaction Service.submitInteraction()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/interaction/fetch"]["post"]
-    update:
-      x-speakeasy-group: interactions
-      x-speakeasy-name-override: fetch
-    x-speakeasy-metadata:
-      after: sdk.interactions.fetch()
-      before: sdk.Interaction Service.fetchInteraction()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
+      operationId: postAsTokenOauth2
+      x-speakeasy-group: tokens
+      x-speakeasy-name-override: generate
+
+  # --- Journeys ------------------------------------------------------------
   - target: $["paths"]["/journey/start"]["post"]
     update:
+      operationId: startJourney
       x-speakeasy-group: journeys
       x-speakeasy-name-override: start
-    x-speakeasy-metadata:
-      after: sdk.journeys.start()
-      before: sdk.Customer APIs.startJourney()
-      created_at: 1769785998660
-      reviewed_at: 1769786014866
-      type: method-name
-  - target: $["paths"]["/journey/state/fetch"]["post"]["responses"]["200"]["content"]["application/json"]["schema"]["required"][*]
-    remove: true
-    x-speakeasy-metadata:
-      created_at: 1775035860983
-      type: user-edit
-  - target: $["paths"]["/journey/state/fetch"]["post"]["responses"]["200"]["content"]["application/json"]["schema"]["required"]
+  - target: $["paths"]["/journey/state/fetch"]["post"]
     update:
-      - instanceId
-      - status
-    x-speakeasy-metadata:
-      created_at: 1775035860983
-      type: user-edit
+      operationId: getJourneyState
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: getState
+  - target: $["paths"]["/journey/schema/fetch"]["post"]
+    update:
+      operationId: getJourneySchemas
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: getSchemas
+  - target: $["paths"]["/journey/terminate"]["post"]
+    update:
+      operationId: terminateJourney
+      x-speakeasy-group: journeys
+      x-speakeasy-name-override: terminate
+
+  # --- Instances -----------------------------------------------------------
+  - target: $["paths"]["/journey/state/delete"]["post"]
+    update:
+      operationId: deleteInstance
+      x-speakeasy-group: instances
+      x-speakeasy-name-override: delete
+  - target: $["paths"]["/journey/instance/{instanceId}/handoff-token"]["post"]
+    update:
+      operationId: createHandoffToken
+      x-speakeasy-group: instances
+      x-speakeasy-name-override: handoffToken
+
+  # --- Interactions --------------------------------------------------------
+  - target: $["paths"]["/journey/interaction/fetch"]["post"]
+    update:
+      operationId: fetchInteraction
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: fetch
+  - target: $["paths"]["/journey/interaction/submit"]["post"]
+    update:
+      operationId: submitInteraction
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: submit
+  - target: $["paths"]["/journey/interaction/asset/upload"]["post"]
+    update:
+      operationId: uploadInteractionAsset
+      x-speakeasy-group: interactions
+      x-speakeasy-name-override: uploadAsset
+
+  # --- Tasks ---------------------------------------------------------------
+  - target: $["paths"]["/journey/task/schema"]["post"]
+    update:
+      operationId: getTaskSchema
+      x-speakeasy-group: tasks
+      x-speakeasy-name-override: getSchema
+
+  # --- Devices -------------------------------------------------------------
+  - target: $["paths"]["/journey/device/start"]["post"]
+    update:
+      operationId: addDevice
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: add
+  - target: $["paths"]["/journey/device/connect"]["post"]
+    update:
+      operationId: deviceConnect
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: connect
+  - target: $["paths"]["/journey/device/refresh"]["post"]
+    update:
+      operationId: deviceRefresh
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: refresh
+  - target: $["paths"]["/journey/device/validate"]["post"]
+    update:
+      operationId: deviceValidate
+      x-speakeasy-group: devices
+      x-speakeasy-name-override: validate
+
+  # --- Address lookup ------------------------------------------------------
+  - target: $["paths"]["/journey/loqate/search"]["post"]
+    update:
+      operationId: searchAddresses
+      x-speakeasy-group: addresses
+      x-speakeasy-name-override: search
+  - target: $["paths"]["/journey/loqate/retrieve"]["post"]
+    update:
+      operationId: retrieveAddress
+      x-speakeasy-group: addresses
+      x-speakeasy-name-override: retrieve
+
+  # --- Test scenarios ------------------------------------------------------
+  # Captain renamed "sandbox" to "test scenarios" on every client-visible
+  # surface and retired the /sandbox/... routes, so the group follows.
+  - target: $["paths"]["/test/journeys/{journeyId}/scenarios"]["post"]
+    update:
+      operationId: createTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: create
+  - target: $["paths"]["/test/journeys/{journeyId}/scenarios"]["get"]
+    update:
+      operationId: listTestScenarios
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: list
+  - target: $["paths"]["/test/journeys/{journeyId}/scenarios/{name}"]["get"]
+    update:
+      operationId: getTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: get
+  - target: $["paths"]["/test/journeys/{journeyId}/scenarios/{name}"]["put"]
+    update:
+      operationId: putTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: put
+  - target: $["paths"]["/test/journeys/{journeyId}/scenarios/{name}"]["delete"]
+    update:
+      operationId: deleteTestScenario
+      x-speakeasy-group: testScenarios
+      x-speakeasy-name-override: delete

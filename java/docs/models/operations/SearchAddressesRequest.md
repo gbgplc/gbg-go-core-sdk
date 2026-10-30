@@ -1,0 +1,11 @@
+# SearchAddressesRequest
+
+
+## Fields
+
+| Field                                                                    | Setter Type                                                              | Getter Type                                                              | Required                                                                 | Description                                                              |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| `instanceId`                                                             | *String*                                                                 | *String*                                                                 | :heavy_check_mark:                                                       | Journey Instance Id, a unique identifier for a started journey instance. |
+| `text`                                                                   | *String*                                                                 | *String*                                                                 | :heavy_check_mark:                                                       | N/A                                                                      |
+| `containerId`                                                            | @Nullable *String*                                                       | Optional\<*String*>                                                      | :heavy_minus_sign:                                                       | N/A                                                                      |
+| `limit`                                                                  | @Nullable *long*                                                         | Optional\<*long*>                                                        | :heavy_minus_sign:                                                       | N/A                                                                      |

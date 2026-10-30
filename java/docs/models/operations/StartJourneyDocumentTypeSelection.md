@@ -1,0 +1,9 @@
+# StartJourneyDocumentTypeSelection
+
+
+## Fields
+
+| Field                                                                                   | Setter Type                                                                             | Getter Type                                                                             | Required                                                                                | Description                                                                             |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `offered`                                                                               | @Nullable List\<[StartJourneyOffered](../../models/operations/StartJourneyOffered.md)>  | Optional\<List\<[StartJourneyOffered](../../models/operations/StartJourneyOffered.md)>> | :heavy_minus_sign:                                                                      | N/A                                                                                     |
+| `selected`                                                                              | @Nullable [StartJourneySelected](../../models/operations/StartJourneySelected.md)       | Optional\<[StartJourneySelected](../../models/operations/StartJourneySelected.md)>      | :heavy_minus_sign:                                                                      | N/A                                                                                     |

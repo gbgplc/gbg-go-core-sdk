@@ -18,6 +18,21 @@ import java.util.Optional;
 public class SubmitInteractionSession {
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("id")
+    private String id;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("type")
+    private String type;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("provider")
+    private String provider;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("user")
     private SubmitInteractionUser user;
 
@@ -53,6 +68,9 @@ public class SubmitInteractionSession {
 
     @JsonCreator
     public SubmitInteractionSession(
+            @JsonProperty("id") @Nullable String id,
+            @JsonProperty("type") @Nullable String type,
+            @JsonProperty("provider") @Nullable String provider,
             @JsonProperty("user") @Nullable SubmitInteractionUser user,
             @JsonProperty("client") @Nullable SubmitInteractionClient client,
             @JsonProperty("device") @Nullable SubmitInteractionSessionDevice device,
@@ -60,6 +78,9 @@ public class SubmitInteractionSession {
             @JsonProperty("span") @Nullable SubmitInteractionSpan span,
             @JsonProperty("transaction") @Nullable SubmitInteractionTransaction transaction,
             @JsonProperty("auth") @Nullable List<SubmitInteractionSessionAuth> auth) {
+        this.id = id;
+        this.type = type;
+        this.provider = provider;
         this.user = user;
         this.client = client;
         this.device = device;
@@ -72,7 +93,20 @@ public class SubmitInteractionSession {
     public SubmitInteractionSession() {
         this(null, null, null,
             null, null, null,
+            null, null, null,
             null);
+    }
+
+    public Optional<String> id() {
+        return Optional.ofNullable(this.id);
+    }
+
+    public Optional<String> type() {
+        return Optional.ofNullable(this.type);
+    }
+
+    public Optional<String> provider() {
+        return Optional.ofNullable(this.provider);
     }
 
     public Optional<SubmitInteractionUser> user() {
@@ -105,6 +139,24 @@ public class SubmitInteractionSession {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public SubmitInteractionSession withId(@Nullable String id) {
+        this.id = id;
+        return this;
+    }
+
+
+    public SubmitInteractionSession withType(@Nullable String type) {
+        this.type = type;
+        return this;
+    }
+
+
+    public SubmitInteractionSession withProvider(@Nullable String provider) {
+        this.provider = provider;
+        return this;
     }
 
 
@@ -160,6 +212,9 @@ public class SubmitInteractionSession {
         }
         SubmitInteractionSession other = (SubmitInteractionSession) o;
         return 
+            Utils.enhancedDeepEquals(this.id, other.id) &&
+            Utils.enhancedDeepEquals(this.type, other.type) &&
+            Utils.enhancedDeepEquals(this.provider, other.provider) &&
             Utils.enhancedDeepEquals(this.user, other.user) &&
             Utils.enhancedDeepEquals(this.client, other.client) &&
             Utils.enhancedDeepEquals(this.device, other.device) &&
@@ -172,6 +227,7 @@ public class SubmitInteractionSession {
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
+            id, type, provider,
             user, client, device,
             trace, span, transaction,
             auth);
@@ -180,6 +236,9 @@ public class SubmitInteractionSession {
     @Override
     public String toString() {
         return Utils.toString(SubmitInteractionSession.class,
+                "id", id,
+                "type", type,
+                "provider", provider,
                 "user", user,
                 "client", client,
                 "device", device,
@@ -191,6 +250,12 @@ public class SubmitInteractionSession {
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
+
+        private String id;
+
+        private String type;
+
+        private String provider;
 
         private SubmitInteractionUser user;
 
@@ -208,6 +273,21 @@ public class SubmitInteractionSession {
 
         private Builder() {
           // force use of static builder() method
+        }
+
+        public Builder id(@Nullable String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder type(@Nullable String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder provider(@Nullable String provider) {
+            this.provider = provider;
+            return this;
         }
 
         public Builder user(@Nullable SubmitInteractionUser user) {
@@ -247,6 +327,7 @@ public class SubmitInteractionSession {
 
         public SubmitInteractionSession build() {
             return new SubmitInteractionSession(
+                id, type, provider,
                 user, client, device,
                 trace, span, transaction,
                 auth);

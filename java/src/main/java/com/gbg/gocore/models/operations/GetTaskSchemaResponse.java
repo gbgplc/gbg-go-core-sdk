@@ -9,9 +9,11 @@ import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.io.InputStream;
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -32,22 +34,22 @@ public class GetTaskSchemaResponse implements Response {
     private HttpResponse<InputStream> rawResponse;
 
     /**
-     * Success
+     * Task JSON Schema (or { processing: true } while modules execute)
      */
-    private GetTaskSchemaResponseBody object;
+    private Map<String, Object> taskSchemaResponse;
 
     @JsonCreator
     public GetTaskSchemaResponse(
             @Nonnull String contentType,
             int statusCode,
             @Nonnull HttpResponse<InputStream> rawResponse,
-            @Nullable GetTaskSchemaResponseBody object) {
+            @Nullable Map<String, Object> taskSchemaResponse) {
         this.contentType = Optional.ofNullable(contentType)
             .orElseThrow(() -> new IllegalArgumentException("contentType cannot be null"));
         this.statusCode = statusCode;
         this.rawResponse = Optional.ofNullable(rawResponse)
             .orElseThrow(() -> new IllegalArgumentException("rawResponse cannot be null"));
-        this.object = object;
+        this.taskSchemaResponse = taskSchemaResponse;
     }
     
     public GetTaskSchemaResponse(
@@ -80,10 +82,10 @@ public class GetTaskSchemaResponse implements Response {
     }
 
     /**
-     * Success
+     * Task JSON Schema (or { processing: true } while modules execute)
      */
-    public Optional<GetTaskSchemaResponseBody> object() {
-        return Optional.ofNullable(this.object);
+    public Optional<Map<String, Object>> taskSchemaResponse() {
+        return Optional.ofNullable(this.taskSchemaResponse);
     }
 
     public static Builder builder() {
@@ -119,10 +121,10 @@ public class GetTaskSchemaResponse implements Response {
 
 
     /**
-     * Success
+     * Task JSON Schema (or { processing: true } while modules execute)
      */
-    public GetTaskSchemaResponse withObject(@Nullable GetTaskSchemaResponseBody object) {
-        this.object = object;
+    public GetTaskSchemaResponse withTaskSchemaResponse(@Nullable Map<String, Object> taskSchemaResponse) {
+        this.taskSchemaResponse = taskSchemaResponse;
         return this;
     }
 
@@ -140,14 +142,14 @@ public class GetTaskSchemaResponse implements Response {
             Utils.enhancedDeepEquals(this.contentType, other.contentType) &&
             Utils.enhancedDeepEquals(this.statusCode, other.statusCode) &&
             Utils.enhancedDeepEquals(this.rawResponse, other.rawResponse) &&
-            Utils.enhancedDeepEquals(this.object, other.object);
+            Utils.enhancedDeepEquals(this.taskSchemaResponse, other.taskSchemaResponse);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             contentType, statusCode, rawResponse,
-            object);
+            taskSchemaResponse);
     }
     
     @Override
@@ -156,7 +158,7 @@ public class GetTaskSchemaResponse implements Response {
                 "contentType", contentType,
                 "statusCode", statusCode,
                 "rawResponse", rawResponse,
-                "object", object);
+                "taskSchemaResponse", taskSchemaResponse);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -168,7 +170,7 @@ public class GetTaskSchemaResponse implements Response {
 
         private HttpResponse<InputStream> rawResponse;
 
-        private GetTaskSchemaResponseBody object;
+        private Map<String, Object> taskSchemaResponse;
 
         private Builder() {
           // force use of static builder() method
@@ -199,17 +201,17 @@ public class GetTaskSchemaResponse implements Response {
         }
 
         /**
-         * Success
+         * Task JSON Schema (or { processing: true } while modules execute)
          */
-        public Builder object(@Nullable GetTaskSchemaResponseBody object) {
-            this.object = object;
+        public Builder taskSchemaResponse(@Nullable Map<String, Object> taskSchemaResponse) {
+            this.taskSchemaResponse = taskSchemaResponse;
             return this;
         }
 
         public GetTaskSchemaResponse build() {
             return new GetTaskSchemaResponse(
                 contentType, statusCode, rawResponse,
-                object);
+                taskSchemaResponse);
         }
 
     }

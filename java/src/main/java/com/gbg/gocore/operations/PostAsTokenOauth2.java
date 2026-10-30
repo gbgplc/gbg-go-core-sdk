@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.SecuritySource;
 import com.gbg.gocore.models.errors.APIException;
+import com.gbg.gocore.models.errors.OAuthErrorResponse;
 import com.gbg.gocore.models.operations.PostAsTokenOauth2Request;
 import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
 import com.gbg.gocore.models.operations.PostAsTokenOauth2ResponseBody;
@@ -77,7 +78,7 @@ public class PostAsTokenOauth2 {
             return new BeforeRequestContextImpl(
                     this.sdkConfiguration,
                     this.baseUrl,
-                    "post_/as/token.oauth2",
+                    "postAsTokenOauth2",
                     java.util.Optional.empty(),
                     securitySource());
         }
@@ -86,7 +87,7 @@ public class PostAsTokenOauth2 {
             return new AfterSuccessContextImpl(
                     this.sdkConfiguration,
                     this.baseUrl,
-                    "post_/as/token.oauth2",
+                    "postAsTokenOauth2",
                     java.util.Optional.empty(),
                     securitySource());
         }
@@ -95,7 +96,7 @@ public class PostAsTokenOauth2 {
             return new AfterErrorContextImpl(
                     this.sdkConfiguration,
                     this.baseUrl,
-                    "post_/as/token.oauth2",
+                    "postAsTokenOauth2",
                     java.util.Optional.empty(),
                     securitySource());
         }
@@ -189,7 +190,14 @@ public class PostAsTokenOauth2 {
                     throw APIException.from("Unexpected content-type received: " + contentType, response);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    throw OAuthErrorResponse.from(response);
+                } else {
+                    throw APIException.from("Unexpected content-type received: " + contentType, response);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 throw APIException.from("API error occurred", response);
             }
@@ -264,7 +272,15 @@ public class PostAsTokenOauth2 {
                     return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
                 }
             }
-            if (Utils.statusCodeMatches(response.statusCode(), "400", "401", "4XX")) {
+            if (Utils.statusCodeMatches(response.statusCode(), "400", "401")) {
+                if (Utils.contentTypeMatches(contentType, "application/json")) {
+                    return OAuthErrorResponse.fromAsync(response)
+                            .thenCompose(CompletableFuture::failedFuture);
+                } else {
+                    return Utils.createAsyncApiError(response, "Unexpected content-type received: " + contentType);
+                }
+            }
+            if (Utils.statusCodeMatches(response.statusCode(), "4XX")) {
                 // no content
                 return Utils.createAsyncApiError(response, "API error occurred");
             }

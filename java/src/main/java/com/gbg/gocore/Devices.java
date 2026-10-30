@@ -4,16 +4,24 @@
 package com.gbg.gocore;
 
 import static com.gbg.gocore.operations.Operations.RequestOperation;
+import static com.gbg.gocore.operations.Operations.RequestlessOperation;
 
+import com.gbg.gocore.models.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.AddDeviceRequest;
 import com.gbg.gocore.models.operations.AddDeviceRequestBuilder;
 import com.gbg.gocore.models.operations.AddDeviceResponse;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectRequestBuilder;
 import com.gbg.gocore.models.operations.DeviceConnectResponse;
 import com.gbg.gocore.models.operations.DeviceConnectSecurity;
+import com.gbg.gocore.models.operations.DeviceRefreshRequestBuilder;
+import com.gbg.gocore.models.operations.DeviceRefreshResponse;
+import com.gbg.gocore.models.operations.DeviceValidateRequestBuilder;
+import com.gbg.gocore.models.operations.DeviceValidateResponse;
+import com.gbg.gocore.models.operations.DeviceValidateSecurity;
 import com.gbg.gocore.operations.AddDevice;
 import com.gbg.gocore.operations.DeviceConnect;
+import com.gbg.gocore.operations.DeviceRefresh;
+import com.gbg.gocore.operations.DeviceValidate;
 import com.gbg.gocore.utils.Headers;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -39,9 +47,53 @@ public class Devices {
     }
 
     /**
-     * Connect or Refresh End User Device
+     * Generate connect token
      * 
-     * <p>Connect or Refresh End User Device
+     * <p>Generates a one-time connect token for device onboarding.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @return The call builder
+     */
+    public AddDeviceRequestBuilder add() {
+        return new AddDeviceRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Generate connect token
+     * 
+     * <p>Generates a one-time connect token for device onboarding.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public AddDeviceResponse addDirect() {
+        return add(null);
+    }
+
+    /**
+     * Generate connect token
+     * 
+     * <p>Generates a one-time connect token for device onboarding.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public AddDeviceResponse add(@Nullable AddDeviceRequest request) {
+        RequestOperation<AddDeviceRequest, AddDeviceResponse> operation
+              = new AddDevice.Sync(sdkConfiguration, _headers);
+        return operation.handleResponse(operation.doRequest(request));
+    }
+
+    /**
+     * Complete the device-onboarding handshake
+     * 
+     * <p>Completes the device-onboarding handshake. See partner integration guide.
      * 
      * @return The call builder
      */
@@ -50,9 +102,9 @@ public class Devices {
     }
 
     /**
-     * Connect or Refresh End User Device
+     * Complete the device-onboarding handshake
      * 
-     * <p>Connect or Refresh End User Device
+     * <p>Completes the device-onboarding handshake. See partner integration guide.
      * 
      * @param security The security details to use for authentication.
      * @return The response from the API call
@@ -63,9 +115,9 @@ public class Devices {
     }
 
     /**
-     * Connect or Refresh End User Device
+     * Complete the device-onboarding handshake
      * 
-     * <p>Connect or Refresh End User Device
+     * <p>Completes the device-onboarding handshake. See partner integration guide.
      * 
      * @param request The request object containing all the parameters for the API call.
      * @param security The security details to use for authentication.
@@ -79,47 +131,54 @@ public class Devices {
     }
 
     /**
-     * Create Connect Secret
+     * Renew a device session
      * 
-     * <p>Create Connect Secret
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * <p>Renews a device session. See partner integration guide.
      * 
      * @return The call builder
      */
-    public AddDeviceRequestBuilder add() {
-        return new AddDeviceRequestBuilder(sdkConfiguration);
+    public DeviceRefreshRequestBuilder refresh() {
+        return new DeviceRefreshRequestBuilder(sdkConfiguration);
     }
 
     /**
-     * Create Connect Secret
+     * Renew a device session
      * 
-     * <p>Create Connect Secret
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * <p>Renews a device session. See partner integration guide.
      * 
      * @return The response from the API call
      * @throws RuntimeException subclass if the API call fails
      */
-    public AddDeviceResponse addDirect() {
-        return add(null);
+    public DeviceRefreshResponse refreshDirect() {
+        RequestlessOperation<DeviceRefreshResponse> operation
+            = new DeviceRefresh.Sync(sdkConfiguration, _headers);
+        return operation.handleResponse(operation.doRequest());
     }
 
     /**
-     * Create Connect Secret
+     * Validate end-user session
      * 
-     * <p>Create Connect Secret
+     * <p>Validates an end-user JWT and returns session information.
      * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * @return The call builder
+     */
+    public DeviceValidateRequestBuilder validate() {
+        return new DeviceValidateRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Validate end-user session
      * 
-     * @param request The request object containing all the parameters for the API call.
+     * <p>Validates an end-user JWT and returns session information.
+     * 
+     * @param security The security details to use for authentication.
      * @return The response from the API call
      * @throws RuntimeException subclass if the API call fails
      */
-    public AddDeviceResponse add(@Nullable AddDeviceRequest request) {
-        RequestOperation<AddDeviceRequest, AddDeviceResponse> operation
-              = new AddDevice.Sync(sdkConfiguration, _headers);
-        return operation.handleResponse(operation.doRequest(request));
+    public DeviceValidateResponse validate(@Nonnull DeviceValidateSecurity security) {
+        RequestlessOperation<DeviceValidateResponse> operation
+            = new DeviceValidate.Sync(sdkConfiguration, security, _headers);
+        return operation.handleResponse(operation.doRequest());
     }
 
 }

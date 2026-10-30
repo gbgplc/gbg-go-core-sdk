@@ -1,0 +1,11 @@
+# DetailRegionOfInterest
+
+
+## Fields
+
+| Field                                                          | Setter Type                                                    | Getter Type                                                    | Required                                                       | Description                                                    |
+| -------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
+| `boundingBox`                                                  | @Nullable [DetailBoundingBox](../models/DetailBoundingBox.md)  | Optional\<[DetailBoundingBox](../models/DetailBoundingBox.md)> | :heavy_minus_sign:                                             | N/A                                                            |
+| `side`                                                         | *String*                                                       | *String*                                                       | :heavy_check_mark:                                             | N/A                                                            |
+| `spectrum`                                                     | @Nullable *String*                                             | Optional\<*String*>                                            | :heavy_minus_sign:                                             | N/A                                                            |
+| `imageId`                                                      | @Nullable *String*                                             | Optional\<*String*>                                            | :heavy_minus_sign:                                             | N/A                                                            |

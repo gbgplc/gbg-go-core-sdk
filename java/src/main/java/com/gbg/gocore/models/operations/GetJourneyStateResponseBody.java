@@ -3,218 +3,28 @@
  */
 package com.gbg.gocore.models.operations;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import java.lang.Object;
-import java.lang.Override;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import java.lang.String;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * GetJourneyStateResponseBody
  * 
- * <p>Success
+ * <p>Journey state (full by default; slim with ?view=slim)
  */
-public class GetJourneyStateResponseBody {
-    /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
-     */
-    @JsonProperty("instanceId")
-    private String instanceId;
+@JsonTypeInfo(
+        use = Id.CUSTOM,
+        property = "view",
+        include = As.EXISTING_PROPERTY,
+        visible = true,
+        defaultImpl = UnknownGetJourneyStateResponseBody.class
+)
+@JsonTypeIdResolver(GetJourneyStateResponseBodyTypeIdResolver.class)
+public interface GetJourneyStateResponseBody {
 
+    String view();
 
-    @JsonProperty("status")
-    private GetJourneyStateStatus status;
-
-
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("metaData")
-    private MetaData metaData;
-
-
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("context")
-    private GetJourneyStateContext context;
-
-
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("data")
-    private Map<String, Object> data;
-
-    @JsonCreator
-    public GetJourneyStateResponseBody(
-            @JsonProperty("instanceId") @Nonnull String instanceId,
-            @JsonProperty("status") @Nonnull GetJourneyStateStatus status,
-            @JsonProperty("metaData") @Nullable MetaData metaData,
-            @JsonProperty("context") @Nullable GetJourneyStateContext context,
-            @JsonProperty("data") @Nullable Map<String, Object> data) {
-        this.instanceId = Optional.ofNullable(instanceId)
-            .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
-        this.status = Optional.ofNullable(status)
-            .orElseThrow(() -> new IllegalArgumentException("status cannot be null"));
-        this.metaData = metaData;
-        this.context = context;
-        this.data = data;
-    }
-    
-    public GetJourneyStateResponseBody(
-            @Nonnull String instanceId,
-            @Nonnull GetJourneyStateStatus status) {
-        this(instanceId, status, null,
-            null, null);
-    }
-
-    /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
-     */
-    public String instanceId() {
-        return this.instanceId;
-    }
-
-    public GetJourneyStateStatus status() {
-        return this.status;
-    }
-
-    public Optional<MetaData> metaData() {
-        return Optional.ofNullable(this.metaData);
-    }
-
-    public Optional<GetJourneyStateContext> context() {
-        return Optional.ofNullable(this.context);
-    }
-
-    public Optional<Map<String, Object>> data() {
-        return Optional.ofNullable(this.data);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-
-    /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
-     */
-    public GetJourneyStateResponseBody withInstanceId(@Nonnull String instanceId) {
-        this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
-        return this;
-    }
-
-
-    public GetJourneyStateResponseBody withStatus(@Nonnull GetJourneyStateStatus status) {
-        this.status = Utils.checkNotNull(status, "status");
-        return this;
-    }
-
-
-    public GetJourneyStateResponseBody withMetaData(@Nullable MetaData metaData) {
-        this.metaData = metaData;
-        return this;
-    }
-
-
-    public GetJourneyStateResponseBody withContext(@Nullable GetJourneyStateContext context) {
-        this.context = context;
-        return this;
-    }
-
-
-    public GetJourneyStateResponseBody withData(@Nullable Map<String, Object> data) {
-        this.data = data;
-        return this;
-    }
-
-
-    @Override
-    public boolean equals(java.lang.Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        GetJourneyStateResponseBody other = (GetJourneyStateResponseBody) o;
-        return 
-            Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
-            Utils.enhancedDeepEquals(this.status, other.status) &&
-            Utils.enhancedDeepEquals(this.metaData, other.metaData) &&
-            Utils.enhancedDeepEquals(this.context, other.context) &&
-            Utils.enhancedDeepEquals(this.data, other.data);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Utils.enhancedHash(
-            instanceId, status, metaData,
-            context, data);
-    }
-    
-    @Override
-    public String toString() {
-        return Utils.toString(GetJourneyStateResponseBody.class,
-                "instanceId", instanceId,
-                "status", status,
-                "metaData", metaData,
-                "context", context,
-                "data", data);
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public final static class Builder {
-
-        private String instanceId;
-
-        private GetJourneyStateStatus status;
-
-        private MetaData metaData;
-
-        private GetJourneyStateContext context;
-
-        private Map<String, Object> data;
-
-        private Builder() {
-          // force use of static builder() method
-        }
-
-        /**
-         * Journey Instance Id, a unique identifier for a started journey instance.
-         */
-        public Builder instanceId(@Nonnull String instanceId) {
-            this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
-            return this;
-        }
-
-        public Builder status(@Nonnull GetJourneyStateStatus status) {
-            this.status = Utils.checkNotNull(status, "status");
-            return this;
-        }
-
-        public Builder metaData(@Nullable MetaData metaData) {
-            this.metaData = metaData;
-            return this;
-        }
-
-        public Builder context(@Nullable GetJourneyStateContext context) {
-            this.context = context;
-            return this;
-        }
-
-        public Builder data(@Nullable Map<String, Object> data) {
-            this.data = data;
-            return this;
-        }
-
-        public GetJourneyStateResponseBody build() {
-            return new GetJourneyStateResponseBody(
-                instanceId, status, metaData,
-                context, data);
-        }
-
-    }
 }
+

@@ -4,53 +4,52 @@
 package com.gbg.gocore.models.operations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gbg.gocore.utils.SpeakeasyMetadata;
 import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.Override;
 import java.lang.String;
-import java.util.List;
 import java.util.Optional;
 
 
 public class GetJourneyStateRequest {
     /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
+     * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+     * compact, typed customer-facing shape.
+     * 
+     * <p>Any other value returns 400.
      */
-    @JsonProperty("instanceId")
-    private String instanceId;
+    @SpeakeasyMetadata("queryParam:style=form,explode=true,name=view")
+    private String view;
 
 
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("filterKeys")
-    private List<String> filterKeys;
+    @SpeakeasyMetadata("request:mediaType=application/json")
+    private GetJourneyStateRequestBody body;
 
     @JsonCreator
     public GetJourneyStateRequest(
-            @JsonProperty("instanceId") @Nonnull String instanceId,
-            @JsonProperty("filterKeys") @Nullable List<String> filterKeys) {
-        this.instanceId = Optional.ofNullable(instanceId)
-            .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
-        this.filterKeys = filterKeys;
+            @Nullable String view,
+            @Nullable GetJourneyStateRequestBody body) {
+        this.view = view;
+        this.body = body;
     }
     
-    public GetJourneyStateRequest(
-            @Nonnull String instanceId) {
-        this(instanceId, null);
+    public GetJourneyStateRequest() {
+        this(null, null);
     }
 
     /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
+     * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+     * compact, typed customer-facing shape.
+     * 
+     * <p>Any other value returns 400.
      */
-    public String instanceId() {
-        return this.instanceId;
+    public Optional<String> view() {
+        return Optional.ofNullable(this.view);
     }
 
-    public Optional<List<String>> filterKeys() {
-        return Optional.ofNullable(this.filterKeys);
+    public Optional<GetJourneyStateRequestBody> body() {
+        return Optional.ofNullable(this.body);
     }
 
     public static Builder builder() {
@@ -59,16 +58,19 @@ public class GetJourneyStateRequest {
 
 
     /**
-     * Journey Instance Id, a unique identifier for a started journey instance.
+     * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+     * compact, typed customer-facing shape.
+     * 
+     * <p>Any other value returns 400.
      */
-    public GetJourneyStateRequest withInstanceId(@Nonnull String instanceId) {
-        this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
+    public GetJourneyStateRequest withView(@Nullable String view) {
+        this.view = view;
         return this;
     }
 
 
-    public GetJourneyStateRequest withFilterKeys(@Nullable List<String> filterKeys) {
-        this.filterKeys = filterKeys;
+    public GetJourneyStateRequest withBody(@Nullable GetJourneyStateRequestBody body) {
+        this.body = body;
         return this;
     }
 
@@ -83,50 +85,53 @@ public class GetJourneyStateRequest {
         }
         GetJourneyStateRequest other = (GetJourneyStateRequest) o;
         return 
-            Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
-            Utils.enhancedDeepEquals(this.filterKeys, other.filterKeys);
+            Utils.enhancedDeepEquals(this.view, other.view) &&
+            Utils.enhancedDeepEquals(this.body, other.body);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            instanceId, filterKeys);
+            view, body);
     }
     
     @Override
     public String toString() {
         return Utils.toString(GetJourneyStateRequest.class,
-                "instanceId", instanceId,
-                "filterKeys", filterKeys);
+                "view", view,
+                "body", body);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
-        private String instanceId;
+        private String view;
 
-        private List<String> filterKeys;
+        private GetJourneyStateRequestBody body;
 
         private Builder() {
           // force use of static builder() method
         }
 
         /**
-         * Journey Instance Id, a unique identifier for a started journey instance.
+         * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+         * compact, typed customer-facing shape.
+         * 
+         * <p>Any other value returns 400.
          */
-        public Builder instanceId(@Nonnull String instanceId) {
-            this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
+        public Builder view(@Nullable String view) {
+            this.view = view;
             return this;
         }
 
-        public Builder filterKeys(@Nullable List<String> filterKeys) {
-            this.filterKeys = filterKeys;
+        public Builder body(@Nullable GetJourneyStateRequestBody body) {
+            this.body = body;
             return this;
         }
 
         public GetJourneyStateRequest build() {
             return new GetJourneyStateRequest(
-                instanceId, filterKeys);
+                view, body);
         }
 
     }

@@ -8,12 +8,16 @@ Developer-friendly & type-safe Java SDK specifically catered to leverage *go-cor
 
 <br /><br />
 > [!IMPORTANT]
-> This SDK is not yet ready for production use. To complete setup please follow the steps outlined in your [workspace](https://app.speakeasy.com/org/gbg/go). Delete this section before > publishing to a package manager.
+> **Upgrading?** 0.2.0 is a breaking release, and one of the breaks is silent:
+> the new `ErrorResponse` is not an `APIException`, so existing
+> `catch (APIException)` blocks stop handling API errors. If you are on
+> `0.2.0-alpha01`, the base URL includes `/v2/captain` again, as it did in 0.1.x.
+> See [CHANGELOG.md](../CHANGELOG.md) for the full list and the known gaps.
 
 <!-- Start Summary [summary] -->
 ## Summary
 
-GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact with the GBG GO Next Gen Flow Captain
+GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
 <!-- End Summary [summary] -->
 
 <!-- Start Table of Contents [toc] -->
@@ -30,6 +34,9 @@ GBG GO Next Gen Flow Captain API: API for Customers and End Users to interact wi
   * [Custom HTTP Client](#custom-http-client)
   * [Debugging](#debugging)
   * [Jackson Configuration](#jackson-configuration)
+  * [Authenticating interaction calls](#authenticating-interaction-calls)
+  * [Error handling notes](#error-handling-notes)
+  * [Debug logging and sensitive data](#debug-logging-and-sensitive-data)
 * [Development](#development)
   * [Maturity](#maturity)
   * [Contributions](#contributions)
@@ -47,7 +54,7 @@ The samples below show how a published SDK artifact is used:
 
 Gradle:
 ```groovy
-implementation 'com.gbg:go-core-sdk:0.1.0-alpha01'
+implementation 'com.gbg:go-core-sdk:0.2.0-alpha02'
 ```
 
 Maven:
@@ -55,7 +62,7 @@ Maven:
 <dependency>
     <groupId>com.gbg</groupId>
     <artifactId>go-core-sdk</artifactId>
-    <version>0.1.0-alpha01</version>
+    <version>0.2.0-alpha02</version>
 </dependency>
 ```
 
@@ -83,21 +90,23 @@ gradlew.bat publishToMavenLocal -Pskip.signing
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
+                .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        PostAsTokenOauth2Response res = sdk.tokens().generate()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }
@@ -109,7 +118,7 @@ package hello.world;
 
 import com.gbg.gocore.AsyncGo;
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.async.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.operations.async.StartJourneyResponse;
 import java.util.concurrent.CompletableFuture;
 
 public class Application {
@@ -117,15 +126,16 @@ public class Application {
     public static void main(String[] args) {
 
         AsyncGo sdk = Go.builder()
+                .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build()
             .toAsync();
 
-        CompletableFuture<PostAsTokenOauth2Response> resFut = sdk.tokens().generate()
+        CompletableFuture<StartJourneyResponse> resFut = sdk.journeys().start()
                 .call();
 
         resFut.thenAccept(res -> {
-            if (res.object().isPresent()) {
-                System.out.println(res.object().get());
+            if (res.journeyStartResponse().isPresent()) {
+                System.out.println(res.journeyStartResponse().get());
             }
         });
     }
@@ -226,22 +236,23 @@ To authenticate with the API the `customerAccess` parameter must be set when ini
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
                 .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        PostAsTokenOauth2Response res = sdk.tokens().generate()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }
@@ -254,37 +265,38 @@ Some operations in this SDK require the security scheme to be specified at the r
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
-import com.gbg.gocore.models.operations.DeviceConnectResponse;
-import com.gbg.gocore.models.operations.DeviceConnectSecurity;
-import com.gbg.gocore.models.operations.DeviceInfo;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.FetchInteractionResponse;
+import com.gbg.gocore.models.operations.FetchInteractionResponseBody;
+import com.gbg.gocore.models.operations.FetchInteractionSecurity;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
             .build();
 
-        DeviceConnectRequest req = DeviceConnectRequest.builder()
-                .connectToken("s4FUx8Ny8ijXRtFigz3x1_8rb9bd_5ZD")
-                .deviceInfo(DeviceInfo.builder()
-                    .deviceId("exampleDeviceId123")
-                    .deviceName("deviceName")
-                    .deviceType("deviceType")
-                    .build())
-                .build();
+        FetchInteractionResponse res = sdk.interactions().fetch()
+                .security(FetchInteractionSecurity.builder()
 
-        DeviceConnectResponse res = sdk.devices().connect()
-                .request(req)
-                .security(DeviceConnectSecurity.builder()
-                    .deviceConnect(System.getenv().getOrDefault("DEVICE_CONNECT", ""))
                     .build())
+                .view("slim")
                 .call();
 
-        if (res.twoHundredApplicationJsonObject().isPresent()) {
-            System.out.println(res.twoHundredApplicationJsonObject().get());
+        if (res.oneOf().isPresent()) {
+            FetchInteractionResponseBody unionValue = res.oneOf().get();
+            switch (unionValue.view()) {
+                case "full":
+                    // Handle full discriminator variant
+                    break;
+                case "slim":
+                    // Handle slim discriminator variant
+                    break;
+                default:
+                    // Handle unknown discriminator variant
+            }
         }
     }
 }
@@ -297,35 +309,47 @@ public class Application {
 <details open>
 <summary>Available methods</summary>
 
+### [Addresses](docs/sdks/addresses/README.md)
+
+* [search](docs/sdks/addresses/README.md#search) - Search addresses via Loqate Capture
+* [retrieve](docs/sdks/addresses/README.md#retrieve) - Retrieve full address via Loqate Capture
+
 ### [Devices](docs/sdks/devices/README.md)
 
-* [connect](docs/sdks/devices/README.md#connect) - Connect or Refresh End User Device
-* [add](docs/sdks/devices/README.md#add) - Create Connect Secret
-
-### [Health](docs/sdks/health/README.md)
-
-* [get](docs/sdks/health/README.md#get) - Obtain the flow-captain health status
+* [add](docs/sdks/devices/README.md#add) - Generate connect token
+* [connect](docs/sdks/devices/README.md#connect) - Complete the device-onboarding handshake
+* [refresh](docs/sdks/devices/README.md#refresh) - Renew a device session
+* [validate](docs/sdks/devices/README.md#validate) - Validate end-user session
 
 ### [Instances](docs/sdks/instances/README.md)
 
-* [delete](docs/sdks/instances/README.md#delete) - Delete instance
+* [handoffToken](docs/sdks/instances/README.md#handofftoken) - Mint a fresh position-scoped handoff token
+* [delete](docs/sdks/instances/README.md#delete) - Delete journey state
 
 ### [Interactions](docs/sdks/interactions/README.md)
 
-* [submit](docs/sdks/interactions/README.md#submit) - Submit Interaction
-* [fetch](docs/sdks/interactions/README.md#fetch) - Fetch Interaction
+* [fetch](docs/sdks/interactions/README.md#fetch) - Fetch current interaction
+* [submit](docs/sdks/interactions/README.md#submit) - Submit interaction data
+* [uploadAsset](docs/sdks/interactions/README.md#uploadasset) - Stream an interaction asset to storage
 
 ### [Journeys](docs/sdks/journeys/README.md)
 
-* [start](docs/sdks/journeys/README.md#start) - Start Journey
-* [getState](docs/sdks/journeys/README.md#getstate) - Get State Data
+* [start](docs/sdks/journeys/README.md#start) - Start a new journey
+* [getState](docs/sdks/journeys/README.md#getstate) - Fetch journey state
+* [getSchemas](docs/sdks/journeys/README.md#getschemas) - Fetch interaction JSON schemas
+* [terminate](docs/sdks/journeys/README.md#terminate) - Terminate journey
 
-### [Tasks](docs/sdks/tasks/README.md)
+### [~~Tasks~~](docs/sdks/tasks/README.md)
 
-* [list](docs/sdks/tasks/README.md#list) - Get End User Tasks
-* [update](docs/sdks/tasks/README.md#update) - Put End User Data
-* [getSchema](docs/sdks/tasks/README.md#getschema) - Get Task Schema
-* [listSchema](docs/sdks/tasks/README.md#listschema) - Get Tasks Schema
+* [~~getSchema~~](docs/sdks/tasks/README.md#getschema) - Fetch V1-compat task schema :warning: **Deprecated**
+
+### [TestScenarios](docs/sdks/testscenarios/README.md)
+
+* [create](docs/sdks/testscenarios/README.md#create) - Create a test scenario on a journey
+* [list](docs/sdks/testscenarios/README.md#list) - List a journey's test scenarios
+* [get](docs/sdks/testscenarios/README.md#get) - Read a test scenario
+* [put](docs/sdks/testscenarios/README.md#put) - Replace a test scenario
+* [delete](docs/sdks/testscenarios/README.md#delete) - Delete a test scenario
 
 ### [Tokens](docs/sdks/tokens/README.md)
 
@@ -356,25 +380,29 @@ Handling errors in this SDK should largely match your expectations. All operatio
 package hello.world;
 
 import com.gbg.gocore.Go;
+import com.gbg.gocore.models.GbgError;
+import com.gbg.gocore.models.errors.ErrorResponse;
 import com.gbg.gocore.models.errors.GoException;
-import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.io.UncheckedIOException;
 import java.lang.Exception;
+import java.util.List;
 import java.util.Optional;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
+                .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
         try {
 
-            PostAsTokenOauth2Response res = sdk.tokens().generate()
+            StartJourneyResponse res = sdk.journeys().start()
                     .call();
 
-            if (res.object().isPresent()) {
-                System.out.println(res.object().get());
+            if (res.journeyStartResponse().isPresent()) {
+                System.out.println(res.journeyStartResponse().get());
             }
         } catch (GoException ex) { // all SDK exceptions inherit from GoException
 
@@ -388,6 +416,23 @@ public class Application {
             var contentType = headers.first("Content-Type");
             int statusCode = ex.code();
             Optional<byte[]> responseBody = ex.body();
+
+            // different error subclasses may be thrown 
+            // depending on the service call
+            if (ex instanceof ErrorResponse) {
+                var e = (ErrorResponse) ex;
+                // Check error data fields
+                e.data().ifPresent(payload -> {
+                      List<GbgError> errors = payload.errors();
+                });
+            }
+
+            // An underlying cause may be provided. If the error payload 
+            // cannot be deserialized then the deserialization exception 
+            // will be set as the cause.
+            if (ex.getCause() != null) {
+                var cause = ex.getCause();
+            }
         } catch (UncheckedIOException ex) {
             // handle IO error (connection, timeout, etc)
         }    }
@@ -395,10 +440,11 @@ public class Application {
 ```
 
 ### Error Classes
-**Primary error:**
+**Primary errors:**
 * [`GoException`](./src/main/java/models/errors/GoException.java): The base class for HTTP error responses.
+  * [`com.gbg.gocore.models.errors.ErrorResponse`](./src/main/java/models/errors/com.gbg.gocore.models.errors.ErrorResponse.java): *
 
-<details><summary>Less common errors (6)</summary>
+<details><summary>Less common errors (7)</summary>
 
 <br />
 
@@ -408,9 +454,12 @@ public class Application {
 many more subclasses in the JDK platform).
 
 **Inherit from [`GoException`](./src/main/java/models/errors/GoException.java)**:
+* [`com.gbg.gocore.models.errors.OAuthErrorResponse`](./src/main/java/models/errors/com.gbg.gocore.models.errors.OAuthErrorResponse.java): Invalid request. Check your credentials. Applicable to 1 of 22 methods.*
 
 
 </details>
+
+\* Check [the method documentation](#available-resources-and-operations) to see if the error is applicable.
 <!-- End Error Handling [errors] -->
 
 <!-- Start Server Selection [server] -->
@@ -422,9 +471,9 @@ You can override the default server globally using the `.serverIndex(int serverI
 
 | #   | Server                                         | Description |
 | --- | ---------------------------------------------- | ----------- |
-| 0   | `https://eu.platform.go.gbgplc.com/v2/captain` |             |
-| 1   | `https://us.platform.go.gbgplc.com/v2/captain` |             |
-| 2   | `https://au.platform.go.gbgplc.com/v2/captain` |             |
+| 0   | `https://eu.platform.go.gbgplc.com/v2/captain` | EU          |
+| 1   | `https://us.platform.go.gbgplc.com/v2/captain` | US          |
+| 2   | `https://au.platform.go.gbgplc.com/v2/captain` | AU          |
 
 #### Example
 
@@ -432,23 +481,24 @@ You can override the default server globally using the `.serverIndex(int serverI
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.HealthResponse;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
                 .serverIndex(0)
                 .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        HealthResponse res = sdk.health().get()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }
@@ -461,23 +511,24 @@ The default server can also be overridden globally using the `.serverURL(String 
 package hello.world;
 
 import com.gbg.gocore.Go;
-import com.gbg.gocore.models.operations.HealthResponse;
+import com.gbg.gocore.models.errors.ErrorResponse;
+import com.gbg.gocore.models.operations.StartJourneyResponse;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ErrorResponse, Exception {
 
         Go sdk = Go.builder()
                 .serverURL("https://au.platform.go.gbgplc.com/v2/captain")
                 .customerAccess(System.getenv().getOrDefault("CUSTOMER_ACCESS", ""))
             .build();
 
-        HealthResponse res = sdk.health().get()
+        StartJourneyResponse res = sdk.journeys().start()
                 .call();
 
-        if (res.object().isPresent()) {
-            System.out.println(res.object().get());
+        if (res.journeyStartResponse().isPresent()) {
+            System.out.println(res.journeyStartResponse().get());
         }
     }
 }
@@ -490,12 +541,13 @@ The server URL can also be overridden on a per-operation basis, provided a serve
 package hello.world;
 
 import com.gbg.gocore.Go;
+import com.gbg.gocore.models.errors.OAuthErrorResponse;
 import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
 import java.lang.Exception;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws OAuthErrorResponse, Exception {
 
         Go sdk = Go.builder()
             .build();
@@ -760,6 +812,55 @@ String json = myMapper.writeValueAsString(response);
 [jackson-databind]: https://github.com/FasterXML/jackson-databind
 [jackson-jsr310]: https://github.com/FasterXML/jackson-modules-java8/tree/master/datetime
 <!-- End Jackson Configuration [jackson] -->
+
+## Authenticating interaction calls
+
+Most operations take the client-level token you set on the builder.
+
+`interactions().fetch(...)` and `interactions().submit(...)` are different. They
+accept either a customer token or an end-user interaction token, so they take
+their own security argument, and the client-level token is not used for them.
+
+```java
+sdk.interactions().fetch(
+    FetchInteractionSecurity.builder()
+        .interactionAccess(endUserToken)
+        .build(),
+    null,                 // view: null for the full response, "slim" for the compact one
+    body);
+```
+
+Set `interactionAccess` for an end-user token or `customerAccess` for a customer
+token, not both.
+
+Note that argument order is not consistent across operations in this release:
+`fetch(security, view, body)` but `submit(request, security)`. The builder forms
+(`interactions().fetch()`, `interactions().submit()`) avoid depending on it.
+
+## Error handling notes
+
+`ErrorResponse` carries the modelled error statuses and extends `GoException`,
+**not** `APIException`. Catching `APIException` therefore misses every modelled
+error, including the 401 you need in order to refresh an expired token.
+
+```java
+try {
+    ...
+} catch (GoException e) {
+    // catches both ErrorResponse and APIException
+}
+```
+
+Token failures arrive as `OAuthErrorResponse`, which also extends
+`GoException`. Statuses the spec does not declare for an operation (today: 422
+on submit) arrive as `APIException`.
+
+## Debug logging and sensitive data
+
+Debug logging prints request headers, including the full `Authorization` bearer
+value, and complete request bodies. For interaction submits that includes
+base64-encoded document and selfie images. Keep it off in production and do not
+send debug output to a shared log sink.
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
 

@@ -1,55 +1,53 @@
 # FetchInteractionResponse
 
-Success
+Interaction state (full by default; slim with ?view=slim)
 
 
 ## Supported Types
 
-### `operations.ResponseBody1`
+### `models.InteractionFetchResponse`
 
 ```typescript
-const value: operations.ResponseBody1 = {
+const value: models.InteractionFetchResponse = {
+  view: "full",
   instanceId: "<id>",
-  interactionId: "<id>",
   journey: {
-    status: "Completed",
+    status: "<value>",
   },
-  interaction: {
-    collects: [
-      {
-        ref: "<value>",
-        spec: "optional",
-      },
-    ],
-    consumes: [
-      {
-        ref: "<value>",
-        spec: "optional",
-      },
-    ],
-    grId: "<id>",
-  },
+  outstandingGroups: [
+    {
+      elementId: "<id>",
+      cardinality: "at-least-one",
+      refs: [
+        "<value 1>",
+        "<value 2>",
+        "<value 3>",
+      ],
+    },
+  ],
 };
 ```
 
-### `operations.FetchInteractionError`
+### `models.SlimInteractionFetchResponse`
 
 ```typescript
-const value: operations.FetchInteractionError = {
-  status: "error",
-  code: 6719.06,
-  message: "<value>",
-};
-```
-
-### `operations.ResponseBody2`
-
-```typescript
-const value: operations.ResponseBody2 = {
+const value: models.SlimInteractionFetchResponse = {
+  view: "slim",
   instanceId: "<id>",
   journey: {
-    status: "InProgress",
+    status: "Failed",
   },
+  outstandingGroups: [
+    {
+      elementId: "<id>",
+      cardinality: "at-least-one",
+      refs: [
+        "<value 1>",
+        "<value 2>",
+        "<value 3>",
+      ],
+    },
+  ],
 };
 ```
 

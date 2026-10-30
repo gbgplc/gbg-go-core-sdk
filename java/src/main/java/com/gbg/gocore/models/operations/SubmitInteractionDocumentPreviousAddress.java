@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.Override;
 import java.lang.String;
@@ -32,22 +31,25 @@ public class SubmitInteractionDocumentPreviousAddress {
     private String addressString;
 
     /**
-     * The primary delivery point for a premise or building. This could be a house number, a building name,
-     * etc.
+     * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+     * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+     * for a property identified only by a name.
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("premise")
     private String premise;
 
     /**
-     * The name of a building or a building complex. In the US, this is the street number.
+     * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+     * street number, in any country; that is premise. A property identified only by a name populates this
+     * field with premise left empty.
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("building")
     private String building;
 
     /**
-     * The name of a sub-building, such as a flat or apartment number.
+     * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("subBuilding")
@@ -143,6 +145,7 @@ public class SubmitInteractionDocumentPreviousAddress {
      * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
      * to ISO 8601
      */
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("fromDate")
     private String fromDate;
 
@@ -150,6 +153,7 @@ public class SubmitInteractionDocumentPreviousAddress {
      * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
      * to ISO 8601
      */
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("toDate")
     private String toDate;
 
@@ -173,8 +177,8 @@ public class SubmitInteractionDocumentPreviousAddress {
             @JsonProperty("subAdministrativeArea") @Nullable String subAdministrativeArea,
             @JsonProperty("organization") @Nullable String organization,
             @JsonProperty("location") @Nullable SubmitInteractionDocumentPreviousAddressLocation location,
-            @JsonProperty("fromDate") @Nonnull String fromDate,
-            @JsonProperty("toDate") @Nonnull String toDate) {
+            @JsonProperty("fromDate") @Nullable String fromDate,
+            @JsonProperty("toDate") @Nullable String toDate) {
         this.lines = lines;
         this.addressString = addressString;
         this.premise = premise;
@@ -193,22 +197,18 @@ public class SubmitInteractionDocumentPreviousAddress {
         this.subAdministrativeArea = subAdministrativeArea;
         this.organization = organization;
         this.location = location;
-        this.fromDate = Optional.ofNullable(fromDate)
-            .orElseThrow(() -> new IllegalArgumentException("fromDate cannot be null"));
-        this.toDate = Optional.ofNullable(toDate)
-            .orElseThrow(() -> new IllegalArgumentException("toDate cannot be null"));
+        this.fromDate = fromDate;
+        this.toDate = toDate;
     }
     
-    public SubmitInteractionDocumentPreviousAddress(
-            @Nonnull String fromDate,
-            @Nonnull String toDate) {
+    public SubmitInteractionDocumentPreviousAddress() {
         this(null, null, null,
             null, null, null,
             null, null, null,
             null, null, null,
             null, null, null,
             null, null, null,
-            fromDate, toDate);
+            null, null);
     }
 
     /**
@@ -226,22 +226,25 @@ public class SubmitInteractionDocumentPreviousAddress {
     }
 
     /**
-     * The primary delivery point for a premise or building. This could be a house number, a building name,
-     * etc.
+     * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+     * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+     * for a property identified only by a name.
      */
     public Optional<String> premise() {
         return Optional.ofNullable(this.premise);
     }
 
     /**
-     * The name of a building or a building complex. In the US, this is the street number.
+     * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+     * street number, in any country; that is premise. A property identified only by a name populates this
+     * field with premise left empty.
      */
     public Optional<String> building() {
         return Optional.ofNullable(this.building);
     }
 
     /**
-     * The name of a sub-building, such as a flat or apartment number.
+     * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
      */
     public Optional<String> subBuilding() {
         return Optional.ofNullable(this.subBuilding);
@@ -332,16 +335,16 @@ public class SubmitInteractionDocumentPreviousAddress {
      * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
      * to ISO 8601
      */
-    public String fromDate() {
-        return this.fromDate;
+    public Optional<String> fromDate() {
+        return Optional.ofNullable(this.fromDate);
     }
 
     /**
      * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
      * to ISO 8601
      */
-    public String toDate() {
-        return this.toDate;
+    public Optional<String> toDate() {
+        return Optional.ofNullable(this.toDate);
     }
 
     public static Builder builder() {
@@ -368,8 +371,9 @@ public class SubmitInteractionDocumentPreviousAddress {
 
 
     /**
-     * The primary delivery point for a premise or building. This could be a house number, a building name,
-     * etc.
+     * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+     * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+     * for a property identified only by a name.
      */
     public SubmitInteractionDocumentPreviousAddress withPremise(@Nullable String premise) {
         this.premise = premise;
@@ -378,7 +382,9 @@ public class SubmitInteractionDocumentPreviousAddress {
 
 
     /**
-     * The name of a building or a building complex. In the US, this is the street number.
+     * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+     * street number, in any country; that is premise. A property identified only by a name populates this
+     * field with premise left empty.
      */
     public SubmitInteractionDocumentPreviousAddress withBuilding(@Nullable String building) {
         this.building = building;
@@ -387,7 +393,7 @@ public class SubmitInteractionDocumentPreviousAddress {
 
 
     /**
-     * The name of a sub-building, such as a flat or apartment number.
+     * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
      */
     public SubmitInteractionDocumentPreviousAddress withSubBuilding(@Nullable String subBuilding) {
         this.subBuilding = subBuilding;
@@ -506,8 +512,8 @@ public class SubmitInteractionDocumentPreviousAddress {
      * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
      * to ISO 8601
      */
-    public SubmitInteractionDocumentPreviousAddress withFromDate(@Nonnull String fromDate) {
-        this.fromDate = Utils.checkNotNull(fromDate, "fromDate");
+    public SubmitInteractionDocumentPreviousAddress withFromDate(@Nullable String fromDate) {
+        this.fromDate = fromDate;
         return this;
     }
 
@@ -516,8 +522,8 @@ public class SubmitInteractionDocumentPreviousAddress {
      * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
      * to ISO 8601
      */
-    public SubmitInteractionDocumentPreviousAddress withToDate(@Nonnull String toDate) {
-        this.toDate = Utils.checkNotNull(toDate, "toDate");
+    public SubmitInteractionDocumentPreviousAddress withToDate(@Nullable String toDate) {
+        this.toDate = toDate;
         return this;
     }
 
@@ -655,8 +661,9 @@ public class SubmitInteractionDocumentPreviousAddress {
         }
 
         /**
-         * The primary delivery point for a premise or building. This could be a house number, a building name,
-         * etc.
+         * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+         * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+         * for a property identified only by a name.
          */
         public Builder premise(@Nullable String premise) {
             this.premise = premise;
@@ -664,7 +671,9 @@ public class SubmitInteractionDocumentPreviousAddress {
         }
 
         /**
-         * The name of a building or a building complex. In the US, this is the street number.
+         * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+         * street number, in any country; that is premise. A property identified only by a name populates this
+         * field with premise left empty.
          */
         public Builder building(@Nullable String building) {
             this.building = building;
@@ -672,7 +681,7 @@ public class SubmitInteractionDocumentPreviousAddress {
         }
 
         /**
-         * The name of a sub-building, such as a flat or apartment number.
+         * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
          */
         public Builder subBuilding(@Nullable String subBuilding) {
             this.subBuilding = subBuilding;
@@ -777,8 +786,8 @@ public class SubmitInteractionDocumentPreviousAddress {
          * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
          * to ISO 8601
          */
-        public Builder fromDate(@Nonnull String fromDate) {
-            this.fromDate = Utils.checkNotNull(fromDate, "fromDate");
+        public Builder fromDate(@Nullable String fromDate) {
+            this.fromDate = fromDate;
             return this;
         }
 
@@ -786,8 +795,8 @@ public class SubmitInteractionDocumentPreviousAddress {
          * Specified in year, month and day separated by -. For example 2017-1-1 or 2017-01-01 which conforms
          * to ISO 8601
          */
-        public Builder toDate(@Nonnull String toDate) {
-            this.toDate = Utils.checkNotNull(toDate, "toDate");
+        public Builder toDate(@Nullable String toDate) {
+            this.toDate = toDate;
             return this;
         }
 

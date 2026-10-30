@@ -4,9 +4,9 @@
 package com.gbg.gocore.models.operations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gbg.gocore.utils.SpeakeasyMetadata;
 import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.lang.Override;
 import java.lang.String;
 import java.util.Optional;
@@ -14,23 +14,42 @@ import java.util.Optional;
 
 public class FetchInteractionRequest {
     /**
-     * Journey instance identifier
+     * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+     * compact, typed customer-facing shape.
+     * 
+     * <p>Any other value returns 400.
      */
-    @JsonProperty("instanceId")
-    private String instanceId;
+    @SpeakeasyMetadata("queryParam:style=form,explode=true,name=view")
+    private String view;
+
+
+    @SpeakeasyMetadata("request:mediaType=application/json")
+    private FetchInteractionRequestBody body;
 
     @JsonCreator
     public FetchInteractionRequest(
-            @JsonProperty("instanceId") @Nonnull String instanceId) {
-        this.instanceId = Optional.ofNullable(instanceId)
-            .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
+            @Nullable String view,
+            @Nullable FetchInteractionRequestBody body) {
+        this.view = view;
+        this.body = body;
+    }
+    
+    public FetchInteractionRequest() {
+        this(null, null);
     }
 
     /**
-     * Journey instance identifier
+     * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+     * compact, typed customer-facing shape.
+     * 
+     * <p>Any other value returns 400.
      */
-    public String instanceId() {
-        return this.instanceId;
+    public Optional<String> view() {
+        return Optional.ofNullable(this.view);
+    }
+
+    public Optional<FetchInteractionRequestBody> body() {
+        return Optional.ofNullable(this.body);
     }
 
     public static Builder builder() {
@@ -39,10 +58,19 @@ public class FetchInteractionRequest {
 
 
     /**
-     * Journey instance identifier
+     * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+     * compact, typed customer-facing shape.
+     * 
+     * <p>Any other value returns 400.
      */
-    public FetchInteractionRequest withInstanceId(@Nonnull String instanceId) {
-        this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
+    public FetchInteractionRequest withView(@Nullable String view) {
+        this.view = view;
+        return this;
+    }
+
+
+    public FetchInteractionRequest withBody(@Nullable FetchInteractionRequestBody body) {
+        this.body = body;
         return this;
     }
 
@@ -57,41 +85,53 @@ public class FetchInteractionRequest {
         }
         FetchInteractionRequest other = (FetchInteractionRequest) o;
         return 
-            Utils.enhancedDeepEquals(this.instanceId, other.instanceId);
+            Utils.enhancedDeepEquals(this.view, other.view) &&
+            Utils.enhancedDeepEquals(this.body, other.body);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            instanceId);
+            view, body);
     }
     
     @Override
     public String toString() {
         return Utils.toString(FetchInteractionRequest.class,
-                "instanceId", instanceId);
+                "view", view,
+                "body", body);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
-        private String instanceId;
+        private String view;
+
+        private FetchInteractionRequestBody body;
 
         private Builder() {
           // force use of static builder() method
         }
 
         /**
-         * Journey instance identifier
+         * Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the
+         * compact, typed customer-facing shape.
+         * 
+         * <p>Any other value returns 400.
          */
-        public Builder instanceId(@Nonnull String instanceId) {
-            this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
+        public Builder view(@Nullable String view) {
+            this.view = view;
+            return this;
+        }
+
+        public Builder body(@Nullable FetchInteractionRequestBody body) {
+            this.body = body;
             return this;
         }
 
         public FetchInteractionRequest build() {
             return new FetchInteractionRequest(
-                instanceId);
+                view, body);
         }
 
     }

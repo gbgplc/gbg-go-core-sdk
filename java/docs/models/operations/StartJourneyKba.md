@@ -1,0 +1,9 @@
+# StartJourneyKba
+
+
+## Fields
+
+| Field                                                                          | Setter Type                                                                    | Getter Type                                                                    | Required                                                                       | Description                                                                    |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `questions`                                                                    | List\<[StartJourneyQuestion](../../models/operations/StartJourneyQuestion.md)> | List\<[StartJourneyQuestion](../../models/operations/StartJourneyQuestion.md)> | :heavy_check_mark:                                                             | N/A                                                                            |
+| `answers`                                                                      | List\<[StartJourneyAnswer](../../models/operations/StartJourneyAnswer.md)>     | List\<[StartJourneyAnswer](../../models/operations/StartJourneyAnswer.md)>     | :heavy_check_mark:                                                             | N/A                                                                            |

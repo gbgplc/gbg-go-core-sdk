@@ -32,22 +32,22 @@ public class GetJourneyStateResponse implements Response {
     private HttpResponse<InputStream> rawResponse;
 
     /**
-     * Success
+     * Journey state (full by default; slim with ?view=slim)
      */
-    private GetJourneyStateResponseBody object;
+    private GetJourneyStateResponseBody oneOf;
 
     @JsonCreator
     public GetJourneyStateResponse(
             @Nonnull String contentType,
             int statusCode,
             @Nonnull HttpResponse<InputStream> rawResponse,
-            @Nullable GetJourneyStateResponseBody object) {
+            @Nullable GetJourneyStateResponseBody oneOf) {
         this.contentType = Optional.ofNullable(contentType)
             .orElseThrow(() -> new IllegalArgumentException("contentType cannot be null"));
         this.statusCode = statusCode;
         this.rawResponse = Optional.ofNullable(rawResponse)
             .orElseThrow(() -> new IllegalArgumentException("rawResponse cannot be null"));
-        this.object = object;
+        this.oneOf = oneOf;
     }
     
     public GetJourneyStateResponse(
@@ -80,10 +80,10 @@ public class GetJourneyStateResponse implements Response {
     }
 
     /**
-     * Success
+     * Journey state (full by default; slim with ?view=slim)
      */
-    public Optional<GetJourneyStateResponseBody> object() {
-        return Optional.ofNullable(this.object);
+    public Optional<GetJourneyStateResponseBody> oneOf() {
+        return Optional.ofNullable(this.oneOf);
     }
 
     public static Builder builder() {
@@ -119,10 +119,10 @@ public class GetJourneyStateResponse implements Response {
 
 
     /**
-     * Success
+     * Journey state (full by default; slim with ?view=slim)
      */
-    public GetJourneyStateResponse withObject(@Nullable GetJourneyStateResponseBody object) {
-        this.object = object;
+    public GetJourneyStateResponse withOneOf(@Nullable GetJourneyStateResponseBody oneOf) {
+        this.oneOf = oneOf;
         return this;
     }
 
@@ -140,14 +140,14 @@ public class GetJourneyStateResponse implements Response {
             Utils.enhancedDeepEquals(this.contentType, other.contentType) &&
             Utils.enhancedDeepEquals(this.statusCode, other.statusCode) &&
             Utils.enhancedDeepEquals(this.rawResponse, other.rawResponse) &&
-            Utils.enhancedDeepEquals(this.object, other.object);
+            Utils.enhancedDeepEquals(this.oneOf, other.oneOf);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             contentType, statusCode, rawResponse,
-            object);
+            oneOf);
     }
     
     @Override
@@ -156,7 +156,7 @@ public class GetJourneyStateResponse implements Response {
                 "contentType", contentType,
                 "statusCode", statusCode,
                 "rawResponse", rawResponse,
-                "object", object);
+                "oneOf", oneOf);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -168,7 +168,7 @@ public class GetJourneyStateResponse implements Response {
 
         private HttpResponse<InputStream> rawResponse;
 
-        private GetJourneyStateResponseBody object;
+        private GetJourneyStateResponseBody oneOf;
 
         private Builder() {
           // force use of static builder() method
@@ -199,17 +199,17 @@ public class GetJourneyStateResponse implements Response {
         }
 
         /**
-         * Success
+         * Journey state (full by default; slim with ?view=slim)
          */
-        public Builder object(@Nullable GetJourneyStateResponseBody object) {
-            this.object = object;
+        public Builder oneOf(@Nullable GetJourneyStateResponseBody oneOf) {
+            this.oneOf = oneOf;
             return this;
         }
 
         public GetJourneyStateResponse build() {
             return new GetJourneyStateResponse(
                 contentType, statusCode, rawResponse,
-                object);
+                oneOf);
         }
 
     }

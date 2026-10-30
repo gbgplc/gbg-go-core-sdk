@@ -1,0 +1,21 @@
+# StartJourneyRegistration
+
+## Example Usage
+
+```typescript
+import { StartJourneyRegistration } from "@gbg/go-core/models/operations";
+
+let value: StartJourneyRegistration = {};
+```
+
+## Fields
+
+| Field                                                                                                           | Type                                                                                                            | Required                                                                                                        | Description                                                                                                     |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `jurisdiction`                                                                                                  | *string*                                                                                                        | :heavy_minus_sign:                                                                                              | N/A                                                                                                             |
+| `registrationType`                                                                                              | [operations.StartJourneyRegistrationType](../../models/operations/start-journey-registration-type.md)           | :heavy_minus_sign:                                                                                              | N/A                                                                                                             |
+| `fileNumber`                                                                                                    | *string*                                                                                                        | :heavy_minus_sign:                                                                                              | N/A                                                                                                             |
+| `issueDate`                                                                                                     | *string*                                                                                                        | :heavy_minus_sign:                                                                                              | Specified in year, month and day separated by -.  For example 2017-1-1 or 2017-01-01 which conforms to ISO 8601 |
+| `registeredAddress`                                                                                             | [operations.StartJourneyRegisteredAddress](../../models/operations/start-journey-registered-address.md)         | :heavy_minus_sign:                                                                                              | N/A                                                                                                             |
+| `agentName`                                                                                                     | *string*                                                                                                        | :heavy_minus_sign:                                                                                              | N/A                                                                                                             |
+| `agentAddress`                                                                                                  | [operations.StartJourneyAgentAddress](../../models/operations/start-journey-agent-address.md)                   | :heavy_minus_sign:                                                                                              | N/A                                                                                                             |

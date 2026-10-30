@@ -3,134 +3,28 @@
  */
 package com.gbg.gocore.models.operations;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.gbg.gocore.utils.OneOfDeserializer;
-import com.gbg.gocore.utils.TypedObject;
-import com.gbg.gocore.utils.Utils.JsonShape;
-import com.gbg.gocore.utils.Utils.TypeReferenceWithShape;
-import com.gbg.gocore.utils.Utils;
-import java.lang.Override;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import java.lang.String;
-import java.lang.SuppressWarnings;
-import java.util.Optional;
 
 /**
  * FetchInteractionResponseBody
  * 
- * <p>Success
+ * <p>Interaction state (full by default; slim with ?view=slim)
  */
-@JsonDeserialize(using = FetchInteractionResponseBody._Deserializer.class)
-public class FetchInteractionResponseBody {
+@JsonTypeInfo(
+        use = Id.CUSTOM,
+        property = "view",
+        include = As.EXISTING_PROPERTY,
+        visible = true,
+        defaultImpl = UnknownFetchInteractionResponseBody.class
+)
+@JsonTypeIdResolver(FetchInteractionResponseBodyTypeIdResolver.class)
+public interface FetchInteractionResponseBody {
 
-    @JsonValue
-    private final TypedObject value;
-    
-    private FetchInteractionResponseBody(TypedObject value) {
-        this.value = value;
-    }
-
-    public static FetchInteractionResponseBody of(ResponseBody1 value) {
-        Utils.checkNotNull(value, "value");
-        return new FetchInteractionResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
-    }
-
-    public static FetchInteractionResponseBody of(FetchInteractionError value) {
-        Utils.checkNotNull(value, "value");
-        return new FetchInteractionResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
-    }
-
-    public static FetchInteractionResponseBody of(ResponseBody2 value) {
-        Utils.checkNotNull(value, "value");
-        return new FetchInteractionResponseBody(TypedObject.of(value, JsonShape.DEFAULT, new TypeReference<>(){}));
-    }
-    
-    /**
-     * Returns an {@link Optional} containing the value if it is of type {@code ResponseBody1},
-     * otherwise returns an empty {@link Optional}.
-     *
-     * @return an {@link Optional} containing the {@code ResponseBody1} value, or empty if not of this type
-     */
-    public Optional<ResponseBody1> responseBody1() {
-        if (value.value() instanceof ResponseBody1) {
-            return Optional.of((ResponseBody1) value.value());
-        }
-        return Optional.empty();
-    }
-    
-    /**
-     * Returns an {@link Optional} containing the value if it is of type {@code FetchInteractionError},
-     * otherwise returns an empty {@link Optional}.
-     *
-     * @return an {@link Optional} containing the {@code FetchInteractionError} value, or empty if not of this type
-     */
-    public Optional<FetchInteractionError> fetchInteractionError() {
-        if (value.value() instanceof FetchInteractionError) {
-            return Optional.of((FetchInteractionError) value.value());
-        }
-        return Optional.empty();
-    }
-    
-    /**
-     * Returns an {@link Optional} containing the value if it is of type {@code ResponseBody2},
-     * otherwise returns an empty {@link Optional}.
-     *
-     * @return an {@link Optional} containing the {@code ResponseBody2} value, or empty if not of this type
-     */
-    public Optional<ResponseBody2> responseBody2() {
-        if (value.value() instanceof ResponseBody2) {
-            return Optional.of((ResponseBody2) value.value());
-        }
-        return Optional.empty();
-    }
-   /**
-    * Returns an {@link Optional} containing the value as a {@code JsonNode}.
-    * This accessor returns the raw JSON when the value doesn't match any of the defined union types.
-    *
-    * @return an {@link Optional} containing the {@code JsonNode} value, or empty if value matched a known type
-    */
-   public Optional<JsonNode> asJson() {
-       if (value.value() instanceof JsonNode) {
-           return Optional.of((JsonNode) value.value());
-       }
-       return Optional.empty();
-   }
-    
-    @Override
-    public boolean equals(java.lang.Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        FetchInteractionResponseBody other = (FetchInteractionResponseBody) o;
-        return Utils.enhancedDeepEquals(this.value.value(), other.value.value());
-    }
-    
-    @Override
-    public int hashCode() {
-        return Utils.enhancedHash(value.value());
-    }
-    
-    @SuppressWarnings("serial")
-    public static final class _Deserializer extends OneOfDeserializer<FetchInteractionResponseBody> {
-
-        public _Deserializer() {
-            super(FetchInteractionResponseBody.class, false,
-                  TypeReferenceWithShape.of(new TypeReference<ResponseBody1>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<FetchInteractionError>() {}, JsonShape.DEFAULT),
-                  TypeReferenceWithShape.of(new TypeReference<ResponseBody2>() {}, JsonShape.DEFAULT));
-        }
-    }
-    
-    @Override
-    public String toString() {
-        return Utils.toString(FetchInteractionResponseBody.class,
-                "value", value);
-    }
+    String view();
 
 }
 

@@ -7,15 +7,15 @@ import { StartJourneyContext } from "@gbg/go-core/models/operations";
 
 let value: StartJourneyContext = {
   config: {
-    delivery: "api",
+    delivery: "<value>",
   },
-  subject: {},
 };
 ```
 
 ## Fields
 
-| Field                                                                              | Type                                                                               | Required                                                                           | Description                                                                        |
-| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `config`                                                                           | [operations.Config](../../models/operations/config.md)                             | :heavy_check_mark:                                                                 | N/A                                                                                |
-| `subject`                                                                          | [operations.StartJourneySubject](../../models/operations/start-journey-subject.md) | :heavy_check_mark:                                                                 | N/A                                                                                |
+| Field                                                                                             | Type                                                                                              | Required                                                                                          | Description                                                                                       |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `subject`                                                                                         | [operations.StartJourneyContextSubject](../../models/operations/start-journey-context-subject.md) | :heavy_minus_sign:                                                                                | N/A                                                                                               |
+| `config`                                                                                          | [operations.Config](../../models/operations/config.md)                                            | :heavy_check_mark:                                                                                | N/A                                                                                               |
+| `additionalProperties`                                                                            | Record<string, *any*>                                                                             | :heavy_minus_sign:                                                                                | N/A                                                                                               |

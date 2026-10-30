@@ -5,13 +5,12 @@
 ```typescript
 import { FetchInteractionSecurity } from "@gbg/go-core/models/operations";
 
-let value: FetchInteractionSecurity = {
-  interactionAccess: "<value>",
-};
+let value: FetchInteractionSecurity = {};
 ```
 
 ## Fields
 
 | Field               | Type                | Required            | Description         |
 | ------------------- | ------------------- | ------------------- | ------------------- |
-| `interactionAccess` | *string*            | :heavy_check_mark:  | N/A                 |
+| `customerAccess`    | *string*            | :heavy_minus_sign:  | N/A                 |
+| `interactionAccess` | *string*            | :heavy_minus_sign:  | N/A                 |

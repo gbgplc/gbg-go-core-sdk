@@ -31,22 +31,25 @@ public class SubmitInteractionDocumentPlaceOfBirth {
     private String addressString;
 
     /**
-     * The primary delivery point for a premise or building. This could be a house number, a building name,
-     * etc.
+     * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+     * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+     * for a property identified only by a name.
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("premise")
     private String premise;
 
     /**
-     * The name of a building or a building complex. In the US, this is the street number.
+     * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+     * street number, in any country; that is premise. A property identified only by a name populates this
+     * field with premise left empty.
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("building")
     private String building;
 
     /**
-     * The name of a sub-building, such as a flat or apartment number.
+     * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("subBuilding")
@@ -202,22 +205,25 @@ public class SubmitInteractionDocumentPlaceOfBirth {
     }
 
     /**
-     * The primary delivery point for a premise or building. This could be a house number, a building name,
-     * etc.
+     * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+     * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+     * for a property identified only by a name.
      */
     public Optional<String> premise() {
         return Optional.ofNullable(this.premise);
     }
 
     /**
-     * The name of a building or a building complex. In the US, this is the street number.
+     * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+     * street number, in any country; that is premise. A property identified only by a name populates this
+     * field with premise left empty.
      */
     public Optional<String> building() {
         return Optional.ofNullable(this.building);
     }
 
     /**
-     * The name of a sub-building, such as a flat or apartment number.
+     * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
      */
     public Optional<String> subBuilding() {
         return Optional.ofNullable(this.subBuilding);
@@ -328,8 +334,9 @@ public class SubmitInteractionDocumentPlaceOfBirth {
 
 
     /**
-     * The primary delivery point for a premise or building. This could be a house number, a building name,
-     * etc.
+     * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+     * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+     * for a property identified only by a name.
      */
     public SubmitInteractionDocumentPlaceOfBirth withPremise(@Nullable String premise) {
         this.premise = premise;
@@ -338,7 +345,9 @@ public class SubmitInteractionDocumentPlaceOfBirth {
 
 
     /**
-     * The name of a building or a building complex. In the US, this is the street number.
+     * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+     * street number, in any country; that is premise. A property identified only by a name populates this
+     * field with premise left empty.
      */
     public SubmitInteractionDocumentPlaceOfBirth withBuilding(@Nullable String building) {
         this.building = building;
@@ -347,7 +356,7 @@ public class SubmitInteractionDocumentPlaceOfBirth {
 
 
     /**
-     * The name of a sub-building, such as a flat or apartment number.
+     * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
      */
     public SubmitInteractionDocumentPlaceOfBirth withSubBuilding(@Nullable String subBuilding) {
         this.subBuilding = subBuilding;
@@ -586,8 +595,9 @@ public class SubmitInteractionDocumentPlaceOfBirth {
         }
 
         /**
-         * The primary delivery point for a premise or building. This could be a house number, a building name,
-         * etc.
+         * The number identifying the property's delivery point on its street — "128", "30A", "8-12". Not the
+         * street name (thoroughfare), the unit (subBuilding), or a building or property name (building). Empty
+         * for a property identified only by a name.
          */
         public Builder premise(@Nullable String premise) {
             this.premise = premise;
@@ -595,7 +605,9 @@ public class SubmitInteractionDocumentPlaceOfBirth {
         }
 
         /**
-         * The name of a building or a building complex. In the US, this is the street number.
+         * The name of the building, complex, or named property — "Landmark House", "The Shard". Never the
+         * street number, in any country; that is premise. A property identified only by a name populates this
+         * field with premise left empty.
          */
         public Builder building(@Nullable String building) {
             this.building = building;
@@ -603,7 +615,7 @@ public class SubmitInteractionDocumentPlaceOfBirth {
         }
 
         /**
-         * The name of a sub-building, such as a flat or apartment number.
+         * The unit within the property, such as a flat, apartment or suite number — "FLAT 1", "SUITE 212".
          */
         public Builder subBuilding(@Nullable String subBuilding) {
             this.subBuilding = subBuilding;
