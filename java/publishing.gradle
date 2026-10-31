@@ -47,7 +47,7 @@ afterEvaluate {
                     description = config.description
                     url = 'https://github.com/gbgplc/gbg-go-core-sdk'
                     scm {
-                        url = 'github.com/gbgplc/gbg-go-core-sdk'
+                        url = 'https://github.com/gbgplc/gbg-go-core-sdk'
                         connection = 'scm:git:ssh://git@github.com/gbgplc/gbg-go-core-sdk.git'
                     }
                     licenses {
