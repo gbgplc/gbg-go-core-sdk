@@ -7,6 +7,19 @@ version together.
 `RELEASES.md` is a generator-written log of every build. This file is the
 human-readable one: what changed, what breaks, and what to do about it.
 
+## 0.2.0-alpha.2 (TypeScript `0.2.0-alpha.2`, Java `0.2.0-alpha03`)
+
+Previous release: TypeScript `0.2.0-alpha.1`, Java `0.2.0-alpha02`.
+
+### Fixed
+
+- **Java: `JourneyStartResponse.test()` reports what Captain sent.** It
+  returned `true` for every journey, including real ones, because the spec's
+  one-value enum was generated as a constant. It is now empty for a real
+  journey and `true` for a test scenario run.
+- **TypeScript:** `test` is typed `boolean` rather than the literal `true`.
+  Decoding was already correct; code comparing it with `true` is unaffected.
+
 ## 0.2.0-alpha.1 (TypeScript `0.2.0-alpha.1`, Java `0.2.0-alpha02`)
 
 Previous release: TypeScript `0.2.0-alpha.0`, Java `0.2.0-alpha01`.

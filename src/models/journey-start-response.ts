@@ -33,7 +33,7 @@ export type JourneyStartResponse = {
   /**
    * Present and `true` only when the journey was started as a test scenario.
    */
-  test?: true | undefined;
+  test?: boolean | undefined;
   /**
    * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request body. Present only together with `test: true`.
    */
@@ -56,7 +56,7 @@ export const JourneyStartResponse$inboundSchema: z.ZodMiniType<
   status: JourneyStartResponseStatus$inboundSchema,
   message: z.optional(z.string()),
   state: z.optional(StateFetchResponse$inboundSchema),
-  test: z.optional(z.literal(true)),
+  test: z.optional(z.boolean()),
   scenario: z.optional(z.string()),
 });
 

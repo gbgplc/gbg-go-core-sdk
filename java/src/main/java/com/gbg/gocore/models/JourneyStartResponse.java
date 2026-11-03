@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.gbg.gocore.utils.LazySingletonValue;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -64,6 +62,7 @@ public class JourneyStartResponse {
             @JsonProperty("status") @Nonnull JourneyStartResponseStatus status,
             @JsonProperty("message") @Nullable String message,
             @JsonProperty("state") @Nullable StateFetchResponse state,
+            @JsonProperty("test") @Nullable Boolean test,
             @JsonProperty("scenario") @Nullable String scenario) {
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
@@ -72,7 +71,7 @@ public class JourneyStartResponse {
             .orElseThrow(() -> new IllegalArgumentException("status cannot be null"));
         this.message = message;
         this.state = state;
-        this.test = Builder._SINGLETON_VALUE_Test.value();
+        this.test = test;
         this.scenario = scenario;
     }
     
@@ -80,7 +79,8 @@ public class JourneyStartResponse {
             @Nonnull String instanceId,
             @Nonnull JourneyStartResponseStatus status) {
         this(instanceId, null, status,
-            null, null, null);
+            null, null, null,
+            null);
     }
 
     public String instanceId() {
@@ -154,6 +154,15 @@ public class JourneyStartResponse {
 
 
     /**
+     * Present and `true` only when the journey was started as a test scenario.
+     */
+    public JourneyStartResponse withTest(@Nullable Boolean test) {
+        this.test = test;
+        return this;
+    }
+
+
+    /**
      * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request
      * body. Present only together with `test: true`.
      */
@@ -215,6 +224,8 @@ public class JourneyStartResponse {
 
         private StateFetchResponse state;
 
+        private Boolean test;
+
         private String scenario;
 
         private Builder() {
@@ -247,6 +258,14 @@ public class JourneyStartResponse {
         }
 
         /**
+         * Present and `true` only when the journey was started as a test scenario.
+         */
+        public Builder test(@Nullable Boolean test) {
+            this.test = test;
+            return this;
+        }
+
+        /**
          * The test scenario that was applied: its name, or "inline" for a scenario supplied in the request
          * body. Present only together with `test: true`.
          */
@@ -258,14 +277,9 @@ public class JourneyStartResponse {
         public JourneyStartResponse build() {
             return new JourneyStartResponse(
                 instanceId, instanceUrl, status,
-                message, state, scenario);
+                message, state, test,
+                scenario);
         }
 
-
-        private static final LazySingletonValue<Boolean> _SINGLETON_VALUE_Test =
-                new LazySingletonValue<>(
-                        "test",
-                        "true",
-                        new TypeReference<Boolean>() {});
     }
 }

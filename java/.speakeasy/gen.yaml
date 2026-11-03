@@ -32,7 +32,7 @@ generation:
     generateNewTests: true
     skipResponseBodyAssertions: false
 java:
-  version: 0.2.0-alpha02
+  version: 0.2.0-alpha03
   additionalDependencies:
     - api:com.fasterxml.jackson.core:jackson-databind:2.22.1
   additionalPlugins: []

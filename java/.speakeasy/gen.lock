@@ -1,17 +1,17 @@
 lockVersion: 2.0.0
 id: 663305ae-280a-4b2f-be56-11e4f8ede2df
 management:
-  docChecksum: fbd7a8f6a8cef87299d9e6029173e868
+  docChecksum: 1c0bf643fc8f1c306e570076e3d68645
   docVersion: 2.x
-  speakeasyVersion: 1.805.0
-  generationVersion: 2.954.8
-  releaseVersion: 0.2.0-alpha02
-  configChecksum: 08b0cc902718b1c8773fdd491b002721
+  speakeasyVersion: 1.806.0
+  generationVersion: 2.956.1
+  releaseVersion: 0.2.0-alpha03
+  configChecksum: 25afb11585ad4a55575ec76299f677f3
   published: true
 persistentEdits:
-  generation_id: 681eb726-9ba8-435b-8039-4534e85bc08a
-  pristine_commit_hash: ecfa340176ab09671348734252b2ae374b5b0bf2
-  pristine_tree_hash: 9efd9fdf800b58d8b602d80a331bfa25d62e905c
+  generation_id: b07460ca-0f7c-4cda-aff2-a8bfb275e2a5
+  pristine_commit_hash: 447cdb7a545286658c38468b7ed6a98a28c873b8
+  pristine_tree_hash: 5d1505c0811153c0ee97bb69e3d63bd372cd2196
 features:
   java:
     additionalDependencies: 0.1.0
@@ -1606,8 +1606,8 @@ trackedFiles:
     pristine_git_object: 15c9c968dc112a12f5f591958e42f16d8f1e5602
   gradle.properties:
     id: 2afbb999f001
-    last_write_checksum: sha1:deb6d664517bee6b3aa6e58d5d8b49502849e652
-    pristine_git_object: b2b3b9f7835ec622eff77796c4c845a6719ba024
+    last_write_checksum: sha1:b16a9cee2a12c5856f6b97a55bba3fea258664e8
+    pristine_git_object: 88afcf2eaebc5c427c43c61019762795134a074d
   gradle/wrapper/gradle-wrapper.jar:
     id: ec27dae6e852
     last_write_checksum: sha1:f725fb1467084142d74fd7cd8eab691ab3442611
@@ -1694,8 +1694,8 @@ trackedFiles:
     pristine_git_object: 31b243b5aeb88ad2e6382ee5ffecd2521565db9f
   src/main/java/com/gbg/gocore/SDKConfiguration.java:
     id: 740f95ca528a
-    last_write_checksum: sha1:ad584dd8b3dcaa94ff62d1fde3cf303ecfa43da0
-    pristine_git_object: b7ccdf36bfec0acbcb85bb3b5056b81454ea2149
+    last_write_checksum: sha1:ca062c420734cc1da5694f4bf2157d7d0f657d9a
+    pristine_git_object: d44625787b134eac23bd56e0ca82217819724dc3
   src/main/java/com/gbg/gocore/SecuritySource.java:
     id: c50483fc452f
     last_write_checksum: sha1:f11362fc7bd52b1331215e0afecd99e46b3265b4
@@ -1870,8 +1870,8 @@ trackedFiles:
     pristine_git_object: 19d40c4c8f1d6d3838f6f2050516a720e8178738
   src/main/java/com/gbg/gocore/models/JourneyStartResponse.java:
     id: e8ac21bf3fd9
-    last_write_checksum: sha1:b1daf9db25fbca51960907c1997deabacd52e378
-    pristine_git_object: 3ed4485074072526474ef32b3b89910efd01686a
+    last_write_checksum: sha1:1c8e1fc6d570453553abc85f133d6464ee1e7310
+    pristine_git_object: 00643f895e0be92b1d6f1429e2fa1dce6fd74a2d
   src/main/java/com/gbg/gocore/models/JourneyStartResponseStatus.java:
     id: 4039156ffa71
     last_write_checksum: sha1:6c1fb62e5d08b371a5116f9b347dd5c3ea35a1c3
@@ -3993,7 +3993,7 @@ examples:
         "200":
           application/json: {"instanceId": "<id>"}
         "201":
-          application/json: {"instanceId": "<id>", "status": "started", "test": true, "scenario": "inline"}
+          application/json: {"instanceId": "<id>", "status": "started", "scenario": "inline"}
         "400":
           application/json: {"errors": []}
         "500":

@@ -22,6 +22,9 @@ info:
 # Nothing here should ever describe the *shape of a response*. Hand-maintaining
 # response schemas is what left the published SDK silently dropping the journey
 # result; the live spec is the only thing that tracks the server, so let it.
+#
+# The one exception is at the end: a single field the spec types in a way the
+# Java generator decodes wrongly. It loosens the spec, never adds to it.
 
 actions:
   # --- Servers -------------------------------------------------------------
@@ -165,3 +168,12 @@ actions:
       operationId: deleteTestScenario
       x-speakeasy-group: testScenarios
       x-speakeasy-name-override: delete
+
+  # --- Generator workarounds -----------------------------------------------
+  # The spec types `test` as `enum: [true]` because Captain omits it for real
+  # journeys. The Java generator reads a one-value enum as a constant and sets
+  # it in the constructor without reading the reply, so every journey, real or
+  # not, reported `test() == true`. A plain boolean decodes what was sent.
+  # Remove once Captain declares it as `type: boolean`.
+  - target: $["components"]["schemas"]["JourneyStartResponse"]["properties"]["test"]["enum"]
+    remove: true

@@ -83,8 +83,6 @@ components:
           $ref: "#/components/schemas/StateFetchResponse"
         test:
           type: "boolean"
-          enum:
-            - true
           description: "Present and `true` only when the journey was started as a test scenario."
         scenario:
           type: "string"

@@ -1,19 +1,19 @@
 lockVersion: 2.0.0
 id: dd8e9c11-4bf6-47d0-be44-e158698e96c3
 management:
-  docChecksum: fbd7a8f6a8cef87299d9e6029173e868
+  docChecksum: 1c0bf643fc8f1c306e570076e3d68645
   docVersion: 2.x
-  speakeasyVersion: 1.805.0
-  generationVersion: 2.954.8
-  releaseVersion: 0.2.0-alpha.1
-  configChecksum: 0509e20d9907bc9cbf9f1a3b55dec686
+  speakeasyVersion: 1.806.0
+  generationVersion: 2.956.1
+  releaseVersion: 0.2.0-alpha.2
+  configChecksum: 4ce75b668023b17ab517e5aae88130ed
   repoURL: https://github.com/gbgplc/gbg-go-core-sdk.git
   installationURL: https://github.com/gbgplc/gbg-go-core-sdk
   published: true
 persistentEdits:
-  generation_id: 7e00ab80-1617-4f61-8026-fccfcc83efb0
-  pristine_commit_hash: 7deee99c943cfa5c1cba1abf8fccd13308381b37
-  pristine_tree_hash: 1f0f2ac52da8df906e28c34503b9110cb7872ba4
+  generation_id: 63cb9760-9365-4474-875a-50e1cf090c58
+  pristine_commit_hash: 444cd3abab5211cb7192616d7bf01ff96068173c
+  pristine_tree_hash: ba89521cac7dc2570d5b561adc9189e6bcb5f651
 features:
   typescript:
     additionalDependencies: 0.1.0
@@ -225,8 +225,8 @@ trackedFiles:
     pristine_git_object: 67f1ccb8076235cd7bec5aff2a2e27c6067ebf2a
   docs/models/journey-start-response.md:
     id: b31f2dcc5b27
-    last_write_checksum: sha1:98b66ee8e5d7aaedb28e73cabae8bdcf0f779c21
-    pristine_git_object: b1c2bc62b1e24f2aa9b446b41ee97a43164ce09e
+    last_write_checksum: sha1:260ddae9d30e48cfebdb216686f1bbad0c379e84
+    pristine_git_object: bfa60007e0067fc5df59c99800872db76946df00
   docs/models/loqate-retrieve-response.md:
     id: 65aff17fdce0
     last_write_checksum: sha1:0d8f072c79be6b3a774c825a18d13715c33ca320
@@ -1533,12 +1533,12 @@ trackedFiles:
     pristine_git_object: d5dc74b688899badec476aa7e914d3783b8baf78
   jsr.json:
     id: 7f6ab7767282
-    last_write_checksum: sha1:3025e2222757f9be55f5497b85247c4e652cd262
-    pristine_git_object: ee1cd793a7c25e818414f351dca361e4876cc971
+    last_write_checksum: sha1:7fe8cb61cb92b978a863fc94a3b6b42f84764f34
+    pristine_git_object: 988533ceded3820306692d86b82fd2dc2e473a99
   package.json:
     id: 7030d0b2f71b
-    last_write_checksum: sha1:c5d962a6caead9b121260f5098e1517fa5143d14
-    pristine_git_object: 2792503164f267da15efab1af4043b23c4ab9bf6
+    last_write_checksum: sha1:20806701d44179662d30c382a58fb18dfb138425
+    pristine_git_object: 0f35ed22a4f1bc4c055b7730cb4c95b8d109a8b0
   src/core.ts:
     id: f431fdbcd144
     last_write_checksum: sha1:b7e6c3158911253ce5134c21bf4c8506bf736af9
@@ -1653,8 +1653,8 @@ trackedFiles:
     pristine_git_object: 44be0eae8246521b230e8e711a88eff738fc015d
   src/lib/config.ts:
     id: 320761608fb3
-    last_write_checksum: sha1:28c64d0a4eed6cba7972303223caaa7df781795a
-    pristine_git_object: 1681a3d082b7bbe66034d14d065e435eae141993
+    last_write_checksum: sha1:a237ca16a571715680d704bb99d6fb26a66d51d8
+    pristine_git_object: ea15f52a8823aafc5d0105c4ee62f6476707dadb
   src/lib/encodings.ts:
     id: 3bd8ead98afd
     last_write_checksum: sha1:4481b2a380f8a16856ef92c66fb370299f56d135
@@ -1789,8 +1789,8 @@ trackedFiles:
     pristine_git_object: ebb0c8bb51f8f062a5d53dcae80f80e0ba7a622f
   src/models/journey-start-response.ts:
     id: 1c6a67da01ba
-    last_write_checksum: sha1:f5f775ce818e9d06e2b9205edd8d0b20b758824c
-    pristine_git_object: 2f58635868aa34cbe751e2a701dadaf0fdf2c362
+    last_write_checksum: sha1:e65eb276baf09ddffda9a715de99b4907ef3e7c0
+    pristine_git_object: d780b4d334857c2b140ad7267d582afa908e6e23
   src/models/loqate-retrieve-response.ts:
     id: c50b2f84ab42
     last_write_checksum: sha1:659b3acda124b2df9621065c56efd1bacb303582
@@ -2158,7 +2158,7 @@ examples:
         "200":
           application/json: {"instanceId": "<id>"}
         "201":
-          application/json: {"instanceId": "<id>", "status": "started", "test": true, "scenario": "inline"}
+          application/json: {"instanceId": "<id>", "status": "started", "scenario": "inline"}
         "400":
           application/json: {"errors": []}
         "500":
