@@ -15,6 +15,7 @@ generation:
     sharedErrorComponentsApr2025: true
     sharedNestedComponentsJan2026: true
     nameOverrideFeb2026: false
+    openSingleValueEnumsOct2026: false
   auth:
     oAuth2ClientCredentialsEnabled: true
     oAuth2PasswordEnabled: true
@@ -31,7 +32,7 @@ generation:
     generateNewTests: true
     skipResponseBodyAssertions: false
 java:
-  version: 0.1.0-alpha01
+  version: 0.1.0-alpha01.1
   additionalDependencies: []
   additionalPlugins: []
   artifactID: go-core-sdk
