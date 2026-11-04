@@ -8,8 +8,8 @@ import { PasswordGrantRequest } from "@gbg/go-core/models";
 let value: PasswordGrantRequest = {
   clientId: "<id>",
   clientSecret: "<value>",
-  username: "Kristoffer80",
-  password: "45Sd_nsD1s_1ImM",
+  username: "Liana.Padberg97",
+  password: "m36VkhLclPGZsz9",
   grantType: "password",
 };
 ```

@@ -18,6 +18,21 @@ import java.util.Optional;
 public class StartJourneySession {
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("id")
+    private String id;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("type")
+    private String type;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("provider")
+    private String provider;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("user")
     private StartJourneyUser user;
 
@@ -53,6 +68,9 @@ public class StartJourneySession {
 
     @JsonCreator
     public StartJourneySession(
+            @JsonProperty("id") @Nullable String id,
+            @JsonProperty("type") @Nullable String type,
+            @JsonProperty("provider") @Nullable String provider,
             @JsonProperty("user") @Nullable StartJourneyUser user,
             @JsonProperty("client") @Nullable StartJourneyClient client,
             @JsonProperty("device") @Nullable StartJourneySessionDevice device,
@@ -60,6 +78,9 @@ public class StartJourneySession {
             @JsonProperty("span") @Nullable StartJourneySpan span,
             @JsonProperty("transaction") @Nullable StartJourneyTransaction transaction,
             @JsonProperty("auth") @Nullable List<StartJourneySessionAuth> auth) {
+        this.id = id;
+        this.type = type;
+        this.provider = provider;
         this.user = user;
         this.client = client;
         this.device = device;
@@ -72,7 +93,20 @@ public class StartJourneySession {
     public StartJourneySession() {
         this(null, null, null,
             null, null, null,
+            null, null, null,
             null);
+    }
+
+    public Optional<String> id() {
+        return Optional.ofNullable(this.id);
+    }
+
+    public Optional<String> type() {
+        return Optional.ofNullable(this.type);
+    }
+
+    public Optional<String> provider() {
+        return Optional.ofNullable(this.provider);
     }
 
     public Optional<StartJourneyUser> user() {
@@ -105,6 +139,24 @@ public class StartJourneySession {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+
+    public StartJourneySession withId(@Nullable String id) {
+        this.id = id;
+        return this;
+    }
+
+
+    public StartJourneySession withType(@Nullable String type) {
+        this.type = type;
+        return this;
+    }
+
+
+    public StartJourneySession withProvider(@Nullable String provider) {
+        this.provider = provider;
+        return this;
     }
 
 
@@ -160,6 +212,9 @@ public class StartJourneySession {
         }
         StartJourneySession other = (StartJourneySession) o;
         return 
+            Utils.enhancedDeepEquals(this.id, other.id) &&
+            Utils.enhancedDeepEquals(this.type, other.type) &&
+            Utils.enhancedDeepEquals(this.provider, other.provider) &&
             Utils.enhancedDeepEquals(this.user, other.user) &&
             Utils.enhancedDeepEquals(this.client, other.client) &&
             Utils.enhancedDeepEquals(this.device, other.device) &&
@@ -172,6 +227,7 @@ public class StartJourneySession {
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
+            id, type, provider,
             user, client, device,
             trace, span, transaction,
             auth);
@@ -180,6 +236,9 @@ public class StartJourneySession {
     @Override
     public String toString() {
         return Utils.toString(StartJourneySession.class,
+                "id", id,
+                "type", type,
+                "provider", provider,
                 "user", user,
                 "client", client,
                 "device", device,
@@ -191,6 +250,12 @@ public class StartJourneySession {
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
+
+        private String id;
+
+        private String type;
+
+        private String provider;
 
         private StartJourneyUser user;
 
@@ -208,6 +273,21 @@ public class StartJourneySession {
 
         private Builder() {
           // force use of static builder() method
+        }
+
+        public Builder id(@Nullable String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder type(@Nullable String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder provider(@Nullable String provider) {
+            this.provider = provider;
+            return this;
         }
 
         public Builder user(@Nullable StartJourneyUser user) {
@@ -247,6 +327,7 @@ public class StartJourneySession {
 
         public StartJourneySession build() {
             return new StartJourneySession(
+                id, type, provider,
                 user, client, device,
                 trace, span, transaction,
                 auth);

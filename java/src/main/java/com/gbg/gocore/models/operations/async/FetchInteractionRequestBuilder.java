@@ -7,26 +7,38 @@ import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.models.operations.FetchInteractionRequest;
+import com.gbg.gocore.models.operations.FetchInteractionRequestBody;
 import com.gbg.gocore.models.operations.FetchInteractionSecurity;
 import com.gbg.gocore.operations.FetchInteraction;
 import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.String;
 import java.util.concurrent.CompletableFuture;
 
 public class FetchInteractionRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
+    private final FetchInteractionRequest.Builder pojoBuilder;
     private FetchInteractionRequest request;
     private FetchInteractionSecurity security;
+    private boolean _setterCalled;
 
     public FetchInteractionRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.pojoBuilder = FetchInteractionRequest.builder();
     }
 
-    public FetchInteractionRequestBuilder request(@Nullable FetchInteractionRequest request) {
-        this.request = request;
+    public FetchInteractionRequestBuilder view(@Nullable String view) {
+        this.pojoBuilder.view(view);
+        this._setterCalled = true;
+        return this;
+    }
+
+    public FetchInteractionRequestBuilder body(@Nullable FetchInteractionRequestBody body) {
+        this.pojoBuilder.body(body);
+        this._setterCalled = true;
         return this;
     }
 
@@ -36,6 +48,9 @@ public class FetchInteractionRequestBuilder {
     }
 
     private FetchInteractionRequest _buildRequest() {
+        if (this._setterCalled) {
+            this.request = this.pojoBuilder.build();
+        }
         return this.request;
     }
     

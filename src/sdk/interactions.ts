@@ -4,35 +4,18 @@
 
 import { interactionsFetch } from "../funcs/interactions-fetch.js";
 import { interactionsSubmit } from "../funcs/interactions-submit.js";
+import { interactionsUploadAsset } from "../funcs/interactions-upload-asset.js";
 import { ClientSDK, RequestOptions } from "../lib/sdks.js";
+import * as models from "../models/index.js";
 import * as operations from "../models/operations/index.js";
 import { unwrapAsync } from "../types/fp.js";
 
 export class Interactions extends ClientSDK {
   /**
-   * Submit Interaction
+   * Fetch current interaction
    *
    * @remarks
-   * Submit Interaction
-   */
-  async submit(
-    security: operations.SubmitInteractionSecurity,
-    request?: operations.SubmitInteractionRequest | undefined,
-    options?: RequestOptions,
-  ): Promise<operations.SubmitInteractionResponse> {
-    return unwrapAsync(interactionsSubmit(
-      this,
-      security,
-      request,
-      options,
-    ));
-  }
-
-  /**
-   * Fetch Interaction
-   *
-   * @remarks
-   * Fetch Interaction
+   * Retrieves the current interaction state for a journey instance.
    */
   async fetch(
     security: operations.FetchInteractionSecurity,
@@ -43,6 +26,42 @@ export class Interactions extends ClientSDK {
       this,
       security,
       request,
+      options,
+    ));
+  }
+
+  /**
+   * Submit interaction data
+   *
+   * @remarks
+   * Submits participant data for an interaction.
+   */
+  async submit(
+    security: operations.SubmitInteractionSecurity,
+    request?: operations.SubmitInteractionRequest | undefined,
+    options?: RequestOptions,
+  ): Promise<models.InteractionSubmitResponse> {
+    return unwrapAsync(interactionsSubmit(
+      this,
+      security,
+      request,
+      options,
+    ));
+  }
+
+  /**
+   * Stream an interaction asset to storage
+   *
+   * @remarks
+   * Streams a raw asset body (application/octet-stream) to storage and returns its gofs key. Identifiers are passed as X-Instance-Id, X-Interaction-Id and X-Domain-Element-Id headers. Accepts capture elements: the encrypted selfie (EncryptedSelfie/selfieImage), the plain selfie (Selfie/selfieImage), and both document sides (PrimaryDocument/side1Image, PrimaryDocument/side2Image). An element the current deployment does not accept returns 422 — submit that asset inline (base64) in the interaction submit instead.
+   */
+  async uploadAsset(
+    security: operations.UploadInteractionAssetSecurity,
+    options?: RequestOptions,
+  ): Promise<operations.UploadInteractionAssetResponse> {
+    return unwrapAsync(interactionsUploadAsset(
+      this,
+      security,
       options,
     ));
   }

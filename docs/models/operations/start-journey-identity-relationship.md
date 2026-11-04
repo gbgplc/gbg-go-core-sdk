@@ -5,11 +5,11 @@
 ```typescript
 import { StartJourneyIdentityRelationship } from "@gbg/go-core/models/operations";
 
-let value: StartJourneyIdentityRelationship = "maternalGrandFather";
+let value: StartJourneyIdentityRelationship = "spouse";
 ```
 
 ## Values
 
 ```typescript
-"mother" | "father" | "maternalGrandFather" | "maternalGrandMother" | "paternalGrandFather" | "paternalGrandMother"
+"mother" | "father" | "spouse" | "maternalGrandFather" | "maternalGrandMother" | "paternalGrandFather" | "paternalGrandMother"
 ```

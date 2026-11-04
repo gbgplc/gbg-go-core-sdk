@@ -3,21 +3,42 @@
  */
 
 import { instancesDelete } from "../funcs/instances-delete.js";
+import { instancesHandoffToken } from "../funcs/instances-handoff-token.js";
 import { ClientSDK, RequestOptions } from "../lib/sdks.js";
+import * as models from "../models/index.js";
 import * as operations from "../models/operations/index.js";
 import { unwrapAsync } from "../types/fp.js";
 
 export class Instances extends ClientSDK {
   /**
-   * Delete instance
+   * Mint a fresh position-scoped handoff token
    *
    * @remarks
-   * Delete instance
+   * Mints a fresh page-mode delivery-token + connect-secret pair pointing at the same instance, stamped devicePosition=joined, so a second device can join. Device-token only, and only from the device that started the journey; customer tokens and already-joined devices are rejected with 403. Returns { instanceUrl, devicePosition, expiresIn }.
+   */
+  async handoffToken(
+    security: operations.CreateHandoffTokenSecurity,
+    request: operations.CreateHandoffTokenRequest,
+    options?: RequestOptions,
+  ): Promise<models.HandoffTokenResponse> {
+    return unwrapAsync(instancesHandoffToken(
+      this,
+      security,
+      request,
+      options,
+    ));
+  }
+
+  /**
+   * Delete journey state
+   *
+   * @remarks
+   * Permanently deletes a completed journey instance (REQ-02-002).
    */
   async delete(
     request?: operations.DeleteInstanceRequest | undefined,
     options?: RequestOptions,
-  ): Promise<operations.DeleteInstanceResponse> {
+  ): Promise<models.DeleteResponse> {
     return unwrapAsync(instancesDelete(
       this,
       request,

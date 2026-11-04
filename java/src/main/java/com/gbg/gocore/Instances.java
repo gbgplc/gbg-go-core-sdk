@@ -5,12 +5,19 @@ package com.gbg.gocore;
 
 import static com.gbg.gocore.operations.Operations.RequestOperation;
 
+import com.gbg.gocore.models.operations.CreateHandoffTokenRequest;
+import com.gbg.gocore.models.operations.CreateHandoffTokenRequestBuilder;
+import com.gbg.gocore.models.operations.CreateHandoffTokenResponse;
+import com.gbg.gocore.models.operations.CreateHandoffTokenSecurity;
 import com.gbg.gocore.models.operations.DeleteInstanceRequest;
 import com.gbg.gocore.models.operations.DeleteInstanceRequestBuilder;
 import com.gbg.gocore.models.operations.DeleteInstanceResponse;
+import com.gbg.gocore.operations.CreateHandoffToken;
 import com.gbg.gocore.operations.DeleteInstance;
 import com.gbg.gocore.utils.Headers;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.String;
 
 
 public class Instances {
@@ -33,9 +40,43 @@ public class Instances {
     }
 
     /**
-     * Delete instance
+     * Mint a fresh position-scoped handoff token
      * 
-     * <p>Delete instance
+     * <p>Mints a fresh page-mode delivery-token + connect-secret pair pointing at the same instance, stamped
+     * devicePosition=joined, so a second device can join. Device-token only, and only from the device that
+     * started the journey; customer tokens and already-joined devices are rejected with 403. Returns {
+     * instanceUrl, devicePosition, expiresIn }.
+     * 
+     * @return The call builder
+     */
+    public CreateHandoffTokenRequestBuilder handoffToken() {
+        return new CreateHandoffTokenRequestBuilder(sdkConfiguration);
+    }
+
+    /**
+     * Mint a fresh position-scoped handoff token
+     * 
+     * <p>Mints a fresh page-mode delivery-token + connect-secret pair pointing at the same instance, stamped
+     * devicePosition=joined, so a second device can join. Device-token only, and only from the device that
+     * started the journey; customer tokens and already-joined devices are rejected with 403. Returns {
+     * instanceUrl, devicePosition, expiresIn }.
+     * 
+     * @param security The security details to use for authentication.
+     * @param instanceId 
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public CreateHandoffTokenResponse handoffToken(@Nonnull CreateHandoffTokenSecurity security, @Nonnull String instanceId) {
+        CreateHandoffTokenRequest request = new CreateHandoffTokenRequest(instanceId);
+        RequestOperation<CreateHandoffTokenRequest, CreateHandoffTokenResponse> operation
+              = new CreateHandoffToken.Sync(sdkConfiguration, security, _headers);
+        return operation.handleResponse(operation.doRequest(request));
+    }
+
+    /**
+     * Delete journey state
+     * 
+     * <p>Permanently deletes a completed journey instance (REQ-02-002).
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -46,9 +87,9 @@ public class Instances {
     }
 
     /**
-     * Delete instance
+     * Delete journey state
      * 
-     * <p>Delete instance
+     * <p>Permanently deletes a completed journey instance (REQ-02-002).
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
@@ -60,9 +101,9 @@ public class Instances {
     }
 
     /**
-     * Delete instance
+     * Delete journey state
      * 
-     * <p>Delete instance
+     * <p>Permanently deletes a completed journey instance (REQ-02-002).
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 

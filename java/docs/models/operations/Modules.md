@@ -1,0 +1,11 @@
+# Modules
+
+
+## Fields
+
+| Field                                                                  | Setter Type                                                            | Getter Type                                                            | Required                                                               | Description                                                            |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `outcome`                                                              | *String*                                                               | *String*                                                               | :heavy_check_mark:                                                     | N/A                                                                    |
+| `advice`                                                               | @Nullable Map\<String, *Object*>                                       | Optional\<Map\<String, *Object*>>                                      | :heavy_minus_sign:                                                     | N/A                                                                    |
+| `subject`                                                              | @Nullable [ModulesSubject](../../models/operations/ModulesSubject.md)  | Optional\<[ModulesSubject](../../models/operations/ModulesSubject.md)> | :heavy_minus_sign:                                                     | Domain-element values this module override returns in result.subject.  |
+| `additionalProperties`                                                 | @Nullable Map\<String, *Object*>                                       | Optional\<Map\<String, *Object*>>                                      | :heavy_minus_sign:                                                     | N/A                                                                    |

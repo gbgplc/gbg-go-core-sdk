@@ -3,35 +3,37 @@
  */
 package com.gbg.gocore.models.operations;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
 public class SubmitInteractionRequest {
     /**
-     * Journey instance identifier
+     * Journey Instance Id, a unique identifier for a started journey instance.
      */
     @JsonProperty("instanceId")
     private String instanceId;
 
-    /**
-     * Interaction identifier
-     */
+
     @JsonProperty("interactionId")
     private String interactionId;
 
-    /**
-     * List of participant identifiers involved in the interaction
-     */
+
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("participants")
     private List<Participant> participants;
@@ -40,6 +42,10 @@ public class SubmitInteractionRequest {
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("context")
     private SubmitInteractionContext context;
+
+
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
 
     @JsonCreator
     public SubmitInteractionRequest(
@@ -53,6 +59,7 @@ public class SubmitInteractionRequest {
             .orElseThrow(() -> new IllegalArgumentException("interactionId cannot be null"));
         this.participants = participants;
         this.context = context;
+        this.additionalProperties = new HashMap<>();
     }
     
     public SubmitInteractionRequest(
@@ -63,22 +70,16 @@ public class SubmitInteractionRequest {
     }
 
     /**
-     * Journey instance identifier
+     * Journey Instance Id, a unique identifier for a started journey instance.
      */
     public String instanceId() {
         return this.instanceId;
     }
 
-    /**
-     * Interaction identifier
-     */
     public String interactionId() {
         return this.interactionId;
     }
 
-    /**
-     * List of participant identifiers involved in the interaction
-     */
     public Optional<List<Participant>> participants() {
         return Optional.ofNullable(this.participants);
     }
@@ -87,13 +88,18 @@ public class SubmitInteractionRequest {
         return Optional.ofNullable(this.context);
     }
 
+    @JsonAnyGetter
+    public Map<String, Object> additionalProperties() {
+        return additionalProperties;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
 
 
     /**
-     * Journey instance identifier
+     * Journey Instance Id, a unique identifier for a started journey instance.
      */
     public SubmitInteractionRequest withInstanceId(@Nonnull String instanceId) {
         this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
@@ -101,18 +107,12 @@ public class SubmitInteractionRequest {
     }
 
 
-    /**
-     * Interaction identifier
-     */
     public SubmitInteractionRequest withInteractionId(@Nonnull String interactionId) {
         this.interactionId = Utils.checkNotNull(interactionId, "interactionId");
         return this;
     }
 
 
-    /**
-     * List of participant identifiers involved in the interaction
-     */
     public SubmitInteractionRequest withParticipants(@Nullable List<Participant> participants) {
         this.participants = participants;
         return this;
@@ -121,6 +121,20 @@ public class SubmitInteractionRequest {
 
     public SubmitInteractionRequest withContext(@Nullable SubmitInteractionContext context) {
         this.context = context;
+        return this;
+    }
+
+
+    @JsonAnySetter
+    public SubmitInteractionRequest withAdditionalProperty(String key, Object value) {
+        // note that value can be null because of the way JsonAnySetter works
+        Utils.checkNotNull(key, "key");
+        additionalProperties.put(key, value);
+        return this;
+    }
+
+    public SubmitInteractionRequest withAdditionalProperties(@Nullable Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
         return this;
     }
 
@@ -138,14 +152,15 @@ public class SubmitInteractionRequest {
             Utils.enhancedDeepEquals(this.instanceId, other.instanceId) &&
             Utils.enhancedDeepEquals(this.interactionId, other.interactionId) &&
             Utils.enhancedDeepEquals(this.participants, other.participants) &&
-            Utils.enhancedDeepEquals(this.context, other.context);
+            Utils.enhancedDeepEquals(this.context, other.context) &&
+            Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             instanceId, interactionId, participants,
-            context);
+            context, additionalProperties);
     }
     
     @Override
@@ -154,7 +169,8 @@ public class SubmitInteractionRequest {
                 "instanceId", instanceId,
                 "interactionId", interactionId,
                 "participants", participants,
-                "context", context);
+                "context", context,
+                "additionalProperties", additionalProperties);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -168,29 +184,25 @@ public class SubmitInteractionRequest {
 
         private SubmitInteractionContext context;
 
+        private Map<String, Object> additionalProperties = new HashMap<>();
+
         private Builder() {
           // force use of static builder() method
         }
 
         /**
-         * Journey instance identifier
+         * Journey Instance Id, a unique identifier for a started journey instance.
          */
         public Builder instanceId(@Nonnull String instanceId) {
             this.instanceId = Utils.checkNotNull(instanceId, "instanceId");
             return this;
         }
 
-        /**
-         * Interaction identifier
-         */
         public Builder interactionId(@Nonnull String interactionId) {
             this.interactionId = Utils.checkNotNull(interactionId, "interactionId");
             return this;
         }
 
-        /**
-         * List of participant identifiers involved in the interaction
-         */
         public Builder participants(@Nullable List<Participant> participants) {
             this.participants = participants;
             return this;
@@ -201,10 +213,25 @@ public class SubmitInteractionRequest {
             return this;
         }
 
+        public Builder additionalProperty(String key, Object value) {
+            Utils.checkNotNull(key, "key");
+            // we could be strict about null values (force the user
+            // to pass `JsonNullable.of(null)`) but likely to be a bit 
+            // annoying for additional properties building so we'll 
+            // relax preconditions.
+            this.additionalProperties.put(key, value);
+            return this;
+        }
+        public Builder additionalProperties(@Nullable Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
+            return this;
+        }
+
         public SubmitInteractionRequest build() {
             return new SubmitInteractionRequest(
                 instanceId, interactionId, participants,
-                context);
+                context)
+                .withAdditionalProperties(additionalProperties);
         }
 
     }

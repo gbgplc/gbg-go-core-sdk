@@ -4,8 +4,6 @@
 package com.gbg.gocore.models.operations.async;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.gbg.gocore.models.operations.DeviceConnectResponseBody1;
-import com.gbg.gocore.models.operations.DeviceConnectResponseBody2;
 import com.gbg.gocore.utils.AsyncResponse;
 import com.gbg.gocore.utils.Blob;
 import com.gbg.gocore.utils.Utils;
@@ -35,29 +33,22 @@ public class DeviceConnectResponse implements AsyncResponse {
     private HttpResponse<Blob> rawResponse;
 
     /**
-     * Success
+     * End-user token issued
      */
-    private DeviceConnectResponseBody1 twoHundredApplicationJsonObject;
-
-    /**
-     * Success
-     */
-    private DeviceConnectResponseBody2 twoHundredAndOneApplicationJsonObject;
+    private com.gbg.gocore.models.DeviceConnectResponse deviceConnectResponse;
 
     @JsonCreator
     public DeviceConnectResponse(
             @Nonnull String contentType,
             int statusCode,
             @Nonnull HttpResponse<Blob> rawResponse,
-            @Nullable DeviceConnectResponseBody1 twoHundredApplicationJsonObject,
-            @Nullable DeviceConnectResponseBody2 twoHundredAndOneApplicationJsonObject) {
+            @Nullable com.gbg.gocore.models.DeviceConnectResponse deviceConnectResponse) {
         this.contentType = Optional.ofNullable(contentType)
             .orElseThrow(() -> new IllegalArgumentException("contentType cannot be null"));
         this.statusCode = statusCode;
         this.rawResponse = Optional.ofNullable(rawResponse)
             .orElseThrow(() -> new IllegalArgumentException("rawResponse cannot be null"));
-        this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-        this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+        this.deviceConnectResponse = deviceConnectResponse;
     }
     
     public DeviceConnectResponse(
@@ -65,7 +56,7 @@ public class DeviceConnectResponse implements AsyncResponse {
             int statusCode,
             @Nonnull HttpResponse<Blob> rawResponse) {
         this(contentType, statusCode, rawResponse,
-            null, null);
+            null);
     }
 
     /**
@@ -90,17 +81,10 @@ public class DeviceConnectResponse implements AsyncResponse {
     }
 
     /**
-     * Success
+     * End-user token issued
      */
-    public Optional<DeviceConnectResponseBody1> twoHundredApplicationJsonObject() {
-        return Optional.ofNullable(this.twoHundredApplicationJsonObject);
-    }
-
-    /**
-     * Success
-     */
-    public Optional<DeviceConnectResponseBody2> twoHundredAndOneApplicationJsonObject() {
-        return Optional.ofNullable(this.twoHundredAndOneApplicationJsonObject);
+    public Optional<com.gbg.gocore.models.DeviceConnectResponse> deviceConnectResponse() {
+        return Optional.ofNullable(this.deviceConnectResponse);
     }
 
     public static Builder builder() {
@@ -136,19 +120,10 @@ public class DeviceConnectResponse implements AsyncResponse {
 
 
     /**
-     * Success
+     * End-user token issued
      */
-    public DeviceConnectResponse withTwoHundredApplicationJsonObject(@Nullable DeviceConnectResponseBody1 twoHundredApplicationJsonObject) {
-        this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-        return this;
-    }
-
-
-    /**
-     * Success
-     */
-    public DeviceConnectResponse withTwoHundredAndOneApplicationJsonObject(@Nullable DeviceConnectResponseBody2 twoHundredAndOneApplicationJsonObject) {
-        this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+    public DeviceConnectResponse withDeviceConnectResponse(@Nullable com.gbg.gocore.models.DeviceConnectResponse deviceConnectResponse) {
+        this.deviceConnectResponse = deviceConnectResponse;
         return this;
     }
 
@@ -166,15 +141,14 @@ public class DeviceConnectResponse implements AsyncResponse {
             Utils.enhancedDeepEquals(this.contentType, other.contentType) &&
             Utils.enhancedDeepEquals(this.statusCode, other.statusCode) &&
             Utils.enhancedDeepEquals(this.rawResponse, other.rawResponse) &&
-            Utils.enhancedDeepEquals(this.twoHundredApplicationJsonObject, other.twoHundredApplicationJsonObject) &&
-            Utils.enhancedDeepEquals(this.twoHundredAndOneApplicationJsonObject, other.twoHundredAndOneApplicationJsonObject);
+            Utils.enhancedDeepEquals(this.deviceConnectResponse, other.deviceConnectResponse);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             contentType, statusCode, rawResponse,
-            twoHundredApplicationJsonObject, twoHundredAndOneApplicationJsonObject);
+            deviceConnectResponse);
     }
     
     @Override
@@ -183,8 +157,7 @@ public class DeviceConnectResponse implements AsyncResponse {
                 "contentType", contentType,
                 "statusCode", statusCode,
                 "rawResponse", rawResponse,
-                "twoHundredApplicationJsonObject", twoHundredApplicationJsonObject,
-                "twoHundredAndOneApplicationJsonObject", twoHundredAndOneApplicationJsonObject);
+                "deviceConnectResponse", deviceConnectResponse);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -196,9 +169,7 @@ public class DeviceConnectResponse implements AsyncResponse {
 
         private HttpResponse<Blob> rawResponse;
 
-        private DeviceConnectResponseBody1 twoHundredApplicationJsonObject;
-
-        private DeviceConnectResponseBody2 twoHundredAndOneApplicationJsonObject;
+        private com.gbg.gocore.models.DeviceConnectResponse deviceConnectResponse;
 
         private Builder() {
           // force use of static builder() method
@@ -229,25 +200,17 @@ public class DeviceConnectResponse implements AsyncResponse {
         }
 
         /**
-         * Success
+         * End-user token issued
          */
-        public Builder twoHundredApplicationJsonObject(@Nullable DeviceConnectResponseBody1 twoHundredApplicationJsonObject) {
-            this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-            return this;
-        }
-
-        /**
-         * Success
-         */
-        public Builder twoHundredAndOneApplicationJsonObject(@Nullable DeviceConnectResponseBody2 twoHundredAndOneApplicationJsonObject) {
-            this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+        public Builder deviceConnectResponse(@Nullable com.gbg.gocore.models.DeviceConnectResponse deviceConnectResponse) {
+            this.deviceConnectResponse = deviceConnectResponse;
             return this;
         }
 
         public DeviceConnectResponse build() {
             return new DeviceConnectResponse(
                 contentType, statusCode, rawResponse,
-                twoHundredApplicationJsonObject, twoHundredAndOneApplicationJsonObject);
+                deviceConnectResponse);
         }
 
     }

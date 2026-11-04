@@ -4,11 +4,15 @@
 package com.gbg.gocore.models.operations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.lang.Override;
 import java.lang.String;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -17,15 +21,36 @@ public class SubmitInteractionContext {
     @JsonProperty("subject")
     private SubmitInteractionSubject subject;
 
+    /**
+     * Reviewer decisions for this submit. Single reviewer at v1 (max 1).
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("reviewers")
+    private List<Reviewer> reviewers;
+
     @JsonCreator
     public SubmitInteractionContext(
-            @JsonProperty("subject") @Nonnull SubmitInteractionSubject subject) {
+            @JsonProperty("subject") @Nonnull SubmitInteractionSubject subject,
+            @JsonProperty("reviewers") @Nullable List<Reviewer> reviewers) {
         this.subject = Optional.ofNullable(subject)
             .orElseThrow(() -> new IllegalArgumentException("subject cannot be null"));
+        this.reviewers = reviewers;
+    }
+    
+    public SubmitInteractionContext(
+            @Nonnull SubmitInteractionSubject subject) {
+        this(subject, null);
     }
 
     public SubmitInteractionSubject subject() {
         return this.subject;
+    }
+
+    /**
+     * Reviewer decisions for this submit. Single reviewer at v1 (max 1).
+     */
+    public Optional<List<Reviewer>> reviewers() {
+        return Optional.ofNullable(this.reviewers);
     }
 
     public static Builder builder() {
@@ -35,6 +60,15 @@ public class SubmitInteractionContext {
 
     public SubmitInteractionContext withSubject(@Nonnull SubmitInteractionSubject subject) {
         this.subject = Utils.checkNotNull(subject, "subject");
+        return this;
+    }
+
+
+    /**
+     * Reviewer decisions for this submit. Single reviewer at v1 (max 1).
+     */
+    public SubmitInteractionContext withReviewers(@Nullable List<Reviewer> reviewers) {
+        this.reviewers = reviewers;
         return this;
     }
 
@@ -49,25 +83,29 @@ public class SubmitInteractionContext {
         }
         SubmitInteractionContext other = (SubmitInteractionContext) o;
         return 
-            Utils.enhancedDeepEquals(this.subject, other.subject);
+            Utils.enhancedDeepEquals(this.subject, other.subject) &&
+            Utils.enhancedDeepEquals(this.reviewers, other.reviewers);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            subject);
+            subject, reviewers);
     }
     
     @Override
     public String toString() {
         return Utils.toString(SubmitInteractionContext.class,
-                "subject", subject);
+                "subject", subject,
+                "reviewers", reviewers);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
         private SubmitInteractionSubject subject;
+
+        private List<Reviewer> reviewers;
 
         private Builder() {
           // force use of static builder() method
@@ -78,9 +116,17 @@ public class SubmitInteractionContext {
             return this;
         }
 
+        /**
+         * Reviewer decisions for this submit. Single reviewer at v1 (max 1).
+         */
+        public Builder reviewers(@Nullable List<Reviewer> reviewers) {
+            this.reviewers = reviewers;
+            return this;
+        }
+
         public SubmitInteractionContext build() {
             return new SubmitInteractionContext(
-                subject);
+                subject, reviewers);
         }
 
     }

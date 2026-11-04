@@ -7,27 +7,42 @@ import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.models.operations.GetJourneyStateRequest;
+import com.gbg.gocore.models.operations.GetJourneyStateRequestBody;
 import com.gbg.gocore.operations.GetJourneyState;
 import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.lang.String;
 import java.util.concurrent.CompletableFuture;
 
 public class GetJourneyStateRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
+    private final GetJourneyStateRequest.Builder pojoBuilder;
     private GetJourneyStateRequest request;
+    private boolean _setterCalled;
 
     public GetJourneyStateRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.pojoBuilder = GetJourneyStateRequest.builder();
     }
 
-    public GetJourneyStateRequestBuilder request(@Nullable GetJourneyStateRequest request) {
-        this.request = request;
+    public GetJourneyStateRequestBuilder view(@Nullable String view) {
+        this.pojoBuilder.view(view);
+        this._setterCalled = true;
+        return this;
+    }
+
+    public GetJourneyStateRequestBuilder body(@Nullable GetJourneyStateRequestBody body) {
+        this.pojoBuilder.body(body);
+        this._setterCalled = true;
         return this;
     }
 
     private GetJourneyStateRequest _buildRequest() {
+        if (this._setterCalled) {
+            this.request = this.pojoBuilder.build();
+        }
         return this.request;
     }
     
