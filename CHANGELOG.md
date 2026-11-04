@@ -7,6 +7,22 @@ version together.
 `RELEASES.md` is a generator-written log of every build. This file is the
 human-readable one: what changed, what breaks, and what to do about it.
 
+## 0.2.0 (TypeScript `0.2.0`, Java `0.2.0`)
+
+Previous stable release: TypeScript `0.1.3`. This is Java's first stable
+release; before it there were only alphas.
+
+The first stable release generated from Captain's live spec. The code is the
+same as TypeScript `0.2.0-alpha.2` and Java `0.2.0-alpha03`; only the version
+changed. Both packages are on the same number from here.
+
+- **Coming from 0.1.x:** this is a breaking release. Read every `0.2.0-alpha`
+  section below, oldest first: the base URL change in `0.2.0-alpha` is reversed
+  in `0.2.0-alpha.1`, so the net effect is that the base URL still includes
+  `/v2/captain`, as it did in 0.1.x.
+- **Coming from an alpha:** nothing to change.
+- The known gaps listed under `0.2.0-alpha.1` still apply.
+
 ## 0.2.0-alpha.2 (TypeScript `0.2.0-alpha.2`, Java `0.2.0-alpha03`)
 
 Previous release: TypeScript `0.2.0-alpha.1`, Java `0.2.0-alpha02`.
