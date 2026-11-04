@@ -6,6 +6,7 @@ package com.gbg.gocore.models.operations;
 import static com.gbg.gocore.operations.Operations.RequestOperation;
 
 import com.gbg.gocore.SDKConfiguration;
+import com.gbg.gocore.models.DeviceConnectRequest;
 import com.gbg.gocore.operations.DeviceConnect;
 import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Utils;

@@ -21,8 +21,8 @@ public class PostAsTokenOauth2RequestTypeIdResolver extends GenericTypeIdResolve
     }
 
     private void initializeTypeMap() {
-        registerType("password", PasswordGrantRequest.class);
         registerType("client_credentials", ClientCredentialsGrantRequest.class);
+        registerType("password", PasswordGrantRequest.class);
     }
 
     @Override

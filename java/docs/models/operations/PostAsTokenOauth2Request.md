@@ -7,8 +7,23 @@
 
 | Value | Type |
 | ----- | ---- |
-| `"password"` | [PasswordGrantRequest](../../models/PasswordGrantRequest.md) |
 | `"client_credentials"` | [ClientCredentialsGrantRequest](../../models/ClientCredentialsGrantRequest.md) |
+| `"password"` | [PasswordGrantRequest](../../models/PasswordGrantRequest.md) |
+
+### [`ClientCredentialsGrantRequest`](../../models/ClientCredentialsGrantRequest.md)
+
+Discriminator value: `"client_credentials"`
+
+```java
+PostAsTokenOauth2Request value = ClientCredentialsGrantRequest.builder()
+    .clientId("<id>")
+    .clientSecret("<value>")
+    .grantType(ClientCredentialsGrantRequestGrantType.CLIENT_CREDENTIALS)
+    .scope(Scope.GBG_TOKEN)
+    .build();
+```
+
+**Referred Types:** [ClientCredentialsGrantRequestGrantType](../../models/ClientCredentialsGrantRequestGrantType.md), [Scope](../../models/Scope.md)
 
 ### [`PasswordGrantRequest`](../../models/PasswordGrantRequest.md)
 
@@ -26,32 +41,17 @@ PostAsTokenOauth2Request value = PasswordGrantRequest.builder()
 
 **Referred Types:** [PasswordGrantRequestGrantType](../../models/PasswordGrantRequestGrantType.md)
 
-### [`ClientCredentialsGrantRequest`](../../models/ClientCredentialsGrantRequest.md)
-
-Discriminator value: `"client_credentials"`
-
-```java
-PostAsTokenOauth2Request value = ClientCredentialsGrantRequest.builder()
-    .clientId("<id>")
-    .clientSecret("<value>")
-    .grantType(ClientCredentialsGrantRequestGrantType.CLIENT_CREDENTIALS)
-    .scope(Scope.GBG_TOKEN)
-    .build();
-```
-
-**Referred Types:** [ClientCredentialsGrantRequestGrantType](../../models/ClientCredentialsGrantRequestGrantType.md), [Scope](../../models/Scope.md)
-
 ## Consumption Patterns
 
 ### Java 11+ (Discriminator Switch)
 
 ```java
 switch (value.grantType()) {
-    case "password":
-        // Handle password discriminator variant
-        break;
     case "client_credentials":
         // Handle client_credentials discriminator variant
+        break;
+    case "password":
+        // Handle password discriminator variant
         break;
     default:
         // Handle unknown discriminator variant
@@ -61,10 +61,10 @@ switch (value.grantType()) {
 ### Java 16+ (Instanceof Pattern Matching)
 
 ```java
-if (value instanceof PasswordGrantRequest passwordGrantRequest) {
-    // Handle PasswordGrantRequest variant
-} else if (value instanceof ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
+if (value instanceof ClientCredentialsGrantRequest clientCredentialsGrantRequest) {
     // Handle ClientCredentialsGrantRequest variant
+} else if (value instanceof PasswordGrantRequest passwordGrantRequest) {
+    // Handle PasswordGrantRequest variant
 } else {
     // Handle unknown discriminator variant
 }
@@ -74,11 +74,11 @@ if (value instanceof PasswordGrantRequest passwordGrantRequest) {
 
 ```java
 switch (value) {
-    case PasswordGrantRequest passwordGrantRequest -> {
-        // Handle PasswordGrantRequest variant
-    }
     case ClientCredentialsGrantRequest clientCredentialsGrantRequest -> {
         // Handle ClientCredentialsGrantRequest variant
+    }
+    case PasswordGrantRequest passwordGrantRequest -> {
+        // Handle PasswordGrantRequest variant
     }
     default -> {
         // Handle unknown discriminator variant

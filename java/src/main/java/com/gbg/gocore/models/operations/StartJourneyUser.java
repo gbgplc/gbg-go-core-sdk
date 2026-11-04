@@ -4,9 +4,12 @@
 package com.gbg.gocore.models.operations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.lang.Override;
 import java.lang.String;
 import java.util.Optional;
@@ -18,36 +21,41 @@ public class StartJourneyUser {
     private String id;
 
 
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("email")
     private String email;
 
 
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("domain")
     private String domain;
 
     @JsonCreator
     public StartJourneyUser(
             @JsonProperty("id") @Nonnull String id,
-            @JsonProperty("email") @Nonnull String email,
-            @JsonProperty("domain") @Nonnull String domain) {
+            @JsonProperty("email") @Nullable String email,
+            @JsonProperty("domain") @Nullable String domain) {
         this.id = Optional.ofNullable(id)
             .orElseThrow(() -> new IllegalArgumentException("id cannot be null"));
-        this.email = Optional.ofNullable(email)
-            .orElseThrow(() -> new IllegalArgumentException("email cannot be null"));
-        this.domain = Optional.ofNullable(domain)
-            .orElseThrow(() -> new IllegalArgumentException("domain cannot be null"));
+        this.email = email;
+        this.domain = domain;
+    }
+    
+    public StartJourneyUser(
+            @Nonnull String id) {
+        this(id, null, null);
     }
 
     public String id() {
         return this.id;
     }
 
-    public String email() {
-        return this.email;
+    public Optional<String> email() {
+        return Optional.ofNullable(this.email);
     }
 
-    public String domain() {
-        return this.domain;
+    public Optional<String> domain() {
+        return Optional.ofNullable(this.domain);
     }
 
     public static Builder builder() {
@@ -61,14 +69,14 @@ public class StartJourneyUser {
     }
 
 
-    public StartJourneyUser withEmail(@Nonnull String email) {
-        this.email = Utils.checkNotNull(email, "email");
+    public StartJourneyUser withEmail(@Nullable String email) {
+        this.email = email;
         return this;
     }
 
 
-    public StartJourneyUser withDomain(@Nonnull String domain) {
-        this.domain = Utils.checkNotNull(domain, "domain");
+    public StartJourneyUser withDomain(@Nullable String domain) {
+        this.domain = domain;
         return this;
     }
 
@@ -120,13 +128,13 @@ public class StartJourneyUser {
             return this;
         }
 
-        public Builder email(@Nonnull String email) {
-            this.email = Utils.checkNotNull(email, "email");
+        public Builder email(@Nullable String email) {
+            this.email = email;
             return this;
         }
 
-        public Builder domain(@Nonnull String domain) {
-            this.domain = Utils.checkNotNull(domain, "domain");
+        public Builder domain(@Nullable String domain) {
+            this.domain = domain;
             return this;
         }
 

@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class GetTaskSchemaRequest {
     /**
-     * Task Id, a unique identifier for a task assigned to an End User during a Journey.
+     * Journey Instance Id, a unique identifier for a started journey instance.
      */
     @JsonProperty("taskId")
     private String taskId;
@@ -27,7 +27,7 @@ public class GetTaskSchemaRequest {
     }
 
     /**
-     * Task Id, a unique identifier for a task assigned to an End User during a Journey.
+     * Journey Instance Id, a unique identifier for a started journey instance.
      */
     public String taskId() {
         return this.taskId;
@@ -39,7 +39,7 @@ public class GetTaskSchemaRequest {
 
 
     /**
-     * Task Id, a unique identifier for a task assigned to an End User during a Journey.
+     * Journey Instance Id, a unique identifier for a started journey instance.
      */
     public GetTaskSchemaRequest withTaskId(@Nonnull String taskId) {
         this.taskId = Utils.checkNotNull(taskId, "taskId");
@@ -82,7 +82,7 @@ public class GetTaskSchemaRequest {
         }
 
         /**
-         * Task Id, a unique identifier for a task assigned to an End User during a Journey.
+         * Journey Instance Id, a unique identifier for a started journey instance.
          */
         public Builder taskId(@Nonnull String taskId) {
             this.taskId = Utils.checkNotNull(taskId, "taskId");

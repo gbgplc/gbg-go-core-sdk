@@ -6,7 +6,7 @@ package com.gbg.gocore.models.operations.async;
 import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
 import com.gbg.gocore.SDKConfiguration;
-import com.gbg.gocore.models.operations.DeviceConnectRequest;
+import com.gbg.gocore.models.DeviceConnectRequest;
 import com.gbg.gocore.models.operations.DeviceConnectSecurity;
 import com.gbg.gocore.operations.DeviceConnect;
 import com.gbg.gocore.utils.Headers;

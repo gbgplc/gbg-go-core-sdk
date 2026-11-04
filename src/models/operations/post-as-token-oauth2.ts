@@ -6,7 +6,6 @@ import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
 import { safeParse } from "../../lib/schemas.js";
 import { Result as SafeParseResult } from "../../types/fp.js";
-import * as types from "../../types/primitives.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 import * as models from "../index.js";
 
@@ -15,8 +14,8 @@ export const PostAsTokenOauth2ServerList = [
 ] as const;
 
 export type PostAsTokenOauth2Request =
-  | models.PasswordGrantRequest
-  | models.ClientCredentialsGrantRequest;
+  | models.ClientCredentialsGrantRequest
+  | models.PasswordGrantRequest;
 
 /**
  * Successfully retrieved access token.
@@ -38,16 +37,16 @@ export type PostAsTokenOauth2Response = {
 
 /** @internal */
 export type PostAsTokenOauth2Request$Outbound =
-  | models.PasswordGrantRequest$Outbound
-  | models.ClientCredentialsGrantRequest$Outbound;
+  | models.ClientCredentialsGrantRequest$Outbound
+  | models.PasswordGrantRequest$Outbound;
 
 /** @internal */
 export const PostAsTokenOauth2Request$outboundSchema: z.ZodMiniType<
   PostAsTokenOauth2Request$Outbound,
   PostAsTokenOauth2Request
 > = z.union([
-  models.PasswordGrantRequest$outboundSchema,
   models.ClientCredentialsGrantRequest$outboundSchema,
+  models.PasswordGrantRequest$outboundSchema,
 ]);
 
 export function postAsTokenOauth2RequestToJSON(
@@ -64,9 +63,9 @@ export const PostAsTokenOauth2Response$inboundSchema: z.ZodMiniType<
   unknown
 > = z.pipe(
   z.object({
-    access_token: types.optional(types.string()),
-    expires_in: types.optional(types.number()),
-    token_type: types.optional(types.string()),
+    access_token: z.optional(z.string()),
+    expires_in: z.optional(z.int()),
+    token_type: z.optional(z.string()),
   }),
   z.transform((v) => {
     return remap$(v, {

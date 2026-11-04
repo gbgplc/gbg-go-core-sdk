@@ -5,4 +5,5 @@
 
 | Field               | Setter Type         | Getter Type         | Required            | Description         |
 | ------------------- | ------------------- | ------------------- | ------------------- | ------------------- |
-| `interactionAccess` | *String*            | *String*            | :heavy_check_mark:  | N/A                 |
+| `customerAccess`    | @Nullable *String*  | Optional\<*String*> | :heavy_minus_sign:  | N/A                 |
+| `interactionAccess` | @Nullable *String*  | Optional\<*String*> | :heavy_minus_sign:  | N/A                 |

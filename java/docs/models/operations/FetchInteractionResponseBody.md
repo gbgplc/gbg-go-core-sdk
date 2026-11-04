@@ -1,88 +1,117 @@
 # FetchInteractionResponseBody
 
-Success
+Interaction state (full by default; slim with ?view=slim)
 
 
 ## Supported Types
 
-### [`ResponseBody1`](../../models/operations/ResponseBody1.md)
+### Discriminator: `view`
+
+| Value | Type |
+| ----- | ---- |
+| `"full"` | [InteractionFetchResponse](../../models/InteractionFetchResponse.md) |
+| `"slim"` | [SlimInteractionFetchResponse](../../models/SlimInteractionFetchResponse.md) |
+
+### [`InteractionFetchResponse`](../../models/InteractionFetchResponse.md)
+
+Discriminator value: `"full"`
 
 ```java
-FetchInteractionResponseBody value = FetchInteractionResponseBody.of(ResponseBody1.builder()
+FetchInteractionResponseBody value = InteractionFetchResponse.builder()
+    .view(InteractionFetchResponseView.FULL)
     .instanceId("<id>")
-    .interactionId("<id>")
-    .journey(Journey1.builder()
-        .status(JourneyStatus1.COMPLETED)
+    .journey(InteractionFetchResponseJourney.builder()
+        .status("<value>")
         .build())
-    .interaction(Interaction.builder()
-        .collects(List.of(
-            CollectUnion.of(Collect1.builder()
-                .ref("<value>")
-                .spec(CollectSpec1.OPTIONAL)
-                .build())))
-        .consumes(List.of(
-            ConsumeUnion.of(Consume1.builder()
-                .ref("<value>")
-                .spec(ConsumeSpec1.OPTIONAL)
-                .build())))
-        .grId("<id>")
-        .build())
-    .build());
+    .outstandingGroups(List.of(
+        OutstandingGroup.builder()
+            .elementId("<id>")
+            .cardinality("at-least-one")
+            .refs(List.of(
+                "<value 1>",
+                "<value 2>",
+                "<value 3>"))
+            .build()))
+    .build();
 ```
 
 **Referred Types:**
 
-- [Journey1](../../models/operations/Journey1.md)
-- [JourneyStatus1](../../models/operations/JourneyStatus1.md)
-- [Interaction](../../models/operations/Interaction.md)
-- [CollectUnion](../../models/operations/CollectUnion.md)
-- [Collect1](../../models/operations/Collect1.md)
-- [CollectSpec1](../../models/operations/CollectSpec1.md)
-- [ConsumeUnion](../../models/operations/ConsumeUnion.md)
-- [Consume1](../../models/operations/Consume1.md)
-- [ConsumeSpec1](../../models/operations/ConsumeSpec1.md)
+- [InteractionFetchResponseView](../../models/InteractionFetchResponseView.md)
+- [InteractionFetchResponseJourney](../../models/InteractionFetchResponseJourney.md)
+- [OutstandingGroup](../../models/OutstandingGroup.md)
 
-### [`FetchInteractionError`](../../models/operations/FetchInteractionError.md)
+### [`SlimInteractionFetchResponse`](../../models/SlimInteractionFetchResponse.md)
+
+Discriminator value: `"slim"`
 
 ```java
-FetchInteractionResponseBody value = FetchInteractionResponseBody.of(FetchInteractionError.builder()
-    .status(FetchInteractionStatusError.ERROR)
-    .code(6719.06)
-    .message("<value>")
-    .build());
-```
-
-**Referred Types:** [FetchInteractionStatusError](../../models/operations/FetchInteractionStatusError.md)
-
-### [`ResponseBody2`](../../models/operations/ResponseBody2.md)
-
-```java
-FetchInteractionResponseBody value = FetchInteractionResponseBody.of(ResponseBody2.builder()
+FetchInteractionResponseBody value = SlimInteractionFetchResponse.builder()
+    .view(SlimInteractionFetchResponseView.SLIM)
     .instanceId("<id>")
-    .journey(Journey2.builder()
-        .status(JourneyStatus2.IN_PROGRESS)
+    .journey(SlimInteractionFetchResponseJourney.builder()
+        .status(SlimInteractionFetchResponseStatus.FAILED)
         .build())
-    .build());
+    .outstandingGroups(List.of(
+        OutstandingGroup.builder()
+            .elementId("<id>")
+            .cardinality("at-least-one")
+            .refs(List.of(
+                "<value 1>",
+                "<value 2>",
+                "<value 3>"))
+            .build()))
+    .build();
 ```
 
-**Referred Types:** [Journey2](../../models/operations/Journey2.md), [JourneyStatus2](../../models/operations/JourneyStatus2.md)
+**Referred Types:**
+
+- [SlimInteractionFetchResponseView](../../models/SlimInteractionFetchResponseView.md)
+- [SlimInteractionFetchResponseJourney](../../models/SlimInteractionFetchResponseJourney.md)
+- [SlimInteractionFetchResponseStatus](../../models/SlimInteractionFetchResponseStatus.md)
+- [OutstandingGroup](../../models/OutstandingGroup.md)
 
 ## Consumption Patterns
 
-### Java 11+ (Accessor Methods)
+### Java 11+ (Discriminator Switch)
 
 ```java
-if (value.responseBody1().isPresent()) {
-    com.gbg.gocore.models.operations.ResponseBody1 responseBody1Value = value.responseBody1().get();
-    // Handle responseBody1 variant
-} else if (value.fetchInteractionError().isPresent()) {
-    com.gbg.gocore.models.operations.FetchInteractionError fetchInteractionErrorValue = value.fetchInteractionError().get();
-    // Handle fetchInteractionError variant
-} else if (value.responseBody2().isPresent()) {
-    com.gbg.gocore.models.operations.ResponseBody2 responseBody2Value = value.responseBody2().get();
-    // Handle responseBody2 variant
-} else if (value.asJson().isPresent()) {
-    com.fasterxml.jackson.databind.JsonNode raw = value.asJson().get();
-    // Handle unknown variant fallback
+switch (value.view()) {
+    case "full":
+        // Handle full discriminator variant
+        break;
+    case "slim":
+        // Handle slim discriminator variant
+        break;
+    default:
+        // Handle unknown discriminator variant
+}
+```
+
+### Java 16+ (Instanceof Pattern Matching)
+
+```java
+if (value instanceof InteractionFetchResponse interactionFetchResponse) {
+    // Handle InteractionFetchResponse variant
+} else if (value instanceof SlimInteractionFetchResponse slimInteractionFetchResponse) {
+    // Handle SlimInteractionFetchResponse variant
+} else {
+    // Handle unknown discriminator variant
+}
+```
+
+### Java 21+ (Type Pattern Switch)
+
+```java
+switch (value) {
+    case InteractionFetchResponse interactionFetchResponse -> {
+        // Handle InteractionFetchResponse variant
+    }
+    case SlimInteractionFetchResponse slimInteractionFetchResponse -> {
+        // Handle SlimInteractionFetchResponse variant
+    }
+    default -> {
+        // Handle unknown discriminator variant
+    }
 }
 ```

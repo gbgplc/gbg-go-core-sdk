@@ -3,213 +3,54 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../../lib/schemas.js";
-import * as openEnums from "../../types/enums.js";
-import { ClosedEnum, OpenEnum } from "../../types/enums.js";
-import { Result as SafeParseResult } from "../../types/fp.js";
-import * as types from "../../types/primitives.js";
-import { smartUnion } from "../../types/smart-union.js";
-import { SDKValidationError } from "../errors/sdk-validation-error.js";
+import { ClosedEnum } from "../../types/enums.js";
 
-export const ScopeRequest = {
+export const AddDeviceScope = {
   Mobile: "mobile",
   Desktop: "desktop",
   Wildcard: "*",
   Any: "any",
   Unknown: "",
 } as const;
-export type ScopeRequest = ClosedEnum<typeof ScopeRequest>;
+export type AddDeviceScope = ClosedEnum<typeof AddDeviceScope>;
 
 export type AddDeviceRequest = {
   /**
    * Journey Instance Id, a unique identifier for a started journey instance.
    */
   instanceId: string;
-  scope: Array<ScopeRequest>;
+  scope?: Array<AddDeviceScope> | undefined;
+  [additionalProperties: string]: unknown;
 };
-
-export const AddDeviceTokenType2 = {
-  Bearer: "Bearer",
-  DPoP: "DPoP",
-  NA: "N_A",
-  Connect: "connect",
-} as const;
-export type AddDeviceTokenType2 = OpenEnum<typeof AddDeviceTokenType2>;
-
-export const ScopeResponse2 = {
-  Mobile: "mobile",
-  Desktop: "desktop",
-  Wildcard: "*",
-  Any: "any",
-  Unknown: "",
-} as const;
-export type ScopeResponse2 = OpenEnum<typeof ScopeResponse2>;
-
-/**
- * Success
- */
-export type AddDeviceResponseBody2 = {
-  /**
-   * Token used for subsequent operations by the client
-   */
-  connectToken: string;
-  tokenType: AddDeviceTokenType2;
-  /**
-   * Seconds until the token expires
-   */
-  expiresIn: number;
-  /**
-   * Scopes granted to the client
-   */
-  scope?: Array<ScopeResponse2> | undefined;
-};
-
-export const AddDeviceTokenType1 = {
-  Bearer: "Bearer",
-  DPoP: "DPoP",
-  NA: "N_A",
-  Connect: "connect",
-} as const;
-export type AddDeviceTokenType1 = OpenEnum<typeof AddDeviceTokenType1>;
-
-export const ScopeResponse1 = {
-  Mobile: "mobile",
-  Desktop: "desktop",
-  Wildcard: "*",
-  Any: "any",
-  Unknown: "",
-} as const;
-export type ScopeResponse1 = OpenEnum<typeof ScopeResponse1>;
-
-/**
- * Success
- */
-export type AddDeviceResponseBody1 = {
-  /**
-   * Token used for subsequent operations by the client
-   */
-  connectToken: string;
-  tokenType: AddDeviceTokenType1;
-  /**
-   * Seconds until the token expires
-   */
-  expiresIn: number;
-  /**
-   * Scopes granted to the client
-   */
-  scope?: Array<ScopeResponse1> | undefined;
-};
-
-export type AddDeviceResponse = AddDeviceResponseBody1 | AddDeviceResponseBody2;
 
 /** @internal */
-export const ScopeRequest$outboundSchema: z.ZodMiniEnum<typeof ScopeRequest> = z
-  .enum(ScopeRequest);
+export const AddDeviceScope$outboundSchema: z.ZodMiniEnum<
+  typeof AddDeviceScope
+> = z.enum(AddDeviceScope);
 
 /** @internal */
 export type AddDeviceRequest$Outbound = {
   instanceId: string;
-  scope: Array<string>;
+  scope?: Array<string> | undefined;
+  [additionalProperties: string]: unknown;
 };
 
 /** @internal */
 export const AddDeviceRequest$outboundSchema: z.ZodMiniType<
   AddDeviceRequest$Outbound,
   AddDeviceRequest
-> = z.object({
-  instanceId: z.string(),
-  scope: z.array(ScopeRequest$outboundSchema),
-});
+> = z.catchall(
+  z.object({
+    instanceId: z.string(),
+    scope: z.optional(z.array(AddDeviceScope$outboundSchema)),
+  }),
+  z.any(),
+);
 
 export function addDeviceRequestToJSON(
   addDeviceRequest: AddDeviceRequest,
 ): string {
   return JSON.stringify(
     AddDeviceRequest$outboundSchema.parse(addDeviceRequest),
-  );
-}
-
-/** @internal */
-export const AddDeviceTokenType2$inboundSchema: z.ZodMiniType<
-  AddDeviceTokenType2,
-  unknown
-> = openEnums.inboundSchema(AddDeviceTokenType2);
-
-/** @internal */
-export const ScopeResponse2$inboundSchema: z.ZodMiniType<
-  ScopeResponse2,
-  unknown
-> = openEnums.inboundSchema(ScopeResponse2);
-
-/** @internal */
-export const AddDeviceResponseBody2$inboundSchema: z.ZodMiniType<
-  AddDeviceResponseBody2,
-  unknown
-> = z.object({
-  connectToken: types.string(),
-  tokenType: z._default(AddDeviceTokenType2$inboundSchema, "Bearer"),
-  expiresIn: types.number(),
-  scope: types.optional(z.array(ScopeResponse2$inboundSchema)),
-});
-
-export function addDeviceResponseBody2FromJSON(
-  jsonString: string,
-): SafeParseResult<AddDeviceResponseBody2, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => AddDeviceResponseBody2$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'AddDeviceResponseBody2' from JSON`,
-  );
-}
-
-/** @internal */
-export const AddDeviceTokenType1$inboundSchema: z.ZodMiniType<
-  AddDeviceTokenType1,
-  unknown
-> = openEnums.inboundSchema(AddDeviceTokenType1);
-
-/** @internal */
-export const ScopeResponse1$inboundSchema: z.ZodMiniType<
-  ScopeResponse1,
-  unknown
-> = openEnums.inboundSchema(ScopeResponse1);
-
-/** @internal */
-export const AddDeviceResponseBody1$inboundSchema: z.ZodMiniType<
-  AddDeviceResponseBody1,
-  unknown
-> = z.object({
-  connectToken: types.string(),
-  tokenType: z._default(AddDeviceTokenType1$inboundSchema, "Bearer"),
-  expiresIn: types.number(),
-  scope: types.optional(z.array(ScopeResponse1$inboundSchema)),
-});
-
-export function addDeviceResponseBody1FromJSON(
-  jsonString: string,
-): SafeParseResult<AddDeviceResponseBody1, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => AddDeviceResponseBody1$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'AddDeviceResponseBody1' from JSON`,
-  );
-}
-
-/** @internal */
-export const AddDeviceResponse$inboundSchema: z.ZodMiniType<
-  AddDeviceResponse,
-  unknown
-> = smartUnion([
-  z.lazy(() => AddDeviceResponseBody1$inboundSchema),
-  z.lazy(() => AddDeviceResponseBody2$inboundSchema),
-]);
-
-export function addDeviceResponseFromJSON(
-  jsonString: string,
-): SafeParseResult<AddDeviceResponse, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => AddDeviceResponse$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'AddDeviceResponse' from JSON`,
   );
 }

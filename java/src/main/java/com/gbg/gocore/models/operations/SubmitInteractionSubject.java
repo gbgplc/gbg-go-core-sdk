@@ -23,6 +23,11 @@ public class SubmitInteractionSubject {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("entities")
+    private List<SubmitInteractionEntity> entities;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("documents")
     private List<SubmitInteractionDocument> documents;
 
@@ -48,35 +53,56 @@ public class SubmitInteractionSubject {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("kba")
+    private SubmitInteractionKba kba;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("documentTypeSelection")
+    private SubmitInteractionDocumentTypeSelection documentTypeSelection;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("uid")
     private String uid;
 
     @JsonCreator
     public SubmitInteractionSubject(
             @JsonProperty("identity") @Nullable SubmitInteractionIdentity identity,
+            @JsonProperty("entities") @Nullable List<SubmitInteractionEntity> entities,
             @JsonProperty("documents") @Nullable List<SubmitInteractionDocument> documents,
             @JsonProperty("biometrics") @Nullable List<SubmitInteractionBiometricUnion> biometrics,
             @JsonProperty("sessions") @Nullable List<SubmitInteractionSession> sessions,
             @JsonProperty("consent") @Nullable List<SubmitInteractionConsent> consent,
             @JsonProperty("accounts") @Nullable List<SubmitInteractionAccount> accounts,
+            @JsonProperty("kba") @Nullable SubmitInteractionKba kba,
+            @JsonProperty("documentTypeSelection") @Nullable SubmitInteractionDocumentTypeSelection documentTypeSelection,
             @JsonProperty("uid") @Nullable String uid) {
         this.identity = identity;
+        this.entities = entities;
         this.documents = documents;
         this.biometrics = biometrics;
         this.sessions = sessions;
         this.consent = consent;
         this.accounts = accounts;
+        this.kba = kba;
+        this.documentTypeSelection = documentTypeSelection;
         this.uid = uid;
     }
     
     public SubmitInteractionSubject() {
         this(null, null, null,
             null, null, null,
+            null, null, null,
             null);
     }
 
     public Optional<SubmitInteractionIdentity> identity() {
         return Optional.ofNullable(this.identity);
+    }
+
+    public Optional<List<SubmitInteractionEntity>> entities() {
+        return Optional.ofNullable(this.entities);
     }
 
     public Optional<List<SubmitInteractionDocument>> documents() {
@@ -99,6 +125,14 @@ public class SubmitInteractionSubject {
         return Optional.ofNullable(this.accounts);
     }
 
+    public Optional<SubmitInteractionKba> kba() {
+        return Optional.ofNullable(this.kba);
+    }
+
+    public Optional<SubmitInteractionDocumentTypeSelection> documentTypeSelection() {
+        return Optional.ofNullable(this.documentTypeSelection);
+    }
+
     public Optional<String> uid() {
         return Optional.ofNullable(this.uid);
     }
@@ -110,6 +144,12 @@ public class SubmitInteractionSubject {
 
     public SubmitInteractionSubject withIdentity(@Nullable SubmitInteractionIdentity identity) {
         this.identity = identity;
+        return this;
+    }
+
+
+    public SubmitInteractionSubject withEntities(@Nullable List<SubmitInteractionEntity> entities) {
+        this.entities = entities;
         return this;
     }
 
@@ -144,6 +184,18 @@ public class SubmitInteractionSubject {
     }
 
 
+    public SubmitInteractionSubject withKba(@Nullable SubmitInteractionKba kba) {
+        this.kba = kba;
+        return this;
+    }
+
+
+    public SubmitInteractionSubject withDocumentTypeSelection(@Nullable SubmitInteractionDocumentTypeSelection documentTypeSelection) {
+        this.documentTypeSelection = documentTypeSelection;
+        return this;
+    }
+
+
     public SubmitInteractionSubject withUid(@Nullable String uid) {
         this.uid = uid;
         return this;
@@ -161,19 +213,23 @@ public class SubmitInteractionSubject {
         SubmitInteractionSubject other = (SubmitInteractionSubject) o;
         return 
             Utils.enhancedDeepEquals(this.identity, other.identity) &&
+            Utils.enhancedDeepEquals(this.entities, other.entities) &&
             Utils.enhancedDeepEquals(this.documents, other.documents) &&
             Utils.enhancedDeepEquals(this.biometrics, other.biometrics) &&
             Utils.enhancedDeepEquals(this.sessions, other.sessions) &&
             Utils.enhancedDeepEquals(this.consent, other.consent) &&
             Utils.enhancedDeepEquals(this.accounts, other.accounts) &&
+            Utils.enhancedDeepEquals(this.kba, other.kba) &&
+            Utils.enhancedDeepEquals(this.documentTypeSelection, other.documentTypeSelection) &&
             Utils.enhancedDeepEquals(this.uid, other.uid);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            identity, documents, biometrics,
-            sessions, consent, accounts,
+            identity, entities, documents,
+            biometrics, sessions, consent,
+            accounts, kba, documentTypeSelection,
             uid);
     }
     
@@ -181,11 +237,14 @@ public class SubmitInteractionSubject {
     public String toString() {
         return Utils.toString(SubmitInteractionSubject.class,
                 "identity", identity,
+                "entities", entities,
                 "documents", documents,
                 "biometrics", biometrics,
                 "sessions", sessions,
                 "consent", consent,
                 "accounts", accounts,
+                "kba", kba,
+                "documentTypeSelection", documentTypeSelection,
                 "uid", uid);
     }
 
@@ -193,6 +252,8 @@ public class SubmitInteractionSubject {
     public final static class Builder {
 
         private SubmitInteractionIdentity identity;
+
+        private List<SubmitInteractionEntity> entities;
 
         private List<SubmitInteractionDocument> documents;
 
@@ -204,6 +265,10 @@ public class SubmitInteractionSubject {
 
         private List<SubmitInteractionAccount> accounts;
 
+        private SubmitInteractionKba kba;
+
+        private SubmitInteractionDocumentTypeSelection documentTypeSelection;
+
         private String uid;
 
         private Builder() {
@@ -212,6 +277,11 @@ public class SubmitInteractionSubject {
 
         public Builder identity(@Nullable SubmitInteractionIdentity identity) {
             this.identity = identity;
+            return this;
+        }
+
+        public Builder entities(@Nullable List<SubmitInteractionEntity> entities) {
+            this.entities = entities;
             return this;
         }
 
@@ -240,6 +310,16 @@ public class SubmitInteractionSubject {
             return this;
         }
 
+        public Builder kba(@Nullable SubmitInteractionKba kba) {
+            this.kba = kba;
+            return this;
+        }
+
+        public Builder documentTypeSelection(@Nullable SubmitInteractionDocumentTypeSelection documentTypeSelection) {
+            this.documentTypeSelection = documentTypeSelection;
+            return this;
+        }
+
         public Builder uid(@Nullable String uid) {
             this.uid = uid;
             return this;
@@ -247,8 +327,9 @@ public class SubmitInteractionSubject {
 
         public SubmitInteractionSubject build() {
             return new SubmitInteractionSubject(
-                identity, documents, biometrics,
-                sessions, consent, accounts,
+                identity, entities, documents,
+                biometrics, sessions, consent,
+                accounts, kba, documentTypeSelection,
                 uid);
         }
 

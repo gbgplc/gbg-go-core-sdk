@@ -8,24 +8,10 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.models.operations.GetTaskSchemaRequest;
 import com.gbg.gocore.models.operations.GetTaskSchemaRequestBuilder;
 import com.gbg.gocore.models.operations.GetTaskSchemaResponse;
-import com.gbg.gocore.models.operations.GetTasksRequest;
-import com.gbg.gocore.models.operations.GetTasksRequestBuilder;
-import com.gbg.gocore.models.operations.GetTasksResponse;
-import com.gbg.gocore.models.operations.GetTasksSchemaRequest;
-import com.gbg.gocore.models.operations.GetTasksSchemaRequestBuilder;
-import com.gbg.gocore.models.operations.GetTasksSchemaResponse;
-import com.gbg.gocore.models.operations.GetTasksSecurity;
-import com.gbg.gocore.models.operations.UpdateTaskRequest;
-import com.gbg.gocore.models.operations.UpdateTaskRequestBuilder;
-import com.gbg.gocore.models.operations.UpdateTaskResponse;
-import com.gbg.gocore.models.operations.UpdateTaskSecurity;
 import com.gbg.gocore.operations.GetTaskSchema;
-import com.gbg.gocore.operations.GetTasks;
-import com.gbg.gocore.operations.GetTasksSchema;
-import com.gbg.gocore.operations.UpdateTask;
 import com.gbg.gocore.utils.Headers;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.Deprecated;
 
 
 public class Tasks {
@@ -48,170 +34,55 @@ public class Tasks {
     }
 
     /**
-     * Get End User Tasks
+     * Fetch V1-compat task schema
      * 
-     * <p>Get End User Tasks
-     * 
-     * @return The call builder
-     */
-    public GetTasksRequestBuilder list() {
-        return new GetTasksRequestBuilder(sdkConfiguration);
-    }
-
-    /**
-     * Get End User Tasks
-     * 
-     * <p>Get End User Tasks
-     * 
-     * @param security The security details to use for authentication.
-     * @return The response from the API call
-     * @throws RuntimeException subclass if the API call fails
-     */
-    public GetTasksResponse list(@Nonnull GetTasksSecurity security) {
-        return list(null, security);
-    }
-
-    /**
-     * Get End User Tasks
-     * 
-     * <p>Get End User Tasks
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @param security The security details to use for authentication.
-     * @return The response from the API call
-     * @throws RuntimeException subclass if the API call fails
-     */
-    public GetTasksResponse list(@Nullable GetTasksRequest request, @Nonnull GetTasksSecurity security) {
-        RequestOperation<GetTasksRequest, GetTasksResponse> operation
-              = new GetTasks.Sync(sdkConfiguration, security, _headers);
-        return operation.handleResponse(operation.doRequest(request));
-    }
-
-    /**
-     * Put End User Data
-     * 
-     * <p>Put End User Data
-     * 
-     * @return The call builder
-     */
-    public UpdateTaskRequestBuilder update() {
-        return new UpdateTaskRequestBuilder(sdkConfiguration);
-    }
-
-    /**
-     * Put End User Data
-     * 
-     * <p>Put End User Data
-     * 
-     * @param security The security details to use for authentication.
-     * @return The response from the API call
-     * @throws RuntimeException subclass if the API call fails
-     */
-    public UpdateTaskResponse update(@Nonnull UpdateTaskSecurity security) {
-        return update(null, security);
-    }
-
-    /**
-     * Put End User Data
-     * 
-     * <p>Put End User Data
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @param security The security details to use for authentication.
-     * @return The response from the API call
-     * @throws RuntimeException subclass if the API call fails
-     */
-    public UpdateTaskResponse update(@Nullable UpdateTaskRequest request, @Nonnull UpdateTaskSecurity security) {
-        RequestOperation<UpdateTaskRequest, UpdateTaskResponse> operation
-              = new UpdateTask.Sync(sdkConfiguration, security, _headers);
-        return operation.handleResponse(operation.doRequest(request));
-    }
-
-    /**
-     * Get Task Schema
-     * 
-     * <p>Get Task Schema
+     * <p>V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey
+     * identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @return The call builder
+     * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
      */
+    @Deprecated
     public GetTaskSchemaRequestBuilder getSchema() {
         return new GetTaskSchemaRequestBuilder(sdkConfiguration);
     }
 
     /**
-     * Get Task Schema
+     * Fetch V1-compat task schema
      * 
-     * <p>Get Task Schema
+     * <p>V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey
+     * identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @return The response from the API call
      * @throws RuntimeException subclass if the API call fails
+     * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
      */
+    @Deprecated
     public GetTaskSchemaResponse getSchemaDirect() {
         return getSchema(null);
     }
 
     /**
-     * Get Task Schema
+     * Fetch V1-compat task schema
      * 
-     * <p>Get Task Schema
+     * <p>V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey
+     * identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
      * @param request The request object containing all the parameters for the API call.
      * @return The response from the API call
      * @throws RuntimeException subclass if the API call fails
+     * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
      */
+    @Deprecated
     public GetTaskSchemaResponse getSchema(@Nullable GetTaskSchemaRequest request) {
         RequestOperation<GetTaskSchemaRequest, GetTaskSchemaResponse> operation
               = new GetTaskSchema.Sync(sdkConfiguration, _headers);
-        return operation.handleResponse(operation.doRequest(request));
-    }
-
-    /**
-     * Get Tasks Schema
-     * 
-     * <p>Get Tasks Schema
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
-     * 
-     * @return The call builder
-     */
-    public GetTasksSchemaRequestBuilder listSchema() {
-        return new GetTasksSchemaRequestBuilder(sdkConfiguration);
-    }
-
-    /**
-     * Get Tasks Schema
-     * 
-     * <p>Get Tasks Schema
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
-     * 
-     * @return The response from the API call
-     * @throws RuntimeException subclass if the API call fails
-     */
-    public GetTasksSchemaResponse listSchemaDirect() {
-        return listSchema(null);
-    }
-
-    /**
-     * Get Tasks Schema
-     * 
-     * <p>Get Tasks Schema
-     * 
-     * <p>If set, this operation will use Security#customerAccess from the global security.
-     * 
-     * @param request The request object containing all the parameters for the API call.
-     * @return The response from the API call
-     * @throws RuntimeException subclass if the API call fails
-     */
-    public GetTasksSchemaResponse listSchema(@Nullable GetTasksSchemaRequest request) {
-        RequestOperation<GetTasksSchemaRequest, GetTasksSchemaResponse> operation
-              = new GetTasksSchema.Sync(sdkConfiguration, _headers);
         return operation.handleResponse(operation.doRequest(request));
     }
 

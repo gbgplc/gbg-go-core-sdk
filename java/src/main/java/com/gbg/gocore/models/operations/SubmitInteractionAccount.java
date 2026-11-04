@@ -17,14 +17,18 @@ import java.util.Optional;
 
 public class SubmitInteractionAccount {
     /**
-     * The type of account, e.g. Bank Account, Building Society
+     * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+     * read but new writes emit the canonical form.
      */
     @JsonProperty("type")
     private String type;
 
     /**
-     * Account number
+     * Account number in its domestic form. Optional on its own: an account must carry at least one account
+     * identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when
+     * both are supplied they are not cross-checked.
      */
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("accountNumber")
     private String accountNumber;
 
@@ -43,7 +47,9 @@ public class SubmitInteractionAccount {
     private String routingNumber;
 
     /**
-     * International Bank Account Number
+     * International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616
+     * mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier
+     * — `accountNumber` or `iban` — and either alone is enough.
      */
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("iban")
@@ -87,7 +93,7 @@ public class SubmitInteractionAccount {
     @JsonCreator
     public SubmitInteractionAccount(
             @JsonProperty("type") @Nonnull String type,
-            @JsonProperty("accountNumber") @Nonnull String accountNumber,
+            @JsonProperty("accountNumber") @Nullable String accountNumber,
             @JsonProperty("sortCode") @Nullable String sortCode,
             @JsonProperty("routingNumber") @Nullable String routingNumber,
             @JsonProperty("iban") @Nullable String iban,
@@ -98,8 +104,7 @@ public class SubmitInteractionAccount {
             @JsonProperty("accountType") @Nullable String accountType) {
         this.type = Optional.ofNullable(type)
             .orElseThrow(() -> new IllegalArgumentException("type cannot be null"));
-        this.accountNumber = Optional.ofNullable(accountNumber)
-            .orElseThrow(() -> new IllegalArgumentException("accountNumber cannot be null"));
+        this.accountNumber = accountNumber;
         this.sortCode = sortCode;
         this.routingNumber = routingNumber;
         this.iban = iban;
@@ -111,26 +116,28 @@ public class SubmitInteractionAccount {
     }
     
     public SubmitInteractionAccount(
-            @Nonnull String type,
-            @Nonnull String accountNumber) {
-        this(type, accountNumber, null,
+            @Nonnull String type) {
+        this(type, null, null,
             null, null, null,
             null, null, null,
             null);
     }
 
     /**
-     * The type of account, e.g. Bank Account, Building Society
+     * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+     * read but new writes emit the canonical form.
      */
     public String type() {
         return this.type;
     }
 
     /**
-     * Account number
+     * Account number in its domestic form. Optional on its own: an account must carry at least one account
+     * identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when
+     * both are supplied they are not cross-checked.
      */
-    public String accountNumber() {
-        return this.accountNumber;
+    public Optional<String> accountNumber() {
+        return Optional.ofNullable(this.accountNumber);
     }
 
     /**
@@ -148,7 +155,9 @@ public class SubmitInteractionAccount {
     }
 
     /**
-     * International Bank Account Number
+     * International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616
+     * mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier
+     * — `accountNumber` or `iban` — and either alone is enough.
      */
     public Optional<String> iban() {
         return Optional.ofNullable(this.iban);
@@ -195,7 +204,8 @@ public class SubmitInteractionAccount {
 
 
     /**
-     * The type of account, e.g. Bank Account, Building Society
+     * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+     * read but new writes emit the canonical form.
      */
     public SubmitInteractionAccount withType(@Nonnull String type) {
         this.type = Utils.checkNotNull(type, "type");
@@ -204,10 +214,12 @@ public class SubmitInteractionAccount {
 
 
     /**
-     * Account number
+     * Account number in its domestic form. Optional on its own: an account must carry at least one account
+     * identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when
+     * both are supplied they are not cross-checked.
      */
-    public SubmitInteractionAccount withAccountNumber(@Nonnull String accountNumber) {
-        this.accountNumber = Utils.checkNotNull(accountNumber, "accountNumber");
+    public SubmitInteractionAccount withAccountNumber(@Nullable String accountNumber) {
+        this.accountNumber = accountNumber;
         return this;
     }
 
@@ -231,7 +243,9 @@ public class SubmitInteractionAccount {
 
 
     /**
-     * International Bank Account Number
+     * International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616
+     * mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier
+     * — `accountNumber` or `iban` — and either alone is enough.
      */
     public SubmitInteractionAccount withIban(@Nullable String iban) {
         this.iban = iban;
@@ -358,7 +372,8 @@ public class SubmitInteractionAccount {
         }
 
         /**
-         * The type of account, e.g. Bank Account, Building Society
+         * The type of account (canonical camelCase, e.g. "bankAccount"). Legacy value "Bank Account" is still
+         * read but new writes emit the canonical form.
          */
         public Builder type(@Nonnull String type) {
             this.type = Utils.checkNotNull(type, "type");
@@ -366,10 +381,12 @@ public class SubmitInteractionAccount {
         }
 
         /**
-         * Account number
+         * Account number in its domestic form. Optional on its own: an account must carry at least one account
+         * identifier — `accountNumber` or `iban` — and either alone is enough. Independent of `iban`; when
+         * both are supplied they are not cross-checked.
          */
-        public Builder accountNumber(@Nonnull String accountNumber) {
-            this.accountNumber = Utils.checkNotNull(accountNumber, "accountNumber");
+        public Builder accountNumber(@Nullable String accountNumber) {
+            this.accountNumber = accountNumber;
             return this;
         }
 
@@ -390,7 +407,9 @@ public class SubmitInteractionAccount {
         }
 
         /**
-         * International Bank Account Number
+         * International Bank Account Number, stored exactly as supplied — not format-checked (no ISO 13616
+         * mod-97) at this boundary. Optional on its own: an account must carry at least one account identifier
+         * — `accountNumber` or `iban` — and either alone is enough.
          */
         public Builder iban(@Nullable String iban) {
             this.iban = iban;

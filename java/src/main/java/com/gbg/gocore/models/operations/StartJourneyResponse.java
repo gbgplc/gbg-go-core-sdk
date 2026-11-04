@@ -4,6 +4,7 @@
 package com.gbg.gocore.models.operations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.gbg.gocore.models.JourneyStartResponse;
 import com.gbg.gocore.utils.Response;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
@@ -32,29 +33,22 @@ public class StartJourneyResponse implements Response {
     private HttpResponse<InputStream> rawResponse;
 
     /**
-     * Start Response contains the Journey Instance Id
+     * Journey started
      */
-    private StartJourneyResponseBody1 twoHundredApplicationJsonObject;
-
-    /**
-     * Start Response contains the Journey Instance Id
-     */
-    private StartJourneyResponseBody2 twoHundredAndOneApplicationJsonObject;
+    private JourneyStartResponse journeyStartResponse;
 
     @JsonCreator
     public StartJourneyResponse(
             @Nonnull String contentType,
             int statusCode,
             @Nonnull HttpResponse<InputStream> rawResponse,
-            @Nullable StartJourneyResponseBody1 twoHundredApplicationJsonObject,
-            @Nullable StartJourneyResponseBody2 twoHundredAndOneApplicationJsonObject) {
+            @Nullable JourneyStartResponse journeyStartResponse) {
         this.contentType = Optional.ofNullable(contentType)
             .orElseThrow(() -> new IllegalArgumentException("contentType cannot be null"));
         this.statusCode = statusCode;
         this.rawResponse = Optional.ofNullable(rawResponse)
             .orElseThrow(() -> new IllegalArgumentException("rawResponse cannot be null"));
-        this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-        this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+        this.journeyStartResponse = journeyStartResponse;
     }
     
     public StartJourneyResponse(
@@ -62,7 +56,7 @@ public class StartJourneyResponse implements Response {
             int statusCode,
             @Nonnull HttpResponse<InputStream> rawResponse) {
         this(contentType, statusCode, rawResponse,
-            null, null);
+            null);
     }
 
     /**
@@ -87,17 +81,10 @@ public class StartJourneyResponse implements Response {
     }
 
     /**
-     * Start Response contains the Journey Instance Id
+     * Journey started
      */
-    public Optional<StartJourneyResponseBody1> twoHundredApplicationJsonObject() {
-        return Optional.ofNullable(this.twoHundredApplicationJsonObject);
-    }
-
-    /**
-     * Start Response contains the Journey Instance Id
-     */
-    public Optional<StartJourneyResponseBody2> twoHundredAndOneApplicationJsonObject() {
-        return Optional.ofNullable(this.twoHundredAndOneApplicationJsonObject);
+    public Optional<JourneyStartResponse> journeyStartResponse() {
+        return Optional.ofNullable(this.journeyStartResponse);
     }
 
     public static Builder builder() {
@@ -133,19 +120,10 @@ public class StartJourneyResponse implements Response {
 
 
     /**
-     * Start Response contains the Journey Instance Id
+     * Journey started
      */
-    public StartJourneyResponse withTwoHundredApplicationJsonObject(@Nullable StartJourneyResponseBody1 twoHundredApplicationJsonObject) {
-        this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-        return this;
-    }
-
-
-    /**
-     * Start Response contains the Journey Instance Id
-     */
-    public StartJourneyResponse withTwoHundredAndOneApplicationJsonObject(@Nullable StartJourneyResponseBody2 twoHundredAndOneApplicationJsonObject) {
-        this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+    public StartJourneyResponse withJourneyStartResponse(@Nullable JourneyStartResponse journeyStartResponse) {
+        this.journeyStartResponse = journeyStartResponse;
         return this;
     }
 
@@ -163,15 +141,14 @@ public class StartJourneyResponse implements Response {
             Utils.enhancedDeepEquals(this.contentType, other.contentType) &&
             Utils.enhancedDeepEquals(this.statusCode, other.statusCode) &&
             Utils.enhancedDeepEquals(this.rawResponse, other.rawResponse) &&
-            Utils.enhancedDeepEquals(this.twoHundredApplicationJsonObject, other.twoHundredApplicationJsonObject) &&
-            Utils.enhancedDeepEquals(this.twoHundredAndOneApplicationJsonObject, other.twoHundredAndOneApplicationJsonObject);
+            Utils.enhancedDeepEquals(this.journeyStartResponse, other.journeyStartResponse);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
             contentType, statusCode, rawResponse,
-            twoHundredApplicationJsonObject, twoHundredAndOneApplicationJsonObject);
+            journeyStartResponse);
     }
     
     @Override
@@ -180,8 +157,7 @@ public class StartJourneyResponse implements Response {
                 "contentType", contentType,
                 "statusCode", statusCode,
                 "rawResponse", rawResponse,
-                "twoHundredApplicationJsonObject", twoHundredApplicationJsonObject,
-                "twoHundredAndOneApplicationJsonObject", twoHundredAndOneApplicationJsonObject);
+                "journeyStartResponse", journeyStartResponse);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -193,9 +169,7 @@ public class StartJourneyResponse implements Response {
 
         private HttpResponse<InputStream> rawResponse;
 
-        private StartJourneyResponseBody1 twoHundredApplicationJsonObject;
-
-        private StartJourneyResponseBody2 twoHundredAndOneApplicationJsonObject;
+        private JourneyStartResponse journeyStartResponse;
 
         private Builder() {
           // force use of static builder() method
@@ -226,25 +200,17 @@ public class StartJourneyResponse implements Response {
         }
 
         /**
-         * Start Response contains the Journey Instance Id
+         * Journey started
          */
-        public Builder twoHundredApplicationJsonObject(@Nullable StartJourneyResponseBody1 twoHundredApplicationJsonObject) {
-            this.twoHundredApplicationJsonObject = twoHundredApplicationJsonObject;
-            return this;
-        }
-
-        /**
-         * Start Response contains the Journey Instance Id
-         */
-        public Builder twoHundredAndOneApplicationJsonObject(@Nullable StartJourneyResponseBody2 twoHundredAndOneApplicationJsonObject) {
-            this.twoHundredAndOneApplicationJsonObject = twoHundredAndOneApplicationJsonObject;
+        public Builder journeyStartResponse(@Nullable JourneyStartResponse journeyStartResponse) {
+            this.journeyStartResponse = journeyStartResponse;
             return this;
         }
 
         public StartJourneyResponse build() {
             return new StartJourneyResponse(
                 contentType, statusCode, rawResponse,
-                twoHundredApplicationJsonObject, twoHundredAndOneApplicationJsonObject);
+                journeyStartResponse);
         }
 
     }
