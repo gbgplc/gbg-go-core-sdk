@@ -37,3 +37,98 @@ jobs:
       java_gpg_secret_key: ${{ secrets.JAVA_GPG_SECRET_KEY }}
       java_gpg_passphrase: ${{ secrets.JAVA_GPG_PASSPHRASE }}
       speakeasy_api_key: ${{ secrets.SPEAKEASY_API_KEY }}
+
+  # Test what was just generated.
+  #
+  # The generated pull request cannot test itself: a pull request opened with
+  # the default GITHUB_TOKEN starts no workflow runs, because GitHub blocks
+  # that so workflows cannot trigger themselves. Running the suite from this
+  # run instead is the way round it, and it keeps cause and effect together —
+  # the run that produced the SDK is the run that checks it.
+  find-generated-pr:
+    name: Find the generated pull request
+    needs: generate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      found: ${{ steps.find.outputs.found }}
+      sha: ${{ steps.find.outputs.sha }}
+    steps:
+      - name: Find it
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # All three filters are load-bearing, and the first two are the
+          # security boundary: what this finds is checked out and executed, by
+          # npm and by Gradle, both of which run code from the tree. This
+          # repository is public, so matching the branch name alone would let
+          # anyone open a pull request from a fork on a branch called
+          # speakeasy-sdk-regen-anything and have their code run here.
+          #
+          #   isCrossRepository  the head branch must be in this repository,
+          #                      which takes push access to create
+          #   author             it must be the pull request the generator
+          #                      itself opened
+          #   headRefName        and on a branch the generator names
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
+                 --json number,headRefName,headRefOid,isCrossRepository,author \
+                 --jq '[.[]
+                        | select(.isCrossRepository == false)
+                        | select(.author.login == "app/github-actions")
+                        | select(.headRefName | startswith("speakeasy-sdk-regen-"))]
+                       | sort_by(.number) | last // empty')
+          if [ -z "$pr" ]; then
+            echo "No generated pull request from this repository is open; nothing to test."
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          {
+            echo "found=true"
+            echo "sha=$(echo "$pr" | jq -r .headRefOid)"
+          } >> "$GITHUB_OUTPUT"
+          echo "Testing generated pull request #$(echo "$pr" | jq -r .number)"
+
+  contract-tests:
+    name: Contract tests
+    needs: find-generated-pr
+    if: needs.find-generated-pr.outputs.found == 'true'
+    uses: ./.github/workflows/contract_tests.yaml
+    with:
+      sdk-ref: ${{ needs.find-generated-pr.outputs.sha }}
+    secrets: inherit
+
+  report:
+    name: Report to the generated pull request
+    needs: [find-generated-pr, contract-tests]
+    if: always() && needs.find-generated-pr.outputs.found == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      # The generated pull request gets no checks of its own, so without this
+      # the result would sit in a workflow run nobody is looking at.
+      - name: Post the result as a commit status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.find-generated-pr.outputs.sha }}
+          RESULT: ${{ needs.contract-tests.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          if [ "$RESULT" = "success" ]; then
+            state=success
+            description="contract tier passed in both languages"
+          else
+            state=failure
+            description="contract tier $RESULT"
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" -X POST \
+            -f state="$state" \
+            -f context="Contract tests" \
+            -f description="$description" \
+            -f target_url="$RUN_URL" > /dev/null
+          echo "Contract tests: $state"
