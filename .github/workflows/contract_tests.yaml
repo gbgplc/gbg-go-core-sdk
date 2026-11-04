@@ -135,7 +135,7 @@ jobs:
 
       # -PuseLocalSdk is what puts mavenLocal() on the repository list at all.
       # ProvenanceTest fails the run if the resolved jar did not come from
-      # ~/.m2 after opting in, so this cannot quietly test the published alpha.
+      # ~/.m2 after opting in, so this cannot quietly test the published release.
       - name: Report the SDK under test
         working-directory: suite/java
         run: >-
