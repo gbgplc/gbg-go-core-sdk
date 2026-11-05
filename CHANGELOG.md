@@ -7,6 +7,22 @@ version together.
 `RELEASES.md` is a generator-written log of every build. This file is the
 human-readable one: what changed, what breaks, and what to do about it.
 
+## 0.2.1 (TypeScript only)
+
+Java stays on `0.2.0`; nothing in it changed.
+
+### Security
+
+- **zod now requires `^4.6.6`.** Every earlier release, including all of 3.x,
+  can exhaust memory while validating a very large array
+  ([GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5)).
+  The generator writes `^3.25.65 || ^4.0.0`, so the range is overridden in
+  `.speakeasy/gen.yaml` under `additionalDependencies`; it survives
+  regeneration. If your project resolves zod 3 or an older 4.x for its own
+  use, the SDK now installs its own copy rather than sharing it.
+- Development dependencies updated to clear the remaining Dependabot alerts
+  that have a non-breaking fix. None of them ship in the package.
+
 ## 0.2.0 (TypeScript `0.2.0`, Java `0.2.0`)
 
 Previous stable release: TypeScript `0.1.3`. This is Java's first stable

@@ -35,10 +35,11 @@ generation:
     generateNewTests: true
     skipResponseBodyAssertions: false
 typescript:
-  version: 0.2.0
+  version: 0.2.1
   acceptHeaderEnum: false
   additionalDependencies:
-    dependencies: {}
+    dependencies:
+      zod: ^4.6.6
     devDependencies: {}
     peerDependencies: {}
   additionalPackageJSON: {}

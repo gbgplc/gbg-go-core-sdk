@@ -14,7 +14,7 @@ targets:
         sourceRevisionDigest: sha256:bccf022a4d4a99eda6179b0b6ca5516849a736ddf7368e3dd53f16fc357fe038
         sourceBlobDigest: sha256:4b6c824e8fb16d8a48d17503de31dccc3a1e57c1333cff907893d13b60f1b57f
         codeSamplesNamespace: gbg-go-next-gen-flow-captain-api-typescript-code-samples
-        codeSamplesRevisionDigest: sha256:b7582b50ee83975bd3ed7729b5da19497ee75cdad7170da55660073ca45baa17
+        codeSamplesRevisionDigest: sha256:2b0551948c677c08d418af9aeb0ae90fb82e62550a3be5273f95cd69d31e86e2
     java:
         source: GBG GO Next Gen Flow Captain API
         sourceNamespace: gbg-go-next-gen-flow-captain-api
