@@ -574,11 +574,30 @@ statuses (today: 422 on submit) arrive as `GoDefaultError`. Handle all three.
 ## Debug logging and sensitive data
 
 The debug logger prints every request header, including the full
-`Authorization: Bearer …` value, and complete request bodies. For
-`interactions.submit` that includes base64-encoded document and selfie images.
+`Authorization: Bearer …` value, and complete request and response bodies. The
+token response carries the access token, and `interactions.submit` carries
+base64-encoded document and selfie images. Unlike the Java SDK, nothing is
+redacted.
 
 It is off unless you pass `debugLogger` or set `GO_DEBUG`. Keep it off in
-production, and do not send debug output to a shared log sink.
+production, and do not send debug output to a shared log sink. If you need it,
+pass a logger that masks bearer tokens before they are written:
+
+```typescript
+const mask = (a: unknown) =>
+  typeof a === "string" ? a.replace(/Bearer\s+\S+/gi, "Bearer [redacted]") : a;
+
+const sdk = new Go({
+  debugLogger: {
+    group: (...a: unknown[]) => console.group(...a.map(mask)),
+    groupEnd: () => console.groupEnd(),
+    log: (...a: unknown[]) => console.log(...a.map(mask)),
+  },
+});
+```
+
+This masks headers only. Bodies are logged as objects, so leave the logger off
+for calls that carry tokens or images.
 
 <!-- Start Debugging [debug] -->
 ## Debugging
