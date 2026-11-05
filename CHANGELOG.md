@@ -7,6 +7,30 @@ version together.
 `RELEASES.md` is a generator-written log of every build. This file is the
 human-readable one: what changed, what breaks, and what to do about it.
 
+## 0.2.1 (Java)
+
+Released after TypeScript `0.2.1`, which this does not change.
+
+### Security
+
+- **jackson-databind is now 2.22.4** (was 2.22.1), which also brings
+  jackson-core to 2.22.4. That clears seven advisories against 2.22.1, five of
+  them high: GHSA-cxp5-3px4-pw24, GHSA-q4xh-88c3-wmh7, GHSA-wv8q-qhhj-9h54,
+  GHSA-gx83-3vf8-gh7j and GHSA-wjgm-6hv5-3cvf (databind), and
+  GHSA-7hhh-6rmp-j9qf and GHSA-p6pp-m3f8-5c89 (core). Exploiting them through
+  the SDK would need control of GBG GO's responses, but they show up in your
+  dependency scans either way.
+- **Spring Boot overrides this.** Its dependency management picks its own
+  Jackson version for the whole application. See "Jackson version and Spring
+  Boot" in the Java README.
+
+### Docs
+
+- Both READMEs now describe debug logging accurately. Java redacts
+  `Authorization`; TypeScript does not, and its README shows a logger that
+  masks bearer tokens. On npm the TypeScript README updates with the next
+  TypeScript release.
+
 ## 0.2.1 (TypeScript only)
 
 Java stays on `0.2.0`; nothing in it changed.

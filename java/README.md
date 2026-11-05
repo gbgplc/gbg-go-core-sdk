@@ -54,7 +54,7 @@ The samples below show how a published SDK artifact is used:
 
 Gradle:
 ```groovy
-implementation 'com.gbg:go-core-sdk:0.2.0'
+implementation 'com.gbg:go-core-sdk:0.2.1'
 ```
 
 Maven:
@@ -62,7 +62,7 @@ Maven:
 <dependency>
     <groupId>com.gbg</groupId>
     <artifactId>go-core-sdk</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 </dependency>
 ```
 
@@ -813,6 +813,27 @@ String json = myMapper.writeValueAsString(response);
 [jackson-jsr310]: https://github.com/FasterXML/jackson-modules-java8/tree/master/datetime
 <!-- End Jackson Configuration [jackson] -->
 
+## Jackson version and Spring Boot
+
+The SDK depends on `jackson-databind` 2.22.4. Spring Boot's dependency
+management overrides that with its own Jackson version (2.21.4 in Spring Boot
+3.5.16), which carries published advisories fixed in later releases. Raise it in
+your build rather than relying on the SDK's version:
+
+```groovy
+// Gradle, with the Spring dependency-management plugin
+ext['jackson-bom.version'] = '2.21.8'
+```
+
+```xml
+<!-- Maven, with spring-boot-starter-parent -->
+<properties>
+    <jackson-bom.version>2.21.8</jackson-bom.version>
+</properties>
+```
+
+Use the newest Jackson release your Spring Boot version supports.
+
 ## Authenticating interaction calls
 
 Most operations take the client-level token you set on the builder.
@@ -857,8 +878,9 @@ on submit) arrive as `APIException`.
 
 ## Debug logging and sensitive data
 
-Debug logging prints request headers, including the full `Authorization` bearer
-value, and complete request bodies. For interaction submits that includes
+Debug logging redacts the `Authorization` and `X-API-KEY` headers, but at TRACE
+level with body logging on it prints complete request and response bodies. Those
+include the access token in the token response and, for interaction submits,
 base64-encoded document and selfie images. Keep it off in production and do not
 send debug output to a shared log sink.
 

@@ -5,13 +5,13 @@ management:
   docVersion: 2.x
   speakeasyVersion: 1.806.0
   generationVersion: 2.956.1
-  releaseVersion: 0.2.0
-  configChecksum: 8e698b266c11f5599ac5b25001e384fe
+  releaseVersion: 0.2.1
+  configChecksum: 8b610084f0ef7456ba594aeacf3fc61f
   published: true
 persistentEdits:
-  generation_id: fd3e47e7-b6e9-42bc-803f-1ec01548ab7a
-  pristine_commit_hash: b933dacf7c84a6163649e3447dcc367532cb2be5
-  pristine_tree_hash: 1ac42d9200ae7977843733e236f0a03029a9a3c7
+  generation_id: d703b9c6-1708-4c71-ad7a-8db5c66804f6
+  pristine_commit_hash: cce6316cc6dec67e65779f549d1417bf5e3fd47f
+  pristine_tree_hash: db1e92d9a2bf9323cef1ab7ffc22ab399bfe80d8
 features:
   java:
     additionalDependencies: 0.1.0
@@ -42,8 +42,8 @@ trackedFiles:
     pristine_git_object: 111c9c26aa9fdb1efea14e30f1c202e40e1ff799
   build.gradle:
     id: f07866736216
-    last_write_checksum: sha1:0748ee847e39d9e2e4bc74b2174e053e9d2d4755
-    pristine_git_object: 658200639e743d6b5558c2beb7428cd5939036c3
+    last_write_checksum: sha1:015f7df1ccd4748ea90297aef3eca8b511180267
+    pristine_git_object: 660913a92c82e097be2a80a6edeb9154a4e6018c
   docs/models/AggregatedField.md:
     id: ad2632b96a62
     last_write_checksum: sha1:9b39b1f30a4f5916430a5b673aeb7082dad49691
@@ -1606,8 +1606,8 @@ trackedFiles:
     pristine_git_object: 15c9c968dc112a12f5f591958e42f16d8f1e5602
   gradle.properties:
     id: 2afbb999f001
-    last_write_checksum: sha1:f7f7efed8ac8789616892530c7dd9c1c46dd8688
-    pristine_git_object: 014551d7cfc5cb7935898cc39130e63c2282f9e2
+    last_write_checksum: sha1:6a3e0f1e6e09dede2bc5bec2d55fb57063ce9759
+    pristine_git_object: 14b68d1a777f6cb52c0a0044fc73303269ce98fb
   gradle/wrapper/gradle-wrapper.jar:
     id: ec27dae6e852
     last_write_checksum: sha1:f725fb1467084142d74fd7cd8eab691ab3442611
@@ -1694,8 +1694,8 @@ trackedFiles:
     pristine_git_object: 31b243b5aeb88ad2e6382ee5ffecd2521565db9f
   src/main/java/com/gbg/gocore/SDKConfiguration.java:
     id: 740f95ca528a
-    last_write_checksum: sha1:e8db596d23eb049acddcc8131fc2c651a4b4016a
-    pristine_git_object: 6aeb07be60f1f0dbb61955ae2d66bc04f9793cf7
+    last_write_checksum: sha1:3b327d94bbf4c3cb7a80d02de2125de44591e15b
+    pristine_git_object: 45afccdcc1a8722e3ba229da9b1665c52d7c785e
   src/main/java/com/gbg/gocore/SecuritySource.java:
     id: c50483fc452f
     last_write_checksum: sha1:f11362fc7bd52b1331215e0afecd99e46b3265b4

@@ -1,0 +1,37 @@
+# Report the Java SDK's dependencies to GitHub, so Dependabot alerts cover them.
+#
+# GitHub reads npm's lockfile directly, but builds no dependency graph from
+# Gradle on its own, so the Java SDK's dependencies were invisible: seven
+# jackson advisories against 2.22.1 raised no alert. This resolves the full
+# runtime tree, transitive dependencies included, and submits it.
+#
+# Alerts only. Dependabot version-update PRs for Gradle would edit
+# java/build.gradle, which regeneration overwrites; dependency versions are
+# set in java/.speakeasy/gen.yaml (additionalDependencies) instead.
+name: Dependency submission
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  java:
+    name: Java
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Submit the Java dependency graph
+        uses: gradle/actions/dependency-submission@v6
+        with:
+          build-root-directory: java
