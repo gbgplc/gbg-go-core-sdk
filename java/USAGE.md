@@ -16,6 +16,7 @@ public class Application {
             .build();
 
         StartJourneyResponse res = sdk.journeys().start()
+                .xGbgScenario("my-scenario")
                 .call();
 
         if (res.journeyStartResponse().isPresent()) {

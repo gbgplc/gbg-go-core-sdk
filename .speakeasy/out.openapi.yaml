@@ -1250,6 +1250,15 @@ paths:
       description: "Creates a new journey instance from a resource definition."
       security:
         - CustomerAccess: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Applies a saved test scenario for this journey, selected by name (see /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario: <name>`. The value `inline` instead takes the scenario from the request body `scenario` field."
+            example: "my-scenario"
+          required: false
+          description: "Applies a saved test scenario for this journey, selected by name (see /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario: <name>`. The value `inline` instead takes the scenario from the request body `scenario` field."
+          name: "x-gbg-scenario"
+          in: "header"
       requestBody:
         content:
           application/json:

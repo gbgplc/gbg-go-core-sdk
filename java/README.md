@@ -34,6 +34,7 @@ GBG GO Journey API: GBG GO API for orchestrating identity verification journeys.
   * [Custom HTTP Client](#custom-http-client)
   * [Debugging](#debugging)
   * [Jackson Configuration](#jackson-configuration)
+  * [Jackson version and Spring Boot](#jackson-version-and-spring-boot)
   * [Authenticating interaction calls](#authenticating-interaction-calls)
   * [Error handling notes](#error-handling-notes)
   * [Debug logging and sensitive data](#debug-logging-and-sensitive-data)
@@ -54,7 +55,7 @@ The samples below show how a published SDK artifact is used:
 
 Gradle:
 ```groovy
-implementation 'com.gbg:go-core-sdk:0.2.1'
+implementation 'com.gbg:go-core-sdk:0.2.2'
 ```
 
 Maven:
@@ -62,7 +63,7 @@ Maven:
 <dependency>
     <groupId>com.gbg</groupId>
     <artifactId>go-core-sdk</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
 </dependency>
 ```
 
@@ -103,6 +104,7 @@ public class Application {
             .build();
 
         StartJourneyResponse res = sdk.journeys().start()
+                .xGbgScenario("my-scenario")
                 .call();
 
         if (res.journeyStartResponse().isPresent()) {
@@ -131,6 +133,7 @@ public class Application {
             .toAsync();
 
         CompletableFuture<StartJourneyResponse> resFut = sdk.journeys().start()
+                .xGbgScenario("my-scenario")
                 .call();
 
         resFut.thenAccept(res -> {
@@ -249,6 +252,7 @@ public class Application {
             .build();
 
         StartJourneyResponse res = sdk.journeys().start()
+                .xGbgScenario("my-scenario")
                 .call();
 
         if (res.journeyStartResponse().isPresent()) {
@@ -399,6 +403,7 @@ public class Application {
         try {
 
             StartJourneyResponse res = sdk.journeys().start()
+                    .xGbgScenario("my-scenario")
                     .call();
 
             if (res.journeyStartResponse().isPresent()) {
@@ -495,6 +500,7 @@ public class Application {
             .build();
 
         StartJourneyResponse res = sdk.journeys().start()
+                .xGbgScenario("my-scenario")
                 .call();
 
         if (res.journeyStartResponse().isPresent()) {
@@ -525,6 +531,7 @@ public class Application {
             .build();
 
         StartJourneyResponse res = sdk.journeys().start()
+                .xGbgScenario("my-scenario")
                 .call();
 
         if (res.journeyStartResponse().isPresent()) {

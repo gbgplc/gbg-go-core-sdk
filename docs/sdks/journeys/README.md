@@ -24,7 +24,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }
@@ -47,7 +49,9 @@ const go = new GoCore({
 });
 
 async function run() {
-  const res = await journeysStart(go);
+  const res = await journeysStart(go, {
+    xGbgScenario: "my-scenario",
+  });
   if (res.ok) {
     const { value: result } = res;
     console.log(result);
