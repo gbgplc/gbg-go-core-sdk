@@ -4,11 +4,8 @@
 package com.gbg.gocore.models.operations;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gbg.gocore.utils.SpeakeasyMetadata;
 import com.gbg.gocore.utils.Utils;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.Override;
 import java.lang.String;
@@ -16,47 +13,41 @@ import java.util.Optional;
 
 
 public class StartJourneyRequest {
+    /**
+     * Applies a saved test scenario for this journey, selected by name (see
+     * /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario:
+     * &lt;name&gt;`. The value `inline` instead takes the scenario from the request body `scenario` field.
+     */
+    @SpeakeasyMetadata("header:style=simple,explode=false,name=x-gbg-scenario")
+    private String xGbgScenario;
 
-    @JsonProperty("resourceId")
-    private String resourceId;
 
-
-    @JsonProperty("context")
-    private StartJourneyContext context;
-
-
-    @JsonInclude(Include.NON_ABSENT)
-    @JsonProperty("scenario")
-    private Scenario scenario;
+    @SpeakeasyMetadata("request:mediaType=application/json")
+    private StartJourneyRequestBody body;
 
     @JsonCreator
     public StartJourneyRequest(
-            @JsonProperty("resourceId") @Nonnull String resourceId,
-            @JsonProperty("context") @Nonnull StartJourneyContext context,
-            @JsonProperty("scenario") @Nullable Scenario scenario) {
-        this.resourceId = Optional.ofNullable(resourceId)
-            .orElseThrow(() -> new IllegalArgumentException("resourceId cannot be null"));
-        this.context = Optional.ofNullable(context)
-            .orElseThrow(() -> new IllegalArgumentException("context cannot be null"));
-        this.scenario = scenario;
+            @Nullable String xGbgScenario,
+            @Nullable StartJourneyRequestBody body) {
+        this.xGbgScenario = xGbgScenario;
+        this.body = body;
     }
     
-    public StartJourneyRequest(
-            @Nonnull String resourceId,
-            @Nonnull StartJourneyContext context) {
-        this(resourceId, context, null);
+    public StartJourneyRequest() {
+        this(null, null);
     }
 
-    public String resourceId() {
-        return this.resourceId;
+    /**
+     * Applies a saved test scenario for this journey, selected by name (see
+     * /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario:
+     * &lt;name&gt;`. The value `inline` instead takes the scenario from the request body `scenario` field.
+     */
+    public Optional<String> xGbgScenario() {
+        return Optional.ofNullable(this.xGbgScenario);
     }
 
-    public StartJourneyContext context() {
-        return this.context;
-    }
-
-    public Optional<Scenario> scenario() {
-        return Optional.ofNullable(this.scenario);
+    public Optional<StartJourneyRequestBody> body() {
+        return Optional.ofNullable(this.body);
     }
 
     public static Builder builder() {
@@ -64,20 +55,19 @@ public class StartJourneyRequest {
     }
 
 
-    public StartJourneyRequest withResourceId(@Nonnull String resourceId) {
-        this.resourceId = Utils.checkNotNull(resourceId, "resourceId");
+    /**
+     * Applies a saved test scenario for this journey, selected by name (see
+     * /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario:
+     * &lt;name&gt;`. The value `inline` instead takes the scenario from the request body `scenario` field.
+     */
+    public StartJourneyRequest withXGbgScenario(@Nullable String xGbgScenario) {
+        this.xGbgScenario = xGbgScenario;
         return this;
     }
 
 
-    public StartJourneyRequest withContext(@Nonnull StartJourneyContext context) {
-        this.context = Utils.checkNotNull(context, "context");
-        return this;
-    }
-
-
-    public StartJourneyRequest withScenario(@Nullable Scenario scenario) {
-        this.scenario = scenario;
+    public StartJourneyRequest withBody(@Nullable StartJourneyRequestBody body) {
+        this.body = body;
         return this;
     }
 
@@ -92,56 +82,52 @@ public class StartJourneyRequest {
         }
         StartJourneyRequest other = (StartJourneyRequest) o;
         return 
-            Utils.enhancedDeepEquals(this.resourceId, other.resourceId) &&
-            Utils.enhancedDeepEquals(this.context, other.context) &&
-            Utils.enhancedDeepEquals(this.scenario, other.scenario);
+            Utils.enhancedDeepEquals(this.xGbgScenario, other.xGbgScenario) &&
+            Utils.enhancedDeepEquals(this.body, other.body);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            resourceId, context, scenario);
+            xGbgScenario, body);
     }
     
     @Override
     public String toString() {
         return Utils.toString(StartJourneyRequest.class,
-                "resourceId", resourceId,
-                "context", context,
-                "scenario", scenario);
+                "xGbgScenario", xGbgScenario,
+                "body", body);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
-        private String resourceId;
+        private String xGbgScenario;
 
-        private StartJourneyContext context;
-
-        private Scenario scenario;
+        private StartJourneyRequestBody body;
 
         private Builder() {
           // force use of static builder() method
         }
 
-        public Builder resourceId(@Nonnull String resourceId) {
-            this.resourceId = Utils.checkNotNull(resourceId, "resourceId");
+        /**
+         * Applies a saved test scenario for this journey, selected by name (see
+         * /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario:
+         * &lt;name&gt;`. The value `inline` instead takes the scenario from the request body `scenario` field.
+         */
+        public Builder xGbgScenario(@Nullable String xGbgScenario) {
+            this.xGbgScenario = xGbgScenario;
             return this;
         }
 
-        public Builder context(@Nonnull StartJourneyContext context) {
-            this.context = Utils.checkNotNull(context, "context");
-            return this;
-        }
-
-        public Builder scenario(@Nullable Scenario scenario) {
-            this.scenario = scenario;
+        public Builder body(@Nullable StartJourneyRequestBody body) {
+            this.body = body;
             return this;
         }
 
         public StartJourneyRequest build() {
             return new StartJourneyRequest(
-                resourceId, context, scenario);
+                xGbgScenario, body);
         }
 
     }

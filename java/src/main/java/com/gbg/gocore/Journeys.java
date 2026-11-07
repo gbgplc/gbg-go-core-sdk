@@ -13,6 +13,7 @@ import com.gbg.gocore.models.operations.GetJourneyStateRequestBody;
 import com.gbg.gocore.models.operations.GetJourneyStateRequestBuilder;
 import com.gbg.gocore.models.operations.GetJourneyStateResponse;
 import com.gbg.gocore.models.operations.StartJourneyRequest;
+import com.gbg.gocore.models.operations.StartJourneyRequestBody;
 import com.gbg.gocore.models.operations.StartJourneyRequestBuilder;
 import com.gbg.gocore.models.operations.StartJourneyResponse;
 import com.gbg.gocore.models.operations.TerminateJourneyRequest;
@@ -70,7 +71,7 @@ public class Journeys {
      * @throws RuntimeException subclass if the API call fails
      */
     public StartJourneyResponse startDirect() {
-        return start(null);
+        return start(null, null);
     }
 
     /**
@@ -80,11 +81,13 @@ public class Journeys {
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
-     * @param request The request object containing all the parameters for the API call.
+     * @param xGbgScenario Applies a saved test scenario for this journey, selected by name (see /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario: <name>`. The value `inline` instead takes the scenario from the request body `scenario` field.
+     * @param body 
      * @return The response from the API call
      * @throws RuntimeException subclass if the API call fails
      */
-    public StartJourneyResponse start(@Nullable StartJourneyRequest request) {
+    public StartJourneyResponse start(@Nullable String xGbgScenario, @Nullable StartJourneyRequestBody body) {
+        StartJourneyRequest request = new StartJourneyRequest(xGbgScenario, body);
         RequestOperation<StartJourneyRequest, StartJourneyResponse> operation
               = new StartJourney.Sync(sdkConfiguration, _headers);
         return operation.handleResponse(operation.doRequest(request));
