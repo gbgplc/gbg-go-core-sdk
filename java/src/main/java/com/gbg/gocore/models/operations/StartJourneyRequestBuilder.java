@@ -10,22 +10,36 @@ import com.gbg.gocore.operations.StartJourney;
 import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.lang.String;
 
 public class StartJourneyRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
+    private final StartJourneyRequest.Builder pojoBuilder;
     private StartJourneyRequest request;
+    private boolean _setterCalled;
 
     public StartJourneyRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.pojoBuilder = StartJourneyRequest.builder();
     }
 
-    public StartJourneyRequestBuilder request(@Nullable StartJourneyRequest request) {
-        this.request = request;
+    public StartJourneyRequestBuilder xGbgScenario(@Nullable String xGbgScenario) {
+        this.pojoBuilder.xGbgScenario(xGbgScenario);
+        this._setterCalled = true;
+        return this;
+    }
+
+    public StartJourneyRequestBuilder body(@Nullable StartJourneyRequestBody body) {
+        this.pojoBuilder.body(body);
+        this._setterCalled = true;
         return this;
     }
 
     private StartJourneyRequest _buildRequest() {
+        if (this._setterCalled) {
+            this.request = this.pojoBuilder.build();
+        }
         return this.request;
     }
     

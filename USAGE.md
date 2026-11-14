@@ -7,7 +7,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }

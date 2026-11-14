@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { remap as remap$ } from "../../lib/primitives.js";
 import { ClosedEnum } from "../../types/enums.js";
 import { smartUnion } from "../../types/smart-union.js";
 
@@ -2013,10 +2014,18 @@ export type Scenario = {
   [additionalProperties: string]: unknown;
 };
 
-export type StartJourneyRequest = {
+export type StartJourneyRequestBody = {
   resourceId: string;
   context: StartJourneyContext;
   scenario?: Scenario | undefined;
+};
+
+export type StartJourneyRequest = {
+  /**
+   * Applies a saved test scenario for this journey, selected by name (see /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario: <name>`. The value `inline` instead takes the scenario from the request body `scenario` field.
+   */
+  xGbgScenario?: string | undefined;
+  body?: StartJourneyRequestBody | undefined;
 };
 
 /** @internal */
@@ -5697,21 +5706,51 @@ export function scenarioToJSON(scenario: Scenario): string {
 }
 
 /** @internal */
-export type StartJourneyRequest$Outbound = {
+export type StartJourneyRequestBody$Outbound = {
   resourceId: string;
   context: StartJourneyContext$Outbound;
   scenario?: Scenario$Outbound | undefined;
 };
 
 /** @internal */
-export const StartJourneyRequest$outboundSchema: z.ZodMiniType<
-  StartJourneyRequest$Outbound,
-  StartJourneyRequest
+export const StartJourneyRequestBody$outboundSchema: z.ZodMiniType<
+  StartJourneyRequestBody$Outbound,
+  StartJourneyRequestBody
 > = z.object({
   resourceId: z.string(),
   context: z.lazy(() => StartJourneyContext$outboundSchema),
   scenario: z.optional(z.lazy(() => Scenario$outboundSchema)),
 });
+
+export function startJourneyRequestBodyToJSON(
+  startJourneyRequestBody: StartJourneyRequestBody,
+): string {
+  return JSON.stringify(
+    StartJourneyRequestBody$outboundSchema.parse(startJourneyRequestBody),
+  );
+}
+
+/** @internal */
+export type StartJourneyRequest$Outbound = {
+  "x-gbg-scenario"?: string | undefined;
+  body?: StartJourneyRequestBody$Outbound | undefined;
+};
+
+/** @internal */
+export const StartJourneyRequest$outboundSchema: z.ZodMiniType<
+  StartJourneyRequest$Outbound,
+  StartJourneyRequest
+> = z.pipe(
+  z.object({
+    xGbgScenario: z.optional(z.string()),
+    body: z.optional(z.lazy(() => StartJourneyRequestBody$outboundSchema)),
+  }),
+  z.transform((v) => {
+    return remap$(v, {
+      xGbgScenario: "x-gbg-scenario",
+    });
+  }),
+);
 
 export function startJourneyRequestToJSON(
   startJourneyRequest: StartJourneyRequest,
