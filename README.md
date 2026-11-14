@@ -94,7 +94,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }
@@ -124,7 +126,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }
@@ -264,7 +268,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start(undefined, {
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  }, {
     retries: {
       strategy: "backoff",
       backoff: {
@@ -303,7 +309,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }
@@ -338,7 +346,9 @@ const go = new Go({
 
 async function run() {
   try {
-    const result = await go.journeys.start();
+    const result = await go.journeys.start({
+      xGbgScenario: "my-scenario",
+    });
 
     console.log(result);
   } catch (error) {
@@ -411,7 +421,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }
@@ -432,7 +444,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }
@@ -615,7 +629,7 @@ import { Go } from "@gbg/go-core";
 const sdk = new Go({ debugLogger: console });
 ```
 
-You can also enable a default debug logger by setting an environment variable `GO_DEBUG` to true.
+You can also enable a default debug logger by setting an environment variable `GO_DEBUG` to `true`, `1`, `yes` or `on` (case-insensitive). Any other value leaves it off.
 <!-- End Debugging [debug] -->
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->

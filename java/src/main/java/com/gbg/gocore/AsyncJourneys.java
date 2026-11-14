@@ -9,6 +9,7 @@ import com.gbg.gocore.models.operations.GetJourneySchemasRequest;
 import com.gbg.gocore.models.operations.GetJourneyStateRequest;
 import com.gbg.gocore.models.operations.GetJourneyStateRequestBody;
 import com.gbg.gocore.models.operations.StartJourneyRequest;
+import com.gbg.gocore.models.operations.StartJourneyRequestBody;
 import com.gbg.gocore.models.operations.TerminateJourneyRequest;
 import com.gbg.gocore.models.operations.async.GetJourneySchemasRequestBuilder;
 import com.gbg.gocore.models.operations.async.GetJourneySchemasResponse;
@@ -71,7 +72,7 @@ public class AsyncJourneys {
      * @return {@code CompletableFuture<StartJourneyResponse>} - The async response
      */
     public CompletableFuture<StartJourneyResponse> startDirect() {
-        return start(null);
+        return start(null, null);
     }
 
     /**
@@ -81,10 +82,12 @@ public class AsyncJourneys {
      * 
      * <p>If set, this operation will use Security#customerAccess from the global security.
      * 
-     * @param request The request object containing all the parameters for the API call.
+     * @param xGbgScenario Applies a saved test scenario for this journey, selected by name (see /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario: <name>`. The value `inline` instead takes the scenario from the request body `scenario` field.
+     * @param body 
      * @return {@code CompletableFuture<StartJourneyResponse>} - The async response
      */
-    public CompletableFuture<StartJourneyResponse> start(@Nullable StartJourneyRequest request) {
+    public CompletableFuture<StartJourneyResponse> start(@Nullable String xGbgScenario, @Nullable StartJourneyRequestBody body) {
+        StartJourneyRequest request = new StartJourneyRequest(xGbgScenario, body);
         AsyncRequestOperation<StartJourneyRequest, StartJourneyResponse> operation
               = new StartJourney.Async(sdkConfiguration, _headers);
         return operation.doRequest(request)
