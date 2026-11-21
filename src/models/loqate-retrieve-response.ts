@@ -4,7 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../lib/primitives.js";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
@@ -16,15 +16,17 @@ export type LoqateRetrieveResponse = {
 export const LoqateRetrieveResponse$inboundSchema: z.ZodMiniType<
   LoqateRetrieveResponse,
   unknown
-> = z.pipe(
-  z.object({
-    Items: z.array(z.record(z.string(), z.any())),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      "Items": "items",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      Items: z.array(z.record(z.string(), z.any())),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        "Items": "items",
+      });
+    }),
+  )
 );
 
 export function loqateRetrieveResponseFromJSON(

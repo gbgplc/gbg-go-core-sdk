@@ -8,18 +8,27 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.SubmitInteraction;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class SubmitInteractionRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private SubmitInteractionRequest request;
     private SubmitInteractionSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public SubmitInteractionRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public SubmitInteractionRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public SubmitInteractionRequestBuilder request(@Nullable SubmitInteractionRequest request) {
@@ -49,8 +58,11 @@ public class SubmitInteractionRequestBuilder {
     * @return The response from the server.
     */
     public SubmitInteractionResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<SubmitInteractionRequest, SubmitInteractionResponse> operation
-              = new SubmitInteraction.Sync(sdkConfiguration, security, _headers);
+              = new SubmitInteraction.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

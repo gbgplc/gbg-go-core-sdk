@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -33,17 +33,21 @@ export type GbgError = {
 export const GbgErrorLocation$inboundSchema: z.ZodMiniType<
   GbgErrorLocation,
   unknown
-> = openEnums.inboundSchema(GbgErrorLocation);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(GbgErrorLocation)
+);
 
 /** @internal */
-export const GbgError$inboundSchema: z.ZodMiniType<GbgError, unknown> = z
-  .object({
-    code: z.string(),
-    name: z.string(),
-    problem: z.string(),
-    action: z.string(),
-    location: z.optional(GbgErrorLocation$inboundSchema),
-  });
+export const GbgError$inboundSchema: z.ZodMiniType<GbgError, unknown> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      code: z.string(),
+      name: z.string(),
+      problem: z.string(),
+      action: z.string(),
+      location: z.optional(GbgErrorLocation$inboundSchema),
+    })
+  );
 
 export function gbgErrorFromJSON(
   jsonString: string,

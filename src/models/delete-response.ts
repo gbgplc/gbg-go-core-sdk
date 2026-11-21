@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
@@ -22,17 +22,19 @@ export type DeleteResponse = {
 /** @internal */
 export const DeleteResponseStatus$inboundSchema: z.ZodMiniEnum<
   typeof DeleteResponseStatus
-> = z.enum(DeleteResponseStatus);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(DeleteResponseStatus));
 
 /** @internal */
 export const DeleteResponse$inboundSchema: z.ZodMiniType<
   DeleteResponse,
   unknown
-> = z.object({
-  instanceId: z.string(),
-  status: DeleteResponseStatus$inboundSchema,
-  message: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    instanceId: z.string(),
+    status: DeleteResponseStatus$inboundSchema,
+    message: z.string(),
+  })
+);
 
 export function deleteResponseFromJSON(
   jsonString: string,

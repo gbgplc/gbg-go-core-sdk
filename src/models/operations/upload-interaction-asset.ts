@@ -4,7 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
-import { safeParse } from "../../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../../lib/schemas.js";
 import { Result as SafeParseResult } from "../../types/fp.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 
@@ -31,17 +31,19 @@ export type UploadInteractionAssetSecurity$Outbound = {
 export const UploadInteractionAssetSecurity$outboundSchema: z.ZodMiniType<
   UploadInteractionAssetSecurity$Outbound,
   UploadInteractionAssetSecurity
-> = z.pipe(
-  z.object({
-    customerAccess: z.optional(z.string()),
-    interactionAccess: z.optional(z.string()),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      customerAccess: "CustomerAccess",
-      interactionAccess: "InteractionAccess",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      customerAccess: z.optional(z.string()),
+      interactionAccess: z.optional(z.string()),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        customerAccess: "CustomerAccess",
+        interactionAccess: "InteractionAccess",
+      });
+    }),
+  )
 );
 
 export function uploadInteractionAssetSecurityToJSON(
@@ -58,10 +60,12 @@ export function uploadInteractionAssetSecurityToJSON(
 export const UploadInteractionAssetResponse$inboundSchema: z.ZodMiniType<
   UploadInteractionAssetResponse,
   unknown
-> = z.object({
-  domainElementId: z.string(),
-  gofsKey: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    domainElementId: z.string(),
+    gofsKey: z.string(),
+  })
+);
 
 export function uploadInteractionAssetResponseFromJSON(
   jsonString: string,

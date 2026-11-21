@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -34,20 +34,24 @@ export type TestScenario = {
 export const TestScenarioTier$inboundSchema: z.ZodMiniType<
   TestScenarioTier,
   unknown
-> = openEnums.inboundSchema(TestScenarioTier);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(TestScenarioTier)
+);
 
 /** @internal */
 export const TestScenario$inboundSchema: z.ZodMiniType<TestScenario, unknown> =
-  z.object({
-    name: z.string(),
-    journeyId: z.string(),
-    tier: TestScenarioTier$inboundSchema,
-    data: z.record(z.string(), z.any()),
-    lastModifiedTime: z.optional(
-      z.pipe(z.iso.datetime({ offset: true }), z.transform(v => new Date(v))),
-    ),
-    lastModifiedBy: z.optional(z.string()),
-  });
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      name: z.string(),
+      journeyId: z.string(),
+      tier: TestScenarioTier$inboundSchema,
+      data: z.record(z.string(), z.any()),
+      lastModifiedTime: z.optional(
+        z.pipe(z.iso.datetime({ offset: true }), z.transform(v => new Date(v))),
+      ),
+      lastModifiedBy: z.optional(z.string()),
+    })
+  );
 
 export function testScenarioFromJSON(
   jsonString: string,

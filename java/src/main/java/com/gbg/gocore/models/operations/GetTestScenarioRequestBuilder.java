@@ -8,21 +8,25 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.GetTestScenario;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 
 public class GetTestScenarioRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private final GetTestScenarioRequest.Builder pojoBuilder;
     private GetTestScenarioRequest request;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public GetTestScenarioRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = GetTestScenarioRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public GetTestScenarioRequestBuilder journeyId(@Nonnull String journeyId) {
@@ -40,6 +44,11 @@ public class GetTestScenarioRequestBuilder {
     public GetTestScenarioRequestBuilder includePlatform(@Nullable GetTestScenarioIncludePlatform includePlatform) {
         this.pojoBuilder.includePlatform(includePlatform);
         this._setterCalled = true;
+        return this;
+    }
+
+    public GetTestScenarioRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -63,8 +72,9 @@ public class GetTestScenarioRequestBuilder {
     * @return The response from the server.
     */
     public GetTestScenarioResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<GetTestScenarioRequest, GetTestScenarioResponse> operation
-              = new GetTestScenario.Sync(sdkConfiguration, _headers);
+              = new GetTestScenario.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

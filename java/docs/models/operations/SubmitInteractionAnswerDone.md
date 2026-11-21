@@ -1,0 +1,9 @@
+# SubmitInteractionAnswerDone
+
+
+## Fields
+
+| Field                                                                                         | Setter Type                                                                                   | Getter Type                                                                                   | Required                                                                                      | Description                                                                                   |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `status`                                                                                      | [SubmitInteractionStatusDone](../../models/operations/SubmitInteractionStatusDone.md)         | [SubmitInteractionStatusDone](../../models/operations/SubmitInteractionStatusDone.md)         | :heavy_check_mark:                                                                            | N/A                                                                                           |
+| `results`                                                                                     | Map\<String, [SubmitInteractionResults](../../models/operations/SubmitInteractionResults.md)> | Map\<String, [SubmitInteractionResults](../../models/operations/SubmitInteractionResults.md)> | :heavy_check_mark:                                                                            | N/A                                                                                           |

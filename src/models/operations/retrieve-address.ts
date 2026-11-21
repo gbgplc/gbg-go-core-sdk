@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type RetrieveAddressSecurity = {
   customerAccess?: string | undefined;
@@ -28,17 +29,19 @@ export type RetrieveAddressSecurity$Outbound = {
 export const RetrieveAddressSecurity$outboundSchema: z.ZodMiniType<
   RetrieveAddressSecurity$Outbound,
   RetrieveAddressSecurity
-> = z.pipe(
-  z.object({
-    customerAccess: z.optional(z.string()),
-    interactionAccess: z.optional(z.string()),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      customerAccess: "CustomerAccess",
-      interactionAccess: "InteractionAccess",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      customerAccess: z.optional(z.string()),
+      interactionAccess: z.optional(z.string()),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        customerAccess: "CustomerAccess",
+        interactionAccess: "InteractionAccess",
+      });
+    }),
+  )
 );
 
 export function retrieveAddressSecurityToJSON(
@@ -59,10 +62,12 @@ export type RetrieveAddressRequest$Outbound = {
 export const RetrieveAddressRequest$outboundSchema: z.ZodMiniType<
   RetrieveAddressRequest$Outbound,
   RetrieveAddressRequest
-> = z.object({
-  instanceId: z.string(),
-  addressId: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    instanceId: z.string(),
+    addressId: z.string(),
+  })
+);
 
 export function retrieveAddressRequestToJSON(
   retrieveAddressRequest: RetrieveAddressRequest,

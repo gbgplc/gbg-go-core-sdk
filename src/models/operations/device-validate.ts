@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type DeviceValidateSecurity = {
   interactionAccess: string;
@@ -18,15 +19,17 @@ export type DeviceValidateSecurity$Outbound = {
 export const DeviceValidateSecurity$outboundSchema: z.ZodMiniType<
   DeviceValidateSecurity$Outbound,
   DeviceValidateSecurity
-> = z.pipe(
-  z.object({
-    interactionAccess: z.string(),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      interactionAccess: "InteractionAccess",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      interactionAccess: z.string(),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        interactionAccess: "InteractionAccess",
+      });
+    }),
+  )
 );
 
 export function deviceValidateSecurityToJSON(

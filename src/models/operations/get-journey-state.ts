@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../../lib/schemas.js";
 import * as discriminatedUnionTypes from "../../types/discriminated-union.js";
 import { discriminatedUnion } from "../../types/discriminated-union.js";
 import { Result as SafeParseResult } from "../../types/fp.js";
@@ -44,11 +44,13 @@ export type GetJourneyStateRequestBody$Outbound = {
 export const GetJourneyStateRequestBody$outboundSchema: z.ZodMiniType<
   GetJourneyStateRequestBody$Outbound,
   GetJourneyStateRequestBody
-> = z.catchall(
-  z.object({
-    instanceId: z.string(),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      instanceId: z.string(),
+    }),
+    z.any(),
+  )
 );
 
 export function getJourneyStateRequestBodyToJSON(
@@ -69,10 +71,12 @@ export type GetJourneyStateRequest$Outbound = {
 export const GetJourneyStateRequest$outboundSchema: z.ZodMiniType<
   GetJourneyStateRequest$Outbound,
   GetJourneyStateRequest
-> = z.object({
-  view: z.optional(z.string()),
-  body: z.optional(z.lazy(() => GetJourneyStateRequestBody$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    view: z.optional(z.string()),
+    body: z.optional(z.lazy(() => GetJourneyStateRequestBody$outboundSchema)),
+  })
+);
 
 export function getJourneyStateRequestToJSON(
   getJourneyStateRequest: GetJourneyStateRequest,
@@ -86,13 +90,15 @@ export function getJourneyStateRequestToJSON(
 export const GetJourneyStateResponse$inboundSchema: z.ZodMiniType<
   GetJourneyStateResponse,
   unknown
-> = discriminatedUnion("view", {
-  full: z.intersection(
-    models.StateFetchResponse$inboundSchema,
-    z.object({ view: z.literal("full") }),
-  ),
-  slim: models.SlimStateFetchResponse$inboundSchema,
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  discriminatedUnion("view", {
+    full: z.intersection(
+      models.StateFetchResponse$inboundSchema,
+      z.object({ view: z.literal("full") }),
+    ),
+    slim: models.SlimStateFetchResponse$inboundSchema,
+  })
+);
 
 export function getJourneyStateResponseFromJSON(
   jsonString: string,

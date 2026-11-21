@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
@@ -16,14 +16,16 @@ export type SlimJourney = {
 };
 
 /** @internal */
-export const SlimJourney$inboundSchema: z.ZodMiniType<SlimJourney, unknown> = z
-  .object({
-    id: z.optional(z.string()),
-    name: z.optional(z.string()),
-    version: z.optional(z.string()),
-    startedAt: z.optional(z.string()),
-    endedAt: z.optional(z.string()),
-  });
+export const SlimJourney$inboundSchema: z.ZodMiniType<SlimJourney, unknown> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      id: z.optional(z.string()),
+      name: z.optional(z.string()),
+      version: z.optional(z.string()),
+      startedAt: z.optional(z.string()),
+      endedAt: z.optional(z.string()),
+    })
+  );
 
 export function slimJourneyFromJSON(
   jsonString: string,

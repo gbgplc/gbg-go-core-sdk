@@ -3,11 +3,15 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
+import {
+  InteractionRetry,
+  InteractionRetry$inboundSchema,
+} from "./interaction-retry.js";
 import {
   OutstandingGroup,
   OutstandingGroup$inboundSchema,
@@ -44,21 +48,27 @@ export type SlimInteractionFetchResponse = {
   instructions?: Array<string> | undefined;
   result?: SlimResult | undefined;
   joinedDevice?: SlimInteractionFetchResponseJoinedDevice | undefined;
+  viewVersion?: string | undefined;
+  retry?: InteractionRetry | undefined;
 };
 
 /** @internal */
 export const SlimInteractionFetchResponseStatus$inboundSchema: z.ZodMiniType<
   SlimInteractionFetchResponseStatus,
   unknown
-> = openEnums.inboundSchema(SlimInteractionFetchResponseStatus);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(SlimInteractionFetchResponseStatus)
+);
 
 /** @internal */
 export const SlimInteractionFetchResponseJourney$inboundSchema: z.ZodMiniType<
   SlimInteractionFetchResponseJourney,
   unknown
-> = z.object({
-  status: SlimInteractionFetchResponseStatus$inboundSchema,
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: SlimInteractionFetchResponseStatus$inboundSchema,
+  })
+);
 
 export function slimInteractionFetchResponseJourneyFromJSON(
   jsonString: string,
@@ -73,9 +83,12 @@ export function slimInteractionFetchResponseJourneyFromJSON(
 
 /** @internal */
 export const SlimInteractionFetchResponseJoinedDevice$inboundSchema:
-  z.ZodMiniType<SlimInteractionFetchResponseJoinedDevice, unknown> = z.object({
-    connected: z.boolean(),
-  });
+  z.ZodMiniType<SlimInteractionFetchResponseJoinedDevice, unknown> =
+    /* @__PURE__ */ lazySchema$(() =>
+      z.object({
+        connected: z.boolean(),
+      })
+    );
 
 export function slimInteractionFetchResponseJoinedDeviceFromJSON(
   jsonString: string,
@@ -97,21 +110,25 @@ export function slimInteractionFetchResponseJoinedDeviceFromJSON(
 export const SlimInteractionFetchResponse$inboundSchema: z.ZodMiniType<
   SlimInteractionFetchResponse,
   unknown
-> = z.object({
-  view: z.literal("slim"),
-  instanceId: z.string(),
-  interactionId: z.optional(z.string()),
-  journey: z.lazy(() => SlimInteractionFetchResponseJourney$inboundSchema),
-  interaction: z.optional(z.record(z.string(), z.any())),
-  processing: z.optional(z.boolean()),
-  outstanding: z.optional(z.array(z.string())),
-  outstandingGroups: z.optional(z.array(OutstandingGroup$inboundSchema)),
-  instructions: z.optional(z.array(z.string())),
-  result: z.optional(SlimResult$inboundSchema),
-  joinedDevice: z.optional(
-    z.lazy(() => SlimInteractionFetchResponseJoinedDevice$inboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    view: z.literal("slim"),
+    instanceId: z.string(),
+    interactionId: z.optional(z.string()),
+    journey: z.lazy(() => SlimInteractionFetchResponseJourney$inboundSchema),
+    interaction: z.optional(z.record(z.string(), z.any())),
+    processing: z.optional(z.boolean()),
+    outstanding: z.optional(z.array(z.string())),
+    outstandingGroups: z.optional(z.array(OutstandingGroup$inboundSchema)),
+    instructions: z.optional(z.array(z.string())),
+    result: z.optional(SlimResult$inboundSchema),
+    joinedDevice: z.optional(
+      z.lazy(() => SlimInteractionFetchResponseJoinedDevice$inboundSchema),
+    ),
+    viewVersion: z.optional(z.string()),
+    retry: z.optional(InteractionRetry$inboundSchema),
+  })
+);
 
 export function slimInteractionFetchResponseFromJSON(
   jsonString: string,

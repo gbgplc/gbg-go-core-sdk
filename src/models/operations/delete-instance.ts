@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type DeleteInstanceRequest = {
   /**
@@ -22,11 +23,13 @@ export type DeleteInstanceRequest$Outbound = {
 export const DeleteInstanceRequest$outboundSchema: z.ZodMiniType<
   DeleteInstanceRequest$Outbound,
   DeleteInstanceRequest
-> = z.catchall(
-  z.object({
-    instanceId: z.string(),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      instanceId: z.string(),
+    }),
+    z.any(),
+  )
 );
 
 export function deleteInstanceRequestToJSON(

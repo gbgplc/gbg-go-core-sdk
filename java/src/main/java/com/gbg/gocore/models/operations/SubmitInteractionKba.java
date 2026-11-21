@@ -20,12 +20,12 @@ public class SubmitInteractionKba {
 
 
     @JsonProperty("answers")
-    private List<SubmitInteractionAnswer> answers;
+    private List<SubmitInteractionKbaAnswer> answers;
 
     @JsonCreator
     public SubmitInteractionKba(
             @JsonProperty("questions") @Nonnull List<SubmitInteractionQuestion> questions,
-            @JsonProperty("answers") @Nonnull List<SubmitInteractionAnswer> answers) {
+            @JsonProperty("answers") @Nonnull List<SubmitInteractionKbaAnswer> answers) {
         this.questions = Optional.ofNullable(questions)
             .orElseThrow(() -> new IllegalArgumentException("questions cannot be null"));
         this.answers = Optional.ofNullable(answers)
@@ -36,7 +36,7 @@ public class SubmitInteractionKba {
         return this.questions;
     }
 
-    public List<SubmitInteractionAnswer> answers() {
+    public List<SubmitInteractionKbaAnswer> answers() {
         return this.answers;
     }
 
@@ -51,7 +51,7 @@ public class SubmitInteractionKba {
     }
 
 
-    public SubmitInteractionKba withAnswers(@Nonnull List<SubmitInteractionAnswer> answers) {
+    public SubmitInteractionKba withAnswers(@Nonnull List<SubmitInteractionKbaAnswer> answers) {
         this.answers = Utils.checkNotNull(answers, "answers");
         return this;
     }
@@ -89,7 +89,7 @@ public class SubmitInteractionKba {
 
         private List<SubmitInteractionQuestion> questions;
 
-        private List<SubmitInteractionAnswer> answers;
+        private List<SubmitInteractionKbaAnswer> answers;
 
         private Builder() {
           // force use of static builder() method
@@ -100,7 +100,7 @@ public class SubmitInteractionKba {
             return this;
         }
 
-        public Builder answers(@Nonnull List<SubmitInteractionAnswer> answers) {
+        public Builder answers(@Nonnull List<SubmitInteractionKbaAnswer> answers) {
             this.answers = Utils.checkNotNull(answers, "answers");
             return this;
         }

@@ -8,20 +8,25 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.DeleteTestScenario;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 
 public class DeleteTestScenarioRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private final DeleteTestScenarioRequest.Builder pojoBuilder;
     private DeleteTestScenarioRequest request;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public DeleteTestScenarioRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = DeleteTestScenarioRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public DeleteTestScenarioRequestBuilder journeyId(@Nonnull String journeyId) {
@@ -33,6 +38,11 @@ public class DeleteTestScenarioRequestBuilder {
     public DeleteTestScenarioRequestBuilder name(@Nonnull String name) {
         this.pojoBuilder.name(name);
         this._setterCalled = true;
+        return this;
+    }
+
+    public DeleteTestScenarioRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -56,8 +66,9 @@ public class DeleteTestScenarioRequestBuilder {
     * @return The response from the server.
     */
     public DeleteTestScenarioResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<DeleteTestScenarioRequest, DeleteTestScenarioResponse> operation
-              = new DeleteTestScenario.Sync(sdkConfiguration, _headers);
+              = new DeleteTestScenario.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

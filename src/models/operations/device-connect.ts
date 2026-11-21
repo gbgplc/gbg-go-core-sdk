@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type DeviceConnectSecurity = {
   deviceConnect: string;
@@ -18,15 +19,17 @@ export type DeviceConnectSecurity$Outbound = {
 export const DeviceConnectSecurity$outboundSchema: z.ZodMiniType<
   DeviceConnectSecurity$Outbound,
   DeviceConnectSecurity
-> = z.pipe(
-  z.object({
-    deviceConnect: z.string(),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      deviceConnect: "DeviceConnect",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      deviceConnect: z.string(),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        deviceConnect: "DeviceConnect",
+      });
+    }),
+  )
 );
 
 export function deviceConnectSecurityToJSON(

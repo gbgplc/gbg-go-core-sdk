@@ -29,6 +29,7 @@ import com.gbg.gocore.operations.GetTestScenario;
 import com.gbg.gocore.operations.ListTestScenarios;
 import com.gbg.gocore.operations.PutTestScenario;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
@@ -87,7 +88,7 @@ public class AsyncTestScenarios {
      * @return {@code CompletableFuture<CreateTestScenarioResponse>} - The async response
      */
     public CompletableFuture<CreateTestScenarioResponse> create(@Nonnull String journeyId) {
-        return create(journeyId, null);
+        return create(journeyId, null, null);
     }
 
     /**
@@ -106,9 +107,31 @@ public class AsyncTestScenarios {
      * @return {@code CompletableFuture<CreateTestScenarioResponse>} - The async response
      */
     public CompletableFuture<CreateTestScenarioResponse> create(@Nonnull String journeyId, @Nullable CreateTestScenarioRequest body) {
+        return create(journeyId, body, null);
+    }
+
+    /**
+     * Create a test scenario on a journey
+     * 
+     * <p>Creates an org-tier test scenario belonging to the journey in the path. Returns 409 if the name is
+     * taken on that journey (the same name may exist on other journeys). The scenario is resolvable at
+     * journey-start, for runs of that journey only, via the x-gbg-scenario header.
+     * 
+     * <p>Org is taken from the token.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param journeyId Id of the journey the scenario belongs to. Scenarios are listed, read and resolved per journey.
+     * @param body 
+     * @param options additional options
+     * @return {@code CompletableFuture<CreateTestScenarioResponse>} - The async response
+     */
+    public CompletableFuture<CreateTestScenarioResponse> create(
+            @Nonnull String journeyId, @Nullable CreateTestScenarioRequest body,
+            @Nullable Options options) {
         com.gbg.gocore.models.operations.CreateTestScenarioRequest request = new com.gbg.gocore.models.operations.CreateTestScenarioRequest(journeyId, body);
         AsyncRequestOperation<com.gbg.gocore.models.operations.CreateTestScenarioRequest, CreateTestScenarioResponse> operation
-              = new CreateTestScenario.Async(sdkConfiguration, _headers);
+              = new CreateTestScenario.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -142,7 +165,7 @@ public class AsyncTestScenarios {
      * @return {@code CompletableFuture<ListTestScenariosResponse>} - The async response
      */
     public CompletableFuture<ListTestScenariosResponse> list(@Nonnull String journeyId) {
-        return list(journeyId, null);
+        return list(journeyId, null, null);
     }
 
     /**
@@ -159,9 +182,29 @@ public class AsyncTestScenarios {
      * @return {@code CompletableFuture<ListTestScenariosResponse>} - The async response
      */
     public CompletableFuture<ListTestScenariosResponse> list(@Nonnull String journeyId, @Nullable ListTestScenariosIncludePlatform includePlatform) {
+        return list(journeyId, includePlatform, null);
+    }
+
+    /**
+     * List a journey's test scenarios
+     * 
+     * <p>Lists the org's test scenarios belonging to the journey in the path — never another journey's. Pass
+     * includePlatform=true to also return read-only GBG-provided platform scenarios (available on every
+     * journey); an org scenario shadows a platform scenario of the same name.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param journeyId Id of the journey the scenario belongs to. Scenarios are listed, read and resolved per journey.
+     * @param includePlatform Include read-only platform-tier scenarios in the listing. Defaults to false.
+     * @param options additional options
+     * @return {@code CompletableFuture<ListTestScenariosResponse>} - The async response
+     */
+    public CompletableFuture<ListTestScenariosResponse> list(
+            @Nonnull String journeyId, @Nullable ListTestScenariosIncludePlatform includePlatform,
+            @Nullable Options options) {
         ListTestScenariosRequest request = new ListTestScenariosRequest(journeyId, includePlatform);
         AsyncRequestOperation<ListTestScenariosRequest, ListTestScenariosResponse> operation
-              = new ListTestScenarios.Async(sdkConfiguration, _headers);
+              = new ListTestScenarios.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -202,7 +245,9 @@ public class AsyncTestScenarios {
      * @return {@code CompletableFuture<GetTestScenarioResponse>} - The async response
      */
     public CompletableFuture<GetTestScenarioResponse> get(@Nonnull String journeyId, @Nonnull String name) {
-        return get(journeyId, name, null);
+        return get(
+                journeyId, name, null,
+                null);
     }
 
     /**
@@ -225,9 +270,35 @@ public class AsyncTestScenarios {
     public CompletableFuture<GetTestScenarioResponse> get(
             @Nonnull String journeyId, @Nonnull String name,
             @Nullable GetTestScenarioIncludePlatform includePlatform) {
+        return get(
+                journeyId, name, includePlatform,
+                null);
+    }
+
+    /**
+     * Read a test scenario
+     * 
+     * <p>Reads one org-tier test scenario of the journey in the path. By default does not fall back to the
+     * platform tier or to another journey, so a name that exists only at platform level, or only on
+     * another journey, returns 404. Pass includePlatform=true to fall back to the read-only GBG-provided
+     * scenario of that name; the response `tier` says which tier served it.
+     * 
+     * <p>Another journey is never consulted either way.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param journeyId Id of the journey the scenario belongs to. Scenarios are listed, read and resolved per journey.
+     * @param name Scenario identifier, unique per journey (GGO-18332). The same name may exist on other journeys of the org with different content.
+     * @param includePlatform Fall back to the read-only platform tier when this journey holds no scenario of this name. Defaults to false, which reads this journey&apos;s org tier only.
+     * @param options additional options
+     * @return {@code CompletableFuture<GetTestScenarioResponse>} - The async response
+     */
+    public CompletableFuture<GetTestScenarioResponse> get(
+            @Nonnull String journeyId, @Nonnull String name,
+            @Nullable GetTestScenarioIncludePlatform includePlatform, @Nullable Options options) {
         GetTestScenarioRequest request = new GetTestScenarioRequest(journeyId, name, includePlatform);
         AsyncRequestOperation<GetTestScenarioRequest, GetTestScenarioResponse> operation
-              = new GetTestScenario.Async(sdkConfiguration, _headers);
+              = new GetTestScenario.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -262,7 +333,9 @@ public class AsyncTestScenarios {
      * @return {@code CompletableFuture<PutTestScenarioResponse>} - The async response
      */
     public CompletableFuture<PutTestScenarioResponse> put(@Nonnull String journeyId, @Nonnull String name) {
-        return put(journeyId, name, null);
+        return put(
+                journeyId, name, null,
+                null);
     }
 
     /**
@@ -282,9 +355,32 @@ public class AsyncTestScenarios {
     public CompletableFuture<PutTestScenarioResponse> put(
             @Nonnull String journeyId, @Nonnull String name,
             @Nullable UpdateTestScenarioRequest body) {
+        return put(
+                journeyId, name, body,
+                null);
+    }
+
+    /**
+     * Replace a test scenario
+     * 
+     * <p>Replaces an existing org-tier test scenario of the journey in the path. Returns 404 if it does not
+     * exist on that journey — use POST to create. Requires UPDATE:journey; creating (POST) requires
+     * CREATE:journey, so an edit-only grant cannot mint new scenarios through this endpoint.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param journeyId Id of the journey the scenario belongs to. Scenarios are listed, read and resolved per journey.
+     * @param name Scenario identifier, unique per journey (GGO-18332). The same name may exist on other journeys of the org with different content.
+     * @param body 
+     * @param options additional options
+     * @return {@code CompletableFuture<PutTestScenarioResponse>} - The async response
+     */
+    public CompletableFuture<PutTestScenarioResponse> put(
+            @Nonnull String journeyId, @Nonnull String name,
+            @Nullable UpdateTestScenarioRequest body, @Nullable Options options) {
         PutTestScenarioRequest request = new PutTestScenarioRequest(journeyId, name, body);
         AsyncRequestOperation<PutTestScenarioRequest, PutTestScenarioResponse> operation
-              = new PutTestScenario.Async(sdkConfiguration, _headers);
+              = new PutTestScenario.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -321,9 +417,30 @@ public class AsyncTestScenarios {
      * @return {@code CompletableFuture<DeleteTestScenarioResponse>} - The async response
      */
     public CompletableFuture<DeleteTestScenarioResponse> delete(@Nonnull String journeyId, @Nonnull String name) {
+        return delete(journeyId, name, null);
+    }
+
+    /**
+     * Delete a test scenario
+     * 
+     * <p>Deletes an org-tier test scenario of the journey in the path by archiving it: it disappears from
+     * listings and journey-start resolution, but its version history is retained and creating the same
+     * name again restores it. A platform scenario of the same name, previously shadowed by this one on
+     * this journey, becomes resolvable again at journey-start.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param journeyId Id of the journey the scenario belongs to. Scenarios are listed, read and resolved per journey.
+     * @param name Scenario identifier, unique per journey (GGO-18332). The same name may exist on other journeys of the org with different content.
+     * @param options additional options
+     * @return {@code CompletableFuture<DeleteTestScenarioResponse>} - The async response
+     */
+    public CompletableFuture<DeleteTestScenarioResponse> delete(
+            @Nonnull String journeyId, @Nonnull String name,
+            @Nullable Options options) {
         DeleteTestScenarioRequest request = new DeleteTestScenarioRequest(journeyId, name);
         AsyncRequestOperation<DeleteTestScenarioRequest, DeleteTestScenarioResponse> operation
-              = new DeleteTestScenario.Async(sdkConfiguration, _headers);
+              = new DeleteTestScenario.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }

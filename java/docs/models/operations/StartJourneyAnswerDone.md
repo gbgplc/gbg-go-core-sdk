@@ -1,0 +1,9 @@
+# StartJourneyAnswerDone
+
+
+## Fields
+
+| Field                                                                               | Setter Type                                                                         | Getter Type                                                                         | Required                                                                            | Description                                                                         |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `status`                                                                            | [StartJourneyStatusDone](../../models/operations/StartJourneyStatusDone.md)         | [StartJourneyStatusDone](../../models/operations/StartJourneyStatusDone.md)         | :heavy_check_mark:                                                                  | N/A                                                                                 |
+| `results`                                                                           | Map\<String, [StartJourneyResults](../../models/operations/StartJourneyResults.md)> | Map\<String, [StartJourneyResults](../../models/operations/StartJourneyResults.md)> | :heavy_check_mark:                                                                  | N/A                                                                                 |

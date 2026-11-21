@@ -29,7 +29,9 @@ const go = new GoCore({
 });
 
 async function run() {
-  const res = await journeysStart(go);
+  const res = await journeysStart(go, {
+    xGbgScenario: "my-scenario",
+  });
   if (res.ok) {
     const { value: result } = res;
     console.log(result);

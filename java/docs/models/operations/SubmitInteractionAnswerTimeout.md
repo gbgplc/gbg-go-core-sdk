@@ -1,0 +1,8 @@
+# SubmitInteractionAnswerTimeout
+
+
+## Fields
+
+| Field                                                                                       | Setter Type                                                                                 | Getter Type                                                                                 | Required                                                                                    | Description                                                                                 |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `status`                                                                                    | [SubmitInteractionStatusTimeout](../../models/operations/SubmitInteractionStatusTimeout.md) | [SubmitInteractionStatusTimeout](../../models/operations/SubmitInteractionStatusTimeout.md) | :heavy_check_mark:                                                                          | N/A                                                                                         |

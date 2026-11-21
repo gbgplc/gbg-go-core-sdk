@@ -1,0 +1,9 @@
+# SubmitInteractionAnswerError1
+
+
+## Fields
+
+| Field                                                                                     | Setter Type                                                                               | Getter Type                                                                               | Required                                                                                  | Description                                                                               |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `status`                                                                                  | [SubmitInteractionStatusError](../../models/operations/SubmitInteractionStatusError.md)   | [SubmitInteractionStatusError](../../models/operations/SubmitInteractionStatusError.md)   | :heavy_check_mark:                                                                        | N/A                                                                                       |
+| `error`                                                                                   | [SubmitInteractionAnswerError2](../../models/operations/SubmitInteractionAnswerError2.md) | [SubmitInteractionAnswerError2](../../models/operations/SubmitInteractionAnswerError2.md) | :heavy_check_mark:                                                                        | N/A                                                                                       |

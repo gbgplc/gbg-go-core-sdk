@@ -10,9 +10,12 @@ import com.gbg.gocore.models.operations.CreateHandoffTokenRequest;
 import com.gbg.gocore.models.operations.CreateHandoffTokenSecurity;
 import com.gbg.gocore.operations.CreateHandoffToken;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class CreateHandoffTokenRequestBuilder {
@@ -21,16 +24,23 @@ public class CreateHandoffTokenRequestBuilder {
     private final CreateHandoffTokenRequest.Builder pojoBuilder;
     private CreateHandoffTokenRequest request;
     private CreateHandoffTokenSecurity security;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public CreateHandoffTokenRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = CreateHandoffTokenRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public CreateHandoffTokenRequestBuilder instanceId(@Nonnull String instanceId) {
         this.pojoBuilder.instanceId(instanceId);
         this._setterCalled = true;
+        return this;
+    }
+
+    public CreateHandoffTokenRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -59,8 +69,11 @@ public class CreateHandoffTokenRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<CreateHandoffTokenResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<CreateHandoffTokenRequest, CreateHandoffTokenResponse> operation
-              = new CreateHandoffToken.Async(sdkConfiguration, security, _headers);
+              = new CreateHandoffToken.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
@@ -24,17 +24,19 @@ export type TestScenarioWritten = {
 /** @internal */
 export const TestScenarioWrittenTier$inboundSchema: z.ZodMiniEnum<
   typeof TestScenarioWrittenTier
-> = z.enum(TestScenarioWrittenTier);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(TestScenarioWrittenTier));
 
 /** @internal */
 export const TestScenarioWritten$inboundSchema: z.ZodMiniType<
   TestScenarioWritten,
   unknown
-> = z.object({
-  name: z.string(),
-  journeyId: z.string(),
-  tier: TestScenarioWrittenTier$inboundSchema,
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    name: z.string(),
+    journeyId: z.string(),
+    tier: TestScenarioWrittenTier$inboundSchema,
+  })
+);
 
 export function testScenarioWrittenFromJSON(
   jsonString: string,

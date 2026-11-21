@@ -9,17 +9,26 @@ import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.models.operations.TerminateJourneyRequest;
 import com.gbg.gocore.operations.TerminateJourney;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class TerminateJourneyRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private TerminateJourneyRequest request;
+    private final Options.Builder optionsBuilder;
 
     public TerminateJourneyRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public TerminateJourneyRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public TerminateJourneyRequestBuilder request(@Nullable TerminateJourneyRequest request) {
@@ -44,8 +53,9 @@ public class TerminateJourneyRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<TerminateJourneyResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<TerminateJourneyRequest, TerminateJourneyResponse> operation
-              = new TerminateJourney.Async(sdkConfiguration, _headers);
+              = new TerminateJourney.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

@@ -11,6 +11,7 @@ import com.gbg.gocore.utils.RetryConfig;
 import com.gbg.gocore.utils.SpeakeasyHTTPClient;
 import com.gbg.gocore.utils.Utils;
 import java.lang.String;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,8 +20,8 @@ public class SDKConfiguration {
 
     private static final String LANGUAGE = "java";
     public static final String OPENAPI_DOC_VERSION = "2.x";
-    public static final String SDK_VERSION = "0.2.1";
-    public static final String GEN_VERSION = "2.956.1";
+    public static final String SDK_VERSION = "0.2.2";
+    public static final String GEN_VERSION = "2.968.1";
     private static final String BASE_PACKAGE = "com.gbg.gocore";
     public static final String USER_AGENT = 
             String.format("speakeasy-sdk/%s %s %s %s %s",
@@ -118,6 +119,17 @@ public class SDKConfiguration {
     public void setRetryConfig(Optional<RetryConfig> retryConfig) {
         Utils.checkNotNull(retryConfig, "retryConfig");
         this.retryConfig = retryConfig;
+    }
+
+    private Optional<Duration> timeout = Optional.empty();
+
+    public Optional<Duration> timeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Optional<Duration> timeout) {
+        Utils.checkNotNull(timeout, "timeout");
+        this.timeout = timeout;
     }
     private ScheduledExecutorService retryScheduler = Executors.newSingleThreadScheduledExecutor();
     

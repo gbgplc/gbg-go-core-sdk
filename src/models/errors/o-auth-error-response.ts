@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 import { GoError } from "./go-error.js";
 
 export type OAuthErrorResponseData = {
@@ -52,23 +53,25 @@ export class OAuthErrorResponse extends GoError {
 export const OAuthErrorResponse$inboundSchema: z.ZodMiniType<
   OAuthErrorResponse,
   unknown
-> = z.pipe(
-  z.object({
-    error: z.string(),
-    error_description: z.optional(z.string()),
-    request$: z.custom<Request>(x => x instanceof Request),
-    response$: z.custom<Response>(x => x instanceof Response),
-    body$: z.string(),
-  }),
-  z.transform((v) => {
-    const remapped = remap$(v, {
-      "error_description": "errorDescription",
-    });
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      error: z.string(),
+      error_description: z.optional(z.string()),
+      request$: z.custom<Request>(x => x instanceof Request),
+      response$: z.custom<Response>(x => x instanceof Response),
+      body$: z.string(),
+    }),
+    z.transform((v) => {
+      const remapped = remap$(v, {
+        "error_description": "errorDescription",
+      });
 
-    return new OAuthErrorResponse(remapped, {
-      request: v.request$,
-      response: v.response$,
-      body: v.body$,
-    });
-  }),
+      return new OAuthErrorResponse(remapped, {
+        request: v.request$,
+        response: v.response$,
+        body: v.body$,
+      });
+    }),
+  )
 );

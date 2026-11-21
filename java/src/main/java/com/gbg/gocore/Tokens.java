@@ -10,6 +10,7 @@ import com.gbg.gocore.models.operations.PostAsTokenOauth2RequestBuilder;
 import com.gbg.gocore.models.operations.PostAsTokenOauth2Response;
 import com.gbg.gocore.operations.PostAsTokenOauth2;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nullable;
 import java.lang.String;
 
@@ -57,7 +58,7 @@ public class Tokens {
      * @throws RuntimeException subclass if the API call fails
      */
     public PostAsTokenOauth2Response generateDirect() {
-        return generate(null, null);
+        return generate(null, null, null);
     }
 
     /**
@@ -73,8 +74,29 @@ public class Tokens {
      * @throws RuntimeException subclass if the API call fails
      */
     public PostAsTokenOauth2Response generate(@Nullable PostAsTokenOauth2Request request, @Nullable String serverURL) {
+        return generate(request, serverURL, null);
+    }
+
+    /**
+     * Generate access token
+     * 
+     * <p>Get an access token to authenticate API requests. If you're unfamiliar with the authentication
+     * process, check out the [authentication
+     * guide](/docs/go-v2/developer-integration/execute-customer-journeys/authenticate) for more details.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param serverURL Overrides the server URL.
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public PostAsTokenOauth2Response generate(
+            @Nullable PostAsTokenOauth2Request request, @Nullable String serverURL,
+            @Nullable Options options) {
         RequestOperation<PostAsTokenOauth2Request, PostAsTokenOauth2Response> operation
-              = new PostAsTokenOauth2.Sync(sdkConfiguration, serverURL, _headers);
+              = new PostAsTokenOauth2.Sync(
+                                    sdkConfiguration, serverURL, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(request));
     }
 
