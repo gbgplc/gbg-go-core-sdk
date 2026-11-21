@@ -8,14 +8,24 @@ import static com.gbg.gocore.operations.Operations.RequestlessOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.DeviceRefresh;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
+import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class DeviceRefreshRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
+    private final Options.Builder optionsBuilder;
 
     public DeviceRefreshRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public DeviceRefreshRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     
@@ -32,8 +42,9 @@ public class DeviceRefreshRequestBuilder {
     * @return The response from the server.
     */
     public DeviceRefreshResponse call() {
+        Options options = optionsBuilder.build();
         RequestlessOperation<DeviceRefreshResponse> operation
-            = new DeviceRefresh.Sync(sdkConfiguration, _headers);
+            = new DeviceRefresh.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest());
     }
 }

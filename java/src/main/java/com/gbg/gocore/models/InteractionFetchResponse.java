@@ -78,6 +78,16 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
     @JsonProperty("joinedDevice")
     private InteractionFetchResponseJoinedDevice joinedDevice;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("viewVersion")
+    private String viewVersion;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("retry")
+    private InteractionRetry retry;
+
     @JsonCreator
     public InteractionFetchResponse(
             @JsonProperty("view") @Nonnull InteractionFetchResponseView view,
@@ -91,7 +101,9 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
             @JsonProperty("outstandingGroups") @Nullable List<OutstandingGroup> outstandingGroups,
             @JsonProperty("processing") @Nullable Boolean processing,
             @JsonProperty("result") @Nullable Map<String, Object> result,
-            @JsonProperty("joinedDevice") @Nullable InteractionFetchResponseJoinedDevice joinedDevice) {
+            @JsonProperty("joinedDevice") @Nullable InteractionFetchResponseJoinedDevice joinedDevice,
+            @JsonProperty("viewVersion") @Nullable String viewVersion,
+            @JsonProperty("retry") @Nullable InteractionRetry retry) {
         this.view = Optional.ofNullable(view)
             .orElseThrow(() -> new IllegalArgumentException("view cannot be null"));
         this.instanceId = Optional.ofNullable(instanceId)
@@ -107,6 +119,8 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
         this.processing = processing;
         this.result = result;
         this.joinedDevice = joinedDevice;
+        this.viewVersion = viewVersion;
+        this.retry = retry;
     }
     
     public InteractionFetchResponse(
@@ -116,7 +130,8 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
         this(view, instanceId, null,
             journey, null, null,
             null, null, null,
-            null, null, null);
+            null, null, null,
+            null, null);
     }
 
     @Override
@@ -166,6 +181,14 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
 
     public Optional<InteractionFetchResponseJoinedDevice> joinedDevice() {
         return Optional.ofNullable(this.joinedDevice);
+    }
+
+    public Optional<String> viewVersion() {
+        return Optional.ofNullable(this.viewVersion);
+    }
+
+    public Optional<InteractionRetry> retry() {
+        return Optional.ofNullable(this.retry);
     }
 
     public static Builder builder() {
@@ -245,6 +268,18 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
     }
 
 
+    public InteractionFetchResponse withViewVersion(@Nullable String viewVersion) {
+        this.viewVersion = viewVersion;
+        return this;
+    }
+
+
+    public InteractionFetchResponse withRetry(@Nullable InteractionRetry retry) {
+        this.retry = retry;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -266,7 +301,9 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
             Utils.enhancedDeepEquals(this.outstandingGroups, other.outstandingGroups) &&
             Utils.enhancedDeepEquals(this.processing, other.processing) &&
             Utils.enhancedDeepEquals(this.result, other.result) &&
-            Utils.enhancedDeepEquals(this.joinedDevice, other.joinedDevice);
+            Utils.enhancedDeepEquals(this.joinedDevice, other.joinedDevice) &&
+            Utils.enhancedDeepEquals(this.viewVersion, other.viewVersion) &&
+            Utils.enhancedDeepEquals(this.retry, other.retry);
     }
     
     @Override
@@ -275,7 +312,8 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
             view, instanceId, interactionId,
             journey, interaction, context,
             instructions, outstanding, outstandingGroups,
-            processing, result, joinedDevice);
+            processing, result, joinedDevice,
+            viewVersion, retry);
     }
     
     @Override
@@ -292,7 +330,9 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
                 "outstandingGroups", outstandingGroups,
                 "processing", processing,
                 "result", result,
-                "joinedDevice", joinedDevice);
+                "joinedDevice", joinedDevice,
+                "viewVersion", viewVersion,
+                "retry", retry);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -321,6 +361,10 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
         private Map<String, Object> result;
 
         private InteractionFetchResponseJoinedDevice joinedDevice;
+
+        private String viewVersion;
+
+        private InteractionRetry retry;
 
         private Builder() {
           // force use of static builder() method
@@ -386,12 +430,23 @@ public class InteractionFetchResponse implements FetchInteractionResponseBody {
             return this;
         }
 
+        public Builder viewVersion(@Nullable String viewVersion) {
+            this.viewVersion = viewVersion;
+            return this;
+        }
+
+        public Builder retry(@Nullable InteractionRetry retry) {
+            this.retry = retry;
+            return this;
+        }
+
         public InteractionFetchResponse build() {
             return new InteractionFetchResponse(
                 view, instanceId, interactionId,
                 journey, interaction, context,
                 instructions, outstanding, outstandingGroups,
-                processing, result, joinedDevice);
+                processing, result, joinedDevice,
+                viewVersion, retry);
         }
 
     }

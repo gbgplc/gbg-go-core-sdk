@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
@@ -21,15 +21,17 @@ export type DeviceRefreshResponse = {
 export const DeviceRefreshResponse$inboundSchema: z.ZodMiniType<
   DeviceRefreshResponse,
   unknown
-> = z.object({
-  endUserToken: z.string(),
-  expiresIn: z.number(),
-  instanceId: z.string(),
-  resumeCredential: z.string(),
-  credentialExpiresAt: z.string(),
-  credentialExpiresIn: z.number(),
-  linkExpiresAt: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    endUserToken: z.string(),
+    expiresIn: z.number(),
+    instanceId: z.string(),
+    resumeCredential: z.string(),
+    credentialExpiresAt: z.string(),
+    credentialExpiresIn: z.number(),
+    linkExpiresAt: z.string(),
+  })
+);
 
 export function deviceRefreshResponseFromJSON(
   jsonString: string,

@@ -23,6 +23,7 @@ import com.gbg.gocore.operations.DeviceConnect;
 import com.gbg.gocore.operations.DeviceRefresh;
 import com.gbg.gocore.operations.DeviceValidate;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
@@ -71,7 +72,7 @@ public class AsyncDevices {
      * @return {@code CompletableFuture<AddDeviceResponse>} - The async response
      */
     public CompletableFuture<AddDeviceResponse> addDirect() {
-        return add(null);
+        return add(null, null);
     }
 
     /**
@@ -85,8 +86,23 @@ public class AsyncDevices {
      * @return {@code CompletableFuture<AddDeviceResponse>} - The async response
      */
     public CompletableFuture<AddDeviceResponse> add(@Nullable AddDeviceRequest request) {
+        return add(request, null);
+    }
+
+    /**
+     * Generate connect token
+     * 
+     * <p>Generates a one-time connect token for device onboarding.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param options additional options
+     * @return {@code CompletableFuture<AddDeviceResponse>} - The async response
+     */
+    public CompletableFuture<AddDeviceResponse> add(@Nullable AddDeviceRequest request, @Nullable Options options) {
         AsyncRequestOperation<AddDeviceRequest, AddDeviceResponse> operation
-              = new AddDevice.Async(sdkConfiguration, _headers);
+              = new AddDevice.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -112,7 +128,7 @@ public class AsyncDevices {
      * @return {@code CompletableFuture<DeviceConnectResponse>} - The async response
      */
     public CompletableFuture<DeviceConnectResponse> connect(@Nonnull DeviceConnectSecurity security) {
-        return connect(null, security);
+        return connect(null, security, null);
     }
 
     /**
@@ -125,8 +141,26 @@ public class AsyncDevices {
      * @return {@code CompletableFuture<DeviceConnectResponse>} - The async response
      */
     public CompletableFuture<DeviceConnectResponse> connect(@Nullable DeviceConnectRequest request, @Nonnull DeviceConnectSecurity security) {
+        return connect(request, security, null);
+    }
+
+    /**
+     * Complete the device-onboarding handshake
+     * 
+     * <p>Completes the device-onboarding handshake. See partner integration guide.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return {@code CompletableFuture<DeviceConnectResponse>} - The async response
+     */
+    public CompletableFuture<DeviceConnectResponse> connect(
+            @Nullable DeviceConnectRequest request, @Nonnull DeviceConnectSecurity security,
+            @Nullable Options options) {
         AsyncRequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
-              = new DeviceConnect.Async(sdkConfiguration, security, _headers);
+              = new DeviceConnect.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -151,8 +185,20 @@ public class AsyncDevices {
      * @return {@code CompletableFuture<DeviceRefreshResponse>} - The async response
      */
     public CompletableFuture<DeviceRefreshResponse> refreshDirect() {
+        return refresh(null);
+    }
+
+    /**
+     * Renew a device session
+     * 
+     * <p>Renews a device session. See partner integration guide.
+     * 
+     * @param options additional options
+     * @return {@code CompletableFuture<DeviceRefreshResponse>} - The async response
+     */
+    public CompletableFuture<DeviceRefreshResponse> refresh(@Nullable Options options) {
         AsyncRequestlessOperation<DeviceRefreshResponse> operation
-            = new DeviceRefresh.Async(sdkConfiguration, _headers);
+            = new DeviceRefresh.Async(sdkConfiguration, options, _headers);
         return operation.doRequest()
             .thenCompose(operation::handleResponse);
     }
@@ -178,8 +224,23 @@ public class AsyncDevices {
      * @return {@code CompletableFuture<DeviceValidateResponse>} - The async response
      */
     public CompletableFuture<DeviceValidateResponse> validate(@Nonnull DeviceValidateSecurity security) {
+        return validate(security, null);
+    }
+
+    /**
+     * Validate end-user session
+     * 
+     * <p>Validates an end-user JWT and returns session information.
+     * 
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return {@code CompletableFuture<DeviceValidateResponse>} - The async response
+     */
+    public CompletableFuture<DeviceValidateResponse> validate(@Nonnull DeviceValidateSecurity security, @Nullable Options options) {
         AsyncRequestlessOperation<DeviceValidateResponse> operation
-            = new DeviceValidate.Async(sdkConfiguration, security, _headers);
+            = new DeviceValidate.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest()
             .thenCompose(operation::handleResponse);
     }

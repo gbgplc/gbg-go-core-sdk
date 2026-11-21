@@ -8,24 +8,47 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.StartJourney;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.lang.String;
+import java.time.Duration;
 
 public class StartJourneyRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
-    private StartJourneyRequest request;
+    private final StartJourneyRequestRequest.Builder pojoBuilder;
+    private StartJourneyRequestRequest request;
+    private final Options.Builder optionsBuilder;
+    private boolean _setterCalled;
 
     public StartJourneyRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.pojoBuilder = StartJourneyRequestRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
-    public StartJourneyRequestBuilder request(@Nullable StartJourneyRequest request) {
-        this.request = request;
+    public StartJourneyRequestBuilder xGbgScenario(@Nullable String xGbgScenario) {
+        this.pojoBuilder.xGbgScenario(xGbgScenario);
+        this._setterCalled = true;
         return this;
     }
 
-    private StartJourneyRequest _buildRequest() {
+    public StartJourneyRequestBuilder body(@Nullable StartJourneyRequestBody body) {
+        this.pojoBuilder.body(body);
+        this._setterCalled = true;
+        return this;
+    }
+
+    public StartJourneyRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
+    }
+
+    private StartJourneyRequestRequest _buildRequest() {
+        if (this._setterCalled) {
+            this.request = this.pojoBuilder.build();
+        }
         return this.request;
     }
     
@@ -42,8 +65,9 @@ public class StartJourneyRequestBuilder {
     * @return The response from the server.
     */
     public StartJourneyResponse call() {
-        RequestOperation<StartJourneyRequest, StartJourneyResponse> operation
-              = new StartJourney.Sync(sdkConfiguration, _headers);
+        Options options = optionsBuilder.build();
+        RequestOperation<StartJourneyRequestRequest, StartJourneyResponse> operation
+              = new StartJourney.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

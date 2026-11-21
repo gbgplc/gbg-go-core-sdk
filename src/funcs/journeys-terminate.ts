@@ -32,7 +32,7 @@ import { Result } from "../types/fp.js";
  * Terminate journey
  *
  * @remarks
- * Terminates an active journey instance.
+ * Terminates a journey instance. A running journey is stopped and recorded as abandoned; a completed or failed one is cleaned up. Its state is then erased, so the instanceId no longer resolves (a second terminate is a 404).
  *
  * If set, this operation will use {@link Security.customerAccess} from the global security.
  */
@@ -169,7 +169,7 @@ async function $do(
     | SDKValidationError
   >(
     M.json(200, models.TerminateResponse$inboundSchema),
-    M.jsonErr([400, 401, 403, 404, 409], errors.ErrorResponse$inboundSchema),
+    M.jsonErr([400, 401, 403, 404], errors.ErrorResponse$inboundSchema),
     M.jsonErr([500, 503], errors.ErrorResponse$inboundSchema),
     M.fail("4XX"),
     M.fail("5XX"),

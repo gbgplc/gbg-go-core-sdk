@@ -15,6 +15,7 @@ import com.gbg.gocore.models.operations.async.DeleteInstanceResponse;
 import com.gbg.gocore.operations.CreateHandoffToken;
 import com.gbg.gocore.operations.DeleteInstance;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
@@ -68,9 +69,30 @@ public class AsyncInstances {
      * @return {@code CompletableFuture<CreateHandoffTokenResponse>} - The async response
      */
     public CompletableFuture<CreateHandoffTokenResponse> handoffToken(@Nonnull CreateHandoffTokenSecurity security, @Nonnull String instanceId) {
+        return handoffToken(security, instanceId, null);
+    }
+
+    /**
+     * Mint a fresh position-scoped handoff token
+     * 
+     * <p>Mints a fresh page-mode delivery-token + connect-secret pair pointing at the same instance, stamped
+     * devicePosition=joined, so a second device can join. Device-token only, and only from the device that
+     * started the journey; customer tokens and already-joined devices are rejected with 403. Returns {
+     * instanceUrl, devicePosition, expiresIn }.
+     * 
+     * @param security The security details to use for authentication.
+     * @param instanceId 
+     * @param options additional options
+     * @return {@code CompletableFuture<CreateHandoffTokenResponse>} - The async response
+     */
+    public CompletableFuture<CreateHandoffTokenResponse> handoffToken(
+            @Nonnull CreateHandoffTokenSecurity security, @Nonnull String instanceId,
+            @Nullable Options options) {
         CreateHandoffTokenRequest request = new CreateHandoffTokenRequest(instanceId);
         AsyncRequestOperation<CreateHandoffTokenRequest, CreateHandoffTokenResponse> operation
-              = new CreateHandoffToken.Async(sdkConfiguration, security, _headers);
+              = new CreateHandoffToken.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -99,7 +121,7 @@ public class AsyncInstances {
      * @return {@code CompletableFuture<DeleteInstanceResponse>} - The async response
      */
     public CompletableFuture<DeleteInstanceResponse> deleteDirect() {
-        return delete(null);
+        return delete(null, null);
     }
 
     /**
@@ -113,8 +135,23 @@ public class AsyncInstances {
      * @return {@code CompletableFuture<DeleteInstanceResponse>} - The async response
      */
     public CompletableFuture<DeleteInstanceResponse> delete(@Nullable DeleteInstanceRequest request) {
+        return delete(request, null);
+    }
+
+    /**
+     * Delete journey state
+     * 
+     * <p>Permanently deletes a completed journey instance (REQ-02-002).
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param options additional options
+     * @return {@code CompletableFuture<DeleteInstanceResponse>} - The async response
+     */
+    public CompletableFuture<DeleteInstanceResponse> delete(@Nullable DeleteInstanceRequest request, @Nullable Options options) {
         AsyncRequestOperation<DeleteInstanceRequest, DeleteInstanceResponse> operation
-              = new DeleteInstance.Async(sdkConfiguration, _headers);
+              = new DeleteInstance.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }

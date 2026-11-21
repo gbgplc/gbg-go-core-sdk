@@ -9,10 +9,12 @@ import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.models.operations.CreateTestScenarioRequest;
 import com.gbg.gocore.operations.CreateTestScenario;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class CreateTestScenarioRequestBuilder {
@@ -20,11 +22,13 @@ public class CreateTestScenarioRequestBuilder {
     private final Headers _headers = new Headers();
     private final CreateTestScenarioRequest.Builder pojoBuilder;
     private CreateTestScenarioRequest request;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public CreateTestScenarioRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = CreateTestScenarioRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public CreateTestScenarioRequestBuilder journeyId(@Nonnull String journeyId) {
@@ -36,6 +40,11 @@ public class CreateTestScenarioRequestBuilder {
     public CreateTestScenarioRequestBuilder body(@Nullable com.gbg.gocore.models.CreateTestScenarioRequest body) {
         this.pojoBuilder.body(body);
         this._setterCalled = true;
+        return this;
+    }
+
+    public CreateTestScenarioRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -59,8 +68,9 @@ public class CreateTestScenarioRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<CreateTestScenarioResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<CreateTestScenarioRequest, CreateTestScenarioResponse> operation
-              = new CreateTestScenario.Async(sdkConfiguration, _headers);
+              = new CreateTestScenario.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

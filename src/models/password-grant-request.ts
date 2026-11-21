@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../lib/schemas.js";
 
 export type PasswordGrantRequest = {
   /**
@@ -41,21 +42,23 @@ export type PasswordGrantRequest$Outbound = {
 export const PasswordGrantRequest$outboundSchema: z.ZodMiniType<
   PasswordGrantRequest$Outbound,
   PasswordGrantRequest
-> = z.pipe(
-  z.object({
-    clientId: z.string(),
-    clientSecret: z.string(),
-    username: z.string(),
-    password: z.string(),
-    grantType: z.literal("password"),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      clientId: "client_id",
-      clientSecret: "client_secret",
-      grantType: "grant_type",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      clientId: z.string(),
+      clientSecret: z.string(),
+      username: z.string(),
+      password: z.string(),
+      grantType: z.literal("password"),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        clientId: "client_id",
+        clientSecret: "client_secret",
+        grantType: "grant_type",
+      });
+    }),
+  )
 );
 
 export function passwordGrantRequestToJSON(

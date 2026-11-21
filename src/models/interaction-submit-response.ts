@@ -3,10 +3,14 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
+import {
+  OutstandingGroup,
+  OutstandingGroup$inboundSchema,
+} from "./outstanding-group.js";
 
 export const InteractionSubmitResponseStatus = {
   Success: "success",
@@ -17,20 +21,37 @@ export type InteractionSubmitResponseStatus = ClosedEnum<
 
 export type InteractionSubmitResponse = {
   status: InteractionSubmitResponseStatus;
+  /**
+   * Whether this submit completed the interaction. `false`: the submit was accepted but the interaction still waits for more, and the journey does not move on until it gets it. Absent when not reported.
+   */
+  interactionComplete?: boolean | undefined;
+  /**
+   * With `interactionComplete: false`: the domain elements still required, as the next `/interaction/fetch` lists them in `outstanding`. Empty while the interaction waits on something other than the caller.
+   */
+  outstanding?: Array<string> | undefined;
+  /**
+   * With `outstanding`: the groups of it whose members are alternatives (any one is enough), as the next `/interaction/fetch` serves them in `outstandingGroups`. Absent when there are none.
+   */
+  outstandingGroups?: Array<OutstandingGroup> | undefined;
 };
 
 /** @internal */
 export const InteractionSubmitResponseStatus$inboundSchema: z.ZodMiniEnum<
   typeof InteractionSubmitResponseStatus
-> = z.enum(InteractionSubmitResponseStatus);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(InteractionSubmitResponseStatus));
 
 /** @internal */
 export const InteractionSubmitResponse$inboundSchema: z.ZodMiniType<
   InteractionSubmitResponse,
   unknown
-> = z.object({
-  status: InteractionSubmitResponseStatus$inboundSchema,
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: InteractionSubmitResponseStatus$inboundSchema,
+    interactionComplete: z.optional(z.boolean()),
+    outstanding: z.optional(z.array(z.string())),
+    outstandingGroups: z.optional(z.array(OutstandingGroup$inboundSchema)),
+  })
+);
 
 export function interactionSubmitResponseFromJSON(
   jsonString: string,

@@ -73,6 +73,16 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
     @JsonProperty("joinedDevice")
     private SlimInteractionFetchResponseJoinedDevice joinedDevice;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("viewVersion")
+    private String viewVersion;
+
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("retry")
+    private InteractionRetry retry;
+
     @JsonCreator
     public SlimInteractionFetchResponse(
             @JsonProperty("view") @Nonnull SlimInteractionFetchResponseView view,
@@ -85,7 +95,9 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
             @JsonProperty("outstandingGroups") @Nullable List<OutstandingGroup> outstandingGroups,
             @JsonProperty("instructions") @Nullable List<String> instructions,
             @JsonProperty("result") @Nullable SlimResult result,
-            @JsonProperty("joinedDevice") @Nullable SlimInteractionFetchResponseJoinedDevice joinedDevice) {
+            @JsonProperty("joinedDevice") @Nullable SlimInteractionFetchResponseJoinedDevice joinedDevice,
+            @JsonProperty("viewVersion") @Nullable String viewVersion,
+            @JsonProperty("retry") @Nullable InteractionRetry retry) {
         this.view = Optional.ofNullable(view)
             .orElseThrow(() -> new IllegalArgumentException("view cannot be null"));
         this.instanceId = Optional.ofNullable(instanceId)
@@ -100,6 +112,8 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
         this.instructions = instructions;
         this.result = result;
         this.joinedDevice = joinedDevice;
+        this.viewVersion = viewVersion;
+        this.retry = retry;
     }
     
     public SlimInteractionFetchResponse(
@@ -109,7 +123,8 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
         this(view, instanceId, null,
             journey, null, null,
             null, null, null,
-            null, null);
+            null, null, null,
+            null);
     }
 
     @Override
@@ -155,6 +170,14 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
 
     public Optional<SlimInteractionFetchResponseJoinedDevice> joinedDevice() {
         return Optional.ofNullable(this.joinedDevice);
+    }
+
+    public Optional<String> viewVersion() {
+        return Optional.ofNullable(this.viewVersion);
+    }
+
+    public Optional<InteractionRetry> retry() {
+        return Optional.ofNullable(this.retry);
     }
 
     public static Builder builder() {
@@ -228,6 +251,18 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
     }
 
 
+    public SlimInteractionFetchResponse withViewVersion(@Nullable String viewVersion) {
+        this.viewVersion = viewVersion;
+        return this;
+    }
+
+
+    public SlimInteractionFetchResponse withRetry(@Nullable InteractionRetry retry) {
+        this.retry = retry;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -248,7 +283,9 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
             Utils.enhancedDeepEquals(this.outstandingGroups, other.outstandingGroups) &&
             Utils.enhancedDeepEquals(this.instructions, other.instructions) &&
             Utils.enhancedDeepEquals(this.result, other.result) &&
-            Utils.enhancedDeepEquals(this.joinedDevice, other.joinedDevice);
+            Utils.enhancedDeepEquals(this.joinedDevice, other.joinedDevice) &&
+            Utils.enhancedDeepEquals(this.viewVersion, other.viewVersion) &&
+            Utils.enhancedDeepEquals(this.retry, other.retry);
     }
     
     @Override
@@ -257,7 +294,8 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
             view, instanceId, interactionId,
             journey, interaction, processing,
             outstanding, outstandingGroups, instructions,
-            result, joinedDevice);
+            result, joinedDevice, viewVersion,
+            retry);
     }
     
     @Override
@@ -273,7 +311,9 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
                 "outstandingGroups", outstandingGroups,
                 "instructions", instructions,
                 "result", result,
-                "joinedDevice", joinedDevice);
+                "joinedDevice", joinedDevice,
+                "viewVersion", viewVersion,
+                "retry", retry);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -300,6 +340,10 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
         private SlimResult result;
 
         private SlimInteractionFetchResponseJoinedDevice joinedDevice;
+
+        private String viewVersion;
+
+        private InteractionRetry retry;
 
         private Builder() {
           // force use of static builder() method
@@ -360,12 +404,23 @@ public class SlimInteractionFetchResponse implements FetchInteractionResponseBod
             return this;
         }
 
+        public Builder viewVersion(@Nullable String viewVersion) {
+            this.viewVersion = viewVersion;
+            return this;
+        }
+
+        public Builder retry(@Nullable InteractionRetry retry) {
+            this.retry = retry;
+            return this;
+        }
+
         public SlimInteractionFetchResponse build() {
             return new SlimInteractionFetchResponse(
                 view, instanceId, interactionId,
                 journey, interaction, processing,
                 outstanding, outstandingGroups, instructions,
-                result, joinedDevice);
+                result, joinedDevice, viewVersion,
+                retry);
         }
 
     }

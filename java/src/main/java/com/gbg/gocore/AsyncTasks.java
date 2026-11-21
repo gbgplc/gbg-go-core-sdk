@@ -10,6 +10,7 @@ import com.gbg.gocore.models.operations.async.GetTaskSchemaRequestBuilder;
 import com.gbg.gocore.models.operations.async.GetTaskSchemaResponse;
 import com.gbg.gocore.operations.GetTaskSchema;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nullable;
 import java.lang.Deprecated;
 import java.util.concurrent.CompletableFuture;
@@ -64,7 +65,7 @@ public class AsyncTasks {
      */
     @Deprecated
     public CompletableFuture<GetTaskSchemaResponse> getSchemaDirect() {
-        return getSchema(null);
+        return getSchema(null, null);
     }
 
     /**
@@ -81,8 +82,26 @@ public class AsyncTasks {
      */
     @Deprecated
     public CompletableFuture<GetTaskSchemaResponse> getSchema(@Nullable GetTaskSchemaRequest request) {
+        return getSchema(request, null);
+    }
+
+    /**
+     * Fetch V1-compat task schema
+     * 
+     * <p>V1 compatibility shim. Returns a Draft-07 JSON Schema for the active interaction of the journey
+     * identified by taskId (taskId = V2 instanceId), or { processing: true } while modules execute.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param options additional options
+     * @return {@code CompletableFuture<GetTaskSchemaResponse>} - The async response
+     * @deprecated method: This will be removed in a future release, please migrate away from it as soon as possible.
+     */
+    @Deprecated
+    public CompletableFuture<GetTaskSchemaResponse> getSchema(@Nullable GetTaskSchemaRequest request, @Nullable Options options) {
         AsyncRequestOperation<GetTaskSchemaRequest, GetTaskSchemaResponse> operation
-              = new GetTaskSchema.Async(sdkConfiguration, _headers);
+              = new GetTaskSchema.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }

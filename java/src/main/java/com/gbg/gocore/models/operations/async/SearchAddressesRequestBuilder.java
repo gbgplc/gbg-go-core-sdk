@@ -10,9 +10,11 @@ import com.gbg.gocore.models.operations.SearchAddressesRequest;
 import com.gbg.gocore.models.operations.SearchAddressesSecurity;
 import com.gbg.gocore.operations.SearchAddresses;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class SearchAddressesRequestBuilder {
@@ -20,9 +22,16 @@ public class SearchAddressesRequestBuilder {
     private final Headers _headers = new Headers();
     private SearchAddressesRequest request;
     private SearchAddressesSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public SearchAddressesRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public SearchAddressesRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public SearchAddressesRequestBuilder request(@Nullable SearchAddressesRequest request) {
@@ -52,8 +61,11 @@ public class SearchAddressesRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<SearchAddressesResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<SearchAddressesRequest, SearchAddressesResponse> operation
-              = new SearchAddresses.Async(sdkConfiguration, security, _headers);
+              = new SearchAddresses.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

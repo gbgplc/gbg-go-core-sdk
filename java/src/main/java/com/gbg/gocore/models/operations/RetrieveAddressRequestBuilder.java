@@ -8,18 +8,27 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.RetrieveAddress;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class RetrieveAddressRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private RetrieveAddressRequest request;
     private RetrieveAddressSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public RetrieveAddressRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public RetrieveAddressRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public RetrieveAddressRequestBuilder request(@Nullable RetrieveAddressRequest request) {
@@ -49,8 +58,11 @@ public class RetrieveAddressRequestBuilder {
     * @return The response from the server.
     */
     public RetrieveAddressResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<RetrieveAddressRequest, RetrieveAddressResponse> operation
-              = new RetrieveAddress.Sync(sdkConfiguration, security, _headers);
+              = new RetrieveAddress.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
@@ -197,12 +197,14 @@ export type SlimIdentity = {
 export const CurrentAddressLocation$inboundSchema: z.ZodMiniType<
   CurrentAddressLocation,
   unknown
-> = z.object({
-  latitude: z.optional(z.string()),
-  longitude: z.optional(z.string()),
-  geoAccuracy: z.optional(z.string()),
-  what3words: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  })
+);
 
 export function currentAddressLocationFromJSON(
   jsonString: string,
@@ -218,60 +220,7 @@ export function currentAddressLocationFromJSON(
 export const CurrentAddress$inboundSchema: z.ZodMiniType<
   CurrentAddress,
   unknown
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(z.lazy(() => CurrentAddressLocation$inboundSchema)),
-});
-
-export function currentAddressFromJSON(
-  jsonString: string,
-): SafeParseResult<CurrentAddress, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => CurrentAddress$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'CurrentAddress' from JSON`,
-  );
-}
-
-/** @internal */
-export const PlaceOfBirthLocation$inboundSchema: z.ZodMiniType<
-  PlaceOfBirthLocation,
-  unknown
-> = z.object({
-  latitude: z.optional(z.string()),
-  longitude: z.optional(z.string()),
-  geoAccuracy: z.optional(z.string()),
-  what3words: z.optional(z.string()),
-});
-
-export function placeOfBirthLocationFromJSON(
-  jsonString: string,
-): SafeParseResult<PlaceOfBirthLocation, SDKValidationError> {
-  return safeParse(
-    jsonString,
-    (x) => PlaceOfBirthLocation$inboundSchema.parse(JSON.parse(x)),
-    `Failed to parse 'PlaceOfBirthLocation' from JSON`,
-  );
-}
-
-/** @internal */
-export const PlaceOfBirth$inboundSchema: z.ZodMiniType<PlaceOfBirth, unknown> =
+> = /* @__PURE__ */ lazySchema$(() =>
   z.object({
     lines: z.optional(z.array(z.string())),
     addressString: z.optional(z.string()),
@@ -290,8 +239,67 @@ export const PlaceOfBirth$inboundSchema: z.ZodMiniType<PlaceOfBirth, unknown> =
     administrativeArea: z.optional(z.string()),
     subAdministrativeArea: z.optional(z.string()),
     organization: z.optional(z.string()),
-    location: z.optional(z.lazy(() => PlaceOfBirthLocation$inboundSchema)),
-  });
+    location: z.optional(z.lazy(() => CurrentAddressLocation$inboundSchema)),
+  })
+);
+
+export function currentAddressFromJSON(
+  jsonString: string,
+): SafeParseResult<CurrentAddress, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => CurrentAddress$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'CurrentAddress' from JSON`,
+  );
+}
+
+/** @internal */
+export const PlaceOfBirthLocation$inboundSchema: z.ZodMiniType<
+  PlaceOfBirthLocation,
+  unknown
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  })
+);
+
+export function placeOfBirthLocationFromJSON(
+  jsonString: string,
+): SafeParseResult<PlaceOfBirthLocation, SDKValidationError> {
+  return safeParse(
+    jsonString,
+    (x) => PlaceOfBirthLocation$inboundSchema.parse(JSON.parse(x)),
+    `Failed to parse 'PlaceOfBirthLocation' from JSON`,
+  );
+}
+
+/** @internal */
+export const PlaceOfBirth$inboundSchema: z.ZodMiniType<PlaceOfBirth, unknown> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() => PlaceOfBirthLocation$inboundSchema)),
+    })
+  );
 
 export function placeOfBirthFromJSON(
   jsonString: string,
@@ -304,12 +312,14 @@ export function placeOfBirthFromJSON(
 }
 
 /** @internal */
-export const IdNumber$inboundSchema: z.ZodMiniType<IdNumber, unknown> = z
-  .object({
-    type: z.string(),
-    idNumber: z.string(),
-    country: z.optional(z.string()),
-  });
+export const IdNumber$inboundSchema: z.ZodMiniType<IdNumber, unknown> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      type: z.string(),
+      idNumber: z.string(),
+      country: z.optional(z.string()),
+    })
+  );
 
 export function idNumberFromJSON(
   jsonString: string,
@@ -323,18 +333,20 @@ export function idNumberFromJSON(
 
 /** @internal */
 export const SlimIdentity$inboundSchema: z.ZodMiniType<SlimIdentity, unknown> =
-  z.object({
-    title: z.optional(z.string()),
-    firstName: z.optional(z.string()),
-    middleNames: z.optional(z.array(z.string())),
-    lastNames: z.optional(z.array(z.string())),
-    lastNamesAtBirth: z.optional(z.array(z.string())),
-    dateOfBirth: z.optional(z.string()),
-    gender: z.optional(z.string()),
-    currentAddress: z.optional(z.lazy(() => CurrentAddress$inboundSchema)),
-    placeOfBirth: z.optional(z.lazy(() => PlaceOfBirth$inboundSchema)),
-    idNumbers: z.optional(z.array(z.lazy(() => IdNumber$inboundSchema))),
-  });
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      title: z.optional(z.string()),
+      firstName: z.optional(z.string()),
+      middleNames: z.optional(z.array(z.string())),
+      lastNames: z.optional(z.array(z.string())),
+      lastNamesAtBirth: z.optional(z.array(z.string())),
+      dateOfBirth: z.optional(z.string()),
+      gender: z.optional(z.string()),
+      currentAddress: z.optional(z.lazy(() => CurrentAddress$inboundSchema)),
+      placeOfBirth: z.optional(z.lazy(() => PlaceOfBirth$inboundSchema)),
+      idNumbers: z.optional(z.array(z.lazy(() => IdNumber$inboundSchema))),
+    })
+  );
 
 export function slimIdentityFromJSON(
   jsonString: string,

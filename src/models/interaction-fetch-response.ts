@@ -3,9 +3,13 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
+import {
+  InteractionRetry,
+  InteractionRetry$inboundSchema,
+} from "./interaction-retry.js";
 import {
   OutstandingGroup,
   OutstandingGroup$inboundSchema,
@@ -32,15 +36,19 @@ export type InteractionFetchResponse = {
   processing?: boolean | undefined;
   result?: { [k: string]: any } | undefined;
   joinedDevice?: InteractionFetchResponseJoinedDevice | undefined;
+  viewVersion?: string | undefined;
+  retry?: InteractionRetry | undefined;
 };
 
 /** @internal */
 export const InteractionFetchResponseJourney$inboundSchema: z.ZodMiniType<
   InteractionFetchResponseJourney,
   unknown
-> = z.object({
-  status: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: z.string(),
+  })
+);
 
 export function interactionFetchResponseJourneyFromJSON(
   jsonString: string,
@@ -56,9 +64,11 @@ export function interactionFetchResponseJourneyFromJSON(
 export const InteractionFetchResponseJoinedDevice$inboundSchema: z.ZodMiniType<
   InteractionFetchResponseJoinedDevice,
   unknown
-> = z.object({
-  connected: z.boolean(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    connected: z.boolean(),
+  })
+);
 
 export function interactionFetchResponseJoinedDeviceFromJSON(
   jsonString: string,
@@ -75,22 +85,26 @@ export function interactionFetchResponseJoinedDeviceFromJSON(
 export const InteractionFetchResponse$inboundSchema: z.ZodMiniType<
   InteractionFetchResponse,
   unknown
-> = z.object({
-  view: z.literal("full"),
-  instanceId: z.string(),
-  interactionId: z.optional(z.string()),
-  journey: z.lazy(() => InteractionFetchResponseJourney$inboundSchema),
-  interaction: z.optional(z.record(z.string(), z.any())),
-  context: z.optional(z.record(z.string(), z.any())),
-  instructions: z.optional(z.any()),
-  outstanding: z.optional(z.any()),
-  outstandingGroups: z.optional(z.array(OutstandingGroup$inboundSchema)),
-  processing: z.optional(z.boolean()),
-  result: z.optional(z.record(z.string(), z.any())),
-  joinedDevice: z.optional(
-    z.lazy(() => InteractionFetchResponseJoinedDevice$inboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    view: z.literal("full"),
+    instanceId: z.string(),
+    interactionId: z.optional(z.string()),
+    journey: z.lazy(() => InteractionFetchResponseJourney$inboundSchema),
+    interaction: z.optional(z.record(z.string(), z.any())),
+    context: z.optional(z.record(z.string(), z.any())),
+    instructions: z.optional(z.any()),
+    outstanding: z.optional(z.any()),
+    outstandingGroups: z.optional(z.array(OutstandingGroup$inboundSchema)),
+    processing: z.optional(z.boolean()),
+    result: z.optional(z.record(z.string(), z.any())),
+    joinedDevice: z.optional(
+      z.lazy(() => InteractionFetchResponseJoinedDevice$inboundSchema),
+    ),
+    viewVersion: z.optional(z.string()),
+    retry: z.optional(InteractionRetry$inboundSchema),
+  })
+);
 
 export function interactionFetchResponseFromJSON(
   jsonString: string,

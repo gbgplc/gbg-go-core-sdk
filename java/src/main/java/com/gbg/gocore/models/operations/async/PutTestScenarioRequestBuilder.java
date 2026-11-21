@@ -10,10 +10,12 @@ import com.gbg.gocore.models.UpdateTestScenarioRequest;
 import com.gbg.gocore.models.operations.PutTestScenarioRequest;
 import com.gbg.gocore.operations.PutTestScenario;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class PutTestScenarioRequestBuilder {
@@ -21,11 +23,13 @@ public class PutTestScenarioRequestBuilder {
     private final Headers _headers = new Headers();
     private final PutTestScenarioRequest.Builder pojoBuilder;
     private PutTestScenarioRequest request;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public PutTestScenarioRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = PutTestScenarioRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public PutTestScenarioRequestBuilder journeyId(@Nonnull String journeyId) {
@@ -43,6 +47,11 @@ public class PutTestScenarioRequestBuilder {
     public PutTestScenarioRequestBuilder body(@Nullable UpdateTestScenarioRequest body) {
         this.pojoBuilder.body(body);
         this._setterCalled = true;
+        return this;
+    }
+
+    public PutTestScenarioRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -66,8 +75,9 @@ public class PutTestScenarioRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<PutTestScenarioResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<PutTestScenarioRequest, PutTestScenarioResponse> operation
-              = new PutTestScenario.Async(sdkConfiguration, _headers);
+              = new PutTestScenario.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

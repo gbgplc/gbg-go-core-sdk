@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { ClosedEnum, OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -49,25 +49,29 @@ export type SlimStep = {
 export const SlimStepOutcomeClassification$inboundSchema: z.ZodMiniType<
   SlimStepOutcomeClassification,
   unknown
-> = openEnums.inboundSchema(SlimStepOutcomeClassification);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(SlimStepOutcomeClassification)
+);
 
 /** @internal */
 export const SlimStepStatus$inboundSchema: z.ZodMiniEnum<
   typeof SlimStepStatus
-> = z.enum(SlimStepStatus);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SlimStepStatus));
 
 /** @internal */
-export const SlimStep$inboundSchema: z.ZodMiniType<SlimStep, unknown> = z
-  .object({
-    nodeId: z.string(),
-    name: z.optional(z.string()),
-    outcome: z.optional(z.string()),
-    outcomeClassification: z.optional(
-      z.nullable(SlimStepOutcomeClassification$inboundSchema),
-    ),
-    status: z.optional(SlimStepStatus$inboundSchema),
-    error: z.optional(SlimModuleStepError$inboundSchema),
-  });
+export const SlimStep$inboundSchema: z.ZodMiniType<SlimStep, unknown> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      nodeId: z.string(),
+      name: z.optional(z.string()),
+      outcome: z.optional(z.string()),
+      outcomeClassification: z.optional(
+        z.nullable(SlimStepOutcomeClassification$inboundSchema),
+      ),
+      status: z.optional(SlimStepStatus$inboundSchema),
+      error: z.optional(SlimModuleStepError$inboundSchema),
+    })
+  );
 
 export function slimStepFromJSON(
   jsonString: string,

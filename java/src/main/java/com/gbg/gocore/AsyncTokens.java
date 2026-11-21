@@ -10,6 +10,7 @@ import com.gbg.gocore.models.operations.async.PostAsTokenOauth2RequestBuilder;
 import com.gbg.gocore.models.operations.async.PostAsTokenOauth2Response;
 import com.gbg.gocore.operations.PostAsTokenOauth2;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nullable;
 import java.lang.String;
 import java.util.concurrent.CompletableFuture;
@@ -58,7 +59,7 @@ public class AsyncTokens {
      * @return {@code CompletableFuture<PostAsTokenOauth2Response>} - The async response
      */
     public CompletableFuture<PostAsTokenOauth2Response> generateDirect() {
-        return generate(null, null);
+        return generate(null, null, null);
     }
 
     /**
@@ -73,8 +74,28 @@ public class AsyncTokens {
      * @return {@code CompletableFuture<PostAsTokenOauth2Response>} - The async response
      */
     public CompletableFuture<PostAsTokenOauth2Response> generate(@Nullable PostAsTokenOauth2Request request, @Nullable String serverURL) {
+        return generate(request, serverURL, null);
+    }
+
+    /**
+     * Generate access token
+     * 
+     * <p>Get an access token to authenticate API requests. If you're unfamiliar with the authentication
+     * process, check out the [authentication
+     * guide](/docs/go-v2/developer-integration/execute-customer-journeys/authenticate) for more details.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param serverURL Overrides the server URL.
+     * @param options additional options
+     * @return {@code CompletableFuture<PostAsTokenOauth2Response>} - The async response
+     */
+    public CompletableFuture<PostAsTokenOauth2Response> generate(
+            @Nullable PostAsTokenOauth2Request request, @Nullable String serverURL,
+            @Nullable Options options) {
         AsyncRequestOperation<PostAsTokenOauth2Request, PostAsTokenOauth2Response> operation
-              = new PostAsTokenOauth2.Async(sdkConfiguration, serverURL, _headers);
+              = new PostAsTokenOauth2.Async(
+                                    sdkConfiguration, serverURL, options,
+                                    _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }

@@ -8,16 +8,25 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.DeleteInstance;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class DeleteInstanceRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private DeleteInstanceRequest request;
+    private final Options.Builder optionsBuilder;
 
     public DeleteInstanceRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public DeleteInstanceRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public DeleteInstanceRequestBuilder request(@Nullable DeleteInstanceRequest request) {
@@ -42,8 +51,9 @@ public class DeleteInstanceRequestBuilder {
     * @return The response from the server.
     */
     public DeleteInstanceResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<DeleteInstanceRequest, DeleteInstanceResponse> operation
-              = new DeleteInstance.Sync(sdkConfiguration, _headers);
+              = new DeleteInstance.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

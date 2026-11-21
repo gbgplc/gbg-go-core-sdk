@@ -10,9 +10,11 @@ import com.gbg.gocore.models.operations.RetrieveAddressRequest;
 import com.gbg.gocore.models.operations.RetrieveAddressSecurity;
 import com.gbg.gocore.operations.RetrieveAddress;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class RetrieveAddressRequestBuilder {
@@ -20,9 +22,16 @@ public class RetrieveAddressRequestBuilder {
     private final Headers _headers = new Headers();
     private RetrieveAddressRequest request;
     private RetrieveAddressSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public RetrieveAddressRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public RetrieveAddressRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public RetrieveAddressRequestBuilder request(@Nullable RetrieveAddressRequest request) {
@@ -52,8 +61,11 @@ public class RetrieveAddressRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<RetrieveAddressResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<RetrieveAddressRequest, RetrieveAddressResponse> operation
-              = new RetrieveAddress.Async(sdkConfiguration, security, _headers);
+              = new RetrieveAddress.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

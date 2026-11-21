@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -34,20 +34,24 @@ export type SlimStateFetchResponse = {
 export const SlimStateFetchResponseStatus$inboundSchema: z.ZodMiniType<
   SlimStateFetchResponseStatus,
   unknown
-> = openEnums.inboundSchema(SlimStateFetchResponseStatus);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(SlimStateFetchResponseStatus)
+);
 
 /** @internal */
 export const SlimStateFetchResponse$inboundSchema: z.ZodMiniType<
   SlimStateFetchResponse,
   unknown
-> = z.object({
-  view: z.literal("slim"),
-  instanceId: z.string(),
-  status: SlimStateFetchResponseStatus$inboundSchema,
-  journey: z.optional(SlimJourney$inboundSchema),
-  steps: z.optional(z.array(SlimStep$inboundSchema)),
-  result: z.optional(SlimResult$inboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    view: z.literal("slim"),
+    instanceId: z.string(),
+    status: SlimStateFetchResponseStatus$inboundSchema,
+    journey: z.optional(SlimJourney$inboundSchema),
+    steps: z.optional(z.array(SlimStep$inboundSchema)),
+    result: z.optional(SlimResult$inboundSchema),
+  })
+);
 
 export function slimStateFetchResponseFromJSON(
   jsonString: string,

@@ -46,7 +46,7 @@ public class SubmitInteractionEntity {
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("status")
-    private SubmitInteractionStatus status;
+    private SubmitInteractionStatusPrimary status;
 
 
     @JsonInclude(Include.NON_ABSENT)
@@ -131,7 +131,7 @@ public class SubmitInteractionEntity {
             @JsonProperty("name") @Nullable String name,
             @JsonProperty("aliases") @Nullable List<String> aliases,
             @JsonProperty("businessType") @Nullable String businessType,
-            @JsonProperty("status") @Nullable SubmitInteractionStatus status,
+            @JsonProperty("status") @Nullable SubmitInteractionStatusPrimary status,
             @JsonProperty("description") @Nullable String description,
             @JsonProperty("addresses") @Nullable List<SubmitInteractionAddressPrimary> addresses,
             @JsonProperty("taxIdentifiers") @Nullable List<SubmitInteractionTaxIdentifier> taxIdentifiers,
@@ -198,7 +198,7 @@ public class SubmitInteractionEntity {
         return Optional.ofNullable(this.businessType);
     }
 
-    public Optional<SubmitInteractionStatus> status() {
+    public Optional<SubmitInteractionStatusPrimary> status() {
         return Optional.ofNullable(this.status);
     }
 
@@ -301,7 +301,7 @@ public class SubmitInteractionEntity {
     }
 
 
-    public SubmitInteractionEntity withStatus(@Nullable SubmitInteractionStatus status) {
+    public SubmitInteractionEntity withStatus(@Nullable SubmitInteractionStatusPrimary status) {
         this.status = status;
         return this;
     }
@@ -481,7 +481,7 @@ public class SubmitInteractionEntity {
 
         private String businessType;
 
-        private SubmitInteractionStatus status;
+        private SubmitInteractionStatusPrimary status;
 
         private String description;
 
@@ -540,7 +540,7 @@ public class SubmitInteractionEntity {
             return this;
         }
 
-        public Builder status(@Nullable SubmitInteractionStatus status) {
+        public Builder status(@Nullable SubmitInteractionStatusPrimary status) {
             this.status = status;
             return this;
         }
