@@ -8,16 +8,25 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.AddDevice;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class AddDeviceRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private AddDeviceRequest request;
+    private final Options.Builder optionsBuilder;
 
     public AddDeviceRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public AddDeviceRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public AddDeviceRequestBuilder request(@Nullable AddDeviceRequest request) {
@@ -42,8 +51,9 @@ public class AddDeviceRequestBuilder {
     * @return The response from the server.
     */
     public AddDeviceResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<AddDeviceRequest, AddDeviceResponse> operation
-              = new AddDevice.Sync(sdkConfiguration, _headers);
+              = new AddDevice.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

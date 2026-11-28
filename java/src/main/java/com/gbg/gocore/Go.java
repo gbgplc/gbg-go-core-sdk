@@ -9,7 +9,9 @@ import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.RetryConfig;
 import com.gbg.gocore.utils.SpeakeasyHTTPClient;
 import com.gbg.gocore.utils.Utils;
+import java.lang.IllegalArgumentException;
 import java.lang.String;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -195,6 +197,23 @@ public class Go {
          */
         public Builder retryConfig(RetryConfig retryConfig) {
             this.sdkConfiguration.setRetryConfig(Optional.of(retryConfig));
+            return this;
+        }
+
+        /**
+         * Sets the default timeout for each request attempt. A per-call {@code timeout}
+         * takes precedence; this takes precedence over {@code x-speakeasy-timeout}.
+         * It bounds the whole call, including reading the response body.
+         *
+         * @param timeout The timeout to apply to every request; must be positive.
+         * @return The builder instance.
+         */
+        public Builder timeout(Duration timeout) {
+            Utils.checkNotNull(timeout, "timeout");
+            if (timeout.isZero() || timeout.isNegative()) {
+                throw new IllegalArgumentException("timeout must be positive");
+            }
+            this.sdkConfiguration.setTimeout(Optional.of(timeout));
             return this;
         }
 

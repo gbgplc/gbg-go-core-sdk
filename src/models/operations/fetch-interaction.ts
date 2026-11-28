@@ -4,7 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
-import { safeParse } from "../../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../../lib/schemas.js";
 import * as discriminatedUnionTypes from "../../types/discriminated-union.js";
 import { discriminatedUnion } from "../../types/discriminated-union.js";
 import { ClosedEnum } from "../../types/enums.js";
@@ -58,17 +58,19 @@ export type FetchInteractionSecurity$Outbound = {
 export const FetchInteractionSecurity$outboundSchema: z.ZodMiniType<
   FetchInteractionSecurity$Outbound,
   FetchInteractionSecurity
-> = z.pipe(
-  z.object({
-    customerAccess: z.optional(z.string()),
-    interactionAccess: z.optional(z.string()),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      customerAccess: "CustomerAccess",
-      interactionAccess: "InteractionAccess",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      customerAccess: z.optional(z.string()),
+      interactionAccess: z.optional(z.string()),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        customerAccess: "CustomerAccess",
+        interactionAccess: "InteractionAccess",
+      });
+    }),
+  )
 );
 
 export function fetchInteractionSecurityToJSON(
@@ -82,7 +84,7 @@ export function fetchInteractionSecurityToJSON(
 /** @internal */
 export const FetchInteractionScope$outboundSchema: z.ZodMiniEnum<
   typeof FetchInteractionScope
-> = z.enum(FetchInteractionScope);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(FetchInteractionScope));
 
 /** @internal */
 export type FetchInteractionRequestBody$Outbound = {
@@ -95,12 +97,14 @@ export type FetchInteractionRequestBody$Outbound = {
 export const FetchInteractionRequestBody$outboundSchema: z.ZodMiniType<
   FetchInteractionRequestBody$Outbound,
   FetchInteractionRequestBody
-> = z.catchall(
-  z.object({
-    instanceId: z.string(),
-    scope: z.optional(FetchInteractionScope$outboundSchema),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      instanceId: z.string(),
+      scope: z.optional(FetchInteractionScope$outboundSchema),
+    }),
+    z.any(),
+  )
 );
 
 export function fetchInteractionRequestBodyToJSON(
@@ -123,10 +127,12 @@ export type FetchInteractionRequest$Outbound = {
 export const FetchInteractionRequest$outboundSchema: z.ZodMiniType<
   FetchInteractionRequest$Outbound,
   FetchInteractionRequest
-> = z.object({
-  view: z.optional(z.string()),
-  body: z.optional(z.lazy(() => FetchInteractionRequestBody$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    view: z.optional(z.string()),
+    body: z.optional(z.lazy(() => FetchInteractionRequestBody$outboundSchema)),
+  })
+);
 
 export function fetchInteractionRequestToJSON(
   fetchInteractionRequest: FetchInteractionRequest,
@@ -140,10 +146,12 @@ export function fetchInteractionRequestToJSON(
 export const FetchInteractionResponse$inboundSchema: z.ZodMiniType<
   FetchInteractionResponse,
   unknown
-> = discriminatedUnion("view", {
-  full: models.InteractionFetchResponse$inboundSchema,
-  slim: models.SlimInteractionFetchResponse$inboundSchema,
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  discriminatedUnion("view", {
+    full: models.InteractionFetchResponse$inboundSchema,
+    slim: models.SlimInteractionFetchResponse$inboundSchema,
+  })
+);
 
 export function fetchInteractionResponseFromJSON(
   jsonString: string,

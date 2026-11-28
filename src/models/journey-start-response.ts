@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -44,21 +44,25 @@ export type JourneyStartResponse = {
 export const JourneyStartResponseStatus$inboundSchema: z.ZodMiniType<
   JourneyStartResponseStatus,
   unknown
-> = openEnums.inboundSchema(JourneyStartResponseStatus);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(JourneyStartResponseStatus)
+);
 
 /** @internal */
 export const JourneyStartResponse$inboundSchema: z.ZodMiniType<
   JourneyStartResponse,
   unknown
-> = z.object({
-  instanceId: z.string(),
-  instanceUrl: z.optional(z.string()),
-  status: JourneyStartResponseStatus$inboundSchema,
-  message: z.optional(z.string()),
-  state: z.optional(StateFetchResponse$inboundSchema),
-  test: z.optional(z.boolean()),
-  scenario: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    instanceId: z.string(),
+    instanceUrl: z.optional(z.string()),
+    status: JourneyStartResponseStatus$inboundSchema,
+    message: z.optional(z.string()),
+    state: z.optional(StateFetchResponse$inboundSchema),
+    test: z.optional(z.boolean()),
+    scenario: z.optional(z.string()),
+  })
+);
 
 export function journeyStartResponseFromJSON(
   jsonString: string,

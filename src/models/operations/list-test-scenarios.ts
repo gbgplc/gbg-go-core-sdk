@@ -3,6 +3,8 @@
  */
 
 import * as z from "zod/v4-mini";
+import { matchesPattern as matchesPattern$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 import { ClosedEnum } from "../../types/enums.js";
 
 /**
@@ -33,7 +35,7 @@ export type ListTestScenariosRequest = {
 /** @internal */
 export const ListTestScenariosIncludePlatform$outboundSchema: z.ZodMiniEnum<
   typeof ListTestScenariosIncludePlatform
-> = z.enum(ListTestScenariosIncludePlatform);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(ListTestScenariosIncludePlatform));
 
 /** @internal */
 export type ListTestScenariosRequest$Outbound = {
@@ -45,10 +47,18 @@ export type ListTestScenariosRequest$Outbound = {
 export const ListTestScenariosRequest$outboundSchema: z.ZodMiniType<
   ListTestScenariosRequest$Outbound,
   ListTestScenariosRequest
-> = z.object({
-  journeyId: z.string(),
-  includePlatform: z.optional(ListTestScenariosIncludePlatform$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    journeyId: z.string().check(
+      z.refine(matchesPattern$("^[a-zA-Z0-9_-]{1,128}$"), {
+        message: "Value must match pattern ^[a-zA-Z0-9_-]{1,128}$",
+      }),
+    ),
+    includePlatform: z.optional(
+      ListTestScenariosIncludePlatform$outboundSchema,
+    ),
+  })
+);
 
 export function listTestScenariosRequestToJSON(
   listTestScenariosRequest: ListTestScenariosRequest,

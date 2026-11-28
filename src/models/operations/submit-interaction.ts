@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 import { ClosedEnum } from "../../types/enums.js";
 import { smartUnion } from "../../types/smart-union.js";
 
@@ -405,7 +406,7 @@ export type SubmitInteractionTypePrimary1 = ClosedEnum<
   typeof SubmitInteractionTypePrimary1
 >;
 
-export const SubmitInteractionStatus = {
+export const SubmitInteractionStatusEnum = {
   Active: "active",
   Suspended: "suspended",
   Dormant: "dormant",
@@ -413,8 +414,8 @@ export const SubmitInteractionStatus = {
   StruckOff: "struckOff",
   Unknown: "unknown",
 } as const;
-export type SubmitInteractionStatus = ClosedEnum<
-  typeof SubmitInteractionStatus
+export type SubmitInteractionStatusEnum = ClosedEnum<
+  typeof SubmitInteractionStatusEnum
 >;
 
 export type SubmitInteractionAddressLocation = {
@@ -840,7 +841,7 @@ export type SubmitInteractionEntity = {
   name?: string | undefined;
   aliases?: Array<string> | undefined;
   businessType?: string | undefined;
-  status?: SubmitInteractionStatus | undefined;
+  status?: SubmitInteractionStatusEnum | undefined;
   description?: string | undefined;
   addresses?: Array<SubmitInteractionAddressPrimary> | undefined;
   taxIdentifiers?: Array<SubmitInteractionTaxIdentifier> | undefined;
@@ -1751,6 +1752,10 @@ export type SubmitInteractionSessionAuth = {
   clientSecret?: string | undefined;
 };
 
+export type SubmitInteractionSessionError = {
+  code: string;
+};
+
 export type SubmitInteractionSession = {
   id?: string | undefined;
   type?: string | undefined;
@@ -1762,6 +1767,7 @@ export type SubmitInteractionSession = {
   span?: SubmitInteractionSpan | undefined;
   transaction?: SubmitInteractionTransaction | undefined;
   auth?: Array<SubmitInteractionSessionAuth> | undefined;
+  error?: SubmitInteractionSessionError | undefined;
 };
 
 export const SubmitInteractionConsentType = {
@@ -1843,14 +1849,14 @@ export type SubmitInteractionQuestion = {
   choices: Array<SubmitInteractionChoice>;
 };
 
-export type SubmitInteractionAnswer = {
+export type SubmitInteractionKbaAnswer = {
   id: number;
   choices: Array<string>;
 };
 
 export type SubmitInteractionKba = {
   questions: Array<SubmitInteractionQuestion>;
-  answers: Array<SubmitInteractionAnswer>;
+  answers: Array<SubmitInteractionKbaAnswer>;
 };
 
 export const SubmitInteractionOffered = {
@@ -1902,6 +1908,64 @@ export type SubmitInteractionDocumentTypeSelection = {
   selected?: SubmitInteractionSelected | undefined;
 };
 
+export type SubmitInteractionCapabilityCheckRequest = {
+  capabilityIds?: Array<string> | undefined;
+  timeoutMs?: number | undefined;
+};
+
+export type SubmitInteractionAnswerError2 = {
+  name: string;
+  message: string;
+};
+
+export type SubmitInteractionAnswerError1 = {
+  status: "error";
+  error: SubmitInteractionAnswerError2;
+};
+
+export type SubmitInteractionAnswerTimeout = {
+  status: "timeout";
+};
+
+export const SubmitInteractionState = {
+  Supported: "supported",
+  Unsupported: "unsupported",
+  RequiresUserConsent: "requiresUserConsent",
+} as const;
+export type SubmitInteractionState = ClosedEnum<typeof SubmitInteractionState>;
+
+export const SubmitInteractionSource = {
+  Bridge: "bridge",
+  BrowserFallback: "browser-fallback",
+} as const;
+export type SubmitInteractionSource = ClosedEnum<
+  typeof SubmitInteractionSource
+>;
+
+export type SubmitInteractionResults = {
+  state: SubmitInteractionState;
+  source: SubmitInteractionSource;
+};
+
+export type SubmitInteractionAnswerDone = {
+  status: "done";
+  results: { [k: string]: SubmitInteractionResults };
+};
+
+export type SubmitInteractionAnswerUnion =
+  | SubmitInteractionAnswerDone
+  | SubmitInteractionAnswerTimeout
+  | SubmitInteractionAnswerError1;
+
+export type SubmitInteractionCapabilityCheck = {
+  request?: SubmitInteractionCapabilityCheckRequest | undefined;
+  answer?:
+    | SubmitInteractionAnswerDone
+    | SubmitInteractionAnswerTimeout
+    | SubmitInteractionAnswerError1
+    | undefined;
+};
+
 export type SubmitInteractionSubject = {
   identity?: SubmitInteractionIdentity | undefined;
   entities?: Array<SubmitInteractionEntity> | undefined;
@@ -1922,6 +1986,7 @@ export type SubmitInteractionSubject = {
   accounts?: Array<SubmitInteractionAccount> | undefined;
   kba?: SubmitInteractionKba | undefined;
   documentTypeSelection?: SubmitInteractionDocumentTypeSelection | undefined;
+  capabilityCheck?: SubmitInteractionCapabilityCheck | undefined;
   uid?: string | undefined;
 };
 
@@ -1965,6 +2030,7 @@ export type SubmitInteractionRequest = {
   interactionId: string;
   participants?: Array<Participant> | undefined;
   context?: SubmitInteractionContext | undefined;
+  viewVersion?: string | undefined;
   [additionalProperties: string]: unknown;
 };
 
@@ -1978,17 +2044,19 @@ export type SubmitInteractionSecurity$Outbound = {
 export const SubmitInteractionSecurity$outboundSchema: z.ZodMiniType<
   SubmitInteractionSecurity$Outbound,
   SubmitInteractionSecurity
-> = z.pipe(
-  z.object({
-    customerAccess: z.optional(z.string()),
-    interactionAccess: z.optional(z.string()),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      customerAccess: "CustomerAccess",
-      interactionAccess: "InteractionAccess",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      customerAccess: z.optional(z.string()),
+      interactionAccess: z.optional(z.string()),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        customerAccess: "CustomerAccess",
+        interactionAccess: "InteractionAccess",
+      });
+    }),
+  )
 );
 
 export function submitInteractionSecurityToJSON(
@@ -2010,12 +2078,14 @@ export type Participant$Outbound = {
 export const Participant$outboundSchema: z.ZodMiniType<
   Participant$Outbound,
   Participant
-> = z.catchall(
-  z.object({
-    domainElementId: z.optional(z.string()),
-    instructions: z.optional(z.array(z.string())),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      domainElementId: z.optional(z.string()),
+      instructions: z.optional(z.array(z.string())),
+    }),
+    z.any(),
+  )
 );
 
 export function participantToJSON(participant: Participant): string {
@@ -2036,14 +2106,16 @@ export type SubmitInteractionIdentityAlias$Outbound = {
 export const SubmitInteractionIdentityAlias$outboundSchema: z.ZodMiniType<
   SubmitInteractionIdentityAlias$Outbound,
   SubmitInteractionIdentityAlias
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  fullName: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    fullName: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionIdentityAliasToJSON(
   submitInteractionIdentityAlias: SubmitInteractionIdentityAlias,
@@ -2057,9 +2129,10 @@ export function submitInteractionIdentityAliasToJSON(
 
 /** @internal */
 export const SubmitInteractionIdentityRelationship$outboundSchema:
-  z.ZodMiniEnum<typeof SubmitInteractionIdentityRelationship> = z.enum(
-    SubmitInteractionIdentityRelationship,
-  );
+  z.ZodMiniEnum<typeof SubmitInteractionIdentityRelationship> =
+    /* @__PURE__ */ lazySchema$(() =>
+      z.enum(SubmitInteractionIdentityRelationship)
+    );
 
 /** @internal */
 export type SubmitInteractionIdentityRelatedPerson$Outbound = {
@@ -2076,14 +2149,16 @@ export const SubmitInteractionIdentityRelatedPerson$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIdentityRelatedPerson$Outbound,
     SubmitInteractionIdentityRelatedPerson
-  > = z.object({
-    title: z.optional(z.string()),
-    firstName: z.optional(z.string()),
-    middleNames: z.optional(z.array(z.string())),
-    lastNames: z.optional(z.array(z.string())),
-    lastNamesAtBirth: z.optional(z.array(z.string())),
-    relationship: SubmitInteractionIdentityRelationship$outboundSchema,
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      title: z.optional(z.string()),
+      firstName: z.optional(z.string()),
+      middleNames: z.optional(z.array(z.string())),
+      lastNames: z.optional(z.array(z.string())),
+      lastNamesAtBirth: z.optional(z.array(z.string())),
+      relationship: SubmitInteractionIdentityRelationship$outboundSchema,
+    })
+  );
 
 export function submitInteractionIdentityRelatedPersonToJSON(
   submitInteractionIdentityRelatedPerson:
@@ -2109,12 +2184,14 @@ export const SubmitInteractionIdentityCurrentAddressLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIdentityCurrentAddressLocation$Outbound,
     SubmitInteractionIdentityCurrentAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionIdentityCurrentAddressLocationToJSON(
   submitInteractionIdentityCurrentAddressLocation:
@@ -2156,30 +2233,30 @@ export const SubmitInteractionIdentityCurrentAddress$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIdentityCurrentAddress$Outbound,
     SubmitInteractionIdentityCurrentAddress
-  > = z.object({
-    lines: z.optional(z.array(z.string())),
-    addressString: z.optional(z.string()),
-    premise: z.optional(z.string()),
-    building: z.optional(z.string()),
-    subBuilding: z.optional(z.string()),
-    thoroughfare: z.optional(z.string()),
-    dependentThoroughfare: z.optional(z.string()),
-    locality: z.optional(z.string()),
-    dependentLocality: z.optional(z.string()),
-    doubleDependentLocality: z.optional(z.string()),
-    postalCode: z.optional(z.string()),
-    postBox: z.optional(z.string()),
-    country: z.optional(z.string()),
-    superAdministrativeArea: z.optional(z.string()),
-    administrativeArea: z.optional(z.string()),
-    subAdministrativeArea: z.optional(z.string()),
-    organization: z.optional(z.string()),
-    location: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() =>
         SubmitInteractionIdentityCurrentAddressLocation$outboundSchema
-      ),
-    ),
-  });
+      )),
+    })
+  );
 
 export function submitInteractionIdentityCurrentAddressToJSON(
   submitInteractionIdentityCurrentAddress:
@@ -2205,12 +2282,14 @@ export const SubmitInteractionIdentityPreviousAddressLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIdentityPreviousAddressLocation$Outbound,
     SubmitInteractionIdentityPreviousAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionIdentityPreviousAddressLocationToJSON(
   submitInteractionIdentityPreviousAddressLocation:
@@ -2254,32 +2333,32 @@ export const SubmitInteractionIdentityPreviousAddress$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIdentityPreviousAddress$Outbound,
     SubmitInteractionIdentityPreviousAddress
-  > = z.object({
-    lines: z.optional(z.array(z.string())),
-    addressString: z.optional(z.string()),
-    premise: z.optional(z.string()),
-    building: z.optional(z.string()),
-    subBuilding: z.optional(z.string()),
-    thoroughfare: z.optional(z.string()),
-    dependentThoroughfare: z.optional(z.string()),
-    locality: z.optional(z.string()),
-    dependentLocality: z.optional(z.string()),
-    doubleDependentLocality: z.optional(z.string()),
-    postalCode: z.optional(z.string()),
-    postBox: z.optional(z.string()),
-    country: z.optional(z.string()),
-    superAdministrativeArea: z.optional(z.string()),
-    administrativeArea: z.optional(z.string()),
-    subAdministrativeArea: z.optional(z.string()),
-    organization: z.optional(z.string()),
-    location: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() =>
         SubmitInteractionIdentityPreviousAddressLocation$outboundSchema
-      ),
-    ),
-    fromDate: z.optional(z.string()),
-    toDate: z.optional(z.string()),
-  });
+      )),
+      fromDate: z.optional(z.string()),
+      toDate: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionIdentityPreviousAddressToJSON(
   submitInteractionIdentityPreviousAddress:
@@ -2305,12 +2384,14 @@ export const SubmitInteractionIdentityPlaceOfBirthLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIdentityPlaceOfBirthLocation$Outbound,
     SubmitInteractionIdentityPlaceOfBirthLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionIdentityPlaceOfBirthLocationToJSON(
   submitInteractionIdentityPlaceOfBirthLocation:
@@ -2350,30 +2431,30 @@ export const SubmitInteractionIdentityPlaceOfBirth$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIdentityPlaceOfBirth$Outbound,
     SubmitInteractionIdentityPlaceOfBirth
-  > = z.object({
-    lines: z.optional(z.array(z.string())),
-    addressString: z.optional(z.string()),
-    premise: z.optional(z.string()),
-    building: z.optional(z.string()),
-    subBuilding: z.optional(z.string()),
-    thoroughfare: z.optional(z.string()),
-    dependentThoroughfare: z.optional(z.string()),
-    locality: z.optional(z.string()),
-    dependentLocality: z.optional(z.string()),
-    doubleDependentLocality: z.optional(z.string()),
-    postalCode: z.optional(z.string()),
-    postBox: z.optional(z.string()),
-    country: z.optional(z.string()),
-    superAdministrativeArea: z.optional(z.string()),
-    administrativeArea: z.optional(z.string()),
-    subAdministrativeArea: z.optional(z.string()),
-    organization: z.optional(z.string()),
-    location: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() =>
         SubmitInteractionIdentityPlaceOfBirthLocation$outboundSchema
-      ),
-    ),
-  });
+      )),
+    })
+  );
 
 export function submitInteractionIdentityPlaceOfBirthToJSON(
   submitInteractionIdentityPlaceOfBirth: SubmitInteractionIdentityPlaceOfBirth,
@@ -2396,11 +2477,13 @@ export type SubmitInteractionIdentityIdNumber$Outbound = {
 export const SubmitInteractionIdentityIdNumber$outboundSchema: z.ZodMiniType<
   SubmitInteractionIdentityIdNumber$Outbound,
   SubmitInteractionIdentityIdNumber
-> = z.object({
-  type: z.string(),
-  idNumber: z.string(),
-  country: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    idNumber: z.string(),
+    country: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionIdentityIdNumberToJSON(
   submitInteractionIdentityIdNumber: SubmitInteractionIdentityIdNumber,
@@ -2422,10 +2505,12 @@ export type SubmitInteractionIdentityPhone$Outbound = {
 export const SubmitInteractionIdentityPhone$outboundSchema: z.ZodMiniType<
   SubmitInteractionIdentityPhone$Outbound,
   SubmitInteractionIdentityPhone
-> = z.object({
-  type: z.string(),
-  number: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    number: z.string(),
+  })
+);
 
 export function submitInteractionIdentityPhoneToJSON(
   submitInteractionIdentityPhone: SubmitInteractionIdentityPhone,
@@ -2447,10 +2532,12 @@ export type SubmitInteractionIdentityEmail$Outbound = {
 export const SubmitInteractionIdentityEmail$outboundSchema: z.ZodMiniType<
   SubmitInteractionIdentityEmail$Outbound,
   SubmitInteractionIdentityEmail
-> = z.object({
-  type: z.string(),
-  email: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    email: z.string(),
+  })
+);
 
 export function submitInteractionIdentityEmailToJSON(
   submitInteractionIdentityEmail: SubmitInteractionIdentityEmail,
@@ -2472,10 +2559,12 @@ export type SubmitInteractionIdentitySocial$Outbound = {
 export const SubmitInteractionIdentitySocial$outboundSchema: z.ZodMiniType<
   SubmitInteractionIdentitySocial$Outbound,
   SubmitInteractionIdentitySocial
-> = z.object({
-  type: z.string(),
-  identity: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    identity: z.string(),
+  })
+);
 
 export function submitInteractionIdentitySocialToJSON(
   submitInteractionIdentitySocial: SubmitInteractionIdentitySocial,
@@ -2517,48 +2606,46 @@ export type SubmitInteractionIdentity$Outbound = {
 export const SubmitInteractionIdentity$outboundSchema: z.ZodMiniType<
   SubmitInteractionIdentity$Outbound,
   SubmitInteractionIdentity
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  aliases: z.optional(
-    z.array(z.lazy(() => SubmitInteractionIdentityAlias$outboundSchema)),
-  ),
-  relatedPersons: z.optional(
-    z.array(
-      z.lazy(() => SubmitInteractionIdentityRelatedPerson$outboundSchema),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    aliases: z.optional(
+      z.array(z.lazy(() => SubmitInteractionIdentityAlias$outboundSchema)),
     ),
-  ),
-  dateOfBirth: z.optional(z.string()),
-  gender: z.optional(z.string()),
-  currentAddress: z.optional(
-    z.lazy(() => SubmitInteractionIdentityCurrentAddress$outboundSchema),
-  ),
-  previousAddresses: z.optional(
-    z.array(
-      z.lazy(() => SubmitInteractionIdentityPreviousAddress$outboundSchema),
-    ),
-  ),
-  placeOfBirth: z.optional(
-    z.lazy(() => SubmitInteractionIdentityPlaceOfBirth$outboundSchema),
-  ),
-  idNumbers: z.optional(
-    z.array(z.lazy(() => SubmitInteractionIdentityIdNumber$outboundSchema)),
-  ),
-  phones: z.optional(
-    z.array(z.lazy(() => SubmitInteractionIdentityPhone$outboundSchema)),
-  ),
-  emails: z.optional(
-    z.array(z.lazy(() => SubmitInteractionIdentityEmail$outboundSchema)),
-  ),
-  socials: z.optional(
-    z.array(z.lazy(() => SubmitInteractionIdentitySocial$outboundSchema)),
-  ),
-  mothersMaidenName: z.optional(z.string()),
-  nationality: z.optional(z.string()),
-});
+    relatedPersons: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionIdentityRelatedPerson$outboundSchema
+    ))),
+    dateOfBirth: z.optional(z.string()),
+    gender: z.optional(z.string()),
+    currentAddress: z.optional(z.lazy(() =>
+      SubmitInteractionIdentityCurrentAddress$outboundSchema
+    )),
+    previousAddresses: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionIdentityPreviousAddress$outboundSchema
+    ))),
+    placeOfBirth: z.optional(z.lazy(() =>
+      SubmitInteractionIdentityPlaceOfBirth$outboundSchema
+    )),
+    idNumbers: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionIdentityIdNumber$outboundSchema
+    ))),
+    phones: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionIdentityPhone$outboundSchema
+    ))),
+    emails: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionIdentityEmail$outboundSchema
+    ))),
+    socials: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionIdentitySocial$outboundSchema
+    ))),
+    mothersMaidenName: z.optional(z.string()),
+    nationality: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionIdentityToJSON(
   submitInteractionIdentity: SubmitInteractionIdentity,
@@ -2571,12 +2658,12 @@ export function submitInteractionIdentityToJSON(
 /** @internal */
 export const SubmitInteractionTypePrimary1$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionTypePrimary1
-> = z.enum(SubmitInteractionTypePrimary1);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionTypePrimary1));
 
 /** @internal */
-export const SubmitInteractionStatus$outboundSchema: z.ZodMiniEnum<
-  typeof SubmitInteractionStatus
-> = z.enum(SubmitInteractionStatus);
+export const SubmitInteractionStatusEnum$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionStatusEnum
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionStatusEnum));
 
 /** @internal */
 export type SubmitInteractionAddressLocation$Outbound = {
@@ -2590,12 +2677,14 @@ export type SubmitInteractionAddressLocation$Outbound = {
 export const SubmitInteractionAddressLocation$outboundSchema: z.ZodMiniType<
   SubmitInteractionAddressLocation$Outbound,
   SubmitInteractionAddressLocation
-> = z.object({
-  latitude: z.optional(z.string()),
-  longitude: z.optional(z.string()),
-  geoAccuracy: z.optional(z.string()),
-  what3words: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionAddressLocationToJSON(
   submitInteractionAddressLocation: SubmitInteractionAddressLocation,
@@ -2610,7 +2699,7 @@ export function submitInteractionAddressLocationToJSON(
 /** @internal */
 export const SubmitInteractionPurpose$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionPurpose
-> = z.enum(SubmitInteractionPurpose);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionPurpose));
 
 /** @internal */
 export type SubmitInteractionAddressPrimary$Outbound = {
@@ -2639,29 +2728,31 @@ export type SubmitInteractionAddressPrimary$Outbound = {
 export const SubmitInteractionAddressPrimary$outboundSchema: z.ZodMiniType<
   SubmitInteractionAddressPrimary$Outbound,
   SubmitInteractionAddressPrimary
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => SubmitInteractionAddressLocation$outboundSchema),
-  ),
-  purpose: z.optional(SubmitInteractionPurpose$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => SubmitInteractionAddressLocation$outboundSchema),
+    ),
+    purpose: z.optional(SubmitInteractionPurpose$outboundSchema),
+  })
+);
 
 export function submitInteractionAddressPrimaryToJSON(
   submitInteractionAddressPrimary: SubmitInteractionAddressPrimary,
@@ -2676,7 +2767,9 @@ export function submitInteractionAddressPrimaryToJSON(
 /** @internal */
 export const SubmitInteractionTaxIdentifierType$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionTaxIdentifierType
-> = z.enum(SubmitInteractionTaxIdentifierType);
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.enum(SubmitInteractionTaxIdentifierType)
+);
 
 /** @internal */
 export type SubmitInteractionTaxIdentifier$Outbound = {
@@ -2689,11 +2782,13 @@ export type SubmitInteractionTaxIdentifier$Outbound = {
 export const SubmitInteractionTaxIdentifier$outboundSchema: z.ZodMiniType<
   SubmitInteractionTaxIdentifier$Outbound,
   SubmitInteractionTaxIdentifier
-> = z.object({
-  type: SubmitInteractionTaxIdentifierType$outboundSchema,
-  value: z.string(),
-  country: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: SubmitInteractionTaxIdentifierType$outboundSchema,
+    value: z.string(),
+    country: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionTaxIdentifierToJSON(
   submitInteractionTaxIdentifier: SubmitInteractionTaxIdentifier,
@@ -2708,7 +2803,7 @@ export function submitInteractionTaxIdentifierToJSON(
 /** @internal */
 export const SubmitInteractionSystem$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionSystem
-> = z.enum(SubmitInteractionSystem);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionSystem));
 
 /** @internal */
 export type SubmitInteractionIndustryClassification$Outbound = {
@@ -2722,11 +2817,13 @@ export const SubmitInteractionIndustryClassification$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionIndustryClassification$Outbound,
     SubmitInteractionIndustryClassification
-  > = z.object({
-    system: SubmitInteractionSystem$outboundSchema,
-    code: z.string(),
-    description: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      system: SubmitInteractionSystem$outboundSchema,
+      code: z.string(),
+      description: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionIndustryClassificationToJSON(
   submitInteractionIndustryClassification:
@@ -2742,7 +2839,9 @@ export function submitInteractionIndustryClassificationToJSON(
 /** @internal */
 export const SubmitInteractionRegistrationType$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionRegistrationType
-> = z.enum(SubmitInteractionRegistrationType);
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.enum(SubmitInteractionRegistrationType)
+);
 
 /** @internal */
 export type SubmitInteractionRegisteredAddressLocation$Outbound = {
@@ -2757,12 +2856,14 @@ export const SubmitInteractionRegisteredAddressLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionRegisteredAddressLocation$Outbound,
     SubmitInteractionRegisteredAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionRegisteredAddressLocationToJSON(
   submitInteractionRegisteredAddressLocation:
@@ -2801,28 +2902,30 @@ export type SubmitInteractionRegisteredAddress$Outbound = {
 export const SubmitInteractionRegisteredAddress$outboundSchema: z.ZodMiniType<
   SubmitInteractionRegisteredAddress$Outbound,
   SubmitInteractionRegisteredAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => SubmitInteractionRegisteredAddressLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => SubmitInteractionRegisteredAddressLocation$outboundSchema),
+    ),
+  })
+);
 
 export function submitInteractionRegisteredAddressToJSON(
   submitInteractionRegisteredAddress: SubmitInteractionRegisteredAddress,
@@ -2847,12 +2950,14 @@ export const SubmitInteractionAgentAddressLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionAgentAddressLocation$Outbound,
     SubmitInteractionAgentAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionAgentAddressLocationToJSON(
   submitInteractionAgentAddressLocation: SubmitInteractionAgentAddressLocation,
@@ -2890,28 +2995,30 @@ export type SubmitInteractionAgentAddress$Outbound = {
 export const SubmitInteractionAgentAddress$outboundSchema: z.ZodMiniType<
   SubmitInteractionAgentAddress$Outbound,
   SubmitInteractionAgentAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => SubmitInteractionAgentAddressLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => SubmitInteractionAgentAddressLocation$outboundSchema),
+    ),
+  })
+);
 
 export function submitInteractionAgentAddressToJSON(
   submitInteractionAgentAddress: SubmitInteractionAgentAddress,
@@ -2938,21 +3045,23 @@ export type SubmitInteractionRegistration$Outbound = {
 export const SubmitInteractionRegistration$outboundSchema: z.ZodMiniType<
   SubmitInteractionRegistration$Outbound,
   SubmitInteractionRegistration
-> = z.object({
-  jurisdiction: z.optional(z.string()),
-  registrationType: z.optional(
-    SubmitInteractionRegistrationType$outboundSchema,
-  ),
-  fileNumber: z.optional(z.string()),
-  issueDate: z.optional(z.string()),
-  registeredAddress: z.optional(
-    z.lazy(() => SubmitInteractionRegisteredAddress$outboundSchema),
-  ),
-  agentName: z.optional(z.string()),
-  agentAddress: z.optional(
-    z.lazy(() => SubmitInteractionAgentAddress$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    jurisdiction: z.optional(z.string()),
+    registrationType: z.optional(
+      SubmitInteractionRegistrationType$outboundSchema,
+    ),
+    fileNumber: z.optional(z.string()),
+    issueDate: z.optional(z.string()),
+    registeredAddress: z.optional(
+      z.lazy(() => SubmitInteractionRegisteredAddress$outboundSchema),
+    ),
+    agentName: z.optional(z.string()),
+    agentAddress: z.optional(
+      z.lazy(() => SubmitInteractionAgentAddress$outboundSchema),
+    ),
+  })
+);
 
 export function submitInteractionRegistrationToJSON(
   submitInteractionRegistration: SubmitInteractionRegistration,
@@ -2967,12 +3076,12 @@ export function submitInteractionRegistrationToJSON(
 /** @internal */
 export const SubmitInteractionTypePrimary2$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionTypePrimary2
-> = z.enum(SubmitInteractionTypePrimary2);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionTypePrimary2));
 
 /** @internal */
 export const SubmitInteractionRole$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionRole
-> = z.enum(SubmitInteractionRole);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionRole));
 
 /** @internal */
 export type SubmitInteractionCurrentAddressLocationPrimary$Outbound = {
@@ -2987,12 +3096,14 @@ export const SubmitInteractionCurrentAddressLocationPrimary$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionCurrentAddressLocationPrimary$Outbound,
     SubmitInteractionCurrentAddressLocationPrimary
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionCurrentAddressLocationPrimaryToJSON(
   submitInteractionCurrentAddressLocationPrimary:
@@ -3034,30 +3145,30 @@ export const SubmitInteractionCurrentAddressPrimary$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionCurrentAddressPrimary$Outbound,
     SubmitInteractionCurrentAddressPrimary
-  > = z.object({
-    lines: z.optional(z.array(z.string())),
-    addressString: z.optional(z.string()),
-    premise: z.optional(z.string()),
-    building: z.optional(z.string()),
-    subBuilding: z.optional(z.string()),
-    thoroughfare: z.optional(z.string()),
-    dependentThoroughfare: z.optional(z.string()),
-    locality: z.optional(z.string()),
-    dependentLocality: z.optional(z.string()),
-    doubleDependentLocality: z.optional(z.string()),
-    postalCode: z.optional(z.string()),
-    postBox: z.optional(z.string()),
-    country: z.optional(z.string()),
-    superAdministrativeArea: z.optional(z.string()),
-    administrativeArea: z.optional(z.string()),
-    subAdministrativeArea: z.optional(z.string()),
-    organization: z.optional(z.string()),
-    location: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() =>
         SubmitInteractionCurrentAddressLocationPrimary$outboundSchema
-      ),
-    ),
-  });
+      )),
+    })
+  );
 
 export function submitInteractionCurrentAddressPrimaryToJSON(
   submitInteractionCurrentAddressPrimary:
@@ -3093,25 +3204,27 @@ export type SubmitInteractionPerson$Outbound = {
 export const SubmitInteractionPerson$outboundSchema: z.ZodMiniType<
   SubmitInteractionPerson$Outbound,
   SubmitInteractionPerson
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  id: z.optional(z.string()),
-  type: z.optional(SubmitInteractionTypePrimary2$outboundSchema),
-  role: z.optional(SubmitInteractionRole$outboundSchema),
-  position: z.optional(z.string()),
-  ownershipPercentage: z.optional(z.number()),
-  nationality: z.optional(z.string()),
-  dateOfBirth: z.optional(z.string()),
-  startDate: z.optional(z.string()),
-  endDate: z.optional(z.string()),
-  currentAddress: z.optional(
-    z.lazy(() => SubmitInteractionCurrentAddressPrimary$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    id: z.optional(z.string()),
+    type: z.optional(SubmitInteractionTypePrimary2$outboundSchema),
+    role: z.optional(SubmitInteractionRole$outboundSchema),
+    position: z.optional(z.string()),
+    ownershipPercentage: z.optional(z.number()),
+    nationality: z.optional(z.string()),
+    dateOfBirth: z.optional(z.string()),
+    startDate: z.optional(z.string()),
+    endDate: z.optional(z.string()),
+    currentAddress: z.optional(
+      z.lazy(() => SubmitInteractionCurrentAddressPrimary$outboundSchema),
+    ),
+  })
+);
 
 export function submitInteractionPersonToJSON(
   submitInteractionPerson: SubmitInteractionPerson,
@@ -3131,10 +3244,12 @@ export type SubmitInteractionPhonePrimary$Outbound = {
 export const SubmitInteractionPhonePrimary$outboundSchema: z.ZodMiniType<
   SubmitInteractionPhonePrimary$Outbound,
   SubmitInteractionPhonePrimary
-> = z.object({
-  type: z.string(),
-  number: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    number: z.string(),
+  })
+);
 
 export function submitInteractionPhonePrimaryToJSON(
   submitInteractionPhonePrimary: SubmitInteractionPhonePrimary,
@@ -3176,42 +3291,42 @@ export type SubmitInteractionEntity$Outbound = {
 export const SubmitInteractionEntity$outboundSchema: z.ZodMiniType<
   SubmitInteractionEntity$Outbound,
   SubmitInteractionEntity
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(SubmitInteractionTypePrimary1$outboundSchema),
-  name: z.optional(z.string()),
-  aliases: z.optional(z.array(z.string())),
-  businessType: z.optional(z.string()),
-  status: z.optional(SubmitInteractionStatus$outboundSchema),
-  description: z.optional(z.string()),
-  addresses: z.optional(
-    z.array(z.lazy(() => SubmitInteractionAddressPrimary$outboundSchema)),
-  ),
-  taxIdentifiers: z.optional(
-    z.array(z.lazy(() => SubmitInteractionTaxIdentifier$outboundSchema)),
-  ),
-  companyNumber: z.optional(z.string()),
-  industryClassifications: z.optional(
-    z.array(
-      z.lazy(() => SubmitInteractionIndustryClassification$outboundSchema),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(SubmitInteractionTypePrimary1$outboundSchema),
+    name: z.optional(z.string()),
+    aliases: z.optional(z.array(z.string())),
+    businessType: z.optional(z.string()),
+    status: z.optional(SubmitInteractionStatusEnum$outboundSchema),
+    description: z.optional(z.string()),
+    addresses: z.optional(
+      z.array(z.lazy(() => SubmitInteractionAddressPrimary$outboundSchema)),
     ),
-  ),
-  registrations: z.optional(
-    z.array(z.lazy(() => SubmitInteractionRegistration$outboundSchema)),
-  ),
-  corporateStructure: z.optional(z.string()),
-  persons: z.optional(
-    z.array(z.lazy(() => SubmitInteractionPerson$outboundSchema)),
-  ),
-  incorporationDate: z.optional(z.string()),
-  dissolutionDate: z.optional(z.string()),
-  phones: z.optional(
-    z.array(z.lazy(() => SubmitInteractionPhonePrimary$outboundSchema)),
-  ),
-  websites: z.optional(z.array(z.string())),
-  headcount: z.optional(z.int()),
-  isNonProfit: z.optional(z.boolean()),
-});
+    taxIdentifiers: z.optional(
+      z.array(z.lazy(() => SubmitInteractionTaxIdentifier$outboundSchema)),
+    ),
+    companyNumber: z.optional(z.string()),
+    industryClassifications: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionIndustryClassification$outboundSchema
+    ))),
+    registrations: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionRegistration$outboundSchema
+    ))),
+    corporateStructure: z.optional(z.string()),
+    persons: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionPerson$outboundSchema
+    ))),
+    incorporationDate: z.optional(z.string()),
+    dissolutionDate: z.optional(z.string()),
+    phones: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionPhonePrimary$outboundSchema
+    ))),
+    websites: z.optional(z.array(z.string())),
+    headcount: z.optional(z.int()),
+    isNonProfit: z.optional(z.boolean()),
+  })
+);
 
 export function submitInteractionEntityToJSON(
   submitInteractionEntity: SubmitInteractionEntity,
@@ -3236,15 +3351,17 @@ export type SubmitInteractionDocumentAddress$Outbound = {
 export const SubmitInteractionDocumentAddress$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentAddress$Outbound,
   SubmitInteractionDocumentAddress
-> = z.object({
-  addressString: z.optional(z.string()),
-  extractedAddressString: z.optional(z.string()),
-  addressLine1: z.optional(z.string()),
-  addressLine2: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    addressString: z.optional(z.string()),
+    extractedAddressString: z.optional(z.string()),
+    addressLine1: z.optional(z.string()),
+    addressLine2: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionDocumentAddressToJSON(
   submitInteractionDocumentAddress: SubmitInteractionDocumentAddress,
@@ -3271,15 +3388,17 @@ export type SubmitInteractionDocumentDevice$Outbound = {
 export const SubmitInteractionDocumentDevice$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentDevice$Outbound,
   SubmitInteractionDocumentDevice
-> = z.object({
-  type: z.optional(z.string()),
-  model: z.optional(z.string()),
-  hasContactlessReader: z.optional(z.boolean()),
-  hasMagneticStripeReader: z.optional(z.boolean()),
-  hasCamera: z.optional(z.boolean()),
-  serialNumber: z.optional(z.string()),
-  manufacturer: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(z.string()),
+    model: z.optional(z.string()),
+    hasContactlessReader: z.optional(z.boolean()),
+    hasMagneticStripeReader: z.optional(z.boolean()),
+    hasCamera: z.optional(z.boolean()),
+    serialNumber: z.optional(z.string()),
+    manufacturer: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionDocumentDeviceToJSON(
   submitInteractionDocumentDevice: SubmitInteractionDocumentDevice,
@@ -3306,15 +3425,17 @@ export type SubmitInteractionSide1Device$Outbound = {
 export const SubmitInteractionSide1Device$outboundSchema: z.ZodMiniType<
   SubmitInteractionSide1Device$Outbound,
   SubmitInteractionSide1Device
-> = z.object({
-  type: z.optional(z.string()),
-  model: z.optional(z.string()),
-  hasContactlessReader: z.optional(z.boolean()),
-  hasMagneticStripeReader: z.optional(z.boolean()),
-  hasCamera: z.optional(z.boolean()),
-  serialNumber: z.optional(z.string()),
-  manufacturer: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(z.string()),
+    model: z.optional(z.string()),
+    hasContactlessReader: z.optional(z.boolean()),
+    hasMagneticStripeReader: z.optional(z.boolean()),
+    hasCamera: z.optional(z.boolean()),
+    serialNumber: z.optional(z.string()),
+    manufacturer: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionSide1DeviceToJSON(
   submitInteractionSide1Device: SubmitInteractionSide1Device,
@@ -3341,15 +3462,17 @@ export type SubmitInteractionSide2Device$Outbound = {
 export const SubmitInteractionSide2Device$outboundSchema: z.ZodMiniType<
   SubmitInteractionSide2Device$Outbound,
   SubmitInteractionSide2Device
-> = z.object({
-  type: z.optional(z.string()),
-  model: z.optional(z.string()),
-  hasContactlessReader: z.optional(z.boolean()),
-  hasMagneticStripeReader: z.optional(z.boolean()),
-  hasCamera: z.optional(z.boolean()),
-  serialNumber: z.optional(z.string()),
-  manufacturer: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(z.string()),
+    model: z.optional(z.string()),
+    hasContactlessReader: z.optional(z.boolean()),
+    hasMagneticStripeReader: z.optional(z.boolean()),
+    hasCamera: z.optional(z.boolean()),
+    serialNumber: z.optional(z.string()),
+    manufacturer: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionSide2DeviceToJSON(
   submitInteractionSide2Device: SubmitInteractionSide2Device,
@@ -3364,7 +3487,7 @@ export function submitInteractionSide2DeviceToJSON(
 /** @internal */
 export const SubmitInteractionName$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionName
-> = z.enum(SubmitInteractionName);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionName));
 
 /** @internal */
 export type SubmitInteractionLd$Outbound = {
@@ -3377,12 +3500,14 @@ export type SubmitInteractionLd$Outbound = {
 export const SubmitInteractionLd$outboundSchema: z.ZodMiniType<
   SubmitInteractionLd$Outbound,
   SubmitInteractionLd
-> = z.catchall(
-  z.object({
-    name: SubmitInteractionName$outboundSchema,
-    data: z.string(),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      name: SubmitInteractionName$outboundSchema,
+      data: z.string(),
+    }),
+    z.any(),
+  )
 );
 
 export function submitInteractionLdToJSON(
@@ -3396,12 +3521,12 @@ export function submitInteractionLdToJSON(
 /** @internal */
 export const SubmitInteractionAuthType$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionAuthType
-> = z.enum(SubmitInteractionAuthType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionAuthType));
 
 /** @internal */
 export const SubmitInteractionResult$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionResult
-> = z.enum(SubmitInteractionResult);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionResult));
 
 /** @internal */
 export type SubmitInteractionChipAuth$Outbound = {
@@ -3414,12 +3539,14 @@ export type SubmitInteractionChipAuth$Outbound = {
 export const SubmitInteractionChipAuth$outboundSchema: z.ZodMiniType<
   SubmitInteractionChipAuth$Outbound,
   SubmitInteractionChipAuth
-> = z.catchall(
-  z.object({
-    type: SubmitInteractionAuthType$outboundSchema,
-    result: SubmitInteractionResult$outboundSchema,
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      type: SubmitInteractionAuthType$outboundSchema,
+      result: SubmitInteractionResult$outboundSchema,
+    }),
+    z.any(),
+  )
 );
 
 export function submitInteractionChipAuthToJSON(
@@ -3441,12 +3568,14 @@ export type SubmitInteractionChip$Outbound = {
 export const SubmitInteractionChip$outboundSchema: z.ZodMiniType<
   SubmitInteractionChip$Outbound,
   SubmitInteractionChip
-> = z.catchall(
-  z.object({
-    lds: z.array(z.lazy(() => SubmitInteractionLd$outboundSchema)),
-    auth: z.array(z.lazy(() => SubmitInteractionChipAuth$outboundSchema)),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      lds: z.array(z.lazy(() => SubmitInteractionLd$outboundSchema)),
+      auth: z.array(z.lazy(() => SubmitInteractionChipAuth$outboundSchema)),
+    }),
+    z.any(),
+  )
 );
 
 export function submitInteractionChipToJSON(
@@ -3469,12 +3598,14 @@ export type SubmitInteractionSide$Outbound = {
 export const SubmitInteractionSide$outboundSchema: z.ZodMiniType<
   SubmitInteractionSide$Outbound,
   SubmitInteractionSide
-> = z.object({
-  side: z.string(),
-  id: z.string(),
-  documentQuality: z.string(),
-  documentQualityScore: z.number(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    side: z.string(),
+    id: z.string(),
+    documentQuality: z.string(),
+    documentQualityScore: z.number(),
+  })
+);
 
 export function submitInteractionSideToJSON(
   submitInteractionSide: SubmitInteractionSide,
@@ -3504,22 +3635,24 @@ export type SubmitInteractionClassification$Outbound = {
 export const SubmitInteractionClassification$outboundSchema: z.ZodMiniType<
   SubmitInteractionClassification$Outbound,
   SubmitInteractionClassification
-> = z.object({
-  ids: z.optional(z.array(z.string())),
-  category: z.optional(z.string()),
-  type: z.optional(z.string()),
-  subtype: z.optional(z.string()),
-  isDoubleSided: z.optional(z.boolean()),
-  hasNFC: z.optional(z.boolean()),
-  year: z.optional(z.string()),
-  countryCode: z.optional(z.string()),
-  countryName: z.optional(z.string()),
-  stateCode: z.optional(z.string()),
-  stateName: z.optional(z.string()),
-  sides: z.optional(
-    z.array(z.lazy(() => SubmitInteractionSide$outboundSchema)),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    ids: z.optional(z.array(z.string())),
+    category: z.optional(z.string()),
+    type: z.optional(z.string()),
+    subtype: z.optional(z.string()),
+    isDoubleSided: z.optional(z.boolean()),
+    hasNFC: z.optional(z.boolean()),
+    year: z.optional(z.string()),
+    countryCode: z.optional(z.string()),
+    countryName: z.optional(z.string()),
+    stateCode: z.optional(z.string()),
+    stateName: z.optional(z.string()),
+    sides: z.optional(
+      z.array(z.lazy(() => SubmitInteractionSide$outboundSchema)),
+    ),
+  })
+);
 
 export function submitInteractionClassificationToJSON(
   submitInteractionClassification: SubmitInteractionClassification,
@@ -3544,12 +3677,14 @@ export const SubmitInteractionAggregatedFieldBoundingBox$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionAggregatedFieldBoundingBox$Outbound,
     SubmitInteractionAggregatedFieldBoundingBox
-  > = z.object({
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      x: z.number(),
+      y: z.number(),
+      width: z.number(),
+      height: z.number(),
+    })
+  );
 
 export function submitInteractionAggregatedFieldBoundingBoxToJSON(
   submitInteractionAggregatedFieldBoundingBox:
@@ -3577,14 +3712,18 @@ export const SubmitInteractionAggregatedFieldRegionOfInterest$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionAggregatedFieldRegionOfInterest$Outbound,
     SubmitInteractionAggregatedFieldRegionOfInterest
-  > = z.object({
-    boundingBox: z.optional(
-      z.lazy(() => SubmitInteractionAggregatedFieldBoundingBox$outboundSchema),
-    ),
-    side: z.string(),
-    spectrum: z.optional(z.string()),
-    imageId: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      boundingBox: z.optional(
+        z.lazy(() =>
+          SubmitInteractionAggregatedFieldBoundingBox$outboundSchema
+        ),
+      ),
+      side: z.string(),
+      spectrum: z.optional(z.string()),
+      imageId: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionAggregatedFieldRegionOfInterestToJSON(
   submitInteractionAggregatedFieldRegionOfInterest:
@@ -3612,17 +3751,17 @@ export type SubmitInteractionAggregatedField$Outbound = {
 export const SubmitInteractionAggregatedField$outboundSchema: z.ZodMiniType<
   SubmitInteractionAggregatedField$Outbound,
   SubmitInteractionAggregatedField
-> = z.object({
-  label: z.string(),
-  value: z.string(),
-  source: z.string(),
-  isNonLatin: z.boolean(),
-  regionOfInterest: z.optional(
-    z.lazy(() =>
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    value: z.string(),
+    source: z.string(),
+    isNonLatin: z.boolean(),
+    regionOfInterest: z.optional(z.lazy(() =>
       SubmitInteractionAggregatedFieldRegionOfInterest$outboundSchema
-    ),
-  ),
-});
+    )),
+  })
+);
 
 export function submitInteractionAggregatedFieldToJSON(
   submitInteractionAggregatedField: SubmitInteractionAggregatedField,
@@ -3646,12 +3785,14 @@ export type SubmitInteractionDetailBoundingBox$Outbound = {
 export const SubmitInteractionDetailBoundingBox$outboundSchema: z.ZodMiniType<
   SubmitInteractionDetailBoundingBox$Outbound,
   SubmitInteractionDetailBoundingBox
-> = z.object({
-  x: z.number(),
-  y: z.number(),
-  width: z.number(),
-  height: z.number(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    x: z.number(),
+    y: z.number(),
+    width: z.number(),
+    height: z.number(),
+  })
+);
 
 export function submitInteractionDetailBoundingBoxToJSON(
   submitInteractionDetailBoundingBox: SubmitInteractionDetailBoundingBox,
@@ -3676,14 +3817,16 @@ export const SubmitInteractionDetailRegionOfInterest$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDetailRegionOfInterest$Outbound,
     SubmitInteractionDetailRegionOfInterest
-  > = z.object({
-    boundingBox: z.optional(
-      z.lazy(() => SubmitInteractionDetailBoundingBox$outboundSchema),
-    ),
-    side: z.string(),
-    spectrum: z.optional(z.string()),
-    imageId: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      boundingBox: z.optional(
+        z.lazy(() => SubmitInteractionDetailBoundingBox$outboundSchema),
+      ),
+      side: z.string(),
+      spectrum: z.optional(z.string()),
+      imageId: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionDetailRegionOfInterestToJSON(
   submitInteractionDetailRegionOfInterest:
@@ -3711,15 +3854,17 @@ export type SubmitInteractionDetail$Outbound = {
 export const SubmitInteractionDetail$outboundSchema: z.ZodMiniType<
   SubmitInteractionDetail$Outbound,
   SubmitInteractionDetail
-> = z.object({
-  label: z.string(),
-  value: z.string(),
-  source: z.string(),
-  isNonLatin: z.boolean(),
-  regionOfInterest: z.optional(
-    z.lazy(() => SubmitInteractionDetailRegionOfInterest$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    value: z.string(),
+    source: z.string(),
+    isNonLatin: z.boolean(),
+    regionOfInterest: z.optional(
+      z.lazy(() => SubmitInteractionDetailRegionOfInterest$outboundSchema),
+    ),
+  })
+);
 
 export function submitInteractionDetailToJSON(
   submitInteractionDetail: SubmitInteractionDetail,
@@ -3739,10 +3884,12 @@ export type SubmitInteractionExtractedField$Outbound = {
 export const SubmitInteractionExtractedField$outboundSchema: z.ZodMiniType<
   SubmitInteractionExtractedField$Outbound,
   SubmitInteractionExtractedField
-> = z.object({
-  label: z.string(),
-  details: z.array(z.lazy(() => SubmitInteractionDetail$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    details: z.array(z.lazy(() => SubmitInteractionDetail$outboundSchema)),
+  })
+);
 
 export function submitInteractionExtractedFieldToJSON(
   submitInteractionExtractedField: SubmitInteractionExtractedField,
@@ -3765,11 +3912,13 @@ export type SubmitInteractionExtractedImage$Outbound = {
 export const SubmitInteractionExtractedImage$outboundSchema: z.ZodMiniType<
   SubmitInteractionExtractedImage$Outbound,
   SubmitInteractionExtractedImage
-> = z.object({
-  label: z.string(),
-  side: z.string(),
-  imageID: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    side: z.string(),
+    imageID: z.string(),
+  })
+);
 
 export function submitInteractionExtractedImageToJSON(
   submitInteractionExtractedImage: SubmitInteractionExtractedImage,
@@ -3794,17 +3943,19 @@ export type SubmitInteractionExtraction$Outbound = {
 export const SubmitInteractionExtraction$outboundSchema: z.ZodMiniType<
   SubmitInteractionExtraction$Outbound,
   SubmitInteractionExtraction
-> = z.object({
-  aggregatedFields: z.optional(
-    z.array(z.lazy(() => SubmitInteractionAggregatedField$outboundSchema)),
-  ),
-  extractedFields: z.optional(
-    z.array(z.lazy(() => SubmitInteractionExtractedField$outboundSchema)),
-  ),
-  extractedImages: z.optional(
-    z.array(z.lazy(() => SubmitInteractionExtractedImage$outboundSchema)),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    aggregatedFields: z.optional(
+      z.array(z.lazy(() => SubmitInteractionAggregatedField$outboundSchema)),
+    ),
+    extractedFields: z.optional(
+      z.array(z.lazy(() => SubmitInteractionExtractedField$outboundSchema)),
+    ),
+    extractedImages: z.optional(
+      z.array(z.lazy(() => SubmitInteractionExtractedImage$outboundSchema)),
+    ),
+  })
+);
 
 export function submitInteractionExtractionToJSON(
   submitInteractionExtraction: SubmitInteractionExtraction,
@@ -3829,12 +3980,14 @@ export const SubmitInteractionValidationCheckBoundingBox$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionValidationCheckBoundingBox$Outbound,
     SubmitInteractionValidationCheckBoundingBox
-  > = z.object({
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      x: z.number(),
+      y: z.number(),
+      width: z.number(),
+      height: z.number(),
+    })
+  );
 
 export function submitInteractionValidationCheckBoundingBoxToJSON(
   submitInteractionValidationCheckBoundingBox:
@@ -3862,14 +4015,18 @@ export const SubmitInteractionValidationCheckRegionOfInterest$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionValidationCheckRegionOfInterest$Outbound,
     SubmitInteractionValidationCheckRegionOfInterest
-  > = z.object({
-    boundingBox: z.optional(
-      z.lazy(() => SubmitInteractionValidationCheckBoundingBox$outboundSchema),
-    ),
-    side: z.string(),
-    spectrum: z.optional(z.string()),
-    imageId: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      boundingBox: z.optional(
+        z.lazy(() =>
+          SubmitInteractionValidationCheckBoundingBox$outboundSchema
+        ),
+      ),
+      side: z.string(),
+      spectrum: z.optional(z.string()),
+      imageId: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionValidationCheckRegionOfInterestToJSON(
   submitInteractionValidationCheckRegionOfInterest:
@@ -3900,20 +4057,20 @@ export type SubmitInteractionValidationCheck$Outbound = {
 export const SubmitInteractionValidationCheck$outboundSchema: z.ZodMiniType<
   SubmitInteractionValidationCheck$Outbound,
   SubmitInteractionValidationCheck
-> = z.object({
-  name: z.string(),
-  title: z.string(),
-  info: z.string(),
-  validationResult: z.string(),
-  resultInfo: z.string(),
-  weight: z.string(),
-  regionOfInterests: z.optional(
-    z.array(z.lazy(() =>
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    name: z.string(),
+    title: z.string(),
+    info: z.string(),
+    validationResult: z.string(),
+    resultInfo: z.string(),
+    weight: z.string(),
+    regionOfInterests: z.optional(z.array(z.lazy(() =>
       SubmitInteractionValidationCheckRegionOfInterest$outboundSchema
-    )),
-  ),
-  type: z.string(),
-});
+    ))),
+    type: z.string(),
+  })
+);
 
 export function submitInteractionValidationCheckToJSON(
   submitInteractionValidationCheck: SubmitInteractionValidationCheck,
@@ -3938,12 +4095,14 @@ export const SubmitInteractionAggregatedValidationCheckBoundingBox$outboundSchem
   z.ZodMiniType<
     SubmitInteractionAggregatedValidationCheckBoundingBox$Outbound,
     SubmitInteractionAggregatedValidationCheckBoundingBox
-  > = z.object({
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      x: z.number(),
+      y: z.number(),
+      width: z.number(),
+      height: z.number(),
+    })
+  );
 
 export function submitInteractionAggregatedValidationCheckBoundingBoxToJSON(
   submitInteractionAggregatedValidationCheckBoundingBox:
@@ -3972,16 +4131,16 @@ export const SubmitInteractionAggregatedValidationCheckRegionOfInterest$outbound
   z.ZodMiniType<
     SubmitInteractionAggregatedValidationCheckRegionOfInterest$Outbound,
     SubmitInteractionAggregatedValidationCheckRegionOfInterest
-  > = z.object({
-    boundingBox: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      boundingBox: z.optional(z.lazy(() =>
         SubmitInteractionAggregatedValidationCheckBoundingBox$outboundSchema
-      ),
-    ),
-    side: z.string(),
-    spectrum: z.optional(z.string()),
-    imageId: z.optional(z.string()),
-  });
+      )),
+      side: z.string(),
+      spectrum: z.optional(z.string()),
+      imageId: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionAggregatedValidationCheckRegionOfInterestToJSON(
   submitInteractionAggregatedValidationCheckRegionOfInterest:
@@ -4012,20 +4171,20 @@ export const SubmitInteractionAggregatedValidationCheck$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionAggregatedValidationCheck$Outbound,
     SubmitInteractionAggregatedValidationCheck
-  > = z.object({
-    name: z.string(),
-    title: z.string(),
-    info: z.string(),
-    validationResult: z.string(),
-    resultInfo: z.string(),
-    weight: z.string(),
-    regionOfInterests: z.optional(
-      z.array(z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      name: z.string(),
+      title: z.string(),
+      info: z.string(),
+      validationResult: z.string(),
+      resultInfo: z.string(),
+      weight: z.string(),
+      regionOfInterests: z.optional(z.array(z.lazy(() =>
         SubmitInteractionAggregatedValidationCheckRegionOfInterest$outboundSchema
-      )),
-    ),
-    type: z.string(),
-  });
+      ))),
+      type: z.string(),
+    })
+  );
 
 export function submitInteractionAggregatedValidationCheckToJSON(
   submitInteractionAggregatedValidationCheck:
@@ -4052,16 +4211,16 @@ export type SubmitInteractionValidation$Outbound = {
 export const SubmitInteractionValidation$outboundSchema: z.ZodMiniType<
   SubmitInteractionValidation$Outbound,
   SubmitInteractionValidation
-> = z.object({
-  validationChecks: z.optional(
-    z.array(z.lazy(() => SubmitInteractionValidationCheck$outboundSchema)),
-  ),
-  aggregatedValidationChecks: z.optional(
-    z.array(z.lazy(() =>
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    validationChecks: z.optional(
+      z.array(z.lazy(() => SubmitInteractionValidationCheck$outboundSchema)),
+    ),
+    aggregatedValidationChecks: z.optional(z.array(z.lazy(() =>
       SubmitInteractionAggregatedValidationCheck$outboundSchema
-    )),
-  ),
-});
+    ))),
+  })
+);
 
 export function submitInteractionValidationToJSON(
   submitInteractionValidation: SubmitInteractionValidation,
@@ -4087,14 +4246,16 @@ export type SubmitInteractionDocumentAlias$Outbound = {
 export const SubmitInteractionDocumentAlias$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentAlias$Outbound,
   SubmitInteractionDocumentAlias
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  fullName: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    fullName: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionDocumentAliasToJSON(
   submitInteractionDocumentAlias: SubmitInteractionDocumentAlias,
@@ -4108,9 +4269,10 @@ export function submitInteractionDocumentAliasToJSON(
 
 /** @internal */
 export const SubmitInteractionDocumentRelationship$outboundSchema:
-  z.ZodMiniEnum<typeof SubmitInteractionDocumentRelationship> = z.enum(
-    SubmitInteractionDocumentRelationship,
-  );
+  z.ZodMiniEnum<typeof SubmitInteractionDocumentRelationship> =
+    /* @__PURE__ */ lazySchema$(() =>
+      z.enum(SubmitInteractionDocumentRelationship)
+    );
 
 /** @internal */
 export type SubmitInteractionDocumentRelatedPerson$Outbound = {
@@ -4127,14 +4289,16 @@ export const SubmitInteractionDocumentRelatedPerson$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentRelatedPerson$Outbound,
     SubmitInteractionDocumentRelatedPerson
-  > = z.object({
-    title: z.optional(z.string()),
-    firstName: z.optional(z.string()),
-    middleNames: z.optional(z.array(z.string())),
-    lastNames: z.optional(z.array(z.string())),
-    lastNamesAtBirth: z.optional(z.array(z.string())),
-    relationship: SubmitInteractionDocumentRelationship$outboundSchema,
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      title: z.optional(z.string()),
+      firstName: z.optional(z.string()),
+      middleNames: z.optional(z.array(z.string())),
+      lastNames: z.optional(z.array(z.string())),
+      lastNamesAtBirth: z.optional(z.array(z.string())),
+      relationship: SubmitInteractionDocumentRelationship$outboundSchema,
+    })
+  );
 
 export function submitInteractionDocumentRelatedPersonToJSON(
   submitInteractionDocumentRelatedPerson:
@@ -4160,12 +4324,14 @@ export const SubmitInteractionDocumentCurrentAddressLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentCurrentAddressLocation$Outbound,
     SubmitInteractionDocumentCurrentAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionDocumentCurrentAddressLocationToJSON(
   submitInteractionDocumentCurrentAddressLocation:
@@ -4207,30 +4373,30 @@ export const SubmitInteractionDocumentCurrentAddress$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentCurrentAddress$Outbound,
     SubmitInteractionDocumentCurrentAddress
-  > = z.object({
-    lines: z.optional(z.array(z.string())),
-    addressString: z.optional(z.string()),
-    premise: z.optional(z.string()),
-    building: z.optional(z.string()),
-    subBuilding: z.optional(z.string()),
-    thoroughfare: z.optional(z.string()),
-    dependentThoroughfare: z.optional(z.string()),
-    locality: z.optional(z.string()),
-    dependentLocality: z.optional(z.string()),
-    doubleDependentLocality: z.optional(z.string()),
-    postalCode: z.optional(z.string()),
-    postBox: z.optional(z.string()),
-    country: z.optional(z.string()),
-    superAdministrativeArea: z.optional(z.string()),
-    administrativeArea: z.optional(z.string()),
-    subAdministrativeArea: z.optional(z.string()),
-    organization: z.optional(z.string()),
-    location: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() =>
         SubmitInteractionDocumentCurrentAddressLocation$outboundSchema
-      ),
-    ),
-  });
+      )),
+    })
+  );
 
 export function submitInteractionDocumentCurrentAddressToJSON(
   submitInteractionDocumentCurrentAddress:
@@ -4256,12 +4422,14 @@ export const SubmitInteractionDocumentPreviousAddressLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentPreviousAddressLocation$Outbound,
     SubmitInteractionDocumentPreviousAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionDocumentPreviousAddressLocationToJSON(
   submitInteractionDocumentPreviousAddressLocation:
@@ -4305,32 +4473,32 @@ export const SubmitInteractionDocumentPreviousAddress$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentPreviousAddress$Outbound,
     SubmitInteractionDocumentPreviousAddress
-  > = z.object({
-    lines: z.optional(z.array(z.string())),
-    addressString: z.optional(z.string()),
-    premise: z.optional(z.string()),
-    building: z.optional(z.string()),
-    subBuilding: z.optional(z.string()),
-    thoroughfare: z.optional(z.string()),
-    dependentThoroughfare: z.optional(z.string()),
-    locality: z.optional(z.string()),
-    dependentLocality: z.optional(z.string()),
-    doubleDependentLocality: z.optional(z.string()),
-    postalCode: z.optional(z.string()),
-    postBox: z.optional(z.string()),
-    country: z.optional(z.string()),
-    superAdministrativeArea: z.optional(z.string()),
-    administrativeArea: z.optional(z.string()),
-    subAdministrativeArea: z.optional(z.string()),
-    organization: z.optional(z.string()),
-    location: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() =>
         SubmitInteractionDocumentPreviousAddressLocation$outboundSchema
-      ),
-    ),
-    fromDate: z.optional(z.string()),
-    toDate: z.optional(z.string()),
-  });
+      )),
+      fromDate: z.optional(z.string()),
+      toDate: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionDocumentPreviousAddressToJSON(
   submitInteractionDocumentPreviousAddress:
@@ -4356,12 +4524,14 @@ export const SubmitInteractionDocumentPlaceOfBirthLocation$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentPlaceOfBirthLocation$Outbound,
     SubmitInteractionDocumentPlaceOfBirthLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionDocumentPlaceOfBirthLocationToJSON(
   submitInteractionDocumentPlaceOfBirthLocation:
@@ -4401,30 +4571,30 @@ export const SubmitInteractionDocumentPlaceOfBirth$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentPlaceOfBirth$Outbound,
     SubmitInteractionDocumentPlaceOfBirth
-  > = z.object({
-    lines: z.optional(z.array(z.string())),
-    addressString: z.optional(z.string()),
-    premise: z.optional(z.string()),
-    building: z.optional(z.string()),
-    subBuilding: z.optional(z.string()),
-    thoroughfare: z.optional(z.string()),
-    dependentThoroughfare: z.optional(z.string()),
-    locality: z.optional(z.string()),
-    dependentLocality: z.optional(z.string()),
-    doubleDependentLocality: z.optional(z.string()),
-    postalCode: z.optional(z.string()),
-    postBox: z.optional(z.string()),
-    country: z.optional(z.string()),
-    superAdministrativeArea: z.optional(z.string()),
-    administrativeArea: z.optional(z.string()),
-    subAdministrativeArea: z.optional(z.string()),
-    organization: z.optional(z.string()),
-    location: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      lines: z.optional(z.array(z.string())),
+      addressString: z.optional(z.string()),
+      premise: z.optional(z.string()),
+      building: z.optional(z.string()),
+      subBuilding: z.optional(z.string()),
+      thoroughfare: z.optional(z.string()),
+      dependentThoroughfare: z.optional(z.string()),
+      locality: z.optional(z.string()),
+      dependentLocality: z.optional(z.string()),
+      doubleDependentLocality: z.optional(z.string()),
+      postalCode: z.optional(z.string()),
+      postBox: z.optional(z.string()),
+      country: z.optional(z.string()),
+      superAdministrativeArea: z.optional(z.string()),
+      administrativeArea: z.optional(z.string()),
+      subAdministrativeArea: z.optional(z.string()),
+      organization: z.optional(z.string()),
+      location: z.optional(z.lazy(() =>
         SubmitInteractionDocumentPlaceOfBirthLocation$outboundSchema
-      ),
-    ),
-  });
+      )),
+    })
+  );
 
 export function submitInteractionDocumentPlaceOfBirthToJSON(
   submitInteractionDocumentPlaceOfBirth: SubmitInteractionDocumentPlaceOfBirth,
@@ -4447,11 +4617,13 @@ export type SubmitInteractionDocumentIdNumber$Outbound = {
 export const SubmitInteractionDocumentIdNumber$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentIdNumber$Outbound,
   SubmitInteractionDocumentIdNumber
-> = z.object({
-  type: z.string(),
-  idNumber: z.string(),
-  country: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    idNumber: z.string(),
+    country: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionDocumentIdNumberToJSON(
   submitInteractionDocumentIdNumber: SubmitInteractionDocumentIdNumber,
@@ -4473,10 +4645,12 @@ export type SubmitInteractionDocumentPhone$Outbound = {
 export const SubmitInteractionDocumentPhone$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentPhone$Outbound,
   SubmitInteractionDocumentPhone
-> = z.object({
-  type: z.string(),
-  number: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    number: z.string(),
+  })
+);
 
 export function submitInteractionDocumentPhoneToJSON(
   submitInteractionDocumentPhone: SubmitInteractionDocumentPhone,
@@ -4498,10 +4672,12 @@ export type SubmitInteractionDocumentEmail$Outbound = {
 export const SubmitInteractionDocumentEmail$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentEmail$Outbound,
   SubmitInteractionDocumentEmail
-> = z.object({
-  type: z.string(),
-  email: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    email: z.string(),
+  })
+);
 
 export function submitInteractionDocumentEmailToJSON(
   submitInteractionDocumentEmail: SubmitInteractionDocumentEmail,
@@ -4523,10 +4699,12 @@ export type SubmitInteractionDocumentSocial$Outbound = {
 export const SubmitInteractionDocumentSocial$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentSocial$Outbound,
   SubmitInteractionDocumentSocial
-> = z.object({
-  type: z.string(),
-  identity: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    identity: z.string(),
+  })
+);
 
 export function submitInteractionDocumentSocialToJSON(
   submitInteractionDocumentSocial: SubmitInteractionDocumentSocial,
@@ -4568,48 +4746,46 @@ export type SubmitInteractionDocumentSubject$Outbound = {
 export const SubmitInteractionDocumentSubject$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocumentSubject$Outbound,
   SubmitInteractionDocumentSubject
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  aliases: z.optional(
-    z.array(z.lazy(() => SubmitInteractionDocumentAlias$outboundSchema)),
-  ),
-  relatedPersons: z.optional(
-    z.array(
-      z.lazy(() => SubmitInteractionDocumentRelatedPerson$outboundSchema),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    aliases: z.optional(
+      z.array(z.lazy(() => SubmitInteractionDocumentAlias$outboundSchema)),
     ),
-  ),
-  dateOfBirth: z.optional(z.string()),
-  gender: z.optional(z.string()),
-  currentAddress: z.optional(
-    z.lazy(() => SubmitInteractionDocumentCurrentAddress$outboundSchema),
-  ),
-  previousAddresses: z.optional(
-    z.array(
-      z.lazy(() => SubmitInteractionDocumentPreviousAddress$outboundSchema),
-    ),
-  ),
-  placeOfBirth: z.optional(
-    z.lazy(() => SubmitInteractionDocumentPlaceOfBirth$outboundSchema),
-  ),
-  idNumbers: z.optional(
-    z.array(z.lazy(() => SubmitInteractionDocumentIdNumber$outboundSchema)),
-  ),
-  phones: z.optional(
-    z.array(z.lazy(() => SubmitInteractionDocumentPhone$outboundSchema)),
-  ),
-  emails: z.optional(
-    z.array(z.lazy(() => SubmitInteractionDocumentEmail$outboundSchema)),
-  ),
-  socials: z.optional(
-    z.array(z.lazy(() => SubmitInteractionDocumentSocial$outboundSchema)),
-  ),
-  mothersMaidenName: z.optional(z.string()),
-  nationality: z.optional(z.string()),
-});
+    relatedPersons: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionDocumentRelatedPerson$outboundSchema
+    ))),
+    dateOfBirth: z.optional(z.string()),
+    gender: z.optional(z.string()),
+    currentAddress: z.optional(z.lazy(() =>
+      SubmitInteractionDocumentCurrentAddress$outboundSchema
+    )),
+    previousAddresses: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionDocumentPreviousAddress$outboundSchema
+    ))),
+    placeOfBirth: z.optional(z.lazy(() =>
+      SubmitInteractionDocumentPlaceOfBirth$outboundSchema
+    )),
+    idNumbers: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionDocumentIdNumber$outboundSchema
+    ))),
+    phones: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionDocumentPhone$outboundSchema
+    ))),
+    emails: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionDocumentEmail$outboundSchema
+    ))),
+    socials: z.optional(z.array(z.lazy(() =>
+      SubmitInteractionDocumentSocial$outboundSchema
+    ))),
+    mothersMaidenName: z.optional(z.string()),
+    nationality: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionDocumentSubjectToJSON(
   submitInteractionDocumentSubject: SubmitInteractionDocumentSubject,
@@ -4739,134 +4915,136 @@ export type SubmitInteractionDocument$Outbound = {
 export const SubmitInteractionDocument$outboundSchema: z.ZodMiniType<
   SubmitInteractionDocument$Outbound,
   SubmitInteractionDocument
-> = z.object({
-  oneDBarcode: z.optional(z.string()),
-  address: z.optional(
-    z.lazy(() => SubmitInteractionDocumentAddress$outboundSchema),
-  ),
-  applicationDate: z.optional(z.string()),
-  applicationNumber: z.optional(z.string()),
-  dateOfBirth: z.optional(z.string()),
-  placeOfBirth: z.optional(z.string()),
-  placeOfBirthNative: z.optional(z.string()),
-  bloodType: z.optional(z.string()),
-  controlNumber: z.optional(z.string()),
-  countryCode: z.optional(z.string()),
-  countryName: z.optional(z.string()),
-  documentClassCode: z.optional(z.string()),
-  documentClassName: z.optional(z.string()),
-  documentNumber: z.optional(z.string()),
-  documentSignerCertificate: z.optional(z.string()),
-  employer: z.optional(z.string()),
-  employerAddress: z.optional(z.string()),
-  entries: z.optional(z.string()),
-  expirationDate: z.optional(z.string()),
-  eyeColor: z.optional(z.string()),
-  fathersName: z.optional(z.string()),
-  fathersNameNative: z.optional(z.string()),
-  fathersSurname: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  fullName: z.optional(z.string()),
-  fullNameNative: z.optional(z.string()),
-  givenName: z.optional(z.string()),
-  givenNameNative: z.optional(z.string()),
-  hairColor: z.optional(z.string()),
-  height: z.optional(z.string()),
-  issueDate: z.optional(z.string()),
-  issuingAuthority: z.optional(z.string()),
-  issuingAuthorityNative: z.optional(z.string()),
-  issuingStateCode: z.optional(z.string()),
-  issuingStateName: z.optional(z.string()),
-  licenseClass: z.optional(z.string()),
-  licenseEndorsements: z.optional(z.string()),
-  licenseRestrictions: z.optional(z.string()),
-  mrz: z.optional(z.string()),
-  mrz1: z.optional(z.string()),
-  mrz2: z.optional(z.string()),
-  mrz3: z.optional(z.string()),
-  middleName: z.optional(z.string()),
-  mothersName: z.optional(z.string()),
-  mothersNameNative: z.optional(z.string()),
-  mothersSurname: z.optional(z.string()),
-  nameSuffix: z.optional(z.string()),
-  nationalityCode: z.optional(z.string()),
-  nationalityName: z.optional(z.string()),
-  nationalityNameNative: z.optional(z.string()),
-  occupation: z.optional(z.string()),
-  organDonor: z.optional(z.boolean()),
-  passportNumber: z.optional(z.string()),
-  permitNumber: z.optional(z.string()),
-  personalNumber: z.optional(z.string()),
-  photo: z.optional(z.string()),
-  photoCompressed: z.optional(z.string()),
-  photoEncoding: z.optional(z.string()),
-  sex: z.optional(z.string()),
-  sexNative: z.optional(z.string()),
-  signature: z.optional(z.string()),
-  signatureCompressed: z.optional(z.string()),
-  signatureEncoding: z.optional(z.string()),
-  socialSecurityNumber: z.optional(z.string()),
-  startDate: z.optional(z.string()),
-  surname: z.optional(z.string()),
-  surnameNative: z.optional(z.string()),
-  visaClass: z.optional(z.string()),
-  visaNumber: z.optional(z.string()),
-  weight: z.optional(z.string()),
-  cardNumber: z.optional(z.string()),
-  issuerCountryCode: z.optional(z.string()),
-  id: z.optional(z.string()),
-  type: z.string(),
-  category: z.optional(z.string()),
-  subtype: z.optional(z.string()),
-  format: z.optional(z.string()),
-  device: z.optional(
-    z.lazy(() => SubmitInteractionDocumentDevice$outboundSchema),
-  ),
-  side1Image: z.optional(z.string()),
-  side2Image: z.optional(z.string()),
-  side1Device: z.optional(
-    z.lazy(() => SubmitInteractionSide1Device$outboundSchema),
-  ),
-  side2Device: z.optional(
-    z.lazy(() => SubmitInteractionSide2Device$outboundSchema),
-  ),
-  chip: z.optional(z.lazy(() => SubmitInteractionChip$outboundSchema)),
-  classification: z.optional(
-    z.lazy(() => SubmitInteractionClassification$outboundSchema),
-  ),
-  extraction: z.optional(
-    z.lazy(() => SubmitInteractionExtraction$outboundSchema),
-  ),
-  validation: z.optional(
-    z.lazy(() => SubmitInteractionValidation$outboundSchema),
-  ),
-  subType: z.optional(z.string()),
-  number: z.optional(z.string()),
-  expiryDate: z.optional(z.string()),
-  cardType: z.optional(z.string()),
-  expiryMonth: z.optional(z.string()),
-  cardColour: z.optional(z.string()),
-  cardStatus: z.optional(z.string()),
-  subject: z.optional(
-    z.lazy(() => SubmitInteractionDocumentSubject$outboundSchema),
-  ),
-  country: z.optional(z.string()),
-  certificateFormat: z.optional(z.string()),
-  registrationNumber: z.optional(z.string()),
-  registrationDate: z.optional(z.string()),
-  registrationYear: z.optional(z.string()),
-  partyRole: z.optional(z.string()),
-  dateOfEvent: z.optional(z.string()),
-  acquisitionDate: z.optional(z.string()),
-  previousFirstName: z.optional(z.string()),
-  previousMiddleName: z.optional(z.string()),
-  previousSurname: z.optional(z.string()),
-  individualReferenceNumber: z.optional(z.string()),
-  nameLine1: z.optional(z.string()),
-  nameLine2: z.optional(z.string()),
-  nameLine3: z.optional(z.string()),
-  nameLine4: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    oneDBarcode: z.optional(z.string()),
+    address: z.optional(
+      z.lazy(() => SubmitInteractionDocumentAddress$outboundSchema),
+    ),
+    applicationDate: z.optional(z.string()),
+    applicationNumber: z.optional(z.string()),
+    dateOfBirth: z.optional(z.string()),
+    placeOfBirth: z.optional(z.string()),
+    placeOfBirthNative: z.optional(z.string()),
+    bloodType: z.optional(z.string()),
+    controlNumber: z.optional(z.string()),
+    countryCode: z.optional(z.string()),
+    countryName: z.optional(z.string()),
+    documentClassCode: z.optional(z.string()),
+    documentClassName: z.optional(z.string()),
+    documentNumber: z.optional(z.string()),
+    documentSignerCertificate: z.optional(z.string()),
+    employer: z.optional(z.string()),
+    employerAddress: z.optional(z.string()),
+    entries: z.optional(z.string()),
+    expirationDate: z.optional(z.string()),
+    eyeColor: z.optional(z.string()),
+    fathersName: z.optional(z.string()),
+    fathersNameNative: z.optional(z.string()),
+    fathersSurname: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    fullName: z.optional(z.string()),
+    fullNameNative: z.optional(z.string()),
+    givenName: z.optional(z.string()),
+    givenNameNative: z.optional(z.string()),
+    hairColor: z.optional(z.string()),
+    height: z.optional(z.string()),
+    issueDate: z.optional(z.string()),
+    issuingAuthority: z.optional(z.string()),
+    issuingAuthorityNative: z.optional(z.string()),
+    issuingStateCode: z.optional(z.string()),
+    issuingStateName: z.optional(z.string()),
+    licenseClass: z.optional(z.string()),
+    licenseEndorsements: z.optional(z.string()),
+    licenseRestrictions: z.optional(z.string()),
+    mrz: z.optional(z.string()),
+    mrz1: z.optional(z.string()),
+    mrz2: z.optional(z.string()),
+    mrz3: z.optional(z.string()),
+    middleName: z.optional(z.string()),
+    mothersName: z.optional(z.string()),
+    mothersNameNative: z.optional(z.string()),
+    mothersSurname: z.optional(z.string()),
+    nameSuffix: z.optional(z.string()),
+    nationalityCode: z.optional(z.string()),
+    nationalityName: z.optional(z.string()),
+    nationalityNameNative: z.optional(z.string()),
+    occupation: z.optional(z.string()),
+    organDonor: z.optional(z.boolean()),
+    passportNumber: z.optional(z.string()),
+    permitNumber: z.optional(z.string()),
+    personalNumber: z.optional(z.string()),
+    photo: z.optional(z.string()),
+    photoCompressed: z.optional(z.string()),
+    photoEncoding: z.optional(z.string()),
+    sex: z.optional(z.string()),
+    sexNative: z.optional(z.string()),
+    signature: z.optional(z.string()),
+    signatureCompressed: z.optional(z.string()),
+    signatureEncoding: z.optional(z.string()),
+    socialSecurityNumber: z.optional(z.string()),
+    startDate: z.optional(z.string()),
+    surname: z.optional(z.string()),
+    surnameNative: z.optional(z.string()),
+    visaClass: z.optional(z.string()),
+    visaNumber: z.optional(z.string()),
+    weight: z.optional(z.string()),
+    cardNumber: z.optional(z.string()),
+    issuerCountryCode: z.optional(z.string()),
+    id: z.optional(z.string()),
+    type: z.string(),
+    category: z.optional(z.string()),
+    subtype: z.optional(z.string()),
+    format: z.optional(z.string()),
+    device: z.optional(
+      z.lazy(() => SubmitInteractionDocumentDevice$outboundSchema),
+    ),
+    side1Image: z.optional(z.string()),
+    side2Image: z.optional(z.string()),
+    side1Device: z.optional(
+      z.lazy(() => SubmitInteractionSide1Device$outboundSchema),
+    ),
+    side2Device: z.optional(
+      z.lazy(() => SubmitInteractionSide2Device$outboundSchema),
+    ),
+    chip: z.optional(z.lazy(() => SubmitInteractionChip$outboundSchema)),
+    classification: z.optional(
+      z.lazy(() => SubmitInteractionClassification$outboundSchema),
+    ),
+    extraction: z.optional(
+      z.lazy(() => SubmitInteractionExtraction$outboundSchema),
+    ),
+    validation: z.optional(
+      z.lazy(() => SubmitInteractionValidation$outboundSchema),
+    ),
+    subType: z.optional(z.string()),
+    number: z.optional(z.string()),
+    expiryDate: z.optional(z.string()),
+    cardType: z.optional(z.string()),
+    expiryMonth: z.optional(z.string()),
+    cardColour: z.optional(z.string()),
+    cardStatus: z.optional(z.string()),
+    subject: z.optional(
+      z.lazy(() => SubmitInteractionDocumentSubject$outboundSchema),
+    ),
+    country: z.optional(z.string()),
+    certificateFormat: z.optional(z.string()),
+    registrationNumber: z.optional(z.string()),
+    registrationDate: z.optional(z.string()),
+    registrationYear: z.optional(z.string()),
+    partyRole: z.optional(z.string()),
+    dateOfEvent: z.optional(z.string()),
+    acquisitionDate: z.optional(z.string()),
+    previousFirstName: z.optional(z.string()),
+    previousMiddleName: z.optional(z.string()),
+    previousSurname: z.optional(z.string()),
+    individualReferenceNumber: z.optional(z.string()),
+    nameLine1: z.optional(z.string()),
+    nameLine2: z.optional(z.string()),
+    nameLine3: z.optional(z.string()),
+    nameLine4: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionDocumentToJSON(
   submitInteractionDocument: SubmitInteractionDocument,
@@ -4878,9 +5056,10 @@ export function submitInteractionDocumentToJSON(
 
 /** @internal */
 export const SubmitInteractionTypeOrphanedStoredFace$outboundSchema:
-  z.ZodMiniEnum<typeof SubmitInteractionTypeOrphanedStoredFace> = z.enum(
-    SubmitInteractionTypeOrphanedStoredFace,
-  );
+  z.ZodMiniEnum<typeof SubmitInteractionTypeOrphanedStoredFace> =
+    /* @__PURE__ */ lazySchema$(() =>
+      z.enum(SubmitInteractionTypeOrphanedStoredFace)
+    );
 
 /** @internal */
 export type SubmitInteractionBiometricOrphanedStoredFace$Outbound = {
@@ -4895,12 +5074,14 @@ export const SubmitInteractionBiometricOrphanedStoredFace$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionBiometricOrphanedStoredFace$Outbound,
     SubmitInteractionBiometricOrphanedStoredFace
-  > = z.object({
-    id: z.optional(z.string()),
-    type: SubmitInteractionTypeOrphanedStoredFace$outboundSchema,
-    templateReference: z.string(),
-    collectionReference: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      id: z.optional(z.string()),
+      type: SubmitInteractionTypeOrphanedStoredFace$outboundSchema,
+      templateReference: z.string(),
+      collectionReference: z.optional(z.string()),
+    })
+  );
 
 export function submitInteractionBiometricOrphanedStoredFaceToJSON(
   submitInteractionBiometricOrphanedStoredFace:
@@ -4916,7 +5097,7 @@ export function submitInteractionBiometricOrphanedStoredFaceToJSON(
 /** @internal */
 export const SubmitInteractionTypeStoredFace$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionTypeStoredFace
-> = z.enum(SubmitInteractionTypeStoredFace);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionTypeStoredFace));
 
 /** @internal */
 export type SubmitInteractionBiometricStoredFace$Outbound = {
@@ -4930,12 +5111,14 @@ export type SubmitInteractionBiometricStoredFace$Outbound = {
 export const SubmitInteractionBiometricStoredFace$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometricStoredFace$Outbound,
   SubmitInteractionBiometricStoredFace
-> = z.object({
-  id: z.optional(z.string()),
-  type: SubmitInteractionTypeStoredFace$outboundSchema,
-  templateReference: z.string(),
-  collectionReference: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: SubmitInteractionTypeStoredFace$outboundSchema,
+    templateReference: z.string(),
+    collectionReference: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionBiometricStoredFaceToJSON(
   submitInteractionBiometricStoredFace: SubmitInteractionBiometricStoredFace,
@@ -4958,11 +5141,13 @@ export type SubmitInteractionBiometric5$Outbound = {
 export const SubmitInteractionBiometric5$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometric5$Outbound,
   SubmitInteractionBiometric5
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  anchorImage: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    anchorImage: z.string(),
+  })
+);
 
 export function submitInteractionBiometric5ToJSON(
   submitInteractionBiometric5: SubmitInteractionBiometric5,
@@ -4986,12 +5171,14 @@ export type SubmitInteractionBiometric4$Outbound = {
 export const SubmitInteractionBiometric4$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometric4$Outbound,
   SubmitInteractionBiometric4
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  selfieImage: z.string(),
-  selfieImageEncryption: z.optional(z.boolean()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    selfieImage: z.string(),
+    selfieImageEncryption: z.optional(z.boolean()),
+  })
+);
 
 export function submitInteractionBiometric4ToJSON(
   submitInteractionBiometric4: SubmitInteractionBiometric4,
@@ -5014,11 +5201,13 @@ export type SubmitInteractionBiometric3$Outbound = {
 export const SubmitInteractionBiometric3$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometric3$Outbound,
   SubmitInteractionBiometric3
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  faceImage: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    faceImage: z.string(),
+  })
+);
 
 export function submitInteractionBiometric3ToJSON(
   submitInteractionBiometric3: SubmitInteractionBiometric3,
@@ -5042,12 +5231,14 @@ export type SubmitInteractionBiometric2$Outbound = {
 export const SubmitInteractionBiometric2$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometric2$Outbound,
   SubmitInteractionBiometric2
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  selfieImage: z.string(),
-  anchorImage: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    selfieImage: z.string(),
+    anchorImage: z.string(),
+  })
+);
 
 export function submitInteractionBiometric2ToJSON(
   submitInteractionBiometric2: SubmitInteractionBiometric2,
@@ -5071,12 +5262,14 @@ export type SubmitInteractionBiometric1$Outbound = {
 export const SubmitInteractionBiometric1$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometric1$Outbound,
   SubmitInteractionBiometric1
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  face1Image: z.string(),
-  face2Image: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    face1Image: z.string(),
+    face2Image: z.string(),
+  })
+);
 
 export function submitInteractionBiometric1ToJSON(
   submitInteractionBiometric1: SubmitInteractionBiometric1,
@@ -5102,15 +5295,17 @@ export type SubmitInteractionBiometricUnion$Outbound =
 export const SubmitInteractionBiometricUnion$outboundSchema: z.ZodMiniType<
   SubmitInteractionBiometricUnion$Outbound,
   SubmitInteractionBiometricUnion
-> = smartUnion([
-  z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
-  z.lazy(() => SubmitInteractionBiometric2$outboundSchema),
-  z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
-  z.lazy(() => SubmitInteractionBiometricOrphanedStoredFace$outboundSchema),
-  z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
-  z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
-  z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
-]);
+> = /* @__PURE__ */ lazySchema$(() =>
+  smartUnion([
+    z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
+    z.lazy(() => SubmitInteractionBiometric2$outboundSchema),
+    z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
+    z.lazy(() => SubmitInteractionBiometricOrphanedStoredFace$outboundSchema),
+    z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
+    z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
+    z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
+  ])
+);
 
 export function submitInteractionBiometricUnionToJSON(
   submitInteractionBiometricUnion: SubmitInteractionBiometricUnion,
@@ -5133,11 +5328,13 @@ export type SubmitInteractionUser$Outbound = {
 export const SubmitInteractionUser$outboundSchema: z.ZodMiniType<
   SubmitInteractionUser$Outbound,
   SubmitInteractionUser
-> = z.object({
-  id: z.string(),
-  email: z.optional(z.string()),
-  domain: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    email: z.optional(z.string()),
+    domain: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionUserToJSON(
   submitInteractionUser: SubmitInteractionUser,
@@ -5158,11 +5355,13 @@ export type SubmitInteractionClient$Outbound = {
 export const SubmitInteractionClient$outboundSchema: z.ZodMiniType<
   SubmitInteractionClient$Outbound,
   SubmitInteractionClient
-> = z.object({
-  id: z.string(),
-  ip: z.string(),
-  address: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    ip: z.string(),
+    address: z.string(),
+  })
+);
 
 export function submitInteractionClientToJSON(
   submitInteractionClient: SubmitInteractionClient,
@@ -5182,10 +5381,12 @@ export type SubmitInteractionModel$Outbound = {
 export const SubmitInteractionModel$outboundSchema: z.ZodMiniType<
   SubmitInteractionModel$Outbound,
   SubmitInteractionModel
-> = z.object({
-  identifier: z.string(),
-  name: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    identifier: z.string(),
+    name: z.string(),
+  })
+);
 
 export function submitInteractionModelToJSON(
   submitInteractionModel: SubmitInteractionModel,
@@ -5206,11 +5407,13 @@ export type SubmitInteractionSessionDevice$Outbound = {
 export const SubmitInteractionSessionDevice$outboundSchema: z.ZodMiniType<
   SubmitInteractionSessionDevice$Outbound,
   SubmitInteractionSessionDevice
-> = z.object({
-  id: z.string(),
-  manufacturer: z.string(),
-  model: z.lazy(() => SubmitInteractionModel$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    manufacturer: z.string(),
+    model: z.lazy(() => SubmitInteractionModel$outboundSchema),
+  })
+);
 
 export function submitInteractionSessionDeviceToJSON(
   submitInteractionSessionDevice: SubmitInteractionSessionDevice,
@@ -5231,9 +5434,11 @@ export type SubmitInteractionTrace$Outbound = {
 export const SubmitInteractionTrace$outboundSchema: z.ZodMiniType<
   SubmitInteractionTrace$Outbound,
   SubmitInteractionTrace
-> = z.object({
-  id: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+  })
+);
 
 export function submitInteractionTraceToJSON(
   submitInteractionTrace: SubmitInteractionTrace,
@@ -5252,9 +5457,11 @@ export type SubmitInteractionSpan$Outbound = {
 export const SubmitInteractionSpan$outboundSchema: z.ZodMiniType<
   SubmitInteractionSpan$Outbound,
   SubmitInteractionSpan
-> = z.object({
-  id: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+  })
+);
 
 export function submitInteractionSpanToJSON(
   submitInteractionSpan: SubmitInteractionSpan,
@@ -5273,9 +5480,11 @@ export type SubmitInteractionTransaction$Outbound = {
 export const SubmitInteractionTransaction$outboundSchema: z.ZodMiniType<
   SubmitInteractionTransaction$Outbound,
   SubmitInteractionTransaction
-> = z.object({
-  id: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+  })
+);
 
 export function submitInteractionTransactionToJSON(
   submitInteractionTransaction: SubmitInteractionTransaction,
@@ -5304,17 +5513,19 @@ export type SubmitInteractionSessionAuth$Outbound = {
 export const SubmitInteractionSessionAuth$outboundSchema: z.ZodMiniType<
   SubmitInteractionSessionAuth$Outbound,
   SubmitInteractionSessionAuth
-> = z.object({
-  id: z.string(),
-  scope: z.optional(z.string()),
-  codeVerifier: z.optional(z.string()),
-  code: z.optional(z.string()),
-  state: z.optional(z.string()),
-  redirectUri: z.optional(z.string()),
-  responseType: z.optional(z.string()),
-  clientId: z.optional(z.string()),
-  clientSecret: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    scope: z.optional(z.string()),
+    codeVerifier: z.optional(z.string()),
+    code: z.optional(z.string()),
+    state: z.optional(z.string()),
+    redirectUri: z.optional(z.string()),
+    responseType: z.optional(z.string()),
+    clientId: z.optional(z.string()),
+    clientSecret: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionSessionAuthToJSON(
   submitInteractionSessionAuth: SubmitInteractionSessionAuth,
@@ -5322,6 +5533,31 @@ export function submitInteractionSessionAuthToJSON(
   return JSON.stringify(
     SubmitInteractionSessionAuth$outboundSchema.parse(
       submitInteractionSessionAuth,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionSessionError$Outbound = {
+  code: string;
+};
+
+/** @internal */
+export const SubmitInteractionSessionError$outboundSchema: z.ZodMiniType<
+  SubmitInteractionSessionError$Outbound,
+  SubmitInteractionSessionError
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    code: z.string(),
+  })
+);
+
+export function submitInteractionSessionErrorToJSON(
+  submitInteractionSessionError: SubmitInteractionSessionError,
+): string {
+  return JSON.stringify(
+    SubmitInteractionSessionError$outboundSchema.parse(
+      submitInteractionSessionError,
     ),
   );
 }
@@ -5338,30 +5574,36 @@ export type SubmitInteractionSession$Outbound = {
   span?: SubmitInteractionSpan$Outbound | undefined;
   transaction?: SubmitInteractionTransaction$Outbound | undefined;
   auth?: Array<SubmitInteractionSessionAuth$Outbound> | undefined;
+  error?: SubmitInteractionSessionError$Outbound | undefined;
 };
 
 /** @internal */
 export const SubmitInteractionSession$outboundSchema: z.ZodMiniType<
   SubmitInteractionSession$Outbound,
   SubmitInteractionSession
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  provider: z.optional(z.string()),
-  user: z.optional(z.lazy(() => SubmitInteractionUser$outboundSchema)),
-  client: z.optional(z.lazy(() => SubmitInteractionClient$outboundSchema)),
-  device: z.optional(
-    z.lazy(() => SubmitInteractionSessionDevice$outboundSchema),
-  ),
-  trace: z.optional(z.lazy(() => SubmitInteractionTrace$outboundSchema)),
-  span: z.optional(z.lazy(() => SubmitInteractionSpan$outboundSchema)),
-  transaction: z.optional(
-    z.lazy(() => SubmitInteractionTransaction$outboundSchema),
-  ),
-  auth: z.optional(
-    z.array(z.lazy(() => SubmitInteractionSessionAuth$outboundSchema)),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    provider: z.optional(z.string()),
+    user: z.optional(z.lazy(() => SubmitInteractionUser$outboundSchema)),
+    client: z.optional(z.lazy(() => SubmitInteractionClient$outboundSchema)),
+    device: z.optional(
+      z.lazy(() => SubmitInteractionSessionDevice$outboundSchema),
+    ),
+    trace: z.optional(z.lazy(() => SubmitInteractionTrace$outboundSchema)),
+    span: z.optional(z.lazy(() => SubmitInteractionSpan$outboundSchema)),
+    transaction: z.optional(
+      z.lazy(() => SubmitInteractionTransaction$outboundSchema),
+    ),
+    auth: z.optional(
+      z.array(z.lazy(() => SubmitInteractionSessionAuth$outboundSchema)),
+    ),
+    error: z.optional(
+      z.lazy(() => SubmitInteractionSessionError$outboundSchema),
+    ),
+  })
+);
 
 export function submitInteractionSessionToJSON(
   submitInteractionSession: SubmitInteractionSession,
@@ -5374,7 +5616,7 @@ export function submitInteractionSessionToJSON(
 /** @internal */
 export const SubmitInteractionConsentType$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionConsentType
-> = z.enum(SubmitInteractionConsentType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionConsentType));
 
 /** @internal */
 export type SubmitInteractionConsent$Outbound = {
@@ -5396,20 +5638,22 @@ export type SubmitInteractionConsent$Outbound = {
 export const SubmitInteractionConsent$outboundSchema: z.ZodMiniType<
   SubmitInteractionConsent$Outbound,
   SubmitInteractionConsent
-> = z.object({
-  type: z.optional(SubmitInteractionConsentType$outboundSchema),
-  id: z.optional(z.string()),
-  version: z.optional(z.string()),
-  url: z.string(),
-  effectiveDate: z.optional(z.string()),
-  expiryDate: z.optional(z.string()),
-  terms: z.optional(z.string()),
-  purpose: z.optional(z.string()),
-  legalBasis: z.optional(z.string()),
-  jurisdiction: z.optional(z.string()),
-  subject: z.optional(z.string()),
-  signatory: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(SubmitInteractionConsentType$outboundSchema),
+    id: z.optional(z.string()),
+    version: z.optional(z.string()),
+    url: z.string(),
+    effectiveDate: z.optional(z.string()),
+    expiryDate: z.optional(z.string()),
+    terms: z.optional(z.string()),
+    purpose: z.optional(z.string()),
+    legalBasis: z.optional(z.string()),
+    jurisdiction: z.optional(z.string()),
+    subject: z.optional(z.string()),
+    signatory: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionConsentToJSON(
   submitInteractionConsent: SubmitInteractionConsent,
@@ -5437,18 +5681,20 @@ export type SubmitInteractionAccount$Outbound = {
 export const SubmitInteractionAccount$outboundSchema: z.ZodMiniType<
   SubmitInteractionAccount$Outbound,
   SubmitInteractionAccount
-> = z.object({
-  type: z.string(),
-  accountNumber: z.optional(z.string()),
-  sortCode: z.optional(z.string()),
-  routingNumber: z.optional(z.string()),
-  iban: z.optional(z.string()),
-  bic: z.optional(z.string()),
-  accountHolderName: z.optional(z.string()),
-  bankName: z.optional(z.string()),
-  country: z.optional(z.string()),
-  accountType: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    accountNumber: z.optional(z.string()),
+    sortCode: z.optional(z.string()),
+    routingNumber: z.optional(z.string()),
+    iban: z.optional(z.string()),
+    bic: z.optional(z.string()),
+    accountHolderName: z.optional(z.string()),
+    bankName: z.optional(z.string()),
+    country: z.optional(z.string()),
+    accountType: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionAccountToJSON(
   submitInteractionAccount: SubmitInteractionAccount,
@@ -5468,10 +5714,12 @@ export type SubmitInteractionChoice$Outbound = {
 export const SubmitInteractionChoice$outboundSchema: z.ZodMiniType<
   SubmitInteractionChoice$Outbound,
   SubmitInteractionChoice
-> = z.object({
-  label: z.string(),
-  text: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    text: z.string(),
+  })
+);
 
 export function submitInteractionChoiceToJSON(
   submitInteractionChoice: SubmitInteractionChoice,
@@ -5493,12 +5741,14 @@ export type SubmitInteractionQuestion$Outbound = {
 export const SubmitInteractionQuestion$outboundSchema: z.ZodMiniType<
   SubmitInteractionQuestion$Outbound,
   SubmitInteractionQuestion
-> = z.object({
-  id: z.int(),
-  questionText: z.string(),
-  helpText: z.optional(z.string()),
-  choices: z.array(z.lazy(() => SubmitInteractionChoice$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.int(),
+    questionText: z.string(),
+    helpText: z.optional(z.string()),
+    choices: z.array(z.lazy(() => SubmitInteractionChoice$outboundSchema)),
+  })
+);
 
 export function submitInteractionQuestionToJSON(
   submitInteractionQuestion: SubmitInteractionQuestion,
@@ -5509,42 +5759,46 @@ export function submitInteractionQuestionToJSON(
 }
 
 /** @internal */
-export type SubmitInteractionAnswer$Outbound = {
+export type SubmitInteractionKbaAnswer$Outbound = {
   id: number;
   choices: Array<string>;
 };
 
 /** @internal */
-export const SubmitInteractionAnswer$outboundSchema: z.ZodMiniType<
-  SubmitInteractionAnswer$Outbound,
-  SubmitInteractionAnswer
-> = z.object({
-  id: z.int(),
-  choices: z.array(z.string()),
-});
+export const SubmitInteractionKbaAnswer$outboundSchema: z.ZodMiniType<
+  SubmitInteractionKbaAnswer$Outbound,
+  SubmitInteractionKbaAnswer
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.int(),
+    choices: z.array(z.string()),
+  })
+);
 
-export function submitInteractionAnswerToJSON(
-  submitInteractionAnswer: SubmitInteractionAnswer,
+export function submitInteractionKbaAnswerToJSON(
+  submitInteractionKbaAnswer: SubmitInteractionKbaAnswer,
 ): string {
   return JSON.stringify(
-    SubmitInteractionAnswer$outboundSchema.parse(submitInteractionAnswer),
+    SubmitInteractionKbaAnswer$outboundSchema.parse(submitInteractionKbaAnswer),
   );
 }
 
 /** @internal */
 export type SubmitInteractionKba$Outbound = {
   questions: Array<SubmitInteractionQuestion$Outbound>;
-  answers: Array<SubmitInteractionAnswer$Outbound>;
+  answers: Array<SubmitInteractionKbaAnswer$Outbound>;
 };
 
 /** @internal */
 export const SubmitInteractionKba$outboundSchema: z.ZodMiniType<
   SubmitInteractionKba$Outbound,
   SubmitInteractionKba
-> = z.object({
-  questions: z.array(z.lazy(() => SubmitInteractionQuestion$outboundSchema)),
-  answers: z.array(z.lazy(() => SubmitInteractionAnswer$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    questions: z.array(z.lazy(() => SubmitInteractionQuestion$outboundSchema)),
+    answers: z.array(z.lazy(() => SubmitInteractionKbaAnswer$outboundSchema)),
+  })
+);
 
 export function submitInteractionKbaToJSON(
   submitInteractionKba: SubmitInteractionKba,
@@ -5557,12 +5811,12 @@ export function submitInteractionKbaToJSON(
 /** @internal */
 export const SubmitInteractionOffered$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionOffered
-> = z.enum(SubmitInteractionOffered);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionOffered));
 
 /** @internal */
 export const SubmitInteractionSelected$outboundSchema: z.ZodMiniEnum<
   typeof SubmitInteractionSelected
-> = z.enum(SubmitInteractionSelected);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionSelected));
 
 /** @internal */
 export type SubmitInteractionDocumentTypeSelection$Outbound = {
@@ -5575,10 +5829,12 @@ export const SubmitInteractionDocumentTypeSelection$outboundSchema:
   z.ZodMiniType<
     SubmitInteractionDocumentTypeSelection$Outbound,
     SubmitInteractionDocumentTypeSelection
-  > = z.object({
-    offered: z.optional(z.array(SubmitInteractionOffered$outboundSchema)),
-    selected: z.optional(SubmitInteractionSelected$outboundSchema),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      offered: z.optional(z.array(SubmitInteractionOffered$outboundSchema)),
+      selected: z.optional(SubmitInteractionSelected$outboundSchema),
+    })
+  );
 
 export function submitInteractionDocumentTypeSelectionToJSON(
   submitInteractionDocumentTypeSelection:
@@ -5587,6 +5843,244 @@ export function submitInteractionDocumentTypeSelectionToJSON(
   return JSON.stringify(
     SubmitInteractionDocumentTypeSelection$outboundSchema.parse(
       submitInteractionDocumentTypeSelection,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionCapabilityCheckRequest$Outbound = {
+  capabilityIds?: Array<string> | undefined;
+  timeoutMs?: number | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionCapabilityCheckRequest$outboundSchema:
+  z.ZodMiniType<
+    SubmitInteractionCapabilityCheckRequest$Outbound,
+    SubmitInteractionCapabilityCheckRequest
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      capabilityIds: z.optional(z.array(z.string())),
+      timeoutMs: z.optional(z.int()),
+    })
+  );
+
+export function submitInteractionCapabilityCheckRequestToJSON(
+  submitInteractionCapabilityCheckRequest:
+    SubmitInteractionCapabilityCheckRequest,
+): string {
+  return JSON.stringify(
+    SubmitInteractionCapabilityCheckRequest$outboundSchema.parse(
+      submitInteractionCapabilityCheckRequest,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAnswerError2$Outbound = {
+  name: string;
+  message: string;
+};
+
+/** @internal */
+export const SubmitInteractionAnswerError2$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAnswerError2$Outbound,
+  SubmitInteractionAnswerError2
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    name: z.string(),
+    message: z.string(),
+  })
+);
+
+export function submitInteractionAnswerError2ToJSON(
+  submitInteractionAnswerError2: SubmitInteractionAnswerError2,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAnswerError2$outboundSchema.parse(
+      submitInteractionAnswerError2,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAnswerError1$Outbound = {
+  status: "error";
+  error: SubmitInteractionAnswerError2$Outbound;
+};
+
+/** @internal */
+export const SubmitInteractionAnswerError1$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAnswerError1$Outbound,
+  SubmitInteractionAnswerError1
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: z.literal("error"),
+    error: z.lazy(() => SubmitInteractionAnswerError2$outboundSchema),
+  })
+);
+
+export function submitInteractionAnswerError1ToJSON(
+  submitInteractionAnswerError1: SubmitInteractionAnswerError1,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAnswerError1$outboundSchema.parse(
+      submitInteractionAnswerError1,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAnswerTimeout$Outbound = {
+  status: "timeout";
+};
+
+/** @internal */
+export const SubmitInteractionAnswerTimeout$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAnswerTimeout$Outbound,
+  SubmitInteractionAnswerTimeout
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: z.literal("timeout"),
+  })
+);
+
+export function submitInteractionAnswerTimeoutToJSON(
+  submitInteractionAnswerTimeout: SubmitInteractionAnswerTimeout,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAnswerTimeout$outboundSchema.parse(
+      submitInteractionAnswerTimeout,
+    ),
+  );
+}
+
+/** @internal */
+export const SubmitInteractionState$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionState
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionState));
+
+/** @internal */
+export const SubmitInteractionSource$outboundSchema: z.ZodMiniEnum<
+  typeof SubmitInteractionSource
+> = /* @__PURE__ */ lazySchema$(() => z.enum(SubmitInteractionSource));
+
+/** @internal */
+export type SubmitInteractionResults$Outbound = {
+  state: string;
+  source: string;
+};
+
+/** @internal */
+export const SubmitInteractionResults$outboundSchema: z.ZodMiniType<
+  SubmitInteractionResults$Outbound,
+  SubmitInteractionResults
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    state: SubmitInteractionState$outboundSchema,
+    source: SubmitInteractionSource$outboundSchema,
+  })
+);
+
+export function submitInteractionResultsToJSON(
+  submitInteractionResults: SubmitInteractionResults,
+): string {
+  return JSON.stringify(
+    SubmitInteractionResults$outboundSchema.parse(submitInteractionResults),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAnswerDone$Outbound = {
+  status: "done";
+  results: { [k: string]: SubmitInteractionResults$Outbound };
+};
+
+/** @internal */
+export const SubmitInteractionAnswerDone$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAnswerDone$Outbound,
+  SubmitInteractionAnswerDone
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: z.literal("done"),
+    results: z.record(
+      z.string(),
+      z.lazy(() => SubmitInteractionResults$outboundSchema),
+    ),
+  })
+);
+
+export function submitInteractionAnswerDoneToJSON(
+  submitInteractionAnswerDone: SubmitInteractionAnswerDone,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAnswerDone$outboundSchema.parse(
+      submitInteractionAnswerDone,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionAnswerUnion$Outbound =
+  | SubmitInteractionAnswerDone$Outbound
+  | SubmitInteractionAnswerTimeout$Outbound
+  | SubmitInteractionAnswerError1$Outbound;
+
+/** @internal */
+export const SubmitInteractionAnswerUnion$outboundSchema: z.ZodMiniType<
+  SubmitInteractionAnswerUnion$Outbound,
+  SubmitInteractionAnswerUnion
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.union([
+    z.lazy(() => SubmitInteractionAnswerDone$outboundSchema),
+    z.lazy(() => SubmitInteractionAnswerTimeout$outboundSchema),
+    z.lazy(() => SubmitInteractionAnswerError1$outboundSchema),
+  ])
+);
+
+export function submitInteractionAnswerUnionToJSON(
+  submitInteractionAnswerUnion: SubmitInteractionAnswerUnion,
+): string {
+  return JSON.stringify(
+    SubmitInteractionAnswerUnion$outboundSchema.parse(
+      submitInteractionAnswerUnion,
+    ),
+  );
+}
+
+/** @internal */
+export type SubmitInteractionCapabilityCheck$Outbound = {
+  request?: SubmitInteractionCapabilityCheckRequest$Outbound | undefined;
+  answer?:
+    | SubmitInteractionAnswerDone$Outbound
+    | SubmitInteractionAnswerTimeout$Outbound
+    | SubmitInteractionAnswerError1$Outbound
+    | undefined;
+};
+
+/** @internal */
+export const SubmitInteractionCapabilityCheck$outboundSchema: z.ZodMiniType<
+  SubmitInteractionCapabilityCheck$Outbound,
+  SubmitInteractionCapabilityCheck
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    request: z.optional(
+      z.lazy(() => SubmitInteractionCapabilityCheckRequest$outboundSchema),
+    ),
+    answer: z.optional(z.union([
+      z.lazy(() => SubmitInteractionAnswerDone$outboundSchema),
+      z.lazy(() => SubmitInteractionAnswerTimeout$outboundSchema),
+      z.lazy(() => SubmitInteractionAnswerError1$outboundSchema),
+    ])),
+  })
+);
+
+export function submitInteractionCapabilityCheckToJSON(
+  submitInteractionCapabilityCheck: SubmitInteractionCapabilityCheck,
+): string {
+  return JSON.stringify(
+    SubmitInteractionCapabilityCheck$outboundSchema.parse(
+      submitInteractionCapabilityCheck,
     ),
   );
 }
@@ -5614,6 +6108,7 @@ export type SubmitInteractionSubject$Outbound = {
   documentTypeSelection?:
     | SubmitInteractionDocumentTypeSelection$Outbound
     | undefined;
+  capabilityCheck?: SubmitInteractionCapabilityCheck$Outbound | undefined;
   uid?: string | undefined;
 };
 
@@ -5621,44 +6116,51 @@ export type SubmitInteractionSubject$Outbound = {
 export const SubmitInteractionSubject$outboundSchema: z.ZodMiniType<
   SubmitInteractionSubject$Outbound,
   SubmitInteractionSubject
-> = z.object({
-  identity: z.optional(z.lazy(() => SubmitInteractionIdentity$outboundSchema)),
-  entities: z.optional(
-    z.array(z.lazy(() => SubmitInteractionEntity$outboundSchema)),
-  ),
-  documents: z.optional(
-    z.array(z.lazy(() => SubmitInteractionDocument$outboundSchema)),
-  ),
-  biometrics: z.optional(
-    z.array(smartUnion([
-      z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
-      z.lazy(() =>
-        SubmitInteractionBiometric2$outboundSchema
-      ),
-      z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
-      z.lazy(() => SubmitInteractionBiometricOrphanedStoredFace$outboundSchema),
-      z.lazy(() =>
-        SubmitInteractionBiometric3$outboundSchema
-      ),
-      z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
-      z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
-    ])),
-  ),
-  sessions: z.optional(
-    z.array(z.lazy(() => SubmitInteractionSession$outboundSchema)),
-  ),
-  consent: z.optional(
-    z.array(z.lazy(() => SubmitInteractionConsent$outboundSchema)),
-  ),
-  accounts: z.optional(
-    z.array(z.lazy(() => SubmitInteractionAccount$outboundSchema)),
-  ),
-  kba: z.optional(z.lazy(() => SubmitInteractionKba$outboundSchema)),
-  documentTypeSelection: z.optional(
-    z.lazy(() => SubmitInteractionDocumentTypeSelection$outboundSchema),
-  ),
-  uid: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    identity: z.optional(
+      z.lazy(() => SubmitInteractionIdentity$outboundSchema),
+    ),
+    entities: z.optional(
+      z.array(z.lazy(() => SubmitInteractionEntity$outboundSchema)),
+    ),
+    documents: z.optional(
+      z.array(z.lazy(() => SubmitInteractionDocument$outboundSchema)),
+    ),
+    biometrics: z.optional(
+      z.array(smartUnion([
+        z.lazy(() => SubmitInteractionBiometric1$outboundSchema),
+        z.lazy(() =>
+          SubmitInteractionBiometric2$outboundSchema
+        ),
+        z.lazy(() => SubmitInteractionBiometricStoredFace$outboundSchema),
+        z.lazy(() =>
+          SubmitInteractionBiometricOrphanedStoredFace$outboundSchema
+        ),
+        z.lazy(() => SubmitInteractionBiometric3$outboundSchema),
+        z.lazy(() => SubmitInteractionBiometric4$outboundSchema),
+        z.lazy(() => SubmitInteractionBiometric5$outboundSchema),
+      ])),
+    ),
+    sessions: z.optional(
+      z.array(z.lazy(() => SubmitInteractionSession$outboundSchema)),
+    ),
+    consent: z.optional(
+      z.array(z.lazy(() => SubmitInteractionConsent$outboundSchema)),
+    ),
+    accounts: z.optional(
+      z.array(z.lazy(() => SubmitInteractionAccount$outboundSchema)),
+    ),
+    kba: z.optional(z.lazy(() => SubmitInteractionKba$outboundSchema)),
+    documentTypeSelection: z.optional(
+      z.lazy(() => SubmitInteractionDocumentTypeSelection$outboundSchema),
+    ),
+    capabilityCheck: z.optional(
+      z.lazy(() => SubmitInteractionCapabilityCheck$outboundSchema),
+    ),
+    uid: z.optional(z.string()),
+  })
+);
 
 export function submitInteractionSubjectToJSON(
   submitInteractionSubject: SubmitInteractionSubject,
@@ -5678,10 +6180,12 @@ export type ManualReview$Outbound = {
 export const ManualReview$outboundSchema: z.ZodMiniType<
   ManualReview$Outbound,
   ManualReview
-> = z.object({
-  decision: z.int(),
-  notes: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    decision: z.int(),
+    notes: z.optional(z.string()),
+  })
+);
 
 export function manualReviewToJSON(manualReview: ManualReview): string {
   return JSON.stringify(ManualReview$outboundSchema.parse(manualReview));
@@ -5696,9 +6200,11 @@ export type Reviewer$Outbound = {
 export const Reviewer$outboundSchema: z.ZodMiniType<
   Reviewer$Outbound,
   Reviewer
-> = z.object({
-  manualReview: z.optional(z.lazy(() => ManualReview$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    manualReview: z.optional(z.lazy(() => ManualReview$outboundSchema)),
+  })
+);
 
 export function reviewerToJSON(reviewer: Reviewer): string {
   return JSON.stringify(Reviewer$outboundSchema.parse(reviewer));
@@ -5714,10 +6220,12 @@ export type SubmitInteractionContext$Outbound = {
 export const SubmitInteractionContext$outboundSchema: z.ZodMiniType<
   SubmitInteractionContext$Outbound,
   SubmitInteractionContext
-> = z.object({
-  subject: z.lazy(() => SubmitInteractionSubject$outboundSchema),
-  reviewers: z.optional(z.array(z.lazy(() => Reviewer$outboundSchema))),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    subject: z.lazy(() => SubmitInteractionSubject$outboundSchema),
+    reviewers: z.optional(z.array(z.lazy(() => Reviewer$outboundSchema))),
+  })
+);
 
 export function submitInteractionContextToJSON(
   submitInteractionContext: SubmitInteractionContext,
@@ -5733,6 +6241,7 @@ export type SubmitInteractionRequest$Outbound = {
   interactionId: string;
   participants?: Array<Participant$Outbound> | undefined;
   context?: SubmitInteractionContext$Outbound | undefined;
+  viewVersion?: string | undefined;
   [additionalProperties: string]: unknown;
 };
 
@@ -5740,14 +6249,21 @@ export type SubmitInteractionRequest$Outbound = {
 export const SubmitInteractionRequest$outboundSchema: z.ZodMiniType<
   SubmitInteractionRequest$Outbound,
   SubmitInteractionRequest
-> = z.catchall(
-  z.object({
-    instanceId: z.string(),
-    interactionId: z.string(),
-    participants: z.optional(z.array(z.lazy(() => Participant$outboundSchema))),
-    context: z.optional(z.lazy(() => SubmitInteractionContext$outboundSchema)),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      instanceId: z.string(),
+      interactionId: z.string(),
+      participants: z.optional(
+        z.array(z.lazy(() => Participant$outboundSchema)),
+      ),
+      context: z.optional(
+        z.lazy(() => SubmitInteractionContext$outboundSchema),
+      ),
+      viewVersion: z.optional(z.string()),
+    }),
+    z.any(),
+  )
 );
 
 export function submitInteractionRequestToJSON(

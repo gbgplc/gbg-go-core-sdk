@@ -66,6 +66,11 @@ public class StartJourneySession {
     @JsonProperty("auth")
     private List<StartJourneySessionAuth> auth;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("error")
+    private StartJourneySessionError error;
+
     @JsonCreator
     public StartJourneySession(
             @JsonProperty("id") @Nullable String id,
@@ -77,7 +82,8 @@ public class StartJourneySession {
             @JsonProperty("trace") @Nullable StartJourneyTrace trace,
             @JsonProperty("span") @Nullable StartJourneySpan span,
             @JsonProperty("transaction") @Nullable StartJourneyTransaction transaction,
-            @JsonProperty("auth") @Nullable List<StartJourneySessionAuth> auth) {
+            @JsonProperty("auth") @Nullable List<StartJourneySessionAuth> auth,
+            @JsonProperty("error") @Nullable StartJourneySessionError error) {
         this.id = id;
         this.type = type;
         this.provider = provider;
@@ -88,13 +94,14 @@ public class StartJourneySession {
         this.span = span;
         this.transaction = transaction;
         this.auth = auth;
+        this.error = error;
     }
     
     public StartJourneySession() {
         this(null, null, null,
             null, null, null,
             null, null, null,
-            null);
+            null, null);
     }
 
     public Optional<String> id() {
@@ -135,6 +142,10 @@ public class StartJourneySession {
 
     public Optional<List<StartJourneySessionAuth>> auth() {
         return Optional.ofNullable(this.auth);
+    }
+
+    public Optional<StartJourneySessionError> error() {
+        return Optional.ofNullable(this.error);
     }
 
     public static Builder builder() {
@@ -202,6 +213,12 @@ public class StartJourneySession {
     }
 
 
+    public StartJourneySession withError(@Nullable StartJourneySessionError error) {
+        this.error = error;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -221,7 +238,8 @@ public class StartJourneySession {
             Utils.enhancedDeepEquals(this.trace, other.trace) &&
             Utils.enhancedDeepEquals(this.span, other.span) &&
             Utils.enhancedDeepEquals(this.transaction, other.transaction) &&
-            Utils.enhancedDeepEquals(this.auth, other.auth);
+            Utils.enhancedDeepEquals(this.auth, other.auth) &&
+            Utils.enhancedDeepEquals(this.error, other.error);
     }
     
     @Override
@@ -230,7 +248,7 @@ public class StartJourneySession {
             id, type, provider,
             user, client, device,
             trace, span, transaction,
-            auth);
+            auth, error);
     }
     
     @Override
@@ -245,7 +263,8 @@ public class StartJourneySession {
                 "trace", trace,
                 "span", span,
                 "transaction", transaction,
-                "auth", auth);
+                "auth", auth,
+                "error", error);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -270,6 +289,8 @@ public class StartJourneySession {
         private StartJourneyTransaction transaction;
 
         private List<StartJourneySessionAuth> auth;
+
+        private StartJourneySessionError error;
 
         private Builder() {
           // force use of static builder() method
@@ -325,12 +346,17 @@ public class StartJourneySession {
             return this;
         }
 
+        public Builder error(@Nullable StartJourneySessionError error) {
+            this.error = error;
+            return this;
+        }
+
         public StartJourneySession build() {
             return new StartJourneySession(
                 id, type, provider,
                 user, client, device,
                 trace, span, transaction,
-                auth);
+                auth, error);
         }
 
     }

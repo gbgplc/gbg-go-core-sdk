@@ -8,16 +8,25 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.GetJourneySchemas;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class GetJourneySchemasRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private GetJourneySchemasRequest request;
+    private final Options.Builder optionsBuilder;
 
     public GetJourneySchemasRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public GetJourneySchemasRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public GetJourneySchemasRequestBuilder request(@Nullable GetJourneySchemasRequest request) {
@@ -42,8 +51,9 @@ public class GetJourneySchemasRequestBuilder {
     * @return The response from the server.
     */
     public GetJourneySchemasResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<GetJourneySchemasRequest, GetJourneySchemasResponse> operation
-              = new GetJourneySchemas.Sync(sdkConfiguration, _headers);
+              = new GetJourneySchemas.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

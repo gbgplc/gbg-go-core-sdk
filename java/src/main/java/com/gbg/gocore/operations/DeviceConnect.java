@@ -22,10 +22,12 @@ import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Hook.AfterErrorContextImpl;
 import com.gbg.gocore.utils.Hook.AfterSuccessContextImpl;
 import com.gbg.gocore.utils.Hook.BeforeRequestContextImpl;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.SerializedBody;
 import com.gbg.gocore.utils.Utils.JsonShape;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.InputStream;
 import java.lang.Exception;
 import java.lang.Object;
@@ -33,6 +35,8 @@ import java.lang.String;
 import java.lang.Throwable;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -45,18 +49,22 @@ public class DeviceConnect {
         final String baseUrl;
         final DeviceConnectSecurity security;
         final SecuritySource securitySource;
+        final Optional<Duration> timeout;
         final HTTPClient client;
         final Headers _headers;
 
         public Base(
                 @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
-                Headers _headers) {
+                @Nullable Options options, Headers _headers) {
             this.sdkConfiguration = sdkConfiguration;
             this._headers =_headers;
             this.baseUrl = this.sdkConfiguration.serverUrl();
             this.security = security;
             // hooks will be passed method level security only
             this.securitySource = SecuritySource.of(security);
+            Optional.ofNullable(options)
+                    .ifPresent(o -> o.validate(List.of(Options.Option.TIMEOUT)));
+            this.timeout = Optional.ofNullable(options).flatMap(Options::timeout).or(sdkConfiguration::timeout);
             this.client = this.sdkConfiguration.client();
         }
 
@@ -94,7 +102,8 @@ public class DeviceConnect {
             String url = Utils.generateURL(
                     this.baseUrl,
                     "/journey/device/connect");
-            HTTPRequest req = new HTTPRequest(url, "POST");
+            HTTPRequest req = new HTTPRequest(url, "POST")
+                    .timeout(this.timeout);
             Object convertedRequest = Utils.convertToShape(
                     request,
                     JsonShape.DEFAULT,
@@ -119,9 +128,16 @@ public class DeviceConnect {
         public Sync(
                 @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
                 Headers _headers) {
+            this(sdkConfiguration, security,
+                    null, _headers);
+        }
+
+        public Sync(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
+                @Nullable Options options, Headers _headers) {
             super(
                   sdkConfiguration, security,
-                  _headers);
+                  options, _headers);
         }
 
         private HttpRequest onBuildRequest(DeviceConnectRequest request) throws Exception {
@@ -208,13 +224,19 @@ public class DeviceConnect {
     }
     public static class Async extends Base
             implements AsyncRequestOperation<DeviceConnectRequest, com.gbg.gocore.models.operations.async.DeviceConnectResponse> {
-
         public Async(
                 @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
                 Headers _headers) {
+            this(sdkConfiguration, security,
+                    null, _headers);
+        }
+
+        public Async(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nonnull DeviceConnectSecurity security,
+                @Nullable Options options, Headers _headers) {
             super(
                   sdkConfiguration, security,
-                  _headers);
+                  options, _headers);
         }
 
         private CompletableFuture<HttpRequest> onBuildRequest(DeviceConnectRequest request) throws Exception {

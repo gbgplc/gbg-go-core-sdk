@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type GetJourneySchemasRequest = {
   resourceId: string;
@@ -21,11 +22,13 @@ export type GetJourneySchemasRequest$Outbound = {
 export const GetJourneySchemasRequest$outboundSchema: z.ZodMiniType<
   GetJourneySchemasRequest$Outbound,
   GetJourneySchemasRequest
-> = z.object({
-  resourceId: z.string(),
-  interactionId: z.optional(z.string()),
-  instruction: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    resourceId: z.string(),
+    interactionId: z.optional(z.string()),
+    instruction: z.optional(z.string()),
+  })
+);
 
 export function getJourneySchemasRequestToJSON(
   getJourneySchemasRequest: GetJourneySchemasRequest,

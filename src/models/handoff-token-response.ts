@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -25,17 +25,19 @@ export type HandoffTokenResponse = {
 export const DevicePosition$inboundSchema: z.ZodMiniType<
   DevicePosition,
   unknown
-> = openEnums.inboundSchema(DevicePosition);
+> = /* @__PURE__ */ lazySchema$(() => openEnums.inboundSchema(DevicePosition));
 
 /** @internal */
 export const HandoffTokenResponse$inboundSchema: z.ZodMiniType<
   HandoffTokenResponse,
   unknown
-> = z.object({
-  instanceUrl: z.string(),
-  devicePosition: DevicePosition$inboundSchema,
-  expiresIn: z.number(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    instanceUrl: z.string(),
+    devicePosition: DevicePosition$inboundSchema,
+    expiresIn: z.number(),
+  })
+);
 
 export function handoffTokenResponseFromJSON(
   jsonString: string,

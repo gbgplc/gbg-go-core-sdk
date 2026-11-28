@@ -11,10 +11,12 @@ import com.gbg.gocore.models.operations.FetchInteractionRequestBody;
 import com.gbg.gocore.models.operations.FetchInteractionSecurity;
 import com.gbg.gocore.operations.FetchInteraction;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class FetchInteractionRequestBuilder {
@@ -23,11 +25,13 @@ public class FetchInteractionRequestBuilder {
     private final FetchInteractionRequest.Builder pojoBuilder;
     private FetchInteractionRequest request;
     private FetchInteractionSecurity security;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public FetchInteractionRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = FetchInteractionRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public FetchInteractionRequestBuilder view(@Nullable String view) {
@@ -39,6 +43,11 @@ public class FetchInteractionRequestBuilder {
     public FetchInteractionRequestBuilder body(@Nullable FetchInteractionRequestBody body) {
         this.pojoBuilder.body(body);
         this._setterCalled = true;
+        return this;
+    }
+
+    public FetchInteractionRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -67,8 +76,11 @@ public class FetchInteractionRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<FetchInteractionResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<FetchInteractionRequest, FetchInteractionResponse> operation
-              = new FetchInteraction.Async(sdkConfiguration, security, _headers);
+              = new FetchInteraction.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

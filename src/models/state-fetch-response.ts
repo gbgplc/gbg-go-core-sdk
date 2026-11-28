@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
@@ -22,21 +22,22 @@ export type StateFetchResponse = {
 };
 
 /** @internal */
-export const ViewEnum$inboundSchema: z.ZodMiniEnum<typeof ViewEnum> = z.enum(
-  ViewEnum,
-);
+export const ViewEnum$inboundSchema: z.ZodMiniEnum<typeof ViewEnum> =
+  /* @__PURE__ */ lazySchema$(() => z.enum(ViewEnum));
 
 /** @internal */
 export const StateFetchResponse$inboundSchema: z.ZodMiniType<
   StateFetchResponse,
   unknown
-> = z.object({
-  view: ViewEnum$inboundSchema,
-  instanceId: z.string(),
-  status: z.string(),
-  context: z.optional(z.record(z.string(), z.any())),
-  result: z.optional(z.record(z.string(), z.any())),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    view: ViewEnum$inboundSchema,
+    instanceId: z.string(),
+    status: z.string(),
+    context: z.optional(z.record(z.string(), z.any())),
+    result: z.optional(z.record(z.string(), z.any())),
+  })
+);
 
 export function stateFetchResponseFromJSON(
   jsonString: string,

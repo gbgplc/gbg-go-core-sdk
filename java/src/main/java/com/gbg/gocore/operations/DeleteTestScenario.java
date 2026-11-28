@@ -20,14 +20,18 @@ import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Hook.AfterErrorContextImpl;
 import com.gbg.gocore.utils.Hook.AfterSuccessContextImpl;
 import com.gbg.gocore.utils.Hook.BeforeRequestContextImpl;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.InputStream;
 import java.lang.Exception;
 import java.lang.String;
 import java.lang.Throwable;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -39,14 +43,20 @@ public class DeleteTestScenario {
         final SDKConfiguration sdkConfiguration;
         final String baseUrl;
         final SecuritySource securitySource;
+        final Optional<Duration> timeout;
         final HTTPClient client;
         final Headers _headers;
 
-        public Base(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
+        public Base(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable Options options,
+                Headers _headers) {
             this.sdkConfiguration = sdkConfiguration;
             this._headers =_headers;
             this.baseUrl = this.sdkConfiguration.serverUrl();
             this.securitySource = this.sdkConfiguration.securitySource();
+            Optional.ofNullable(options)
+                    .ifPresent(o -> o.validate(List.of(Options.Option.TIMEOUT)));
+            this.timeout = Optional.ofNullable(options).flatMap(Options::timeout).or(sdkConfiguration::timeout);
             this.client = this.sdkConfiguration.client();
         }
 
@@ -86,7 +96,8 @@ public class DeleteTestScenario {
                     this.baseUrl,
                     "/test/journeys/{journeyId}/scenarios/{name}",
                     request, null);
-            HTTPRequest req = new HTTPRequest(url, "DELETE");
+            HTTPRequest req = new HTTPRequest(url, "DELETE")
+                    .timeout(this.timeout);
             req.addHeader("Accept", "application/json")
                     .addHeader("user-agent", SDKConfiguration.USER_AGENT);
             _headers.forEach((k, list) -> list.forEach(v -> req.addHeader(k, v)));
@@ -99,7 +110,16 @@ public class DeleteTestScenario {
     public static class Sync extends Base
             implements RequestOperation<DeleteTestScenarioRequest, DeleteTestScenarioResponse> {
         public Sync(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
-            super(sdkConfiguration, _headers);
+            this(sdkConfiguration, null,
+                    _headers);
+        }
+
+        public Sync(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable Options options,
+                Headers _headers) {
+            super(
+                  sdkConfiguration, options,
+                  _headers);
         }
 
         private HttpRequest onBuildRequest(DeleteTestScenarioRequest request) throws Exception {
@@ -183,9 +203,17 @@ public class DeleteTestScenario {
     }
     public static class Async extends Base
             implements AsyncRequestOperation<DeleteTestScenarioRequest, com.gbg.gocore.models.operations.async.DeleteTestScenarioResponse> {
-
         public Async(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
-            super(sdkConfiguration, _headers);
+            this(sdkConfiguration, null,
+                    _headers);
+        }
+
+        public Async(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable Options options,
+                Headers _headers) {
+            super(
+                  sdkConfiguration, options,
+                  _headers);
         }
 
         private CompletableFuture<HttpRequest> onBuildRequest(DeleteTestScenarioRequest request) throws Exception {

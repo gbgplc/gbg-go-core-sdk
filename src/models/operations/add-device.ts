@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 import { ClosedEnum } from "../../types/enums.js";
 
 export const AddDeviceScope = {
@@ -26,7 +27,7 @@ export type AddDeviceRequest = {
 /** @internal */
 export const AddDeviceScope$outboundSchema: z.ZodMiniEnum<
   typeof AddDeviceScope
-> = z.enum(AddDeviceScope);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(AddDeviceScope));
 
 /** @internal */
 export type AddDeviceRequest$Outbound = {
@@ -39,12 +40,14 @@ export type AddDeviceRequest$Outbound = {
 export const AddDeviceRequest$outboundSchema: z.ZodMiniType<
   AddDeviceRequest$Outbound,
   AddDeviceRequest
-> = z.catchall(
-  z.object({
-    instanceId: z.string(),
-    scope: z.optional(z.array(AddDeviceScope$outboundSchema)),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      instanceId: z.string(),
+      scope: z.optional(z.array(AddDeviceScope$outboundSchema)),
+    }),
+    z.any(),
+  )
 );
 
 export function addDeviceRequestToJSON(

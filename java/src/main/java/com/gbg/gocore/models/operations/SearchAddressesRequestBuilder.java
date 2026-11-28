@@ -8,18 +8,27 @@ import static com.gbg.gocore.operations.Operations.RequestOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.SearchAddresses;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class SearchAddressesRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private SearchAddressesRequest request;
     private SearchAddressesSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public SearchAddressesRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public SearchAddressesRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public SearchAddressesRequestBuilder request(@Nullable SearchAddressesRequest request) {
@@ -49,8 +58,11 @@ public class SearchAddressesRequestBuilder {
     * @return The response from the server.
     */
     public SearchAddressesResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<SearchAddressesRequest, SearchAddressesResponse> operation
-              = new SearchAddresses.Sync(sdkConfiguration, security, _headers);
+              = new SearchAddresses.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

@@ -3,6 +3,8 @@
  */
 
 import * as z from "zod/v4-mini";
+import { matchesPattern as matchesPattern$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 import { ClosedEnum } from "../../types/enums.js";
 
 /**
@@ -37,7 +39,7 @@ export type GetTestScenarioRequest = {
 /** @internal */
 export const GetTestScenarioIncludePlatform$outboundSchema: z.ZodMiniEnum<
   typeof GetTestScenarioIncludePlatform
-> = z.enum(GetTestScenarioIncludePlatform);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(GetTestScenarioIncludePlatform));
 
 /** @internal */
 export type GetTestScenarioRequest$Outbound = {
@@ -50,11 +52,21 @@ export type GetTestScenarioRequest$Outbound = {
 export const GetTestScenarioRequest$outboundSchema: z.ZodMiniType<
   GetTestScenarioRequest$Outbound,
   GetTestScenarioRequest
-> = z.object({
-  journeyId: z.string(),
-  name: z.string(),
-  includePlatform: z.optional(GetTestScenarioIncludePlatform$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    journeyId: z.string().check(
+      z.refine(matchesPattern$("^[a-zA-Z0-9_-]{1,128}$"), {
+        message: "Value must match pattern ^[a-zA-Z0-9_-]{1,128}$",
+      }),
+    ),
+    name: z.string().check(
+      z.refine(matchesPattern$("^[a-zA-Z0-9_-]{1,64}$"), {
+        message: "Value must match pattern ^[a-zA-Z0-9_-]{1,64}$",
+      }),
+    ),
+    includePlatform: z.optional(GetTestScenarioIncludePlatform$outboundSchema),
+  })
+);
 
 export function getTestScenarioRequestToJSON(
   getTestScenarioRequest: GetTestScenarioRequest,

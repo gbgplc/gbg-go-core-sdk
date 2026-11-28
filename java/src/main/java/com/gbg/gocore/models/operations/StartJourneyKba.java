@@ -20,12 +20,12 @@ public class StartJourneyKba {
 
 
     @JsonProperty("answers")
-    private List<StartJourneyAnswer> answers;
+    private List<StartJourneyKbaAnswer> answers;
 
     @JsonCreator
     public StartJourneyKba(
             @JsonProperty("questions") @Nonnull List<StartJourneyQuestion> questions,
-            @JsonProperty("answers") @Nonnull List<StartJourneyAnswer> answers) {
+            @JsonProperty("answers") @Nonnull List<StartJourneyKbaAnswer> answers) {
         this.questions = Optional.ofNullable(questions)
             .orElseThrow(() -> new IllegalArgumentException("questions cannot be null"));
         this.answers = Optional.ofNullable(answers)
@@ -36,7 +36,7 @@ public class StartJourneyKba {
         return this.questions;
     }
 
-    public List<StartJourneyAnswer> answers() {
+    public List<StartJourneyKbaAnswer> answers() {
         return this.answers;
     }
 
@@ -51,7 +51,7 @@ public class StartJourneyKba {
     }
 
 
-    public StartJourneyKba withAnswers(@Nonnull List<StartJourneyAnswer> answers) {
+    public StartJourneyKba withAnswers(@Nonnull List<StartJourneyKbaAnswer> answers) {
         this.answers = Utils.checkNotNull(answers, "answers");
         return this;
     }
@@ -89,7 +89,7 @@ public class StartJourneyKba {
 
         private List<StartJourneyQuestion> questions;
 
-        private List<StartJourneyAnswer> answers;
+        private List<StartJourneyKbaAnswer> answers;
 
         private Builder() {
           // force use of static builder() method
@@ -100,7 +100,7 @@ public class StartJourneyKba {
             return this;
         }
 
-        public Builder answers(@Nonnull List<StartJourneyAnswer> answers) {
+        public Builder answers(@Nonnull List<StartJourneyKbaAnswer> answers) {
             this.answers = Utils.checkNotNull(answers, "answers");
             return this;
         }

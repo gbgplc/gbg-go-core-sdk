@@ -1,0 +1,10 @@
+# StartJourneyRequestBody
+
+
+## Fields
+
+| Field                                                                 | Setter Type                                                           | Getter Type                                                           | Required                                                              | Description                                                           |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `resourceId`                                                          | *String*                                                              | *String*                                                              | :heavy_check_mark:                                                    | N/A                                                                   |
+| `context`                                                             | [StartJourneyContext](../../models/operations/StartJourneyContext.md) | [StartJourneyContext](../../models/operations/StartJourneyContext.md) | :heavy_check_mark:                                                    | N/A                                                                   |
+| `scenario`                                                            | @Nullable [Scenario](../../models/operations/Scenario.md)             | Optional\<[Scenario](../../models/operations/Scenario.md)>            | :heavy_minus_sign:                                                    | N/A                                                                   |

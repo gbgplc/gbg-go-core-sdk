@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type CreateHandoffTokenSecurity = {
   interactionAccess: string;
@@ -22,15 +23,17 @@ export type CreateHandoffTokenSecurity$Outbound = {
 export const CreateHandoffTokenSecurity$outboundSchema: z.ZodMiniType<
   CreateHandoffTokenSecurity$Outbound,
   CreateHandoffTokenSecurity
-> = z.pipe(
-  z.object({
-    interactionAccess: z.string(),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      interactionAccess: "InteractionAccess",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      interactionAccess: z.string(),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        interactionAccess: "InteractionAccess",
+      });
+    }),
+  )
 );
 
 export function createHandoffTokenSecurityToJSON(
@@ -50,9 +53,11 @@ export type CreateHandoffTokenRequest$Outbound = {
 export const CreateHandoffTokenRequest$outboundSchema: z.ZodMiniType<
   CreateHandoffTokenRequest$Outbound,
   CreateHandoffTokenRequest
-> = z.object({
-  instanceId: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    instanceId: z.string(),
+  })
+);
 
 export function createHandoffTokenRequestToJSON(
   createHandoffTokenRequest: CreateHandoffTokenRequest,

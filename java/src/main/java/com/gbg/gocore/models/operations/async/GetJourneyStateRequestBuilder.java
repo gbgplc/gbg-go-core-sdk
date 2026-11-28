@@ -10,9 +10,11 @@ import com.gbg.gocore.models.operations.GetJourneyStateRequest;
 import com.gbg.gocore.models.operations.GetJourneyStateRequestBody;
 import com.gbg.gocore.operations.GetJourneyState;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class GetJourneyStateRequestBuilder {
@@ -20,11 +22,13 @@ public class GetJourneyStateRequestBuilder {
     private final Headers _headers = new Headers();
     private final GetJourneyStateRequest.Builder pojoBuilder;
     private GetJourneyStateRequest request;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public GetJourneyStateRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = GetJourneyStateRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public GetJourneyStateRequestBuilder view(@Nullable String view) {
@@ -36,6 +40,11 @@ public class GetJourneyStateRequestBuilder {
     public GetJourneyStateRequestBuilder body(@Nullable GetJourneyStateRequestBody body) {
         this.pojoBuilder.body(body);
         this._setterCalled = true;
+        return this;
+    }
+
+    public GetJourneyStateRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -59,8 +68,9 @@ public class GetJourneyStateRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<GetJourneyStateResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<GetJourneyStateRequest, GetJourneyStateResponse> operation
-              = new GetJourneyState.Async(sdkConfiguration, _headers);
+              = new GetJourneyState.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }

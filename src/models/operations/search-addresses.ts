@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type SearchAddressesSecurity = {
   customerAccess?: string | undefined;
@@ -30,17 +31,19 @@ export type SearchAddressesSecurity$Outbound = {
 export const SearchAddressesSecurity$outboundSchema: z.ZodMiniType<
   SearchAddressesSecurity$Outbound,
   SearchAddressesSecurity
-> = z.pipe(
-  z.object({
-    customerAccess: z.optional(z.string()),
-    interactionAccess: z.optional(z.string()),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      customerAccess: "CustomerAccess",
-      interactionAccess: "InteractionAccess",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      customerAccess: z.optional(z.string()),
+      interactionAccess: z.optional(z.string()),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        customerAccess: "CustomerAccess",
+        interactionAccess: "InteractionAccess",
+      });
+    }),
+  )
 );
 
 export function searchAddressesSecurityToJSON(
@@ -63,12 +66,14 @@ export type SearchAddressesRequest$Outbound = {
 export const SearchAddressesRequest$outboundSchema: z.ZodMiniType<
   SearchAddressesRequest$Outbound,
   SearchAddressesRequest
-> = z.object({
-  instanceId: z.string(),
-  text: z.string(),
-  containerId: z.optional(z.string()),
-  limit: z.optional(z.int()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    instanceId: z.string(),
+    text: z.string(),
+    containerId: z.optional(z.string()),
+    limit: z.optional(z.int()),
+  })
+);
 
 export function searchAddressesRequestToJSON(
   searchAddressesRequest: SearchAddressesRequest,

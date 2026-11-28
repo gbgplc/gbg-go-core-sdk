@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
@@ -19,13 +19,15 @@ export type DeviceValidateResponse = {
 export const DeviceValidateResponse$inboundSchema: z.ZodMiniType<
   DeviceValidateResponse,
   unknown
-> = z.object({
-  valid: z.literal(true),
-  sessionId: z.string(),
-  instanceId: z.string(),
-  orgId: z.string(),
-  expiresAt: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    valid: z.literal(true),
+    sessionId: z.string(),
+    instanceId: z.string(),
+    orgId: z.string(),
+    expiresAt: z.string(),
+  })
+);
 
 export function deviceValidateResponseFromJSON(
   jsonString: string,

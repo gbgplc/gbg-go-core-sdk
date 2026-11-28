@@ -3,6 +3,8 @@
  */
 
 import * as z from "zod/v4-mini";
+import { remap as remap$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 import { ClosedEnum } from "../../types/enums.js";
 import { smartUnion } from "../../types/smart-union.js";
 
@@ -391,7 +393,7 @@ export type StartJourneyTypePrimary1 = ClosedEnum<
   typeof StartJourneyTypePrimary1
 >;
 
-export const StartJourneyStatus = {
+export const StartJourneyStatusEnum = {
   Active: "active",
   Suspended: "suspended",
   Dormant: "dormant",
@@ -399,7 +401,7 @@ export const StartJourneyStatus = {
   StruckOff: "struckOff",
   Unknown: "unknown",
 } as const;
-export type StartJourneyStatus = ClosedEnum<typeof StartJourneyStatus>;
+export type StartJourneyStatusEnum = ClosedEnum<typeof StartJourneyStatusEnum>;
 
 export type StartJourneyAddressLocation = {
   latitude?: string | undefined;
@@ -820,7 +822,7 @@ export type StartJourneyEntity = {
   name?: string | undefined;
   aliases?: Array<string> | undefined;
   businessType?: string | undefined;
-  status?: StartJourneyStatus | undefined;
+  status?: StartJourneyStatusEnum | undefined;
   description?: string | undefined;
   addresses?: Array<StartJourneyAddressPrimary> | undefined;
   taxIdentifiers?: Array<StartJourneyTaxIdentifier> | undefined;
@@ -1721,6 +1723,10 @@ export type StartJourneySessionAuth = {
   clientSecret?: string | undefined;
 };
 
+export type StartJourneySessionError = {
+  code: string;
+};
+
 export type StartJourneySession = {
   id?: string | undefined;
   type?: string | undefined;
@@ -1732,6 +1738,7 @@ export type StartJourneySession = {
   span?: StartJourneySpan | undefined;
   transaction?: StartJourneyTransaction | undefined;
   auth?: Array<StartJourneySessionAuth> | undefined;
+  error?: StartJourneySessionError | undefined;
 };
 
 export const StartJourneyConsentType = {
@@ -1813,14 +1820,14 @@ export type StartJourneyQuestion = {
   choices: Array<StartJourneyChoice>;
 };
 
-export type StartJourneyAnswer = {
+export type StartJourneyKbaAnswer = {
   id: number;
   choices: Array<string>;
 };
 
 export type StartJourneyKba = {
   questions: Array<StartJourneyQuestion>;
-  answers: Array<StartJourneyAnswer>;
+  answers: Array<StartJourneyKbaAnswer>;
 };
 
 export const StartJourneyOffered = {
@@ -1868,6 +1875,62 @@ export type StartJourneyDocumentTypeSelection = {
   selected?: StartJourneySelected | undefined;
 };
 
+export type JourneysStartJourneyRequest = {
+  capabilityIds?: Array<string> | undefined;
+  timeoutMs?: number | undefined;
+};
+
+export type StartJourneyAnswerError2 = {
+  name: string;
+  message: string;
+};
+
+export type StartJourneyAnswerError1 = {
+  status: "error";
+  error: StartJourneyAnswerError2;
+};
+
+export type StartJourneyAnswerTimeout = {
+  status: "timeout";
+};
+
+export const StartJourneyState = {
+  Supported: "supported",
+  Unsupported: "unsupported",
+  RequiresUserConsent: "requiresUserConsent",
+} as const;
+export type StartJourneyState = ClosedEnum<typeof StartJourneyState>;
+
+export const StartJourneySource = {
+  Bridge: "bridge",
+  BrowserFallback: "browser-fallback",
+} as const;
+export type StartJourneySource = ClosedEnum<typeof StartJourneySource>;
+
+export type StartJourneyResults = {
+  state: StartJourneyState;
+  source: StartJourneySource;
+};
+
+export type StartJourneyAnswerDone = {
+  status: "done";
+  results: { [k: string]: StartJourneyResults };
+};
+
+export type StartJourneyAnswerUnion =
+  | StartJourneyAnswerDone
+  | StartJourneyAnswerTimeout
+  | StartJourneyAnswerError1;
+
+export type StartJourneyCapabilityCheck = {
+  request?: JourneysStartJourneyRequest | undefined;
+  answer?:
+    | StartJourneyAnswerDone
+    | StartJourneyAnswerTimeout
+    | StartJourneyAnswerError1
+    | undefined;
+};
+
 export type StartJourneyContextSubject = {
   identity?: StartJourneyIdentity | undefined;
   entities?: Array<StartJourneyEntity> | undefined;
@@ -1888,6 +1951,7 @@ export type StartJourneyContextSubject = {
   accounts?: Array<StartJourneyAccount> | undefined;
   kba?: StartJourneyKba | undefined;
   documentTypeSelection?: StartJourneyDocumentTypeSelection | undefined;
+  capabilityCheck?: StartJourneyCapabilityCheck | undefined;
   uid?: string | undefined;
 };
 
@@ -2013,10 +2077,18 @@ export type Scenario = {
   [additionalProperties: string]: unknown;
 };
 
-export type StartJourneyRequest = {
+export type StartJourneyRequestBody = {
   resourceId: string;
   context: StartJourneyContext;
   scenario?: Scenario | undefined;
+};
+
+export type StartJourneyRequestRequest = {
+  /**
+   * Applies a saved test scenario for this journey, selected by name (see /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario: <name>`. The value `inline` instead takes the scenario from the request body `scenario` field.
+   */
+  xGbgScenario?: string | undefined;
+  body?: StartJourneyRequestBody | undefined;
 };
 
 /** @internal */
@@ -2033,14 +2105,16 @@ export type StartJourneyIdentityAlias$Outbound = {
 export const StartJourneyIdentityAlias$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityAlias$Outbound,
   StartJourneyIdentityAlias
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  fullName: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    fullName: z.optional(z.string()),
+  })
+);
 
 export function startJourneyIdentityAliasToJSON(
   startJourneyIdentityAlias: StartJourneyIdentityAlias,
@@ -2053,7 +2127,7 @@ export function startJourneyIdentityAliasToJSON(
 /** @internal */
 export const StartJourneyIdentityRelationship$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyIdentityRelationship
-> = z.enum(StartJourneyIdentityRelationship);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyIdentityRelationship));
 
 /** @internal */
 export type StartJourneyIdentityRelatedPerson$Outbound = {
@@ -2069,14 +2143,16 @@ export type StartJourneyIdentityRelatedPerson$Outbound = {
 export const StartJourneyIdentityRelatedPerson$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityRelatedPerson$Outbound,
   StartJourneyIdentityRelatedPerson
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  relationship: StartJourneyIdentityRelationship$outboundSchema,
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    relationship: StartJourneyIdentityRelationship$outboundSchema,
+  })
+);
 
 export function startJourneyIdentityRelatedPersonToJSON(
   startJourneyIdentityRelatedPerson: StartJourneyIdentityRelatedPerson,
@@ -2101,12 +2177,14 @@ export const StartJourneyIdentityCurrentAddressLocation$outboundSchema:
   z.ZodMiniType<
     StartJourneyIdentityCurrentAddressLocation$Outbound,
     StartJourneyIdentityCurrentAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyIdentityCurrentAddressLocationToJSON(
   startJourneyIdentityCurrentAddressLocation:
@@ -2145,28 +2223,30 @@ export type StartJourneyIdentityCurrentAddress$Outbound = {
 export const StartJourneyIdentityCurrentAddress$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityCurrentAddress$Outbound,
   StartJourneyIdentityCurrentAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyIdentityCurrentAddressLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyIdentityCurrentAddressLocation$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyIdentityCurrentAddressToJSON(
   startJourneyIdentityCurrentAddress: StartJourneyIdentityCurrentAddress,
@@ -2191,12 +2271,14 @@ export const StartJourneyIdentityPreviousAddressLocation$outboundSchema:
   z.ZodMiniType<
     StartJourneyIdentityPreviousAddressLocation$Outbound,
     StartJourneyIdentityPreviousAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyIdentityPreviousAddressLocationToJSON(
   startJourneyIdentityPreviousAddressLocation:
@@ -2237,30 +2319,32 @@ export type StartJourneyIdentityPreviousAddress$Outbound = {
 export const StartJourneyIdentityPreviousAddress$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityPreviousAddress$Outbound,
   StartJourneyIdentityPreviousAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyIdentityPreviousAddressLocation$outboundSchema),
-  ),
-  fromDate: z.optional(z.string()),
-  toDate: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyIdentityPreviousAddressLocation$outboundSchema),
+    ),
+    fromDate: z.optional(z.string()),
+    toDate: z.optional(z.string()),
+  })
+);
 
 export function startJourneyIdentityPreviousAddressToJSON(
   startJourneyIdentityPreviousAddress: StartJourneyIdentityPreviousAddress,
@@ -2285,12 +2369,14 @@ export const StartJourneyIdentityPlaceOfBirthLocation$outboundSchema:
   z.ZodMiniType<
     StartJourneyIdentityPlaceOfBirthLocation$Outbound,
     StartJourneyIdentityPlaceOfBirthLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyIdentityPlaceOfBirthLocationToJSON(
   startJourneyIdentityPlaceOfBirthLocation:
@@ -2329,28 +2415,30 @@ export type StartJourneyIdentityPlaceOfBirth$Outbound = {
 export const StartJourneyIdentityPlaceOfBirth$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityPlaceOfBirth$Outbound,
   StartJourneyIdentityPlaceOfBirth
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyIdentityPlaceOfBirthLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyIdentityPlaceOfBirthLocation$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyIdentityPlaceOfBirthToJSON(
   startJourneyIdentityPlaceOfBirth: StartJourneyIdentityPlaceOfBirth,
@@ -2373,11 +2461,13 @@ export type StartJourneyIdentityIdNumber$Outbound = {
 export const StartJourneyIdentityIdNumber$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityIdNumber$Outbound,
   StartJourneyIdentityIdNumber
-> = z.object({
-  type: z.string(),
-  idNumber: z.string(),
-  country: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    idNumber: z.string(),
+    country: z.optional(z.string()),
+  })
+);
 
 export function startJourneyIdentityIdNumberToJSON(
   startJourneyIdentityIdNumber: StartJourneyIdentityIdNumber,
@@ -2399,10 +2489,12 @@ export type StartJourneyIdentityPhone$Outbound = {
 export const StartJourneyIdentityPhone$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityPhone$Outbound,
   StartJourneyIdentityPhone
-> = z.object({
-  type: z.string(),
-  number: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    number: z.string(),
+  })
+);
 
 export function startJourneyIdentityPhoneToJSON(
   startJourneyIdentityPhone: StartJourneyIdentityPhone,
@@ -2422,10 +2514,12 @@ export type StartJourneyIdentityEmail$Outbound = {
 export const StartJourneyIdentityEmail$outboundSchema: z.ZodMiniType<
   StartJourneyIdentityEmail$Outbound,
   StartJourneyIdentityEmail
-> = z.object({
-  type: z.string(),
-  email: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    email: z.string(),
+  })
+);
 
 export function startJourneyIdentityEmailToJSON(
   startJourneyIdentityEmail: StartJourneyIdentityEmail,
@@ -2445,10 +2539,12 @@ export type StartJourneyIdentitySocial$Outbound = {
 export const StartJourneyIdentitySocial$outboundSchema: z.ZodMiniType<
   StartJourneyIdentitySocial$Outbound,
   StartJourneyIdentitySocial
-> = z.object({
-  type: z.string(),
-  identity: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    identity: z.string(),
+  })
+);
 
 export function startJourneyIdentitySocialToJSON(
   startJourneyIdentitySocial: StartJourneyIdentitySocial,
@@ -2488,44 +2584,46 @@ export type StartJourneyIdentity$Outbound = {
 export const StartJourneyIdentity$outboundSchema: z.ZodMiniType<
   StartJourneyIdentity$Outbound,
   StartJourneyIdentity
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  aliases: z.optional(
-    z.array(z.lazy(() => StartJourneyIdentityAlias$outboundSchema)),
-  ),
-  relatedPersons: z.optional(
-    z.array(z.lazy(() => StartJourneyIdentityRelatedPerson$outboundSchema)),
-  ),
-  dateOfBirth: z.optional(z.string()),
-  gender: z.optional(z.string()),
-  currentAddress: z.optional(
-    z.lazy(() => StartJourneyIdentityCurrentAddress$outboundSchema),
-  ),
-  previousAddresses: z.optional(
-    z.array(z.lazy(() => StartJourneyIdentityPreviousAddress$outboundSchema)),
-  ),
-  placeOfBirth: z.optional(
-    z.lazy(() => StartJourneyIdentityPlaceOfBirth$outboundSchema),
-  ),
-  idNumbers: z.optional(
-    z.array(z.lazy(() => StartJourneyIdentityIdNumber$outboundSchema)),
-  ),
-  phones: z.optional(
-    z.array(z.lazy(() => StartJourneyIdentityPhone$outboundSchema)),
-  ),
-  emails: z.optional(
-    z.array(z.lazy(() => StartJourneyIdentityEmail$outboundSchema)),
-  ),
-  socials: z.optional(
-    z.array(z.lazy(() => StartJourneyIdentitySocial$outboundSchema)),
-  ),
-  mothersMaidenName: z.optional(z.string()),
-  nationality: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    aliases: z.optional(
+      z.array(z.lazy(() => StartJourneyIdentityAlias$outboundSchema)),
+    ),
+    relatedPersons: z.optional(
+      z.array(z.lazy(() => StartJourneyIdentityRelatedPerson$outboundSchema)),
+    ),
+    dateOfBirth: z.optional(z.string()),
+    gender: z.optional(z.string()),
+    currentAddress: z.optional(
+      z.lazy(() => StartJourneyIdentityCurrentAddress$outboundSchema),
+    ),
+    previousAddresses: z.optional(
+      z.array(z.lazy(() => StartJourneyIdentityPreviousAddress$outboundSchema)),
+    ),
+    placeOfBirth: z.optional(
+      z.lazy(() => StartJourneyIdentityPlaceOfBirth$outboundSchema),
+    ),
+    idNumbers: z.optional(
+      z.array(z.lazy(() => StartJourneyIdentityIdNumber$outboundSchema)),
+    ),
+    phones: z.optional(
+      z.array(z.lazy(() => StartJourneyIdentityPhone$outboundSchema)),
+    ),
+    emails: z.optional(
+      z.array(z.lazy(() => StartJourneyIdentityEmail$outboundSchema)),
+    ),
+    socials: z.optional(
+      z.array(z.lazy(() => StartJourneyIdentitySocial$outboundSchema)),
+    ),
+    mothersMaidenName: z.optional(z.string()),
+    nationality: z.optional(z.string()),
+  })
+);
 
 export function startJourneyIdentityToJSON(
   startJourneyIdentity: StartJourneyIdentity,
@@ -2538,12 +2636,12 @@ export function startJourneyIdentityToJSON(
 /** @internal */
 export const StartJourneyTypePrimary1$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyTypePrimary1
-> = z.enum(StartJourneyTypePrimary1);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyTypePrimary1));
 
 /** @internal */
-export const StartJourneyStatus$outboundSchema: z.ZodMiniEnum<
-  typeof StartJourneyStatus
-> = z.enum(StartJourneyStatus);
+export const StartJourneyStatusEnum$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyStatusEnum
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyStatusEnum));
 
 /** @internal */
 export type StartJourneyAddressLocation$Outbound = {
@@ -2557,12 +2655,14 @@ export type StartJourneyAddressLocation$Outbound = {
 export const StartJourneyAddressLocation$outboundSchema: z.ZodMiniType<
   StartJourneyAddressLocation$Outbound,
   StartJourneyAddressLocation
-> = z.object({
-  latitude: z.optional(z.string()),
-  longitude: z.optional(z.string()),
-  geoAccuracy: z.optional(z.string()),
-  what3words: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  })
+);
 
 export function startJourneyAddressLocationToJSON(
   startJourneyAddressLocation: StartJourneyAddressLocation,
@@ -2577,7 +2677,7 @@ export function startJourneyAddressLocationToJSON(
 /** @internal */
 export const StartJourneyPurpose$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyPurpose
-> = z.enum(StartJourneyPurpose);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyPurpose));
 
 /** @internal */
 export type StartJourneyAddressPrimary$Outbound = {
@@ -2606,29 +2706,31 @@ export type StartJourneyAddressPrimary$Outbound = {
 export const StartJourneyAddressPrimary$outboundSchema: z.ZodMiniType<
   StartJourneyAddressPrimary$Outbound,
   StartJourneyAddressPrimary
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyAddressLocation$outboundSchema),
-  ),
-  purpose: z.optional(StartJourneyPurpose$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyAddressLocation$outboundSchema),
+    ),
+    purpose: z.optional(StartJourneyPurpose$outboundSchema),
+  })
+);
 
 export function startJourneyAddressPrimaryToJSON(
   startJourneyAddressPrimary: StartJourneyAddressPrimary,
@@ -2641,7 +2743,7 @@ export function startJourneyAddressPrimaryToJSON(
 /** @internal */
 export const StartJourneyTaxIdentifierType$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyTaxIdentifierType
-> = z.enum(StartJourneyTaxIdentifierType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyTaxIdentifierType));
 
 /** @internal */
 export type StartJourneyTaxIdentifier$Outbound = {
@@ -2654,11 +2756,13 @@ export type StartJourneyTaxIdentifier$Outbound = {
 export const StartJourneyTaxIdentifier$outboundSchema: z.ZodMiniType<
   StartJourneyTaxIdentifier$Outbound,
   StartJourneyTaxIdentifier
-> = z.object({
-  type: StartJourneyTaxIdentifierType$outboundSchema,
-  value: z.string(),
-  country: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: StartJourneyTaxIdentifierType$outboundSchema,
+    value: z.string(),
+    country: z.optional(z.string()),
+  })
+);
 
 export function startJourneyTaxIdentifierToJSON(
   startJourneyTaxIdentifier: StartJourneyTaxIdentifier,
@@ -2671,7 +2775,7 @@ export function startJourneyTaxIdentifierToJSON(
 /** @internal */
 export const StartJourneySystem$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneySystem
-> = z.enum(StartJourneySystem);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneySystem));
 
 /** @internal */
 export type StartJourneyIndustryClassification$Outbound = {
@@ -2684,11 +2788,13 @@ export type StartJourneyIndustryClassification$Outbound = {
 export const StartJourneyIndustryClassification$outboundSchema: z.ZodMiniType<
   StartJourneyIndustryClassification$Outbound,
   StartJourneyIndustryClassification
-> = z.object({
-  system: StartJourneySystem$outboundSchema,
-  code: z.string(),
-  description: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    system: StartJourneySystem$outboundSchema,
+    code: z.string(),
+    description: z.optional(z.string()),
+  })
+);
 
 export function startJourneyIndustryClassificationToJSON(
   startJourneyIndustryClassification: StartJourneyIndustryClassification,
@@ -2703,7 +2809,7 @@ export function startJourneyIndustryClassificationToJSON(
 /** @internal */
 export const StartJourneyRegistrationType$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyRegistrationType
-> = z.enum(StartJourneyRegistrationType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyRegistrationType));
 
 /** @internal */
 export type StartJourneyRegisteredAddressLocation$Outbound = {
@@ -2718,12 +2824,14 @@ export const StartJourneyRegisteredAddressLocation$outboundSchema:
   z.ZodMiniType<
     StartJourneyRegisteredAddressLocation$Outbound,
     StartJourneyRegisteredAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyRegisteredAddressLocationToJSON(
   startJourneyRegisteredAddressLocation: StartJourneyRegisteredAddressLocation,
@@ -2761,28 +2869,30 @@ export type StartJourneyRegisteredAddress$Outbound = {
 export const StartJourneyRegisteredAddress$outboundSchema: z.ZodMiniType<
   StartJourneyRegisteredAddress$Outbound,
   StartJourneyRegisteredAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyRegisteredAddressLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyRegisteredAddressLocation$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyRegisteredAddressToJSON(
   startJourneyRegisteredAddress: StartJourneyRegisteredAddress,
@@ -2806,12 +2916,14 @@ export type StartJourneyAgentAddressLocation$Outbound = {
 export const StartJourneyAgentAddressLocation$outboundSchema: z.ZodMiniType<
   StartJourneyAgentAddressLocation$Outbound,
   StartJourneyAgentAddressLocation
-> = z.object({
-  latitude: z.optional(z.string()),
-  longitude: z.optional(z.string()),
-  geoAccuracy: z.optional(z.string()),
-  what3words: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    latitude: z.optional(z.string()),
+    longitude: z.optional(z.string()),
+    geoAccuracy: z.optional(z.string()),
+    what3words: z.optional(z.string()),
+  })
+);
 
 export function startJourneyAgentAddressLocationToJSON(
   startJourneyAgentAddressLocation: StartJourneyAgentAddressLocation,
@@ -2849,28 +2961,30 @@ export type StartJourneyAgentAddress$Outbound = {
 export const StartJourneyAgentAddress$outboundSchema: z.ZodMiniType<
   StartJourneyAgentAddress$Outbound,
   StartJourneyAgentAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyAgentAddressLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyAgentAddressLocation$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyAgentAddressToJSON(
   startJourneyAgentAddress: StartJourneyAgentAddress,
@@ -2895,19 +3009,21 @@ export type StartJourneyRegistration$Outbound = {
 export const StartJourneyRegistration$outboundSchema: z.ZodMiniType<
   StartJourneyRegistration$Outbound,
   StartJourneyRegistration
-> = z.object({
-  jurisdiction: z.optional(z.string()),
-  registrationType: z.optional(StartJourneyRegistrationType$outboundSchema),
-  fileNumber: z.optional(z.string()),
-  issueDate: z.optional(z.string()),
-  registeredAddress: z.optional(
-    z.lazy(() => StartJourneyRegisteredAddress$outboundSchema),
-  ),
-  agentName: z.optional(z.string()),
-  agentAddress: z.optional(
-    z.lazy(() => StartJourneyAgentAddress$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    jurisdiction: z.optional(z.string()),
+    registrationType: z.optional(StartJourneyRegistrationType$outboundSchema),
+    fileNumber: z.optional(z.string()),
+    issueDate: z.optional(z.string()),
+    registeredAddress: z.optional(
+      z.lazy(() => StartJourneyRegisteredAddress$outboundSchema),
+    ),
+    agentName: z.optional(z.string()),
+    agentAddress: z.optional(
+      z.lazy(() => StartJourneyAgentAddress$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyRegistrationToJSON(
   startJourneyRegistration: StartJourneyRegistration,
@@ -2920,12 +3036,12 @@ export function startJourneyRegistrationToJSON(
 /** @internal */
 export const StartJourneyTypePrimary2$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyTypePrimary2
-> = z.enum(StartJourneyTypePrimary2);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyTypePrimary2));
 
 /** @internal */
 export const StartJourneyRole$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyRole
-> = z.enum(StartJourneyRole);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyRole));
 
 /** @internal */
 export type StartJourneyCurrentAddressLocationPrimary$Outbound = {
@@ -2940,12 +3056,14 @@ export const StartJourneyCurrentAddressLocationPrimary$outboundSchema:
   z.ZodMiniType<
     StartJourneyCurrentAddressLocationPrimary$Outbound,
     StartJourneyCurrentAddressLocationPrimary
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyCurrentAddressLocationPrimaryToJSON(
   startJourneyCurrentAddressLocationPrimary:
@@ -2984,28 +3102,30 @@ export type StartJourneyCurrentAddressPrimary$Outbound = {
 export const StartJourneyCurrentAddressPrimary$outboundSchema: z.ZodMiniType<
   StartJourneyCurrentAddressPrimary$Outbound,
   StartJourneyCurrentAddressPrimary
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyCurrentAddressLocationPrimary$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyCurrentAddressLocationPrimary$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyCurrentAddressPrimaryToJSON(
   startJourneyCurrentAddressPrimary: StartJourneyCurrentAddressPrimary,
@@ -3040,25 +3160,27 @@ export type StartJourneyPerson$Outbound = {
 export const StartJourneyPerson$outboundSchema: z.ZodMiniType<
   StartJourneyPerson$Outbound,
   StartJourneyPerson
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  id: z.optional(z.string()),
-  type: z.optional(StartJourneyTypePrimary2$outboundSchema),
-  role: z.optional(StartJourneyRole$outboundSchema),
-  position: z.optional(z.string()),
-  ownershipPercentage: z.optional(z.number()),
-  nationality: z.optional(z.string()),
-  dateOfBirth: z.optional(z.string()),
-  startDate: z.optional(z.string()),
-  endDate: z.optional(z.string()),
-  currentAddress: z.optional(
-    z.lazy(() => StartJourneyCurrentAddressPrimary$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    id: z.optional(z.string()),
+    type: z.optional(StartJourneyTypePrimary2$outboundSchema),
+    role: z.optional(StartJourneyRole$outboundSchema),
+    position: z.optional(z.string()),
+    ownershipPercentage: z.optional(z.number()),
+    nationality: z.optional(z.string()),
+    dateOfBirth: z.optional(z.string()),
+    startDate: z.optional(z.string()),
+    endDate: z.optional(z.string()),
+    currentAddress: z.optional(
+      z.lazy(() => StartJourneyCurrentAddressPrimary$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyPersonToJSON(
   startJourneyPerson: StartJourneyPerson,
@@ -3078,10 +3200,12 @@ export type StartJourneyPhonePrimary$Outbound = {
 export const StartJourneyPhonePrimary$outboundSchema: z.ZodMiniType<
   StartJourneyPhonePrimary$Outbound,
   StartJourneyPhonePrimary
-> = z.object({
-  type: z.string(),
-  number: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    number: z.string(),
+  })
+);
 
 export function startJourneyPhonePrimaryToJSON(
   startJourneyPhonePrimary: StartJourneyPhonePrimary,
@@ -3121,38 +3245,42 @@ export type StartJourneyEntity$Outbound = {
 export const StartJourneyEntity$outboundSchema: z.ZodMiniType<
   StartJourneyEntity$Outbound,
   StartJourneyEntity
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(StartJourneyTypePrimary1$outboundSchema),
-  name: z.optional(z.string()),
-  aliases: z.optional(z.array(z.string())),
-  businessType: z.optional(z.string()),
-  status: z.optional(StartJourneyStatus$outboundSchema),
-  description: z.optional(z.string()),
-  addresses: z.optional(
-    z.array(z.lazy(() => StartJourneyAddressPrimary$outboundSchema)),
-  ),
-  taxIdentifiers: z.optional(
-    z.array(z.lazy(() => StartJourneyTaxIdentifier$outboundSchema)),
-  ),
-  companyNumber: z.optional(z.string()),
-  industryClassifications: z.optional(
-    z.array(z.lazy(() => StartJourneyIndustryClassification$outboundSchema)),
-  ),
-  registrations: z.optional(
-    z.array(z.lazy(() => StartJourneyRegistration$outboundSchema)),
-  ),
-  corporateStructure: z.optional(z.string()),
-  persons: z.optional(z.array(z.lazy(() => StartJourneyPerson$outboundSchema))),
-  incorporationDate: z.optional(z.string()),
-  dissolutionDate: z.optional(z.string()),
-  phones: z.optional(
-    z.array(z.lazy(() => StartJourneyPhonePrimary$outboundSchema)),
-  ),
-  websites: z.optional(z.array(z.string())),
-  headcount: z.optional(z.int()),
-  isNonProfit: z.optional(z.boolean()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(StartJourneyTypePrimary1$outboundSchema),
+    name: z.optional(z.string()),
+    aliases: z.optional(z.array(z.string())),
+    businessType: z.optional(z.string()),
+    status: z.optional(StartJourneyStatusEnum$outboundSchema),
+    description: z.optional(z.string()),
+    addresses: z.optional(
+      z.array(z.lazy(() => StartJourneyAddressPrimary$outboundSchema)),
+    ),
+    taxIdentifiers: z.optional(
+      z.array(z.lazy(() => StartJourneyTaxIdentifier$outboundSchema)),
+    ),
+    companyNumber: z.optional(z.string()),
+    industryClassifications: z.optional(
+      z.array(z.lazy(() => StartJourneyIndustryClassification$outboundSchema)),
+    ),
+    registrations: z.optional(
+      z.array(z.lazy(() => StartJourneyRegistration$outboundSchema)),
+    ),
+    corporateStructure: z.optional(z.string()),
+    persons: z.optional(
+      z.array(z.lazy(() => StartJourneyPerson$outboundSchema)),
+    ),
+    incorporationDate: z.optional(z.string()),
+    dissolutionDate: z.optional(z.string()),
+    phones: z.optional(
+      z.array(z.lazy(() => StartJourneyPhonePrimary$outboundSchema)),
+    ),
+    websites: z.optional(z.array(z.string())),
+    headcount: z.optional(z.int()),
+    isNonProfit: z.optional(z.boolean()),
+  })
+);
 
 export function startJourneyEntityToJSON(
   startJourneyEntity: StartJourneyEntity,
@@ -3177,15 +3305,17 @@ export type StartJourneyDocumentAddress$Outbound = {
 export const StartJourneyDocumentAddress$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentAddress$Outbound,
   StartJourneyDocumentAddress
-> = z.object({
-  addressString: z.optional(z.string()),
-  extractedAddressString: z.optional(z.string()),
-  addressLine1: z.optional(z.string()),
-  addressLine2: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    addressString: z.optional(z.string()),
+    extractedAddressString: z.optional(z.string()),
+    addressLine1: z.optional(z.string()),
+    addressLine2: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDocumentAddressToJSON(
   startJourneyDocumentAddress: StartJourneyDocumentAddress,
@@ -3212,15 +3342,17 @@ export type StartJourneyDocumentDevice$Outbound = {
 export const StartJourneyDocumentDevice$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentDevice$Outbound,
   StartJourneyDocumentDevice
-> = z.object({
-  type: z.optional(z.string()),
-  model: z.optional(z.string()),
-  hasContactlessReader: z.optional(z.boolean()),
-  hasMagneticStripeReader: z.optional(z.boolean()),
-  hasCamera: z.optional(z.boolean()),
-  serialNumber: z.optional(z.string()),
-  manufacturer: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(z.string()),
+    model: z.optional(z.string()),
+    hasContactlessReader: z.optional(z.boolean()),
+    hasMagneticStripeReader: z.optional(z.boolean()),
+    hasCamera: z.optional(z.boolean()),
+    serialNumber: z.optional(z.string()),
+    manufacturer: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDocumentDeviceToJSON(
   startJourneyDocumentDevice: StartJourneyDocumentDevice,
@@ -3245,15 +3377,17 @@ export type StartJourneySide1Device$Outbound = {
 export const StartJourneySide1Device$outboundSchema: z.ZodMiniType<
   StartJourneySide1Device$Outbound,
   StartJourneySide1Device
-> = z.object({
-  type: z.optional(z.string()),
-  model: z.optional(z.string()),
-  hasContactlessReader: z.optional(z.boolean()),
-  hasMagneticStripeReader: z.optional(z.boolean()),
-  hasCamera: z.optional(z.boolean()),
-  serialNumber: z.optional(z.string()),
-  manufacturer: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(z.string()),
+    model: z.optional(z.string()),
+    hasContactlessReader: z.optional(z.boolean()),
+    hasMagneticStripeReader: z.optional(z.boolean()),
+    hasCamera: z.optional(z.boolean()),
+    serialNumber: z.optional(z.string()),
+    manufacturer: z.optional(z.string()),
+  })
+);
 
 export function startJourneySide1DeviceToJSON(
   startJourneySide1Device: StartJourneySide1Device,
@@ -3278,15 +3412,17 @@ export type StartJourneySide2Device$Outbound = {
 export const StartJourneySide2Device$outboundSchema: z.ZodMiniType<
   StartJourneySide2Device$Outbound,
   StartJourneySide2Device
-> = z.object({
-  type: z.optional(z.string()),
-  model: z.optional(z.string()),
-  hasContactlessReader: z.optional(z.boolean()),
-  hasMagneticStripeReader: z.optional(z.boolean()),
-  hasCamera: z.optional(z.boolean()),
-  serialNumber: z.optional(z.string()),
-  manufacturer: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(z.string()),
+    model: z.optional(z.string()),
+    hasContactlessReader: z.optional(z.boolean()),
+    hasMagneticStripeReader: z.optional(z.boolean()),
+    hasCamera: z.optional(z.boolean()),
+    serialNumber: z.optional(z.string()),
+    manufacturer: z.optional(z.string()),
+  })
+);
 
 export function startJourneySide2DeviceToJSON(
   startJourneySide2Device: StartJourneySide2Device,
@@ -3299,7 +3435,7 @@ export function startJourneySide2DeviceToJSON(
 /** @internal */
 export const StartJourneyName$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyName
-> = z.enum(StartJourneyName);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyName));
 
 /** @internal */
 export type StartJourneyLd$Outbound = {
@@ -3312,12 +3448,14 @@ export type StartJourneyLd$Outbound = {
 export const StartJourneyLd$outboundSchema: z.ZodMiniType<
   StartJourneyLd$Outbound,
   StartJourneyLd
-> = z.catchall(
-  z.object({
-    name: StartJourneyName$outboundSchema,
-    data: z.string(),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      name: StartJourneyName$outboundSchema,
+      data: z.string(),
+    }),
+    z.any(),
+  )
 );
 
 export function startJourneyLdToJSON(startJourneyLd: StartJourneyLd): string {
@@ -3327,12 +3465,12 @@ export function startJourneyLdToJSON(startJourneyLd: StartJourneyLd): string {
 /** @internal */
 export const StartJourneyAuthType$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyAuthType
-> = z.enum(StartJourneyAuthType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyAuthType));
 
 /** @internal */
 export const StartJourneyResult$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyResult
-> = z.enum(StartJourneyResult);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyResult));
 
 /** @internal */
 export type StartJourneyChipAuth$Outbound = {
@@ -3345,12 +3483,14 @@ export type StartJourneyChipAuth$Outbound = {
 export const StartJourneyChipAuth$outboundSchema: z.ZodMiniType<
   StartJourneyChipAuth$Outbound,
   StartJourneyChipAuth
-> = z.catchall(
-  z.object({
-    type: StartJourneyAuthType$outboundSchema,
-    result: StartJourneyResult$outboundSchema,
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      type: StartJourneyAuthType$outboundSchema,
+      result: StartJourneyResult$outboundSchema,
+    }),
+    z.any(),
+  )
 );
 
 export function startJourneyChipAuthToJSON(
@@ -3372,12 +3512,14 @@ export type StartJourneyChip$Outbound = {
 export const StartJourneyChip$outboundSchema: z.ZodMiniType<
   StartJourneyChip$Outbound,
   StartJourneyChip
-> = z.catchall(
-  z.object({
-    lds: z.array(z.lazy(() => StartJourneyLd$outboundSchema)),
-    auth: z.array(z.lazy(() => StartJourneyChipAuth$outboundSchema)),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      lds: z.array(z.lazy(() => StartJourneyLd$outboundSchema)),
+      auth: z.array(z.lazy(() => StartJourneyChipAuth$outboundSchema)),
+    }),
+    z.any(),
+  )
 );
 
 export function startJourneyChipToJSON(
@@ -3400,12 +3542,14 @@ export type StartJourneySide$Outbound = {
 export const StartJourneySide$outboundSchema: z.ZodMiniType<
   StartJourneySide$Outbound,
   StartJourneySide
-> = z.object({
-  side: z.string(),
-  id: z.string(),
-  documentQuality: z.string(),
-  documentQualityScore: z.number(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    side: z.string(),
+    id: z.string(),
+    documentQuality: z.string(),
+    documentQualityScore: z.number(),
+  })
+);
 
 export function startJourneySideToJSON(
   startJourneySide: StartJourneySide,
@@ -3435,20 +3579,22 @@ export type StartJourneyClassification$Outbound = {
 export const StartJourneyClassification$outboundSchema: z.ZodMiniType<
   StartJourneyClassification$Outbound,
   StartJourneyClassification
-> = z.object({
-  ids: z.optional(z.array(z.string())),
-  category: z.optional(z.string()),
-  type: z.optional(z.string()),
-  subtype: z.optional(z.string()),
-  isDoubleSided: z.optional(z.boolean()),
-  hasNFC: z.optional(z.boolean()),
-  year: z.optional(z.string()),
-  countryCode: z.optional(z.string()),
-  countryName: z.optional(z.string()),
-  stateCode: z.optional(z.string()),
-  stateName: z.optional(z.string()),
-  sides: z.optional(z.array(z.lazy(() => StartJourneySide$outboundSchema))),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    ids: z.optional(z.array(z.string())),
+    category: z.optional(z.string()),
+    type: z.optional(z.string()),
+    subtype: z.optional(z.string()),
+    isDoubleSided: z.optional(z.boolean()),
+    hasNFC: z.optional(z.boolean()),
+    year: z.optional(z.string()),
+    countryCode: z.optional(z.string()),
+    countryName: z.optional(z.string()),
+    stateCode: z.optional(z.string()),
+    stateName: z.optional(z.string()),
+    sides: z.optional(z.array(z.lazy(() => StartJourneySide$outboundSchema))),
+  })
+);
 
 export function startJourneyClassificationToJSON(
   startJourneyClassification: StartJourneyClassification,
@@ -3471,12 +3617,14 @@ export const StartJourneyAggregatedFieldBoundingBox$outboundSchema:
   z.ZodMiniType<
     StartJourneyAggregatedFieldBoundingBox$Outbound,
     StartJourneyAggregatedFieldBoundingBox
-  > = z.object({
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      x: z.number(),
+      y: z.number(),
+      width: z.number(),
+      height: z.number(),
+    })
+  );
 
 export function startJourneyAggregatedFieldBoundingBoxToJSON(
   startJourneyAggregatedFieldBoundingBox:
@@ -3502,14 +3650,16 @@ export const StartJourneyAggregatedFieldRegionOfInterest$outboundSchema:
   z.ZodMiniType<
     StartJourneyAggregatedFieldRegionOfInterest$Outbound,
     StartJourneyAggregatedFieldRegionOfInterest
-  > = z.object({
-    boundingBox: z.optional(
-      z.lazy(() => StartJourneyAggregatedFieldBoundingBox$outboundSchema),
-    ),
-    side: z.string(),
-    spectrum: z.optional(z.string()),
-    imageId: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      boundingBox: z.optional(
+        z.lazy(() => StartJourneyAggregatedFieldBoundingBox$outboundSchema),
+      ),
+      side: z.string(),
+      spectrum: z.optional(z.string()),
+      imageId: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyAggregatedFieldRegionOfInterestToJSON(
   startJourneyAggregatedFieldRegionOfInterest:
@@ -3537,15 +3687,17 @@ export type StartJourneyAggregatedField$Outbound = {
 export const StartJourneyAggregatedField$outboundSchema: z.ZodMiniType<
   StartJourneyAggregatedField$Outbound,
   StartJourneyAggregatedField
-> = z.object({
-  label: z.string(),
-  value: z.string(),
-  source: z.string(),
-  isNonLatin: z.boolean(),
-  regionOfInterest: z.optional(
-    z.lazy(() => StartJourneyAggregatedFieldRegionOfInterest$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    value: z.string(),
+    source: z.string(),
+    isNonLatin: z.boolean(),
+    regionOfInterest: z.optional(
+      z.lazy(() => StartJourneyAggregatedFieldRegionOfInterest$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyAggregatedFieldToJSON(
   startJourneyAggregatedField: StartJourneyAggregatedField,
@@ -3569,12 +3721,14 @@ export type StartJourneyDetailBoundingBox$Outbound = {
 export const StartJourneyDetailBoundingBox$outboundSchema: z.ZodMiniType<
   StartJourneyDetailBoundingBox$Outbound,
   StartJourneyDetailBoundingBox
-> = z.object({
-  x: z.number(),
-  y: z.number(),
-  width: z.number(),
-  height: z.number(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    x: z.number(),
+    y: z.number(),
+    width: z.number(),
+    height: z.number(),
+  })
+);
 
 export function startJourneyDetailBoundingBoxToJSON(
   startJourneyDetailBoundingBox: StartJourneyDetailBoundingBox,
@@ -3598,14 +3752,16 @@ export type StartJourneyDetailRegionOfInterest$Outbound = {
 export const StartJourneyDetailRegionOfInterest$outboundSchema: z.ZodMiniType<
   StartJourneyDetailRegionOfInterest$Outbound,
   StartJourneyDetailRegionOfInterest
-> = z.object({
-  boundingBox: z.optional(
-    z.lazy(() => StartJourneyDetailBoundingBox$outboundSchema),
-  ),
-  side: z.string(),
-  spectrum: z.optional(z.string()),
-  imageId: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    boundingBox: z.optional(
+      z.lazy(() => StartJourneyDetailBoundingBox$outboundSchema),
+    ),
+    side: z.string(),
+    spectrum: z.optional(z.string()),
+    imageId: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDetailRegionOfInterestToJSON(
   startJourneyDetailRegionOfInterest: StartJourneyDetailRegionOfInterest,
@@ -3630,15 +3786,17 @@ export type StartJourneyDetail$Outbound = {
 export const StartJourneyDetail$outboundSchema: z.ZodMiniType<
   StartJourneyDetail$Outbound,
   StartJourneyDetail
-> = z.object({
-  label: z.string(),
-  value: z.string(),
-  source: z.string(),
-  isNonLatin: z.boolean(),
-  regionOfInterest: z.optional(
-    z.lazy(() => StartJourneyDetailRegionOfInterest$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    value: z.string(),
+    source: z.string(),
+    isNonLatin: z.boolean(),
+    regionOfInterest: z.optional(
+      z.lazy(() => StartJourneyDetailRegionOfInterest$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyDetailToJSON(
   startJourneyDetail: StartJourneyDetail,
@@ -3658,10 +3816,12 @@ export type StartJourneyExtractedField$Outbound = {
 export const StartJourneyExtractedField$outboundSchema: z.ZodMiniType<
   StartJourneyExtractedField$Outbound,
   StartJourneyExtractedField
-> = z.object({
-  label: z.string(),
-  details: z.array(z.lazy(() => StartJourneyDetail$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    details: z.array(z.lazy(() => StartJourneyDetail$outboundSchema)),
+  })
+);
 
 export function startJourneyExtractedFieldToJSON(
   startJourneyExtractedField: StartJourneyExtractedField,
@@ -3682,11 +3842,13 @@ export type StartJourneyExtractedImage$Outbound = {
 export const StartJourneyExtractedImage$outboundSchema: z.ZodMiniType<
   StartJourneyExtractedImage$Outbound,
   StartJourneyExtractedImage
-> = z.object({
-  label: z.string(),
-  side: z.string(),
-  imageID: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    side: z.string(),
+    imageID: z.string(),
+  })
+);
 
 export function startJourneyExtractedImageToJSON(
   startJourneyExtractedImage: StartJourneyExtractedImage,
@@ -3707,17 +3869,19 @@ export type StartJourneyExtraction$Outbound = {
 export const StartJourneyExtraction$outboundSchema: z.ZodMiniType<
   StartJourneyExtraction$Outbound,
   StartJourneyExtraction
-> = z.object({
-  aggregatedFields: z.optional(
-    z.array(z.lazy(() => StartJourneyAggregatedField$outboundSchema)),
-  ),
-  extractedFields: z.optional(
-    z.array(z.lazy(() => StartJourneyExtractedField$outboundSchema)),
-  ),
-  extractedImages: z.optional(
-    z.array(z.lazy(() => StartJourneyExtractedImage$outboundSchema)),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    aggregatedFields: z.optional(
+      z.array(z.lazy(() => StartJourneyAggregatedField$outboundSchema)),
+    ),
+    extractedFields: z.optional(
+      z.array(z.lazy(() => StartJourneyExtractedField$outboundSchema)),
+    ),
+    extractedImages: z.optional(
+      z.array(z.lazy(() => StartJourneyExtractedImage$outboundSchema)),
+    ),
+  })
+);
 
 export function startJourneyExtractionToJSON(
   startJourneyExtraction: StartJourneyExtraction,
@@ -3740,12 +3904,14 @@ export const StartJourneyValidationCheckBoundingBox$outboundSchema:
   z.ZodMiniType<
     StartJourneyValidationCheckBoundingBox$Outbound,
     StartJourneyValidationCheckBoundingBox
-  > = z.object({
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      x: z.number(),
+      y: z.number(),
+      width: z.number(),
+      height: z.number(),
+    })
+  );
 
 export function startJourneyValidationCheckBoundingBoxToJSON(
   startJourneyValidationCheckBoundingBox:
@@ -3771,14 +3937,16 @@ export const StartJourneyValidationCheckRegionOfInterest$outboundSchema:
   z.ZodMiniType<
     StartJourneyValidationCheckRegionOfInterest$Outbound,
     StartJourneyValidationCheckRegionOfInterest
-  > = z.object({
-    boundingBox: z.optional(
-      z.lazy(() => StartJourneyValidationCheckBoundingBox$outboundSchema),
-    ),
-    side: z.string(),
-    spectrum: z.optional(z.string()),
-    imageId: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      boundingBox: z.optional(
+        z.lazy(() => StartJourneyValidationCheckBoundingBox$outboundSchema),
+      ),
+      side: z.string(),
+      spectrum: z.optional(z.string()),
+      imageId: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyValidationCheckRegionOfInterestToJSON(
   startJourneyValidationCheckRegionOfInterest:
@@ -3809,20 +3977,20 @@ export type StartJourneyValidationCheck$Outbound = {
 export const StartJourneyValidationCheck$outboundSchema: z.ZodMiniType<
   StartJourneyValidationCheck$Outbound,
   StartJourneyValidationCheck
-> = z.object({
-  name: z.string(),
-  title: z.string(),
-  info: z.string(),
-  validationResult: z.string(),
-  resultInfo: z.string(),
-  weight: z.string(),
-  regionOfInterests: z.optional(
-    z.array(z.lazy(() =>
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    name: z.string(),
+    title: z.string(),
+    info: z.string(),
+    validationResult: z.string(),
+    resultInfo: z.string(),
+    weight: z.string(),
+    regionOfInterests: z.optional(z.array(z.lazy(() =>
       StartJourneyValidationCheckRegionOfInterest$outboundSchema
-    )),
-  ),
-  type: z.string(),
-});
+    ))),
+    type: z.string(),
+  })
+);
 
 export function startJourneyValidationCheckToJSON(
   startJourneyValidationCheck: StartJourneyValidationCheck,
@@ -3847,12 +4015,14 @@ export const StartJourneyAggregatedValidationCheckBoundingBox$outboundSchema:
   z.ZodMiniType<
     StartJourneyAggregatedValidationCheckBoundingBox$Outbound,
     StartJourneyAggregatedValidationCheckBoundingBox
-  > = z.object({
-    x: z.number(),
-    y: z.number(),
-    width: z.number(),
-    height: z.number(),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      x: z.number(),
+      y: z.number(),
+      width: z.number(),
+      height: z.number(),
+    })
+  );
 
 export function startJourneyAggregatedValidationCheckBoundingBoxToJSON(
   startJourneyAggregatedValidationCheckBoundingBox:
@@ -3880,16 +4050,16 @@ export const StartJourneyAggregatedValidationCheckRegionOfInterest$outboundSchem
   z.ZodMiniType<
     StartJourneyAggregatedValidationCheckRegionOfInterest$Outbound,
     StartJourneyAggregatedValidationCheckRegionOfInterest
-  > = z.object({
-    boundingBox: z.optional(
-      z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      boundingBox: z.optional(z.lazy(() =>
         StartJourneyAggregatedValidationCheckBoundingBox$outboundSchema
-      ),
-    ),
-    side: z.string(),
-    spectrum: z.optional(z.string()),
-    imageId: z.optional(z.string()),
-  });
+      )),
+      side: z.string(),
+      spectrum: z.optional(z.string()),
+      imageId: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyAggregatedValidationCheckRegionOfInterestToJSON(
   startJourneyAggregatedValidationCheckRegionOfInterest:
@@ -3921,20 +4091,20 @@ export const StartJourneyAggregatedValidationCheck$outboundSchema:
   z.ZodMiniType<
     StartJourneyAggregatedValidationCheck$Outbound,
     StartJourneyAggregatedValidationCheck
-  > = z.object({
-    name: z.string(),
-    title: z.string(),
-    info: z.string(),
-    validationResult: z.string(),
-    resultInfo: z.string(),
-    weight: z.string(),
-    regionOfInterests: z.optional(
-      z.array(z.lazy(() =>
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      name: z.string(),
+      title: z.string(),
+      info: z.string(),
+      validationResult: z.string(),
+      resultInfo: z.string(),
+      weight: z.string(),
+      regionOfInterests: z.optional(z.array(z.lazy(() =>
         StartJourneyAggregatedValidationCheckRegionOfInterest$outboundSchema
-      )),
-    ),
-    type: z.string(),
-  });
+      ))),
+      type: z.string(),
+    })
+  );
 
 export function startJourneyAggregatedValidationCheckToJSON(
   startJourneyAggregatedValidationCheck: StartJourneyAggregatedValidationCheck,
@@ -3958,14 +4128,18 @@ export type StartJourneyValidation$Outbound = {
 export const StartJourneyValidation$outboundSchema: z.ZodMiniType<
   StartJourneyValidation$Outbound,
   StartJourneyValidation
-> = z.object({
-  validationChecks: z.optional(
-    z.array(z.lazy(() => StartJourneyValidationCheck$outboundSchema)),
-  ),
-  aggregatedValidationChecks: z.optional(
-    z.array(z.lazy(() => StartJourneyAggregatedValidationCheck$outboundSchema)),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    validationChecks: z.optional(
+      z.array(z.lazy(() => StartJourneyValidationCheck$outboundSchema)),
+    ),
+    aggregatedValidationChecks: z.optional(
+      z.array(
+        z.lazy(() => StartJourneyAggregatedValidationCheck$outboundSchema),
+      ),
+    ),
+  })
+);
 
 export function startJourneyValidationToJSON(
   startJourneyValidation: StartJourneyValidation,
@@ -3989,14 +4163,16 @@ export type StartJourneyDocumentAlias$Outbound = {
 export const StartJourneyDocumentAlias$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentAlias$Outbound,
   StartJourneyDocumentAlias
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  fullName: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    fullName: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDocumentAliasToJSON(
   startJourneyDocumentAlias: StartJourneyDocumentAlias,
@@ -4009,7 +4185,7 @@ export function startJourneyDocumentAliasToJSON(
 /** @internal */
 export const StartJourneyDocumentRelationship$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyDocumentRelationship
-> = z.enum(StartJourneyDocumentRelationship);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyDocumentRelationship));
 
 /** @internal */
 export type StartJourneyDocumentRelatedPerson$Outbound = {
@@ -4025,14 +4201,16 @@ export type StartJourneyDocumentRelatedPerson$Outbound = {
 export const StartJourneyDocumentRelatedPerson$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentRelatedPerson$Outbound,
   StartJourneyDocumentRelatedPerson
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  relationship: StartJourneyDocumentRelationship$outboundSchema,
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    relationship: StartJourneyDocumentRelationship$outboundSchema,
+  })
+);
 
 export function startJourneyDocumentRelatedPersonToJSON(
   startJourneyDocumentRelatedPerson: StartJourneyDocumentRelatedPerson,
@@ -4057,12 +4235,14 @@ export const StartJourneyDocumentCurrentAddressLocation$outboundSchema:
   z.ZodMiniType<
     StartJourneyDocumentCurrentAddressLocation$Outbound,
     StartJourneyDocumentCurrentAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyDocumentCurrentAddressLocationToJSON(
   startJourneyDocumentCurrentAddressLocation:
@@ -4101,28 +4281,30 @@ export type StartJourneyDocumentCurrentAddress$Outbound = {
 export const StartJourneyDocumentCurrentAddress$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentCurrentAddress$Outbound,
   StartJourneyDocumentCurrentAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyDocumentCurrentAddressLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyDocumentCurrentAddressLocation$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyDocumentCurrentAddressToJSON(
   startJourneyDocumentCurrentAddress: StartJourneyDocumentCurrentAddress,
@@ -4147,12 +4329,14 @@ export const StartJourneyDocumentPreviousAddressLocation$outboundSchema:
   z.ZodMiniType<
     StartJourneyDocumentPreviousAddressLocation$Outbound,
     StartJourneyDocumentPreviousAddressLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyDocumentPreviousAddressLocationToJSON(
   startJourneyDocumentPreviousAddressLocation:
@@ -4193,30 +4377,32 @@ export type StartJourneyDocumentPreviousAddress$Outbound = {
 export const StartJourneyDocumentPreviousAddress$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentPreviousAddress$Outbound,
   StartJourneyDocumentPreviousAddress
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyDocumentPreviousAddressLocation$outboundSchema),
-  ),
-  fromDate: z.optional(z.string()),
-  toDate: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyDocumentPreviousAddressLocation$outboundSchema),
+    ),
+    fromDate: z.optional(z.string()),
+    toDate: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDocumentPreviousAddressToJSON(
   startJourneyDocumentPreviousAddress: StartJourneyDocumentPreviousAddress,
@@ -4241,12 +4427,14 @@ export const StartJourneyDocumentPlaceOfBirthLocation$outboundSchema:
   z.ZodMiniType<
     StartJourneyDocumentPlaceOfBirthLocation$Outbound,
     StartJourneyDocumentPlaceOfBirthLocation
-  > = z.object({
-    latitude: z.optional(z.string()),
-    longitude: z.optional(z.string()),
-    geoAccuracy: z.optional(z.string()),
-    what3words: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      latitude: z.optional(z.string()),
+      longitude: z.optional(z.string()),
+      geoAccuracy: z.optional(z.string()),
+      what3words: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyDocumentPlaceOfBirthLocationToJSON(
   startJourneyDocumentPlaceOfBirthLocation:
@@ -4285,28 +4473,30 @@ export type StartJourneyDocumentPlaceOfBirth$Outbound = {
 export const StartJourneyDocumentPlaceOfBirth$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentPlaceOfBirth$Outbound,
   StartJourneyDocumentPlaceOfBirth
-> = z.object({
-  lines: z.optional(z.array(z.string())),
-  addressString: z.optional(z.string()),
-  premise: z.optional(z.string()),
-  building: z.optional(z.string()),
-  subBuilding: z.optional(z.string()),
-  thoroughfare: z.optional(z.string()),
-  dependentThoroughfare: z.optional(z.string()),
-  locality: z.optional(z.string()),
-  dependentLocality: z.optional(z.string()),
-  doubleDependentLocality: z.optional(z.string()),
-  postalCode: z.optional(z.string()),
-  postBox: z.optional(z.string()),
-  country: z.optional(z.string()),
-  superAdministrativeArea: z.optional(z.string()),
-  administrativeArea: z.optional(z.string()),
-  subAdministrativeArea: z.optional(z.string()),
-  organization: z.optional(z.string()),
-  location: z.optional(
-    z.lazy(() => StartJourneyDocumentPlaceOfBirthLocation$outboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    lines: z.optional(z.array(z.string())),
+    addressString: z.optional(z.string()),
+    premise: z.optional(z.string()),
+    building: z.optional(z.string()),
+    subBuilding: z.optional(z.string()),
+    thoroughfare: z.optional(z.string()),
+    dependentThoroughfare: z.optional(z.string()),
+    locality: z.optional(z.string()),
+    dependentLocality: z.optional(z.string()),
+    doubleDependentLocality: z.optional(z.string()),
+    postalCode: z.optional(z.string()),
+    postBox: z.optional(z.string()),
+    country: z.optional(z.string()),
+    superAdministrativeArea: z.optional(z.string()),
+    administrativeArea: z.optional(z.string()),
+    subAdministrativeArea: z.optional(z.string()),
+    organization: z.optional(z.string()),
+    location: z.optional(
+      z.lazy(() => StartJourneyDocumentPlaceOfBirthLocation$outboundSchema),
+    ),
+  })
+);
 
 export function startJourneyDocumentPlaceOfBirthToJSON(
   startJourneyDocumentPlaceOfBirth: StartJourneyDocumentPlaceOfBirth,
@@ -4329,11 +4519,13 @@ export type StartJourneyDocumentIdNumber$Outbound = {
 export const StartJourneyDocumentIdNumber$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentIdNumber$Outbound,
   StartJourneyDocumentIdNumber
-> = z.object({
-  type: z.string(),
-  idNumber: z.string(),
-  country: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    idNumber: z.string(),
+    country: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDocumentIdNumberToJSON(
   startJourneyDocumentIdNumber: StartJourneyDocumentIdNumber,
@@ -4355,10 +4547,12 @@ export type StartJourneyDocumentPhone$Outbound = {
 export const StartJourneyDocumentPhone$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentPhone$Outbound,
   StartJourneyDocumentPhone
-> = z.object({
-  type: z.string(),
-  number: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    number: z.string(),
+  })
+);
 
 export function startJourneyDocumentPhoneToJSON(
   startJourneyDocumentPhone: StartJourneyDocumentPhone,
@@ -4378,10 +4572,12 @@ export type StartJourneyDocumentEmail$Outbound = {
 export const StartJourneyDocumentEmail$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentEmail$Outbound,
   StartJourneyDocumentEmail
-> = z.object({
-  type: z.string(),
-  email: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    email: z.string(),
+  })
+);
 
 export function startJourneyDocumentEmailToJSON(
   startJourneyDocumentEmail: StartJourneyDocumentEmail,
@@ -4401,10 +4597,12 @@ export type StartJourneyDocumentSocial$Outbound = {
 export const StartJourneyDocumentSocial$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentSocial$Outbound,
   StartJourneyDocumentSocial
-> = z.object({
-  type: z.string(),
-  identity: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    identity: z.string(),
+  })
+);
 
 export function startJourneyDocumentSocialToJSON(
   startJourneyDocumentSocial: StartJourneyDocumentSocial,
@@ -4444,44 +4642,46 @@ export type StartJourneyDocumentSubject$Outbound = {
 export const StartJourneyDocumentSubject$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentSubject$Outbound,
   StartJourneyDocumentSubject
-> = z.object({
-  title: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  middleNames: z.optional(z.array(z.string())),
-  lastNames: z.optional(z.array(z.string())),
-  lastNamesAtBirth: z.optional(z.array(z.string())),
-  aliases: z.optional(
-    z.array(z.lazy(() => StartJourneyDocumentAlias$outboundSchema)),
-  ),
-  relatedPersons: z.optional(
-    z.array(z.lazy(() => StartJourneyDocumentRelatedPerson$outboundSchema)),
-  ),
-  dateOfBirth: z.optional(z.string()),
-  gender: z.optional(z.string()),
-  currentAddress: z.optional(
-    z.lazy(() => StartJourneyDocumentCurrentAddress$outboundSchema),
-  ),
-  previousAddresses: z.optional(
-    z.array(z.lazy(() => StartJourneyDocumentPreviousAddress$outboundSchema)),
-  ),
-  placeOfBirth: z.optional(
-    z.lazy(() => StartJourneyDocumentPlaceOfBirth$outboundSchema),
-  ),
-  idNumbers: z.optional(
-    z.array(z.lazy(() => StartJourneyDocumentIdNumber$outboundSchema)),
-  ),
-  phones: z.optional(
-    z.array(z.lazy(() => StartJourneyDocumentPhone$outboundSchema)),
-  ),
-  emails: z.optional(
-    z.array(z.lazy(() => StartJourneyDocumentEmail$outboundSchema)),
-  ),
-  socials: z.optional(
-    z.array(z.lazy(() => StartJourneyDocumentSocial$outboundSchema)),
-  ),
-  mothersMaidenName: z.optional(z.string()),
-  nationality: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    title: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    middleNames: z.optional(z.array(z.string())),
+    lastNames: z.optional(z.array(z.string())),
+    lastNamesAtBirth: z.optional(z.array(z.string())),
+    aliases: z.optional(
+      z.array(z.lazy(() => StartJourneyDocumentAlias$outboundSchema)),
+    ),
+    relatedPersons: z.optional(
+      z.array(z.lazy(() => StartJourneyDocumentRelatedPerson$outboundSchema)),
+    ),
+    dateOfBirth: z.optional(z.string()),
+    gender: z.optional(z.string()),
+    currentAddress: z.optional(
+      z.lazy(() => StartJourneyDocumentCurrentAddress$outboundSchema),
+    ),
+    previousAddresses: z.optional(
+      z.array(z.lazy(() => StartJourneyDocumentPreviousAddress$outboundSchema)),
+    ),
+    placeOfBirth: z.optional(
+      z.lazy(() => StartJourneyDocumentPlaceOfBirth$outboundSchema),
+    ),
+    idNumbers: z.optional(
+      z.array(z.lazy(() => StartJourneyDocumentIdNumber$outboundSchema)),
+    ),
+    phones: z.optional(
+      z.array(z.lazy(() => StartJourneyDocumentPhone$outboundSchema)),
+    ),
+    emails: z.optional(
+      z.array(z.lazy(() => StartJourneyDocumentEmail$outboundSchema)),
+    ),
+    socials: z.optional(
+      z.array(z.lazy(() => StartJourneyDocumentSocial$outboundSchema)),
+    ),
+    mothersMaidenName: z.optional(z.string()),
+    nationality: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDocumentSubjectToJSON(
   startJourneyDocumentSubject: StartJourneyDocumentSubject,
@@ -4611,120 +4811,130 @@ export type StartJourneyDocument$Outbound = {
 export const StartJourneyDocument$outboundSchema: z.ZodMiniType<
   StartJourneyDocument$Outbound,
   StartJourneyDocument
-> = z.object({
-  oneDBarcode: z.optional(z.string()),
-  address: z.optional(z.lazy(() => StartJourneyDocumentAddress$outboundSchema)),
-  applicationDate: z.optional(z.string()),
-  applicationNumber: z.optional(z.string()),
-  dateOfBirth: z.optional(z.string()),
-  placeOfBirth: z.optional(z.string()),
-  placeOfBirthNative: z.optional(z.string()),
-  bloodType: z.optional(z.string()),
-  controlNumber: z.optional(z.string()),
-  countryCode: z.optional(z.string()),
-  countryName: z.optional(z.string()),
-  documentClassCode: z.optional(z.string()),
-  documentClassName: z.optional(z.string()),
-  documentNumber: z.optional(z.string()),
-  documentSignerCertificate: z.optional(z.string()),
-  employer: z.optional(z.string()),
-  employerAddress: z.optional(z.string()),
-  entries: z.optional(z.string()),
-  expirationDate: z.optional(z.string()),
-  eyeColor: z.optional(z.string()),
-  fathersName: z.optional(z.string()),
-  fathersNameNative: z.optional(z.string()),
-  fathersSurname: z.optional(z.string()),
-  firstName: z.optional(z.string()),
-  fullName: z.optional(z.string()),
-  fullNameNative: z.optional(z.string()),
-  givenName: z.optional(z.string()),
-  givenNameNative: z.optional(z.string()),
-  hairColor: z.optional(z.string()),
-  height: z.optional(z.string()),
-  issueDate: z.optional(z.string()),
-  issuingAuthority: z.optional(z.string()),
-  issuingAuthorityNative: z.optional(z.string()),
-  issuingStateCode: z.optional(z.string()),
-  issuingStateName: z.optional(z.string()),
-  licenseClass: z.optional(z.string()),
-  licenseEndorsements: z.optional(z.string()),
-  licenseRestrictions: z.optional(z.string()),
-  mrz: z.optional(z.string()),
-  mrz1: z.optional(z.string()),
-  mrz2: z.optional(z.string()),
-  mrz3: z.optional(z.string()),
-  middleName: z.optional(z.string()),
-  mothersName: z.optional(z.string()),
-  mothersNameNative: z.optional(z.string()),
-  mothersSurname: z.optional(z.string()),
-  nameSuffix: z.optional(z.string()),
-  nationalityCode: z.optional(z.string()),
-  nationalityName: z.optional(z.string()),
-  nationalityNameNative: z.optional(z.string()),
-  occupation: z.optional(z.string()),
-  organDonor: z.optional(z.boolean()),
-  passportNumber: z.optional(z.string()),
-  permitNumber: z.optional(z.string()),
-  personalNumber: z.optional(z.string()),
-  photo: z.optional(z.string()),
-  photoCompressed: z.optional(z.string()),
-  photoEncoding: z.optional(z.string()),
-  sex: z.optional(z.string()),
-  sexNative: z.optional(z.string()),
-  signature: z.optional(z.string()),
-  signatureCompressed: z.optional(z.string()),
-  signatureEncoding: z.optional(z.string()),
-  socialSecurityNumber: z.optional(z.string()),
-  startDate: z.optional(z.string()),
-  surname: z.optional(z.string()),
-  surnameNative: z.optional(z.string()),
-  visaClass: z.optional(z.string()),
-  visaNumber: z.optional(z.string()),
-  weight: z.optional(z.string()),
-  cardNumber: z.optional(z.string()),
-  issuerCountryCode: z.optional(z.string()),
-  id: z.optional(z.string()),
-  type: z.string(),
-  category: z.optional(z.string()),
-  subtype: z.optional(z.string()),
-  format: z.optional(z.string()),
-  device: z.optional(z.lazy(() => StartJourneyDocumentDevice$outboundSchema)),
-  side1Image: z.optional(z.string()),
-  side2Image: z.optional(z.string()),
-  side1Device: z.optional(z.lazy(() => StartJourneySide1Device$outboundSchema)),
-  side2Device: z.optional(z.lazy(() => StartJourneySide2Device$outboundSchema)),
-  chip: z.optional(z.lazy(() => StartJourneyChip$outboundSchema)),
-  classification: z.optional(
-    z.lazy(() => StartJourneyClassification$outboundSchema),
-  ),
-  extraction: z.optional(z.lazy(() => StartJourneyExtraction$outboundSchema)),
-  validation: z.optional(z.lazy(() => StartJourneyValidation$outboundSchema)),
-  subType: z.optional(z.string()),
-  number: z.optional(z.string()),
-  expiryDate: z.optional(z.string()),
-  cardType: z.optional(z.string()),
-  expiryMonth: z.optional(z.string()),
-  cardColour: z.optional(z.string()),
-  cardStatus: z.optional(z.string()),
-  subject: z.optional(z.lazy(() => StartJourneyDocumentSubject$outboundSchema)),
-  country: z.optional(z.string()),
-  certificateFormat: z.optional(z.string()),
-  registrationNumber: z.optional(z.string()),
-  registrationDate: z.optional(z.string()),
-  registrationYear: z.optional(z.string()),
-  partyRole: z.optional(z.string()),
-  dateOfEvent: z.optional(z.string()),
-  acquisitionDate: z.optional(z.string()),
-  previousFirstName: z.optional(z.string()),
-  previousMiddleName: z.optional(z.string()),
-  previousSurname: z.optional(z.string()),
-  individualReferenceNumber: z.optional(z.string()),
-  nameLine1: z.optional(z.string()),
-  nameLine2: z.optional(z.string()),
-  nameLine3: z.optional(z.string()),
-  nameLine4: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    oneDBarcode: z.optional(z.string()),
+    address: z.optional(
+      z.lazy(() => StartJourneyDocumentAddress$outboundSchema),
+    ),
+    applicationDate: z.optional(z.string()),
+    applicationNumber: z.optional(z.string()),
+    dateOfBirth: z.optional(z.string()),
+    placeOfBirth: z.optional(z.string()),
+    placeOfBirthNative: z.optional(z.string()),
+    bloodType: z.optional(z.string()),
+    controlNumber: z.optional(z.string()),
+    countryCode: z.optional(z.string()),
+    countryName: z.optional(z.string()),
+    documentClassCode: z.optional(z.string()),
+    documentClassName: z.optional(z.string()),
+    documentNumber: z.optional(z.string()),
+    documentSignerCertificate: z.optional(z.string()),
+    employer: z.optional(z.string()),
+    employerAddress: z.optional(z.string()),
+    entries: z.optional(z.string()),
+    expirationDate: z.optional(z.string()),
+    eyeColor: z.optional(z.string()),
+    fathersName: z.optional(z.string()),
+    fathersNameNative: z.optional(z.string()),
+    fathersSurname: z.optional(z.string()),
+    firstName: z.optional(z.string()),
+    fullName: z.optional(z.string()),
+    fullNameNative: z.optional(z.string()),
+    givenName: z.optional(z.string()),
+    givenNameNative: z.optional(z.string()),
+    hairColor: z.optional(z.string()),
+    height: z.optional(z.string()),
+    issueDate: z.optional(z.string()),
+    issuingAuthority: z.optional(z.string()),
+    issuingAuthorityNative: z.optional(z.string()),
+    issuingStateCode: z.optional(z.string()),
+    issuingStateName: z.optional(z.string()),
+    licenseClass: z.optional(z.string()),
+    licenseEndorsements: z.optional(z.string()),
+    licenseRestrictions: z.optional(z.string()),
+    mrz: z.optional(z.string()),
+    mrz1: z.optional(z.string()),
+    mrz2: z.optional(z.string()),
+    mrz3: z.optional(z.string()),
+    middleName: z.optional(z.string()),
+    mothersName: z.optional(z.string()),
+    mothersNameNative: z.optional(z.string()),
+    mothersSurname: z.optional(z.string()),
+    nameSuffix: z.optional(z.string()),
+    nationalityCode: z.optional(z.string()),
+    nationalityName: z.optional(z.string()),
+    nationalityNameNative: z.optional(z.string()),
+    occupation: z.optional(z.string()),
+    organDonor: z.optional(z.boolean()),
+    passportNumber: z.optional(z.string()),
+    permitNumber: z.optional(z.string()),
+    personalNumber: z.optional(z.string()),
+    photo: z.optional(z.string()),
+    photoCompressed: z.optional(z.string()),
+    photoEncoding: z.optional(z.string()),
+    sex: z.optional(z.string()),
+    sexNative: z.optional(z.string()),
+    signature: z.optional(z.string()),
+    signatureCompressed: z.optional(z.string()),
+    signatureEncoding: z.optional(z.string()),
+    socialSecurityNumber: z.optional(z.string()),
+    startDate: z.optional(z.string()),
+    surname: z.optional(z.string()),
+    surnameNative: z.optional(z.string()),
+    visaClass: z.optional(z.string()),
+    visaNumber: z.optional(z.string()),
+    weight: z.optional(z.string()),
+    cardNumber: z.optional(z.string()),
+    issuerCountryCode: z.optional(z.string()),
+    id: z.optional(z.string()),
+    type: z.string(),
+    category: z.optional(z.string()),
+    subtype: z.optional(z.string()),
+    format: z.optional(z.string()),
+    device: z.optional(z.lazy(() => StartJourneyDocumentDevice$outboundSchema)),
+    side1Image: z.optional(z.string()),
+    side2Image: z.optional(z.string()),
+    side1Device: z.optional(
+      z.lazy(() => StartJourneySide1Device$outboundSchema),
+    ),
+    side2Device: z.optional(
+      z.lazy(() => StartJourneySide2Device$outboundSchema),
+    ),
+    chip: z.optional(z.lazy(() => StartJourneyChip$outboundSchema)),
+    classification: z.optional(
+      z.lazy(() => StartJourneyClassification$outboundSchema),
+    ),
+    extraction: z.optional(z.lazy(() => StartJourneyExtraction$outboundSchema)),
+    validation: z.optional(z.lazy(() => StartJourneyValidation$outboundSchema)),
+    subType: z.optional(z.string()),
+    number: z.optional(z.string()),
+    expiryDate: z.optional(z.string()),
+    cardType: z.optional(z.string()),
+    expiryMonth: z.optional(z.string()),
+    cardColour: z.optional(z.string()),
+    cardStatus: z.optional(z.string()),
+    subject: z.optional(
+      z.lazy(() => StartJourneyDocumentSubject$outboundSchema),
+    ),
+    country: z.optional(z.string()),
+    certificateFormat: z.optional(z.string()),
+    registrationNumber: z.optional(z.string()),
+    registrationDate: z.optional(z.string()),
+    registrationYear: z.optional(z.string()),
+    partyRole: z.optional(z.string()),
+    dateOfEvent: z.optional(z.string()),
+    acquisitionDate: z.optional(z.string()),
+    previousFirstName: z.optional(z.string()),
+    previousMiddleName: z.optional(z.string()),
+    previousSurname: z.optional(z.string()),
+    individualReferenceNumber: z.optional(z.string()),
+    nameLine1: z.optional(z.string()),
+    nameLine2: z.optional(z.string()),
+    nameLine3: z.optional(z.string()),
+    nameLine4: z.optional(z.string()),
+  })
+);
 
 export function startJourneyDocumentToJSON(
   startJourneyDocument: StartJourneyDocument,
@@ -4737,7 +4947,9 @@ export function startJourneyDocumentToJSON(
 /** @internal */
 export const StartJourneyTypeOrphanedStoredFace$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyTypeOrphanedStoredFace
-> = z.enum(StartJourneyTypeOrphanedStoredFace);
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.enum(StartJourneyTypeOrphanedStoredFace)
+);
 
 /** @internal */
 export type StartJourneyBiometricOrphanedStoredFace$Outbound = {
@@ -4752,12 +4964,14 @@ export const StartJourneyBiometricOrphanedStoredFace$outboundSchema:
   z.ZodMiniType<
     StartJourneyBiometricOrphanedStoredFace$Outbound,
     StartJourneyBiometricOrphanedStoredFace
-  > = z.object({
-    id: z.optional(z.string()),
-    type: StartJourneyTypeOrphanedStoredFace$outboundSchema,
-    templateReference: z.string(),
-    collectionReference: z.optional(z.string()),
-  });
+  > = /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      id: z.optional(z.string()),
+      type: StartJourneyTypeOrphanedStoredFace$outboundSchema,
+      templateReference: z.string(),
+      collectionReference: z.optional(z.string()),
+    })
+  );
 
 export function startJourneyBiometricOrphanedStoredFaceToJSON(
   startJourneyBiometricOrphanedStoredFace:
@@ -4773,7 +4987,7 @@ export function startJourneyBiometricOrphanedStoredFaceToJSON(
 /** @internal */
 export const StartJourneyTypeStoredFace$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyTypeStoredFace
-> = z.enum(StartJourneyTypeStoredFace);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyTypeStoredFace));
 
 /** @internal */
 export type StartJourneyBiometricStoredFace$Outbound = {
@@ -4787,12 +5001,14 @@ export type StartJourneyBiometricStoredFace$Outbound = {
 export const StartJourneyBiometricStoredFace$outboundSchema: z.ZodMiniType<
   StartJourneyBiometricStoredFace$Outbound,
   StartJourneyBiometricStoredFace
-> = z.object({
-  id: z.optional(z.string()),
-  type: StartJourneyTypeStoredFace$outboundSchema,
-  templateReference: z.string(),
-  collectionReference: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: StartJourneyTypeStoredFace$outboundSchema,
+    templateReference: z.string(),
+    collectionReference: z.optional(z.string()),
+  })
+);
 
 export function startJourneyBiometricStoredFaceToJSON(
   startJourneyBiometricStoredFace: StartJourneyBiometricStoredFace,
@@ -4815,11 +5031,13 @@ export type StartJourneyBiometric5$Outbound = {
 export const StartJourneyBiometric5$outboundSchema: z.ZodMiniType<
   StartJourneyBiometric5$Outbound,
   StartJourneyBiometric5
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  anchorImage: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    anchorImage: z.string(),
+  })
+);
 
 export function startJourneyBiometric5ToJSON(
   startJourneyBiometric5: StartJourneyBiometric5,
@@ -4841,12 +5059,14 @@ export type StartJourneyBiometric4$Outbound = {
 export const StartJourneyBiometric4$outboundSchema: z.ZodMiniType<
   StartJourneyBiometric4$Outbound,
   StartJourneyBiometric4
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  selfieImage: z.string(),
-  selfieImageEncryption: z.optional(z.boolean()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    selfieImage: z.string(),
+    selfieImageEncryption: z.optional(z.boolean()),
+  })
+);
 
 export function startJourneyBiometric4ToJSON(
   startJourneyBiometric4: StartJourneyBiometric4,
@@ -4867,11 +5087,13 @@ export type StartJourneyBiometric3$Outbound = {
 export const StartJourneyBiometric3$outboundSchema: z.ZodMiniType<
   StartJourneyBiometric3$Outbound,
   StartJourneyBiometric3
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  faceImage: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    faceImage: z.string(),
+  })
+);
 
 export function startJourneyBiometric3ToJSON(
   startJourneyBiometric3: StartJourneyBiometric3,
@@ -4893,12 +5115,14 @@ export type StartJourneyBiometric2$Outbound = {
 export const StartJourneyBiometric2$outboundSchema: z.ZodMiniType<
   StartJourneyBiometric2$Outbound,
   StartJourneyBiometric2
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  selfieImage: z.string(),
-  anchorImage: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    selfieImage: z.string(),
+    anchorImage: z.string(),
+  })
+);
 
 export function startJourneyBiometric2ToJSON(
   startJourneyBiometric2: StartJourneyBiometric2,
@@ -4920,12 +5144,14 @@ export type StartJourneyBiometric1$Outbound = {
 export const StartJourneyBiometric1$outboundSchema: z.ZodMiniType<
   StartJourneyBiometric1$Outbound,
   StartJourneyBiometric1
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  face1Image: z.string(),
-  face2Image: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    face1Image: z.string(),
+    face2Image: z.string(),
+  })
+);
 
 export function startJourneyBiometric1ToJSON(
   startJourneyBiometric1: StartJourneyBiometric1,
@@ -4949,15 +5175,17 @@ export type StartJourneyBiometricUnion$Outbound =
 export const StartJourneyBiometricUnion$outboundSchema: z.ZodMiniType<
   StartJourneyBiometricUnion$Outbound,
   StartJourneyBiometricUnion
-> = smartUnion([
-  z.lazy(() => StartJourneyBiometric1$outboundSchema),
-  z.lazy(() => StartJourneyBiometric2$outboundSchema),
-  z.lazy(() => StartJourneyBiometricStoredFace$outboundSchema),
-  z.lazy(() => StartJourneyBiometricOrphanedStoredFace$outboundSchema),
-  z.lazy(() => StartJourneyBiometric3$outboundSchema),
-  z.lazy(() => StartJourneyBiometric4$outboundSchema),
-  z.lazy(() => StartJourneyBiometric5$outboundSchema),
-]);
+> = /* @__PURE__ */ lazySchema$(() =>
+  smartUnion([
+    z.lazy(() => StartJourneyBiometric1$outboundSchema),
+    z.lazy(() => StartJourneyBiometric2$outboundSchema),
+    z.lazy(() => StartJourneyBiometricStoredFace$outboundSchema),
+    z.lazy(() => StartJourneyBiometricOrphanedStoredFace$outboundSchema),
+    z.lazy(() => StartJourneyBiometric3$outboundSchema),
+    z.lazy(() => StartJourneyBiometric4$outboundSchema),
+    z.lazy(() => StartJourneyBiometric5$outboundSchema),
+  ])
+);
 
 export function startJourneyBiometricUnionToJSON(
   startJourneyBiometricUnion: StartJourneyBiometricUnion,
@@ -4978,11 +5206,13 @@ export type StartJourneyUser$Outbound = {
 export const StartJourneyUser$outboundSchema: z.ZodMiniType<
   StartJourneyUser$Outbound,
   StartJourneyUser
-> = z.object({
-  id: z.string(),
-  email: z.optional(z.string()),
-  domain: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    email: z.optional(z.string()),
+    domain: z.optional(z.string()),
+  })
+);
 
 export function startJourneyUserToJSON(
   startJourneyUser: StartJourneyUser,
@@ -5003,11 +5233,13 @@ export type StartJourneyClient$Outbound = {
 export const StartJourneyClient$outboundSchema: z.ZodMiniType<
   StartJourneyClient$Outbound,
   StartJourneyClient
-> = z.object({
-  id: z.string(),
-  ip: z.string(),
-  address: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    ip: z.string(),
+    address: z.string(),
+  })
+);
 
 export function startJourneyClientToJSON(
   startJourneyClient: StartJourneyClient,
@@ -5027,10 +5259,12 @@ export type StartJourneyModel$Outbound = {
 export const StartJourneyModel$outboundSchema: z.ZodMiniType<
   StartJourneyModel$Outbound,
   StartJourneyModel
-> = z.object({
-  identifier: z.string(),
-  name: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    identifier: z.string(),
+    name: z.string(),
+  })
+);
 
 export function startJourneyModelToJSON(
   startJourneyModel: StartJourneyModel,
@@ -5051,11 +5285,13 @@ export type StartJourneySessionDevice$Outbound = {
 export const StartJourneySessionDevice$outboundSchema: z.ZodMiniType<
   StartJourneySessionDevice$Outbound,
   StartJourneySessionDevice
-> = z.object({
-  id: z.string(),
-  manufacturer: z.string(),
-  model: z.lazy(() => StartJourneyModel$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    manufacturer: z.string(),
+    model: z.lazy(() => StartJourneyModel$outboundSchema),
+  })
+);
 
 export function startJourneySessionDeviceToJSON(
   startJourneySessionDevice: StartJourneySessionDevice,
@@ -5074,9 +5310,11 @@ export type StartJourneyTrace$Outbound = {
 export const StartJourneyTrace$outboundSchema: z.ZodMiniType<
   StartJourneyTrace$Outbound,
   StartJourneyTrace
-> = z.object({
-  id: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+  })
+);
 
 export function startJourneyTraceToJSON(
   startJourneyTrace: StartJourneyTrace,
@@ -5095,9 +5333,11 @@ export type StartJourneySpan$Outbound = {
 export const StartJourneySpan$outboundSchema: z.ZodMiniType<
   StartJourneySpan$Outbound,
   StartJourneySpan
-> = z.object({
-  id: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+  })
+);
 
 export function startJourneySpanToJSON(
   startJourneySpan: StartJourneySpan,
@@ -5116,9 +5356,11 @@ export type StartJourneyTransaction$Outbound = {
 export const StartJourneyTransaction$outboundSchema: z.ZodMiniType<
   StartJourneyTransaction$Outbound,
   StartJourneyTransaction
-> = z.object({
-  id: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+  })
+);
 
 export function startJourneyTransactionToJSON(
   startJourneyTransaction: StartJourneyTransaction,
@@ -5145,23 +5387,48 @@ export type StartJourneySessionAuth$Outbound = {
 export const StartJourneySessionAuth$outboundSchema: z.ZodMiniType<
   StartJourneySessionAuth$Outbound,
   StartJourneySessionAuth
-> = z.object({
-  id: z.string(),
-  scope: z.optional(z.string()),
-  codeVerifier: z.optional(z.string()),
-  code: z.optional(z.string()),
-  state: z.optional(z.string()),
-  redirectUri: z.optional(z.string()),
-  responseType: z.optional(z.string()),
-  clientId: z.optional(z.string()),
-  clientSecret: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.string(),
+    scope: z.optional(z.string()),
+    codeVerifier: z.optional(z.string()),
+    code: z.optional(z.string()),
+    state: z.optional(z.string()),
+    redirectUri: z.optional(z.string()),
+    responseType: z.optional(z.string()),
+    clientId: z.optional(z.string()),
+    clientSecret: z.optional(z.string()),
+  })
+);
 
 export function startJourneySessionAuthToJSON(
   startJourneySessionAuth: StartJourneySessionAuth,
 ): string {
   return JSON.stringify(
     StartJourneySessionAuth$outboundSchema.parse(startJourneySessionAuth),
+  );
+}
+
+/** @internal */
+export type StartJourneySessionError$Outbound = {
+  code: string;
+};
+
+/** @internal */
+export const StartJourneySessionError$outboundSchema: z.ZodMiniType<
+  StartJourneySessionError$Outbound,
+  StartJourneySessionError
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    code: z.string(),
+  })
+);
+
+export function startJourneySessionErrorToJSON(
+  startJourneySessionError: StartJourneySessionError,
+): string {
+  return JSON.stringify(
+    StartJourneySessionError$outboundSchema.parse(startJourneySessionError),
   );
 }
 
@@ -5177,26 +5444,32 @@ export type StartJourneySession$Outbound = {
   span?: StartJourneySpan$Outbound | undefined;
   transaction?: StartJourneyTransaction$Outbound | undefined;
   auth?: Array<StartJourneySessionAuth$Outbound> | undefined;
+  error?: StartJourneySessionError$Outbound | undefined;
 };
 
 /** @internal */
 export const StartJourneySession$outboundSchema: z.ZodMiniType<
   StartJourneySession$Outbound,
   StartJourneySession
-> = z.object({
-  id: z.optional(z.string()),
-  type: z.optional(z.string()),
-  provider: z.optional(z.string()),
-  user: z.optional(z.lazy(() => StartJourneyUser$outboundSchema)),
-  client: z.optional(z.lazy(() => StartJourneyClient$outboundSchema)),
-  device: z.optional(z.lazy(() => StartJourneySessionDevice$outboundSchema)),
-  trace: z.optional(z.lazy(() => StartJourneyTrace$outboundSchema)),
-  span: z.optional(z.lazy(() => StartJourneySpan$outboundSchema)),
-  transaction: z.optional(z.lazy(() => StartJourneyTransaction$outboundSchema)),
-  auth: z.optional(
-    z.array(z.lazy(() => StartJourneySessionAuth$outboundSchema)),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.optional(z.string()),
+    type: z.optional(z.string()),
+    provider: z.optional(z.string()),
+    user: z.optional(z.lazy(() => StartJourneyUser$outboundSchema)),
+    client: z.optional(z.lazy(() => StartJourneyClient$outboundSchema)),
+    device: z.optional(z.lazy(() => StartJourneySessionDevice$outboundSchema)),
+    trace: z.optional(z.lazy(() => StartJourneyTrace$outboundSchema)),
+    span: z.optional(z.lazy(() => StartJourneySpan$outboundSchema)),
+    transaction: z.optional(
+      z.lazy(() => StartJourneyTransaction$outboundSchema),
+    ),
+    auth: z.optional(
+      z.array(z.lazy(() => StartJourneySessionAuth$outboundSchema)),
+    ),
+    error: z.optional(z.lazy(() => StartJourneySessionError$outboundSchema)),
+  })
+);
 
 export function startJourneySessionToJSON(
   startJourneySession: StartJourneySession,
@@ -5209,7 +5482,7 @@ export function startJourneySessionToJSON(
 /** @internal */
 export const StartJourneyConsentType$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyConsentType
-> = z.enum(StartJourneyConsentType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyConsentType));
 
 /** @internal */
 export type StartJourneyConsent$Outbound = {
@@ -5231,20 +5504,22 @@ export type StartJourneyConsent$Outbound = {
 export const StartJourneyConsent$outboundSchema: z.ZodMiniType<
   StartJourneyConsent$Outbound,
   StartJourneyConsent
-> = z.object({
-  type: z.optional(StartJourneyConsentType$outboundSchema),
-  id: z.optional(z.string()),
-  version: z.optional(z.string()),
-  url: z.string(),
-  effectiveDate: z.optional(z.string()),
-  expiryDate: z.optional(z.string()),
-  terms: z.optional(z.string()),
-  purpose: z.optional(z.string()),
-  legalBasis: z.optional(z.string()),
-  jurisdiction: z.optional(z.string()),
-  subject: z.optional(z.string()),
-  signatory: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.optional(StartJourneyConsentType$outboundSchema),
+    id: z.optional(z.string()),
+    version: z.optional(z.string()),
+    url: z.string(),
+    effectiveDate: z.optional(z.string()),
+    expiryDate: z.optional(z.string()),
+    terms: z.optional(z.string()),
+    purpose: z.optional(z.string()),
+    legalBasis: z.optional(z.string()),
+    jurisdiction: z.optional(z.string()),
+    subject: z.optional(z.string()),
+    signatory: z.optional(z.string()),
+  })
+);
 
 export function startJourneyConsentToJSON(
   startJourneyConsent: StartJourneyConsent,
@@ -5272,18 +5547,20 @@ export type StartJourneyAccount$Outbound = {
 export const StartJourneyAccount$outboundSchema: z.ZodMiniType<
   StartJourneyAccount$Outbound,
   StartJourneyAccount
-> = z.object({
-  type: z.string(),
-  accountNumber: z.optional(z.string()),
-  sortCode: z.optional(z.string()),
-  routingNumber: z.optional(z.string()),
-  iban: z.optional(z.string()),
-  bic: z.optional(z.string()),
-  accountHolderName: z.optional(z.string()),
-  bankName: z.optional(z.string()),
-  country: z.optional(z.string()),
-  accountType: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    type: z.string(),
+    accountNumber: z.optional(z.string()),
+    sortCode: z.optional(z.string()),
+    routingNumber: z.optional(z.string()),
+    iban: z.optional(z.string()),
+    bic: z.optional(z.string()),
+    accountHolderName: z.optional(z.string()),
+    bankName: z.optional(z.string()),
+    country: z.optional(z.string()),
+    accountType: z.optional(z.string()),
+  })
+);
 
 export function startJourneyAccountToJSON(
   startJourneyAccount: StartJourneyAccount,
@@ -5303,10 +5580,12 @@ export type StartJourneyChoice$Outbound = {
 export const StartJourneyChoice$outboundSchema: z.ZodMiniType<
   StartJourneyChoice$Outbound,
   StartJourneyChoice
-> = z.object({
-  label: z.string(),
-  text: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    text: z.string(),
+  })
+);
 
 export function startJourneyChoiceToJSON(
   startJourneyChoice: StartJourneyChoice,
@@ -5328,12 +5607,14 @@ export type StartJourneyQuestion$Outbound = {
 export const StartJourneyQuestion$outboundSchema: z.ZodMiniType<
   StartJourneyQuestion$Outbound,
   StartJourneyQuestion
-> = z.object({
-  id: z.int(),
-  questionText: z.string(),
-  helpText: z.optional(z.string()),
-  choices: z.array(z.lazy(() => StartJourneyChoice$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.int(),
+    questionText: z.string(),
+    helpText: z.optional(z.string()),
+    choices: z.array(z.lazy(() => StartJourneyChoice$outboundSchema)),
+  })
+);
 
 export function startJourneyQuestionToJSON(
   startJourneyQuestion: StartJourneyQuestion,
@@ -5344,42 +5625,46 @@ export function startJourneyQuestionToJSON(
 }
 
 /** @internal */
-export type StartJourneyAnswer$Outbound = {
+export type StartJourneyKbaAnswer$Outbound = {
   id: number;
   choices: Array<string>;
 };
 
 /** @internal */
-export const StartJourneyAnswer$outboundSchema: z.ZodMiniType<
-  StartJourneyAnswer$Outbound,
-  StartJourneyAnswer
-> = z.object({
-  id: z.int(),
-  choices: z.array(z.string()),
-});
+export const StartJourneyKbaAnswer$outboundSchema: z.ZodMiniType<
+  StartJourneyKbaAnswer$Outbound,
+  StartJourneyKbaAnswer
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    id: z.int(),
+    choices: z.array(z.string()),
+  })
+);
 
-export function startJourneyAnswerToJSON(
-  startJourneyAnswer: StartJourneyAnswer,
+export function startJourneyKbaAnswerToJSON(
+  startJourneyKbaAnswer: StartJourneyKbaAnswer,
 ): string {
   return JSON.stringify(
-    StartJourneyAnswer$outboundSchema.parse(startJourneyAnswer),
+    StartJourneyKbaAnswer$outboundSchema.parse(startJourneyKbaAnswer),
   );
 }
 
 /** @internal */
 export type StartJourneyKba$Outbound = {
   questions: Array<StartJourneyQuestion$Outbound>;
-  answers: Array<StartJourneyAnswer$Outbound>;
+  answers: Array<StartJourneyKbaAnswer$Outbound>;
 };
 
 /** @internal */
 export const StartJourneyKba$outboundSchema: z.ZodMiniType<
   StartJourneyKba$Outbound,
   StartJourneyKba
-> = z.object({
-  questions: z.array(z.lazy(() => StartJourneyQuestion$outboundSchema)),
-  answers: z.array(z.lazy(() => StartJourneyAnswer$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    questions: z.array(z.lazy(() => StartJourneyQuestion$outboundSchema)),
+    answers: z.array(z.lazy(() => StartJourneyKbaAnswer$outboundSchema)),
+  })
+);
 
 export function startJourneyKbaToJSON(
   startJourneyKba: StartJourneyKba,
@@ -5390,12 +5675,12 @@ export function startJourneyKbaToJSON(
 /** @internal */
 export const StartJourneyOffered$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneyOffered
-> = z.enum(StartJourneyOffered);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyOffered));
 
 /** @internal */
 export const StartJourneySelected$outboundSchema: z.ZodMiniEnum<
   typeof StartJourneySelected
-> = z.enum(StartJourneySelected);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneySelected));
 
 /** @internal */
 export type StartJourneyDocumentTypeSelection$Outbound = {
@@ -5407,10 +5692,12 @@ export type StartJourneyDocumentTypeSelection$Outbound = {
 export const StartJourneyDocumentTypeSelection$outboundSchema: z.ZodMiniType<
   StartJourneyDocumentTypeSelection$Outbound,
   StartJourneyDocumentTypeSelection
-> = z.object({
-  offered: z.optional(z.array(StartJourneyOffered$outboundSchema)),
-  selected: z.optional(StartJourneySelected$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    offered: z.optional(z.array(StartJourneyOffered$outboundSchema)),
+    selected: z.optional(StartJourneySelected$outboundSchema),
+  })
+);
 
 export function startJourneyDocumentTypeSelectionToJSON(
   startJourneyDocumentTypeSelection: StartJourneyDocumentTypeSelection,
@@ -5418,6 +5705,234 @@ export function startJourneyDocumentTypeSelectionToJSON(
   return JSON.stringify(
     StartJourneyDocumentTypeSelection$outboundSchema.parse(
       startJourneyDocumentTypeSelection,
+    ),
+  );
+}
+
+/** @internal */
+export type JourneysStartJourneyRequest$Outbound = {
+  capabilityIds?: Array<string> | undefined;
+  timeoutMs?: number | undefined;
+};
+
+/** @internal */
+export const JourneysStartJourneyRequest$outboundSchema: z.ZodMiniType<
+  JourneysStartJourneyRequest$Outbound,
+  JourneysStartJourneyRequest
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    capabilityIds: z.optional(z.array(z.string())),
+    timeoutMs: z.optional(z.int()),
+  })
+);
+
+export function journeysStartJourneyRequestToJSON(
+  journeysStartJourneyRequest: JourneysStartJourneyRequest,
+): string {
+  return JSON.stringify(
+    JourneysStartJourneyRequest$outboundSchema.parse(
+      journeysStartJourneyRequest,
+    ),
+  );
+}
+
+/** @internal */
+export type StartJourneyAnswerError2$Outbound = {
+  name: string;
+  message: string;
+};
+
+/** @internal */
+export const StartJourneyAnswerError2$outboundSchema: z.ZodMiniType<
+  StartJourneyAnswerError2$Outbound,
+  StartJourneyAnswerError2
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    name: z.string(),
+    message: z.string(),
+  })
+);
+
+export function startJourneyAnswerError2ToJSON(
+  startJourneyAnswerError2: StartJourneyAnswerError2,
+): string {
+  return JSON.stringify(
+    StartJourneyAnswerError2$outboundSchema.parse(startJourneyAnswerError2),
+  );
+}
+
+/** @internal */
+export type StartJourneyAnswerError1$Outbound = {
+  status: "error";
+  error: StartJourneyAnswerError2$Outbound;
+};
+
+/** @internal */
+export const StartJourneyAnswerError1$outboundSchema: z.ZodMiniType<
+  StartJourneyAnswerError1$Outbound,
+  StartJourneyAnswerError1
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: z.literal("error"),
+    error: z.lazy(() => StartJourneyAnswerError2$outboundSchema),
+  })
+);
+
+export function startJourneyAnswerError1ToJSON(
+  startJourneyAnswerError1: StartJourneyAnswerError1,
+): string {
+  return JSON.stringify(
+    StartJourneyAnswerError1$outboundSchema.parse(startJourneyAnswerError1),
+  );
+}
+
+/** @internal */
+export type StartJourneyAnswerTimeout$Outbound = {
+  status: "timeout";
+};
+
+/** @internal */
+export const StartJourneyAnswerTimeout$outboundSchema: z.ZodMiniType<
+  StartJourneyAnswerTimeout$Outbound,
+  StartJourneyAnswerTimeout
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: z.literal("timeout"),
+  })
+);
+
+export function startJourneyAnswerTimeoutToJSON(
+  startJourneyAnswerTimeout: StartJourneyAnswerTimeout,
+): string {
+  return JSON.stringify(
+    StartJourneyAnswerTimeout$outboundSchema.parse(startJourneyAnswerTimeout),
+  );
+}
+
+/** @internal */
+export const StartJourneyState$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneyState
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneyState));
+
+/** @internal */
+export const StartJourneySource$outboundSchema: z.ZodMiniEnum<
+  typeof StartJourneySource
+> = /* @__PURE__ */ lazySchema$(() => z.enum(StartJourneySource));
+
+/** @internal */
+export type StartJourneyResults$Outbound = {
+  state: string;
+  source: string;
+};
+
+/** @internal */
+export const StartJourneyResults$outboundSchema: z.ZodMiniType<
+  StartJourneyResults$Outbound,
+  StartJourneyResults
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    state: StartJourneyState$outboundSchema,
+    source: StartJourneySource$outboundSchema,
+  })
+);
+
+export function startJourneyResultsToJSON(
+  startJourneyResults: StartJourneyResults,
+): string {
+  return JSON.stringify(
+    StartJourneyResults$outboundSchema.parse(startJourneyResults),
+  );
+}
+
+/** @internal */
+export type StartJourneyAnswerDone$Outbound = {
+  status: "done";
+  results: { [k: string]: StartJourneyResults$Outbound };
+};
+
+/** @internal */
+export const StartJourneyAnswerDone$outboundSchema: z.ZodMiniType<
+  StartJourneyAnswerDone$Outbound,
+  StartJourneyAnswerDone
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    status: z.literal("done"),
+    results: z.record(
+      z.string(),
+      z.lazy(() => StartJourneyResults$outboundSchema),
+    ),
+  })
+);
+
+export function startJourneyAnswerDoneToJSON(
+  startJourneyAnswerDone: StartJourneyAnswerDone,
+): string {
+  return JSON.stringify(
+    StartJourneyAnswerDone$outboundSchema.parse(startJourneyAnswerDone),
+  );
+}
+
+/** @internal */
+export type StartJourneyAnswerUnion$Outbound =
+  | StartJourneyAnswerDone$Outbound
+  | StartJourneyAnswerTimeout$Outbound
+  | StartJourneyAnswerError1$Outbound;
+
+/** @internal */
+export const StartJourneyAnswerUnion$outboundSchema: z.ZodMiniType<
+  StartJourneyAnswerUnion$Outbound,
+  StartJourneyAnswerUnion
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.union([
+    z.lazy(() => StartJourneyAnswerDone$outboundSchema),
+    z.lazy(() => StartJourneyAnswerTimeout$outboundSchema),
+    z.lazy(() => StartJourneyAnswerError1$outboundSchema),
+  ])
+);
+
+export function startJourneyAnswerUnionToJSON(
+  startJourneyAnswerUnion: StartJourneyAnswerUnion,
+): string {
+  return JSON.stringify(
+    StartJourneyAnswerUnion$outboundSchema.parse(startJourneyAnswerUnion),
+  );
+}
+
+/** @internal */
+export type StartJourneyCapabilityCheck$Outbound = {
+  request?: JourneysStartJourneyRequest$Outbound | undefined;
+  answer?:
+    | StartJourneyAnswerDone$Outbound
+    | StartJourneyAnswerTimeout$Outbound
+    | StartJourneyAnswerError1$Outbound
+    | undefined;
+};
+
+/** @internal */
+export const StartJourneyCapabilityCheck$outboundSchema: z.ZodMiniType<
+  StartJourneyCapabilityCheck$Outbound,
+  StartJourneyCapabilityCheck
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    request: z.optional(
+      z.lazy(() => JourneysStartJourneyRequest$outboundSchema),
+    ),
+    answer: z.optional(
+      z.union([
+        z.lazy(() => StartJourneyAnswerDone$outboundSchema),
+        z.lazy(() => StartJourneyAnswerTimeout$outboundSchema),
+        z.lazy(() => StartJourneyAnswerError1$outboundSchema),
+      ]),
+    ),
+  })
+);
+
+export function startJourneyCapabilityCheckToJSON(
+  startJourneyCapabilityCheck: StartJourneyCapabilityCheck,
+): string {
+  return JSON.stringify(
+    StartJourneyCapabilityCheck$outboundSchema.parse(
+      startJourneyCapabilityCheck,
     ),
   );
 }
@@ -5445,6 +5960,7 @@ export type StartJourneyContextSubject$Outbound = {
   documentTypeSelection?:
     | StartJourneyDocumentTypeSelection$Outbound
     | undefined;
+  capabilityCheck?: StartJourneyCapabilityCheck$Outbound | undefined;
   uid?: string | undefined;
 };
 
@@ -5452,16 +5968,16 @@ export type StartJourneyContextSubject$Outbound = {
 export const StartJourneyContextSubject$outboundSchema: z.ZodMiniType<
   StartJourneyContextSubject$Outbound,
   StartJourneyContextSubject
-> = z.object({
-  identity: z.optional(z.lazy(() => StartJourneyIdentity$outboundSchema)),
-  entities: z.optional(
-    z.array(z.lazy(() => StartJourneyEntity$outboundSchema)),
-  ),
-  documents: z.optional(
-    z.array(z.lazy(() => StartJourneyDocument$outboundSchema)),
-  ),
-  biometrics: z.optional(
-    z.array(smartUnion([
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    identity: z.optional(z.lazy(() => StartJourneyIdentity$outboundSchema)),
+    entities: z.optional(
+      z.array(z.lazy(() => StartJourneyEntity$outboundSchema)),
+    ),
+    documents: z.optional(
+      z.array(z.lazy(() => StartJourneyDocument$outboundSchema)),
+    ),
+    biometrics: z.optional(z.array(smartUnion([
       z.lazy(() => StartJourneyBiometric1$outboundSchema),
       z.lazy(() =>
         StartJourneyBiometric2$outboundSchema
@@ -5471,23 +5987,28 @@ export const StartJourneyContextSubject$outboundSchema: z.ZodMiniType<
       z.lazy(() => StartJourneyBiometric3$outboundSchema),
       z.lazy(() => StartJourneyBiometric4$outboundSchema),
       z.lazy(() => StartJourneyBiometric5$outboundSchema),
-    ])),
-  ),
-  sessions: z.optional(
-    z.array(z.lazy(() => StartJourneySession$outboundSchema)),
-  ),
-  consent: z.optional(
-    z.array(z.lazy(() => StartJourneyConsent$outboundSchema)),
-  ),
-  accounts: z.optional(
-    z.array(z.lazy(() => StartJourneyAccount$outboundSchema)),
-  ),
-  kba: z.optional(z.lazy(() => StartJourneyKba$outboundSchema)),
-  documentTypeSelection: z.optional(
-    z.lazy(() => StartJourneyDocumentTypeSelection$outboundSchema),
-  ),
-  uid: z.optional(z.string()),
-});
+    ]))),
+    sessions: z.optional(z.array(z.lazy(() =>
+      StartJourneySession$outboundSchema
+    ))),
+    consent: z.optional(z.array(z.lazy(() =>
+      StartJourneyConsent$outboundSchema
+    ))),
+    accounts: z.optional(z.array(z.lazy(() =>
+      StartJourneyAccount$outboundSchema
+    ))),
+    kba: z.optional(z.lazy(() =>
+      StartJourneyKba$outboundSchema
+    )),
+    documentTypeSelection: z.optional(
+      z.lazy(() => StartJourneyDocumentTypeSelection$outboundSchema),
+    ),
+    capabilityCheck: z.optional(
+      z.lazy(() => StartJourneyCapabilityCheck$outboundSchema),
+    ),
+    uid: z.optional(z.string()),
+  })
+);
 
 export function startJourneyContextSubjectToJSON(
   startJourneyContextSubject: StartJourneyContextSubject,
@@ -5498,8 +6019,8 @@ export function startJourneyContextSubjectToJSON(
 }
 
 /** @internal */
-export const ResumeMode$outboundSchema: z.ZodMiniEnum<typeof ResumeMode> = z
-  .enum(ResumeMode);
+export const ResumeMode$outboundSchema: z.ZodMiniEnum<typeof ResumeMode> =
+  /* @__PURE__ */ lazySchema$(() => z.enum(ResumeMode));
 
 /** @internal */
 export type Reminders$Outbound = {
@@ -5511,10 +6032,12 @@ export type Reminders$Outbound = {
 export const Reminders$outboundSchema: z.ZodMiniType<
   Reminders$Outbound,
   Reminders
-> = z.object({
-  intervalMinutes: z.int(),
-  maxReminders: z.int(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    intervalMinutes: z.int(),
+    maxReminders: z.int(),
+  })
+);
 
 export function remindersToJSON(reminders: Reminders): string {
   return JSON.stringify(Reminders$outboundSchema.parse(reminders));
@@ -5532,12 +6055,14 @@ export type LinkConfig$Outbound = {
 export const LinkConfig$outboundSchema: z.ZodMiniType<
   LinkConfig$Outbound,
   LinkConfig
-> = z.object({
-  ttlMinutes: z.optional(z.int()),
-  resumeMode: z.optional(ResumeMode$outboundSchema),
-  resumeExpiryMinutes: z.optional(z.int()),
-  reminders: z.optional(z.lazy(() => Reminders$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    ttlMinutes: z.optional(z.int()),
+    resumeMode: z.optional(ResumeMode$outboundSchema),
+    resumeExpiryMinutes: z.optional(z.int()),
+    reminders: z.optional(z.lazy(() => Reminders$outboundSchema)),
+  })
+);
 
 export function linkConfigToJSON(linkConfig: LinkConfig): string {
   return JSON.stringify(LinkConfig$outboundSchema.parse(linkConfig));
@@ -5550,9 +6075,11 @@ export type Overlay$Outbound = {
 
 /** @internal */
 export const Overlay$outboundSchema: z.ZodMiniType<Overlay$Outbound, Overlay> =
-  z.object({
-    version: z.string(),
-  });
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      version: z.string(),
+    })
+  );
 
 export function overlayToJSON(overlay: Overlay): string {
   return JSON.stringify(Overlay$outboundSchema.parse(overlay));
@@ -5571,18 +6098,20 @@ export type Config$Outbound = {
 };
 
 /** @internal */
-export const Config$outboundSchema: z.ZodMiniType<Config$Outbound, Config> = z
-  .catchall(
-    z.object({
-      delivery: z.string(),
-      branding: z.optional(z.any()),
-      assisted: z.optional(z.boolean()),
-      inlineResult: z.optional(z.boolean()),
-      syncWaitSeconds: z.optional(z.int()),
-      linkConfig: z.optional(z.lazy(() => LinkConfig$outboundSchema)),
-      overlay: z.optional(z.lazy(() => Overlay$outboundSchema)),
-    }),
-    z.any(),
+export const Config$outboundSchema: z.ZodMiniType<Config$Outbound, Config> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.catchall(
+      z.object({
+        delivery: z.string(),
+        branding: z.optional(z.any()),
+        assisted: z.optional(z.boolean()),
+        inlineResult: z.optional(z.boolean()),
+        syncWaitSeconds: z.optional(z.int()),
+        linkConfig: z.optional(z.lazy(() => LinkConfig$outboundSchema)),
+        overlay: z.optional(z.lazy(() => Overlay$outboundSchema)),
+      }),
+      z.any(),
+    )
   );
 
 export function configToJSON(config: Config): string {
@@ -5600,14 +6129,16 @@ export type StartJourneyContext$Outbound = {
 export const StartJourneyContext$outboundSchema: z.ZodMiniType<
   StartJourneyContext$Outbound,
   StartJourneyContext
-> = z.catchall(
-  z.object({
-    subject: z.optional(
-      z.lazy(() => StartJourneyContextSubject$outboundSchema),
-    ),
-    config: z.lazy(() => Config$outboundSchema),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      subject: z.optional(
+        z.lazy(() => StartJourneyContextSubject$outboundSchema),
+      ),
+      config: z.lazy(() => Config$outboundSchema),
+    }),
+    z.any(),
+  )
 );
 
 export function startJourneyContextToJSON(
@@ -5625,7 +6156,7 @@ export type ModulesSubject$Outbound = {};
 export const ModulesSubject$outboundSchema: z.ZodMiniType<
   ModulesSubject$Outbound,
   ModulesSubject
-> = z.object({});
+> = /* @__PURE__ */ lazySchema$(() => z.object({}));
 
 export function modulesSubjectToJSON(modulesSubject: ModulesSubject): string {
   return JSON.stringify(ModulesSubject$outboundSchema.parse(modulesSubject));
@@ -5641,13 +6172,15 @@ export type Modules$Outbound = {
 
 /** @internal */
 export const Modules$outboundSchema: z.ZodMiniType<Modules$Outbound, Modules> =
-  z.catchall(
-    z.object({
-      outcome: z.string(),
-      advice: z.optional(z.record(z.string(), z.any())),
-      subject: z.optional(z.lazy(() => ModulesSubject$outboundSchema)),
-    }),
-    z.any(),
+  /* @__PURE__ */ lazySchema$(() =>
+    z.catchall(
+      z.object({
+        outcome: z.string(),
+        advice: z.optional(z.record(z.string(), z.any())),
+        subject: z.optional(z.lazy(() => ModulesSubject$outboundSchema)),
+      }),
+      z.any(),
+    )
   );
 
 export function modulesToJSON(modules: Modules): string {
@@ -5661,7 +6194,7 @@ export type DefaultSubject$Outbound = {};
 export const DefaultSubject$outboundSchema: z.ZodMiniType<
   DefaultSubject$Outbound,
   DefaultSubject
-> = z.object({});
+> = /* @__PURE__ */ lazySchema$(() => z.object({}));
 
 export function defaultSubjectToJSON(defaultSubject: DefaultSubject): string {
   return JSON.stringify(DefaultSubject$outboundSchema.parse(defaultSubject));
@@ -5681,15 +6214,17 @@ export type Scenario$Outbound = {
 export const Scenario$outboundSchema: z.ZodMiniType<
   Scenario$Outbound,
   Scenario
-> = z.catchall(
-  z.object({
-    modules: z.record(z.string(), z.lazy(() => Modules$outboundSchema)),
-    defaultOutcome: z.optional(z.string()),
-    defaultAdvice: z.optional(z.record(z.string(), z.any())),
-    defaultSubject: z.optional(z.lazy(() => DefaultSubject$outboundSchema)),
-    description: z.optional(z.string()),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      modules: z.record(z.string(), z.lazy(() => Modules$outboundSchema)),
+      defaultOutcome: z.optional(z.string()),
+      defaultAdvice: z.optional(z.record(z.string(), z.any())),
+      defaultSubject: z.optional(z.lazy(() => DefaultSubject$outboundSchema)),
+      description: z.optional(z.string()),
+    }),
+    z.any(),
+  )
 );
 
 export function scenarioToJSON(scenario: Scenario): string {
@@ -5697,26 +6232,60 @@ export function scenarioToJSON(scenario: Scenario): string {
 }
 
 /** @internal */
-export type StartJourneyRequest$Outbound = {
+export type StartJourneyRequestBody$Outbound = {
   resourceId: string;
   context: StartJourneyContext$Outbound;
   scenario?: Scenario$Outbound | undefined;
 };
 
 /** @internal */
-export const StartJourneyRequest$outboundSchema: z.ZodMiniType<
-  StartJourneyRequest$Outbound,
-  StartJourneyRequest
-> = z.object({
-  resourceId: z.string(),
-  context: z.lazy(() => StartJourneyContext$outboundSchema),
-  scenario: z.optional(z.lazy(() => Scenario$outboundSchema)),
-});
+export const StartJourneyRequestBody$outboundSchema: z.ZodMiniType<
+  StartJourneyRequestBody$Outbound,
+  StartJourneyRequestBody
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    resourceId: z.string(),
+    context: z.lazy(() => StartJourneyContext$outboundSchema),
+    scenario: z.optional(z.lazy(() => Scenario$outboundSchema)),
+  })
+);
 
-export function startJourneyRequestToJSON(
-  startJourneyRequest: StartJourneyRequest,
+export function startJourneyRequestBodyToJSON(
+  startJourneyRequestBody: StartJourneyRequestBody,
 ): string {
   return JSON.stringify(
-    StartJourneyRequest$outboundSchema.parse(startJourneyRequest),
+    StartJourneyRequestBody$outboundSchema.parse(startJourneyRequestBody),
+  );
+}
+
+/** @internal */
+export type StartJourneyRequestRequest$Outbound = {
+  "x-gbg-scenario"?: string | undefined;
+  body?: StartJourneyRequestBody$Outbound | undefined;
+};
+
+/** @internal */
+export const StartJourneyRequestRequest$outboundSchema: z.ZodMiniType<
+  StartJourneyRequestRequest$Outbound,
+  StartJourneyRequestRequest
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      xGbgScenario: z.optional(z.string()),
+      body: z.optional(z.lazy(() => StartJourneyRequestBody$outboundSchema)),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        xGbgScenario: "x-gbg-scenario",
+      });
+    }),
+  )
+);
+
+export function startJourneyRequestRequestToJSON(
+  startJourneyRequestRequest: StartJourneyRequestRequest,
+): string {
+  return JSON.stringify(
+    StartJourneyRequestRequest$outboundSchema.parse(startJourneyRequestRequest),
   );
 }

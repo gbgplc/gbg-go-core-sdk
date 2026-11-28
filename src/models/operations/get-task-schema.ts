@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type GetTaskSchemaRequest = {
   /**
@@ -20,9 +21,11 @@ export type GetTaskSchemaRequest$Outbound = {
 export const GetTaskSchemaRequest$outboundSchema: z.ZodMiniType<
   GetTaskSchemaRequest$Outbound,
   GetTaskSchemaRequest
-> = z.object({
-  taskId: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    taskId: z.string(),
+  })
+);
 
 export function getTaskSchemaRequestToJSON(
   getTaskSchemaRequest: GetTaskSchemaRequest,

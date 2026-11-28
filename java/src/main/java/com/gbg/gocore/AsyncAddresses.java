@@ -16,6 +16,7 @@ import com.gbg.gocore.models.operations.async.SearchAddressesResponse;
 import com.gbg.gocore.operations.RetrieveAddress;
 import com.gbg.gocore.operations.SearchAddresses;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
@@ -63,7 +64,7 @@ public class AsyncAddresses {
      * @return {@code CompletableFuture<SearchAddressesResponse>} - The async response
      */
     public CompletableFuture<SearchAddressesResponse> search(@Nonnull SearchAddressesSecurity security) {
-        return search(null, security);
+        return search(null, security, null);
     }
 
     /**
@@ -77,8 +78,27 @@ public class AsyncAddresses {
      * @return {@code CompletableFuture<SearchAddressesResponse>} - The async response
      */
     public CompletableFuture<SearchAddressesResponse> search(@Nullable SearchAddressesRequest request, @Nonnull SearchAddressesSecurity security) {
+        return search(request, security, null);
+    }
+
+    /**
+     * Search addresses via Loqate Capture
+     * 
+     * <p>Server-side proxy for the Loqate Capture Find endpoint. Returns address suggestions for a free-text
+     * query; the Loqate API key is held server-side and never reaches the browser.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return {@code CompletableFuture<SearchAddressesResponse>} - The async response
+     */
+    public CompletableFuture<SearchAddressesResponse> search(
+            @Nullable SearchAddressesRequest request, @Nonnull SearchAddressesSecurity security,
+            @Nullable Options options) {
         AsyncRequestOperation<SearchAddressesRequest, SearchAddressesResponse> operation
-              = new SearchAddresses.Async(sdkConfiguration, security, _headers);
+              = new SearchAddresses.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }
@@ -106,7 +126,7 @@ public class AsyncAddresses {
      * @return {@code CompletableFuture<RetrieveAddressResponse>} - The async response
      */
     public CompletableFuture<RetrieveAddressResponse> retrieve(@Nonnull RetrieveAddressSecurity security) {
-        return retrieve(null, security);
+        return retrieve(null, security, null);
     }
 
     /**
@@ -120,8 +140,27 @@ public class AsyncAddresses {
      * @return {@code CompletableFuture<RetrieveAddressResponse>} - The async response
      */
     public CompletableFuture<RetrieveAddressResponse> retrieve(@Nullable RetrieveAddressRequest request, @Nonnull RetrieveAddressSecurity security) {
+        return retrieve(request, security, null);
+    }
+
+    /**
+     * Retrieve full address via Loqate Capture
+     * 
+     * <p>Server-side proxy for the Loqate Capture Retrieve endpoint. Returns the full address detail for a
+     * given Loqate address ID.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return {@code CompletableFuture<RetrieveAddressResponse>} - The async response
+     */
+    public CompletableFuture<RetrieveAddressResponse> retrieve(
+            @Nullable RetrieveAddressRequest request, @Nonnull RetrieveAddressSecurity security,
+            @Nullable Options options) {
         AsyncRequestOperation<RetrieveAddressRequest, RetrieveAddressResponse> operation
-              = new RetrieveAddress.Async(sdkConfiguration, security, _headers);
+              = new RetrieveAddress.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest(request)
             .thenCompose(operation::handleResponse);
     }

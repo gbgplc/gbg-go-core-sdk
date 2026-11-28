@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
@@ -25,18 +25,20 @@ export type DeviceStartResponse = {
 /** @internal */
 export const DeviceStartResponseTokenType$inboundSchema: z.ZodMiniEnum<
   typeof DeviceStartResponseTokenType
-> = z.enum(DeviceStartResponseTokenType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(DeviceStartResponseTokenType));
 
 /** @internal */
 export const DeviceStartResponse$inboundSchema: z.ZodMiniType<
   DeviceStartResponse,
   unknown
-> = z.object({
-  connectToken: z.string(),
-  tokenType: DeviceStartResponseTokenType$inboundSchema,
-  expiresIn: z.number(),
-  scope: z.array(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    connectToken: z.string(),
+    tokenType: DeviceStartResponseTokenType$inboundSchema,
+    expiresIn: z.number(),
+    scope: z.array(z.string()),
+  })
+);
 
 export function deviceStartResponseFromJSON(
   jsonString: string,

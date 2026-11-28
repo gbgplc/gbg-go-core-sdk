@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
@@ -65,12 +65,14 @@ export type SlimExtraction = {
 export const AggregatedFieldBoundingBox$inboundSchema: z.ZodMiniType<
   AggregatedFieldBoundingBox,
   unknown
-> = z.object({
-  x: z.number(),
-  y: z.number(),
-  width: z.number(),
-  height: z.number(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    x: z.number(),
+    y: z.number(),
+    width: z.number(),
+    height: z.number(),
+  })
+);
 
 export function aggregatedFieldBoundingBoxFromJSON(
   jsonString: string,
@@ -86,14 +88,16 @@ export function aggregatedFieldBoundingBoxFromJSON(
 export const AggregatedFieldRegionOfInterest$inboundSchema: z.ZodMiniType<
   AggregatedFieldRegionOfInterest,
   unknown
-> = z.object({
-  boundingBox: z.optional(
-    z.lazy(() => AggregatedFieldBoundingBox$inboundSchema),
-  ),
-  side: z.string(),
-  spectrum: z.optional(z.string()),
-  imageId: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    boundingBox: z.optional(
+      z.lazy(() => AggregatedFieldBoundingBox$inboundSchema),
+    ),
+    side: z.string(),
+    spectrum: z.optional(z.string()),
+    imageId: z.optional(z.string()),
+  })
+);
 
 export function aggregatedFieldRegionOfInterestFromJSON(
   jsonString: string,
@@ -109,15 +113,17 @@ export function aggregatedFieldRegionOfInterestFromJSON(
 export const AggregatedField$inboundSchema: z.ZodMiniType<
   AggregatedField,
   unknown
-> = z.object({
-  label: z.string(),
-  value: z.string(),
-  source: z.string(),
-  isNonLatin: z.boolean(),
-  regionOfInterest: z.optional(
-    z.lazy(() => AggregatedFieldRegionOfInterest$inboundSchema),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    value: z.string(),
+    source: z.string(),
+    isNonLatin: z.boolean(),
+    regionOfInterest: z.optional(
+      z.lazy(() => AggregatedFieldRegionOfInterest$inboundSchema),
+    ),
+  })
+);
 
 export function aggregatedFieldFromJSON(
   jsonString: string,
@@ -133,12 +139,14 @@ export function aggregatedFieldFromJSON(
 export const DetailBoundingBox$inboundSchema: z.ZodMiniType<
   DetailBoundingBox,
   unknown
-> = z.object({
-  x: z.number(),
-  y: z.number(),
-  width: z.number(),
-  height: z.number(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    x: z.number(),
+    y: z.number(),
+    width: z.number(),
+    height: z.number(),
+  })
+);
 
 export function detailBoundingBoxFromJSON(
   jsonString: string,
@@ -154,12 +162,14 @@ export function detailBoundingBoxFromJSON(
 export const DetailRegionOfInterest$inboundSchema: z.ZodMiniType<
   DetailRegionOfInterest,
   unknown
-> = z.object({
-  boundingBox: z.optional(z.lazy(() => DetailBoundingBox$inboundSchema)),
-  side: z.string(),
-  spectrum: z.optional(z.string()),
-  imageId: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    boundingBox: z.optional(z.lazy(() => DetailBoundingBox$inboundSchema)),
+    side: z.string(),
+    spectrum: z.optional(z.string()),
+    imageId: z.optional(z.string()),
+  })
+);
 
 export function detailRegionOfInterestFromJSON(
   jsonString: string,
@@ -172,15 +182,18 @@ export function detailRegionOfInterestFromJSON(
 }
 
 /** @internal */
-export const Detail$inboundSchema: z.ZodMiniType<Detail, unknown> = z.object({
-  label: z.string(),
-  value: z.string(),
-  source: z.string(),
-  isNonLatin: z.boolean(),
-  regionOfInterest: z.optional(
-    z.lazy(() => DetailRegionOfInterest$inboundSchema),
-  ),
-});
+export const Detail$inboundSchema: z.ZodMiniType<Detail, unknown> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      label: z.string(),
+      value: z.string(),
+      source: z.string(),
+      isNonLatin: z.boolean(),
+      regionOfInterest: z.optional(
+        z.lazy(() => DetailRegionOfInterest$inboundSchema),
+      ),
+    })
+  );
 
 export function detailFromJSON(
   jsonString: string,
@@ -196,10 +209,12 @@ export function detailFromJSON(
 export const ExtractedField$inboundSchema: z.ZodMiniType<
   ExtractedField,
   unknown
-> = z.object({
-  label: z.string(),
-  details: z.array(z.lazy(() => Detail$inboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    label: z.string(),
+    details: z.array(z.lazy(() => Detail$inboundSchema)),
+  })
+);
 
 export function extractedFieldFromJSON(
   jsonString: string,
@@ -215,14 +230,16 @@ export function extractedFieldFromJSON(
 export const SlimExtraction$inboundSchema: z.ZodMiniType<
   SlimExtraction,
   unknown
-> = z.object({
-  aggregatedFields: z.optional(
-    z.array(z.lazy(() => AggregatedField$inboundSchema)),
-  ),
-  extractedFields: z.optional(
-    z.array(z.lazy(() => ExtractedField$inboundSchema)),
-  ),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    aggregatedFields: z.optional(
+      z.array(z.lazy(() => AggregatedField$inboundSchema)),
+    ),
+    extractedFields: z.optional(
+      z.array(z.lazy(() => ExtractedField$inboundSchema)),
+    ),
+  })
+);
 
 export function slimExtractionFromJSON(
   jsonString: string,

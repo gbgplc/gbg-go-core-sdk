@@ -10,10 +10,12 @@ import com.gbg.gocore.models.operations.ListTestScenariosIncludePlatform;
 import com.gbg.gocore.models.operations.ListTestScenariosRequest;
 import com.gbg.gocore.operations.ListTestScenarios;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class ListTestScenariosRequestBuilder {
@@ -21,11 +23,13 @@ public class ListTestScenariosRequestBuilder {
     private final Headers _headers = new Headers();
     private final ListTestScenariosRequest.Builder pojoBuilder;
     private ListTestScenariosRequest request;
+    private final Options.Builder optionsBuilder;
     private boolean _setterCalled;
 
     public ListTestScenariosRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
         this.pojoBuilder = ListTestScenariosRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
     public ListTestScenariosRequestBuilder journeyId(@Nonnull String journeyId) {
@@ -37,6 +41,11 @@ public class ListTestScenariosRequestBuilder {
     public ListTestScenariosRequestBuilder includePlatform(@Nullable ListTestScenariosIncludePlatform includePlatform) {
         this.pojoBuilder.includePlatform(includePlatform);
         this._setterCalled = true;
+        return this;
+    }
+
+    public ListTestScenariosRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
         return this;
     }
 
@@ -60,8 +69,9 @@ public class ListTestScenariosRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<ListTestScenariosResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestOperation<ListTestScenariosRequest, ListTestScenariosResponse> operation
-              = new ListTestScenarios.Async(sdkConfiguration, _headers);
+              = new ListTestScenarios.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }
