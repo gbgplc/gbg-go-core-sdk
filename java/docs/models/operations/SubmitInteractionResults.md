@@ -1,0 +1,9 @@
+# SubmitInteractionResults
+
+
+## Fields
+
+| Field                                                                         | Setter Type                                                                   | Getter Type                                                                   | Required                                                                      | Description                                                                   |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `state`                                                                       | [SubmitInteractionState](../../models/operations/SubmitInteractionState.md)   | [SubmitInteractionState](../../models/operations/SubmitInteractionState.md)   | :heavy_check_mark:                                                            | N/A                                                                           |
+| `source`                                                                      | [SubmitInteractionSource](../../models/operations/SubmitInteractionSource.md) | [SubmitInteractionSource](../../models/operations/SubmitInteractionSource.md) | :heavy_check_mark:                                                            | N/A                                                                           |

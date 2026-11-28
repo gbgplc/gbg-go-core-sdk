@@ -21,10 +21,12 @@ import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Hook.AfterErrorContextImpl;
 import com.gbg.gocore.utils.Hook.AfterSuccessContextImpl;
 import com.gbg.gocore.utils.Hook.BeforeRequestContextImpl;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.SerializedBody;
 import com.gbg.gocore.utils.Utils.JsonShape;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.InputStream;
 import java.lang.Exception;
 import java.lang.Object;
@@ -32,6 +34,8 @@ import java.lang.String;
 import java.lang.Throwable;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -44,14 +48,20 @@ public class GetTaskSchema {
         final SDKConfiguration sdkConfiguration;
         final String baseUrl;
         final SecuritySource securitySource;
+        final Optional<Duration> timeout;
         final HTTPClient client;
         final Headers _headers;
 
-        public Base(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
+        public Base(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable Options options,
+                Headers _headers) {
             this.sdkConfiguration = sdkConfiguration;
             this._headers =_headers;
             this.baseUrl = this.sdkConfiguration.serverUrl();
             this.securitySource = this.sdkConfiguration.securitySource();
+            Optional.ofNullable(options)
+                    .ifPresent(o -> o.validate(List.of(Options.Option.TIMEOUT)));
+            this.timeout = Optional.ofNullable(options).flatMap(Options::timeout).or(sdkConfiguration::timeout);
             this.client = this.sdkConfiguration.client();
         }
 
@@ -89,7 +99,8 @@ public class GetTaskSchema {
             String url = Utils.generateURL(
                     this.baseUrl,
                     "/journey/task/schema");
-            HTTPRequest req = new HTTPRequest(url, "POST");
+            HTTPRequest req = new HTTPRequest(url, "POST")
+                    .timeout(this.timeout);
             Object convertedRequest = Utils.convertToShape(
                     request,
                     JsonShape.DEFAULT,
@@ -112,7 +123,16 @@ public class GetTaskSchema {
     public static class Sync extends Base
             implements RequestOperation<GetTaskSchemaRequest, GetTaskSchemaResponse> {
         public Sync(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
-            super(sdkConfiguration, _headers);
+            this(sdkConfiguration, null,
+                    _headers);
+        }
+
+        public Sync(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable Options options,
+                Headers _headers) {
+            super(
+                  sdkConfiguration, options,
+                  _headers);
         }
 
         private HttpRequest onBuildRequest(GetTaskSchemaRequest request) throws Exception {
@@ -199,9 +219,17 @@ public class GetTaskSchema {
     }
     public static class Async extends Base
             implements AsyncRequestOperation<GetTaskSchemaRequest, com.gbg.gocore.models.operations.async.GetTaskSchemaResponse> {
-
         public Async(@Nonnull SDKConfiguration sdkConfiguration, Headers _headers) {
-            super(sdkConfiguration, _headers);
+            this(sdkConfiguration, null,
+                    _headers);
+        }
+
+        public Async(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable Options options,
+                Headers _headers) {
+            super(
+                  sdkConfiguration, options,
+                  _headers);
         }
 
         private CompletableFuture<HttpRequest> onBuildRequest(GetTaskSchemaRequest request) throws Exception {

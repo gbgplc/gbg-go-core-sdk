@@ -9,17 +9,27 @@ import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.models.operations.DeviceValidateSecurity;
 import com.gbg.gocore.operations.DeviceValidate;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class DeviceValidateRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private DeviceValidateSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public DeviceValidateRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public DeviceValidateRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public DeviceValidateRequestBuilder security(@Nonnull DeviceValidateSecurity security) {
@@ -41,8 +51,11 @@ public class DeviceValidateRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<DeviceValidateResponse> call() {
+        Options options = optionsBuilder.build();
         AsyncRequestlessOperation<DeviceValidateResponse> operation
-            = new DeviceValidate.Async(sdkConfiguration, security, _headers);
+            = new DeviceValidate.Async(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.doRequest()
             .thenCompose(operation::handleResponse);
     }

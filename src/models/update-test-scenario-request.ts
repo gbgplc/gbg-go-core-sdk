@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { lazySchema as lazySchema$ } from "../lib/schemas.js";
 
 /**
  * Scenario payload (ScenarioPayload). Requires `modules`, keyed by journey graph node id (GGO-18452 / GGO-16394); optionally `defaultOutcome`, `defaultSubject`, `description`, and extra passthrough fields. Validated by the store against the same schema the test scenario runtime enforces, so an accepted document is guaranteed runnable.
@@ -23,7 +24,7 @@ export type UpdateTestScenarioRequestData$Outbound = {};
 export const UpdateTestScenarioRequestData$outboundSchema: z.ZodMiniType<
   UpdateTestScenarioRequestData$Outbound,
   UpdateTestScenarioRequestData
-> = z.object({});
+> = /* @__PURE__ */ lazySchema$(() => z.object({}));
 
 export function updateTestScenarioRequestDataToJSON(
   updateTestScenarioRequestData: UpdateTestScenarioRequestData,
@@ -44,9 +45,11 @@ export type UpdateTestScenarioRequest$Outbound = {
 export const UpdateTestScenarioRequest$outboundSchema: z.ZodMiniType<
   UpdateTestScenarioRequest$Outbound,
   UpdateTestScenarioRequest
-> = z.object({
-  data: z.lazy(() => UpdateTestScenarioRequestData$outboundSchema),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    data: z.lazy(() => UpdateTestScenarioRequestData$outboundSchema),
+  })
+);
 
 export function updateTestScenarioRequestToJSON(
   updateTestScenarioRequest: UpdateTestScenarioRequest,

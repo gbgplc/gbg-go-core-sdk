@@ -13,6 +13,7 @@ export * from "./device-validate-response.js";
 export * from "./gbg-error.js";
 export * from "./handoff-token-response.js";
 export * from "./interaction-fetch-response.js";
+export * from "./interaction-retry.js";
 export * from "./interaction-submit-response.js";
 export * from "./journey-start-response.js";
 export * from "./loqate-retrieve-response.js";

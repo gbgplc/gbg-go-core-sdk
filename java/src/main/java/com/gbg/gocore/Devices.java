@@ -23,6 +23,7 @@ import com.gbg.gocore.operations.DeviceConnect;
 import com.gbg.gocore.operations.DeviceRefresh;
 import com.gbg.gocore.operations.DeviceValidate;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -70,7 +71,7 @@ public class Devices {
      * @throws RuntimeException subclass if the API call fails
      */
     public AddDeviceResponse addDirect() {
-        return add(null);
+        return add(null, null);
     }
 
     /**
@@ -85,8 +86,24 @@ public class Devices {
      * @throws RuntimeException subclass if the API call fails
      */
     public AddDeviceResponse add(@Nullable AddDeviceRequest request) {
+        return add(request, null);
+    }
+
+    /**
+     * Generate connect token
+     * 
+     * <p>Generates a one-time connect token for device onboarding.
+     * 
+     * <p>If set, this operation will use Security#customerAccess from the global security.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public AddDeviceResponse add(@Nullable AddDeviceRequest request, @Nullable Options options) {
         RequestOperation<AddDeviceRequest, AddDeviceResponse> operation
-              = new AddDevice.Sync(sdkConfiguration, _headers);
+              = new AddDevice.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest(request));
     }
 
@@ -111,7 +128,7 @@ public class Devices {
      * @throws RuntimeException subclass if the API call fails
      */
     public DeviceConnectResponse connect(@Nonnull DeviceConnectSecurity security) {
-        return connect(null, security);
+        return connect(null, security, null);
     }
 
     /**
@@ -125,8 +142,27 @@ public class Devices {
      * @throws RuntimeException subclass if the API call fails
      */
     public DeviceConnectResponse connect(@Nullable DeviceConnectRequest request, @Nonnull DeviceConnectSecurity security) {
+        return connect(request, security, null);
+    }
+
+    /**
+     * Complete the device-onboarding handshake
+     * 
+     * <p>Completes the device-onboarding handshake. See partner integration guide.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public DeviceConnectResponse connect(
+            @Nullable DeviceConnectRequest request, @Nonnull DeviceConnectSecurity security,
+            @Nullable Options options) {
         RequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
-              = new DeviceConnect.Sync(sdkConfiguration, security, _headers);
+              = new DeviceConnect.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(request));
     }
 
@@ -150,8 +186,21 @@ public class Devices {
      * @throws RuntimeException subclass if the API call fails
      */
     public DeviceRefreshResponse refreshDirect() {
+        return refresh(null);
+    }
+
+    /**
+     * Renew a device session
+     * 
+     * <p>Renews a device session. See partner integration guide.
+     * 
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public DeviceRefreshResponse refresh(@Nullable Options options) {
         RequestlessOperation<DeviceRefreshResponse> operation
-            = new DeviceRefresh.Sync(sdkConfiguration, _headers);
+            = new DeviceRefresh.Sync(sdkConfiguration, options, _headers);
         return operation.handleResponse(operation.doRequest());
     }
 
@@ -176,8 +225,24 @@ public class Devices {
      * @throws RuntimeException subclass if the API call fails
      */
     public DeviceValidateResponse validate(@Nonnull DeviceValidateSecurity security) {
+        return validate(security, null);
+    }
+
+    /**
+     * Validate end-user session
+     * 
+     * <p>Validates an end-user JWT and returns session information.
+     * 
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public DeviceValidateResponse validate(@Nonnull DeviceValidateSecurity security, @Nullable Options options) {
         RequestlessOperation<DeviceValidateResponse> operation
-            = new DeviceValidate.Sync(sdkConfiguration, security, _headers);
+            = new DeviceValidate.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest());
     }
 

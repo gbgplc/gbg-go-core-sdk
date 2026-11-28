@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type TerminateJourneyRequest = {
   /**
@@ -24,12 +25,14 @@ export type TerminateJourneyRequest$Outbound = {
 export const TerminateJourneyRequest$outboundSchema: z.ZodMiniType<
   TerminateJourneyRequest$Outbound,
   TerminateJourneyRequest
-> = z.catchall(
-  z.object({
-    instanceId: z.string(),
-    reason: z.optional(z.string()),
-  }),
-  z.any(),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.catchall(
+    z.object({
+      instanceId: z.string(),
+      reason: z.optional(z.string()),
+    }),
+    z.any(),
+  )
 );
 
 export function terminateJourneyRequestToJSON(

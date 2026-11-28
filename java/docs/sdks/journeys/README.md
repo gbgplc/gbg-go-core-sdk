@@ -33,6 +33,7 @@ public class Application {
             .build();
 
         StartJourneyResponse res = sdk.journeys().start()
+                .xGbgScenario("my-scenario")
                 .call();
 
         if (res.journeyStartResponse().isPresent()) {
@@ -44,9 +45,10 @@ public class Application {
 
 ### Parameters
 
-| Parameter                                                             | Type                                                                  | Required                                                              | Description                                                           |
-| --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `request`                                                             | [StartJourneyRequest](../../models/operations/StartJourneyRequest.md) | :heavy_check_mark:                                                    | The request object to use for the request.                            |
+| Parameter                                                                                                                                                                                                                                                               | Type                                                                                                                                                                                                                                                                    | Required                                                                                                                                                                                                                                                                | Description                                                                                                                                                                                                                                                             | Example                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `xGbgScenario`                                                                                                                                                                                                                                                          | @Nullable *String*                                                                                                                                                                                                                                                      | :heavy_minus_sign:                                                                                                                                                                                                                                                      | Applies a saved test scenario for this journey, selected by name (see /test/journeys/{journeyId}/scenarios). The start response then carries `test: true` and `scenario: <name>`. The value `inline` instead takes the scenario from the request body `scenario` field. | my-scenario                                                                                                                                                                                                                                                             |
+| `body`                                                                                                                                                                                                                                                                  | @Nullable [StartJourneyRequestBody](../../models/operations/StartJourneyRequestBody.md)                                                                                                                                                                                 | :heavy_minus_sign:                                                                                                                                                                                                                                                      | N/A                                                                                                                                                                                                                                                                     |                                                                                                                                                                                                                                                                         |
 
 ### Response
 
@@ -242,7 +244,7 @@ public class Application {
 
 ## terminate
 
-Terminates an active journey instance.
+Terminates a journey instance. A running journey is stopped and recorded as abandoned; a completed or failed one is cleaned up. Its state is then erased, so the instanceId no longer resolves (a second terminate is a 404).
 
 ### Example Usage
 
@@ -287,6 +289,6 @@ public class Application {
 
 | Error Type                  | Status Code                 | Content Type                |
 | --------------------------- | --------------------------- | --------------------------- |
-| models/errors/ErrorResponse | 400, 401, 403, 404, 409     | application/json            |
+| models/errors/ErrorResponse | 400, 401, 403, 404          | application/json            |
 | models/errors/ErrorResponse | 500, 503                    | application/json            |
 | models/errors/APIException  | 4XX, 5XX                    | \*/\*                       |

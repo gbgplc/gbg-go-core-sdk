@@ -44,6 +44,11 @@ public class SubmitInteractionRequest {
     private SubmitInteractionContext context;
 
 
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("viewVersion")
+    private String viewVersion;
+
+
     @JsonIgnore
     private Map<String, Object> additionalProperties;
 
@@ -52,13 +57,15 @@ public class SubmitInteractionRequest {
             @JsonProperty("instanceId") @Nonnull String instanceId,
             @JsonProperty("interactionId") @Nonnull String interactionId,
             @JsonProperty("participants") @Nullable List<Participant> participants,
-            @JsonProperty("context") @Nullable SubmitInteractionContext context) {
+            @JsonProperty("context") @Nullable SubmitInteractionContext context,
+            @JsonProperty("viewVersion") @Nullable String viewVersion) {
         this.instanceId = Optional.ofNullable(instanceId)
             .orElseThrow(() -> new IllegalArgumentException("instanceId cannot be null"));
         this.interactionId = Optional.ofNullable(interactionId)
             .orElseThrow(() -> new IllegalArgumentException("interactionId cannot be null"));
         this.participants = participants;
         this.context = context;
+        this.viewVersion = viewVersion;
         this.additionalProperties = new HashMap<>();
     }
     
@@ -66,7 +73,7 @@ public class SubmitInteractionRequest {
             @Nonnull String instanceId,
             @Nonnull String interactionId) {
         this(instanceId, interactionId, null,
-            null);
+            null, null);
     }
 
     /**
@@ -86,6 +93,10 @@ public class SubmitInteractionRequest {
 
     public Optional<SubmitInteractionContext> context() {
         return Optional.ofNullable(this.context);
+    }
+
+    public Optional<String> viewVersion() {
+        return Optional.ofNullable(this.viewVersion);
     }
 
     @JsonAnyGetter
@@ -125,6 +136,12 @@ public class SubmitInteractionRequest {
     }
 
 
+    public SubmitInteractionRequest withViewVersion(@Nullable String viewVersion) {
+        this.viewVersion = viewVersion;
+        return this;
+    }
+
+
     @JsonAnySetter
     public SubmitInteractionRequest withAdditionalProperty(String key, Object value) {
         // note that value can be null because of the way JsonAnySetter works
@@ -153,6 +170,7 @@ public class SubmitInteractionRequest {
             Utils.enhancedDeepEquals(this.interactionId, other.interactionId) &&
             Utils.enhancedDeepEquals(this.participants, other.participants) &&
             Utils.enhancedDeepEquals(this.context, other.context) &&
+            Utils.enhancedDeepEquals(this.viewVersion, other.viewVersion) &&
             Utils.enhancedDeepEquals(this.additionalProperties, other.additionalProperties);
     }
     
@@ -160,7 +178,7 @@ public class SubmitInteractionRequest {
     public int hashCode() {
         return Utils.enhancedHash(
             instanceId, interactionId, participants,
-            context, additionalProperties);
+            context, viewVersion, additionalProperties);
     }
     
     @Override
@@ -170,6 +188,7 @@ public class SubmitInteractionRequest {
                 "interactionId", interactionId,
                 "participants", participants,
                 "context", context,
+                "viewVersion", viewVersion,
                 "additionalProperties", additionalProperties);
     }
 
@@ -183,6 +202,8 @@ public class SubmitInteractionRequest {
         private List<Participant> participants;
 
         private SubmitInteractionContext context;
+
+        private String viewVersion;
 
         private Map<String, Object> additionalProperties = new HashMap<>();
 
@@ -213,6 +234,11 @@ public class SubmitInteractionRequest {
             return this;
         }
 
+        public Builder viewVersion(@Nullable String viewVersion) {
+            this.viewVersion = viewVersion;
+            return this;
+        }
+
         public Builder additionalProperty(String key, Object value) {
             Utils.checkNotNull(key, "key");
             // we could be strict about null values (force the user
@@ -230,7 +256,7 @@ public class SubmitInteractionRequest {
         public SubmitInteractionRequest build() {
             return new SubmitInteractionRequest(
                 instanceId, interactionId, participants,
-                context)
+                context, viewVersion)
                 .withAdditionalProperties(additionalProperties);
         }
 

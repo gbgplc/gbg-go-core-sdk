@@ -63,6 +63,11 @@ public class SubmitInteractionSubject {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("capabilityCheck")
+    private SubmitInteractionCapabilityCheck capabilityCheck;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("uid")
     private String uid;
 
@@ -77,6 +82,7 @@ public class SubmitInteractionSubject {
             @JsonProperty("accounts") @Nullable List<SubmitInteractionAccount> accounts,
             @JsonProperty("kba") @Nullable SubmitInteractionKba kba,
             @JsonProperty("documentTypeSelection") @Nullable SubmitInteractionDocumentTypeSelection documentTypeSelection,
+            @JsonProperty("capabilityCheck") @Nullable SubmitInteractionCapabilityCheck capabilityCheck,
             @JsonProperty("uid") @Nullable String uid) {
         this.identity = identity;
         this.entities = entities;
@@ -87,6 +93,7 @@ public class SubmitInteractionSubject {
         this.accounts = accounts;
         this.kba = kba;
         this.documentTypeSelection = documentTypeSelection;
+        this.capabilityCheck = capabilityCheck;
         this.uid = uid;
     }
     
@@ -94,7 +101,7 @@ public class SubmitInteractionSubject {
         this(null, null, null,
             null, null, null,
             null, null, null,
-            null);
+            null, null);
     }
 
     public Optional<SubmitInteractionIdentity> identity() {
@@ -131,6 +138,10 @@ public class SubmitInteractionSubject {
 
     public Optional<SubmitInteractionDocumentTypeSelection> documentTypeSelection() {
         return Optional.ofNullable(this.documentTypeSelection);
+    }
+
+    public Optional<SubmitInteractionCapabilityCheck> capabilityCheck() {
+        return Optional.ofNullable(this.capabilityCheck);
     }
 
     public Optional<String> uid() {
@@ -196,6 +207,12 @@ public class SubmitInteractionSubject {
     }
 
 
+    public SubmitInteractionSubject withCapabilityCheck(@Nullable SubmitInteractionCapabilityCheck capabilityCheck) {
+        this.capabilityCheck = capabilityCheck;
+        return this;
+    }
+
+
     public SubmitInteractionSubject withUid(@Nullable String uid) {
         this.uid = uid;
         return this;
@@ -221,6 +238,7 @@ public class SubmitInteractionSubject {
             Utils.enhancedDeepEquals(this.accounts, other.accounts) &&
             Utils.enhancedDeepEquals(this.kba, other.kba) &&
             Utils.enhancedDeepEquals(this.documentTypeSelection, other.documentTypeSelection) &&
+            Utils.enhancedDeepEquals(this.capabilityCheck, other.capabilityCheck) &&
             Utils.enhancedDeepEquals(this.uid, other.uid);
     }
     
@@ -230,7 +248,7 @@ public class SubmitInteractionSubject {
             identity, entities, documents,
             biometrics, sessions, consent,
             accounts, kba, documentTypeSelection,
-            uid);
+            capabilityCheck, uid);
     }
     
     @Override
@@ -245,6 +263,7 @@ public class SubmitInteractionSubject {
                 "accounts", accounts,
                 "kba", kba,
                 "documentTypeSelection", documentTypeSelection,
+                "capabilityCheck", capabilityCheck,
                 "uid", uid);
     }
 
@@ -268,6 +287,8 @@ public class SubmitInteractionSubject {
         private SubmitInteractionKba kba;
 
         private SubmitInteractionDocumentTypeSelection documentTypeSelection;
+
+        private SubmitInteractionCapabilityCheck capabilityCheck;
 
         private String uid;
 
@@ -320,6 +341,11 @@ public class SubmitInteractionSubject {
             return this;
         }
 
+        public Builder capabilityCheck(@Nullable SubmitInteractionCapabilityCheck capabilityCheck) {
+            this.capabilityCheck = capabilityCheck;
+            return this;
+        }
+
         public Builder uid(@Nullable String uid) {
             this.uid = uid;
             return this;
@@ -330,7 +356,7 @@ public class SubmitInteractionSubject {
                 identity, entities, documents,
                 biometrics, sessions, consent,
                 accounts, kba, documentTypeSelection,
-                uid);
+                capabilityCheck, uid);
         }
 
     }

@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
@@ -30,23 +30,25 @@ export type DeviceConnectResponse = {
 /** @internal */
 export const DeviceConnectResponseTokenType$inboundSchema: z.ZodMiniEnum<
   typeof DeviceConnectResponseTokenType
-> = z.enum(DeviceConnectResponseTokenType);
+> = /* @__PURE__ */ lazySchema$(() => z.enum(DeviceConnectResponseTokenType));
 
 /** @internal */
 export const DeviceConnectResponse$inboundSchema: z.ZodMiniType<
   DeviceConnectResponse,
   unknown
-> = z.object({
-  endUserToken: z.string(),
-  tokenType: DeviceConnectResponseTokenType$inboundSchema,
-  expiresIn: z.number(),
-  instanceId: z.string(),
-  resumeCredential: z.optional(z.string()),
-  credentialExpiresAt: z.optional(z.string()),
-  credentialExpiresIn: z.optional(z.number()),
-  resumeMode: z.optional(z.string()),
-  linkExpiresAt: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    endUserToken: z.string(),
+    tokenType: DeviceConnectResponseTokenType$inboundSchema,
+    expiresIn: z.number(),
+    instanceId: z.string(),
+    resumeCredential: z.optional(z.string()),
+    credentialExpiresAt: z.optional(z.string()),
+    credentialExpiresIn: z.optional(z.number()),
+    resumeMode: z.optional(z.string()),
+    linkExpiresAt: z.optional(z.string()),
+  })
+);
 
 export function deviceConnectResponseFromJSON(
   jsonString: string,

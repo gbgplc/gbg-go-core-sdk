@@ -63,6 +63,11 @@ public class StartJourneyContextSubject {
 
 
     @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("capabilityCheck")
+    private StartJourneyCapabilityCheck capabilityCheck;
+
+
+    @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("uid")
     private String uid;
 
@@ -77,6 +82,7 @@ public class StartJourneyContextSubject {
             @JsonProperty("accounts") @Nullable List<StartJourneyAccount> accounts,
             @JsonProperty("kba") @Nullable StartJourneyKba kba,
             @JsonProperty("documentTypeSelection") @Nullable StartJourneyDocumentTypeSelection documentTypeSelection,
+            @JsonProperty("capabilityCheck") @Nullable StartJourneyCapabilityCheck capabilityCheck,
             @JsonProperty("uid") @Nullable String uid) {
         this.identity = identity;
         this.entities = entities;
@@ -87,6 +93,7 @@ public class StartJourneyContextSubject {
         this.accounts = accounts;
         this.kba = kba;
         this.documentTypeSelection = documentTypeSelection;
+        this.capabilityCheck = capabilityCheck;
         this.uid = uid;
     }
     
@@ -94,7 +101,7 @@ public class StartJourneyContextSubject {
         this(null, null, null,
             null, null, null,
             null, null, null,
-            null);
+            null, null);
     }
 
     public Optional<StartJourneyIdentity> identity() {
@@ -131,6 +138,10 @@ public class StartJourneyContextSubject {
 
     public Optional<StartJourneyDocumentTypeSelection> documentTypeSelection() {
         return Optional.ofNullable(this.documentTypeSelection);
+    }
+
+    public Optional<StartJourneyCapabilityCheck> capabilityCheck() {
+        return Optional.ofNullable(this.capabilityCheck);
     }
 
     public Optional<String> uid() {
@@ -196,6 +207,12 @@ public class StartJourneyContextSubject {
     }
 
 
+    public StartJourneyContextSubject withCapabilityCheck(@Nullable StartJourneyCapabilityCheck capabilityCheck) {
+        this.capabilityCheck = capabilityCheck;
+        return this;
+    }
+
+
     public StartJourneyContextSubject withUid(@Nullable String uid) {
         this.uid = uid;
         return this;
@@ -221,6 +238,7 @@ public class StartJourneyContextSubject {
             Utils.enhancedDeepEquals(this.accounts, other.accounts) &&
             Utils.enhancedDeepEquals(this.kba, other.kba) &&
             Utils.enhancedDeepEquals(this.documentTypeSelection, other.documentTypeSelection) &&
+            Utils.enhancedDeepEquals(this.capabilityCheck, other.capabilityCheck) &&
             Utils.enhancedDeepEquals(this.uid, other.uid);
     }
     
@@ -230,7 +248,7 @@ public class StartJourneyContextSubject {
             identity, entities, documents,
             biometrics, sessions, consent,
             accounts, kba, documentTypeSelection,
-            uid);
+            capabilityCheck, uid);
     }
     
     @Override
@@ -245,6 +263,7 @@ public class StartJourneyContextSubject {
                 "accounts", accounts,
                 "kba", kba,
                 "documentTypeSelection", documentTypeSelection,
+                "capabilityCheck", capabilityCheck,
                 "uid", uid);
     }
 
@@ -268,6 +287,8 @@ public class StartJourneyContextSubject {
         private StartJourneyKba kba;
 
         private StartJourneyDocumentTypeSelection documentTypeSelection;
+
+        private StartJourneyCapabilityCheck capabilityCheck;
 
         private String uid;
 
@@ -320,6 +341,11 @@ public class StartJourneyContextSubject {
             return this;
         }
 
+        public Builder capabilityCheck(@Nullable StartJourneyCapabilityCheck capabilityCheck) {
+            this.capabilityCheck = capabilityCheck;
+            return this;
+        }
+
         public Builder uid(@Nullable String uid) {
             this.uid = uid;
             return this;
@@ -330,7 +356,7 @@ public class StartJourneyContextSubject {
                 identity, entities, documents,
                 biometrics, sessions, consent,
                 accounts, kba, documentTypeSelection,
-                uid);
+                capabilityCheck, uid);
         }
 
     }

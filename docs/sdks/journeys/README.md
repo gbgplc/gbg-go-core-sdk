@@ -24,7 +24,9 @@ const go = new Go({
 });
 
 async function run() {
-  const result = await go.journeys.start();
+  const result = await go.journeys.start({
+    xGbgScenario: "my-scenario",
+  });
 
   console.log(result);
 }
@@ -47,7 +49,9 @@ const go = new GoCore({
 });
 
 async function run() {
-  const res = await journeysStart(go);
+  const res = await journeysStart(go, {
+    xGbgScenario: "my-scenario",
+  });
   if (res.ok) {
     const { value: result } = res;
     console.log(result);
@@ -63,7 +67,7 @@ run();
 
 | Parameter                                                                                                                                                                      | Type                                                                                                                                                                           | Required                                                                                                                                                                       | Description                                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `request`                                                                                                                                                                      | [operations.StartJourneyRequest](../../models/operations/start-journey-request.md)                                                                                             | :heavy_check_mark:                                                                                                                                                             | The request object to use for the request.                                                                                                                                     |
+| `request`                                                                                                                                                                      | [operations.StartJourneyRequestRequest](../../models/operations/start-journey-request-request.md)                                                                              | :heavy_check_mark:                                                                                                                                                             | The request object to use for the request.                                                                                                                                     |
 | `options`                                                                                                                                                                      | RequestOptions                                                                                                                                                                 | :heavy_minus_sign:                                                                                                                                                             | Used to set various options for making HTTP requests.                                                                                                                          |
 | `options.fetchOptions`                                                                                                                                                         | [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/Request/Request#options)                                                                                        | :heavy_minus_sign:                                                                                                                                                             | Options that are passed to the underlying HTTP request. This can be used to inject extra headers for examples. All `Request` options, except `method` and `body`, are allowed. |
 | `options.retries`                                                                                                                                                              | [RetryConfig](../../lib/utils/retryconfig.md)                                                                                                                                  | :heavy_minus_sign:                                                                                                                                                             | Enables retrying HTTP requests under certain failure conditions.                                                                                                               |
@@ -302,7 +306,7 @@ run();
 
 ## terminate
 
-Terminates an active journey instance.
+Terminates a journey instance. A running journey is stopped and recorded as abandoned; a completed or failed one is cleaned up. Its state is then erased, so the instanceId no longer resolves (a second terminate is a 404).
 
 ### Example Usage
 
@@ -365,8 +369,8 @@ run();
 
 ### Errors
 
-| Error Type              | Status Code             | Content Type            |
-| ----------------------- | ----------------------- | ----------------------- |
-| errors.ErrorResponse    | 400, 401, 403, 404, 409 | application/json        |
-| errors.ErrorResponse    | 500, 503                | application/json        |
-| errors.GoDefaultError   | 4XX, 5XX                | \*/\*                   |
+| Error Type            | Status Code           | Content Type          |
+| --------------------- | --------------------- | --------------------- |
+| errors.ErrorResponse  | 400, 401, 403, 404    | application/json      |
+| errors.ErrorResponse  | 500, 503              | application/json      |
+| errors.GoDefaultError | 4XX, 5XX              | \*/\*                 |

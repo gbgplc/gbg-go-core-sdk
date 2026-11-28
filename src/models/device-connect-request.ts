@@ -3,6 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
+import { lazySchema as lazySchema$ } from "../lib/schemas.js";
 
 export type DeviceInfo = {
   deviceId: string;
@@ -28,11 +29,13 @@ export type DeviceInfo$Outbound = {
 export const DeviceInfo$outboundSchema: z.ZodMiniType<
   DeviceInfo$Outbound,
   DeviceInfo
-> = z.object({
-  deviceId: z.string(),
-  deviceName: z.optional(z.string()),
-  deviceType: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    deviceId: z.string(),
+    deviceName: z.optional(z.string()),
+    deviceType: z.optional(z.string()),
+  })
+);
 
 export function deviceInfoToJSON(deviceInfo: DeviceInfo): string {
   return JSON.stringify(DeviceInfo$outboundSchema.parse(deviceInfo));
@@ -47,9 +50,11 @@ export type DeviceConnectRequest$Outbound = {
 export const DeviceConnectRequest$outboundSchema: z.ZodMiniType<
   DeviceConnectRequest$Outbound,
   DeviceConnectRequest
-> = z.object({
-  deviceInfo: z.optional(z.lazy(() => DeviceInfo$outboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    deviceInfo: z.optional(z.lazy(() => DeviceInfo$outboundSchema)),
+  })
+);
 
 export function deviceConnectRequestToJSON(
   deviceConnectRequest: DeviceConnectRequest,

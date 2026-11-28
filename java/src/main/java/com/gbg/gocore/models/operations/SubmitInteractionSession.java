@@ -66,6 +66,11 @@ public class SubmitInteractionSession {
     @JsonProperty("auth")
     private List<SubmitInteractionSessionAuth> auth;
 
+
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("error")
+    private SubmitInteractionSessionError error;
+
     @JsonCreator
     public SubmitInteractionSession(
             @JsonProperty("id") @Nullable String id,
@@ -77,7 +82,8 @@ public class SubmitInteractionSession {
             @JsonProperty("trace") @Nullable SubmitInteractionTrace trace,
             @JsonProperty("span") @Nullable SubmitInteractionSpan span,
             @JsonProperty("transaction") @Nullable SubmitInteractionTransaction transaction,
-            @JsonProperty("auth") @Nullable List<SubmitInteractionSessionAuth> auth) {
+            @JsonProperty("auth") @Nullable List<SubmitInteractionSessionAuth> auth,
+            @JsonProperty("error") @Nullable SubmitInteractionSessionError error) {
         this.id = id;
         this.type = type;
         this.provider = provider;
@@ -88,13 +94,14 @@ public class SubmitInteractionSession {
         this.span = span;
         this.transaction = transaction;
         this.auth = auth;
+        this.error = error;
     }
     
     public SubmitInteractionSession() {
         this(null, null, null,
             null, null, null,
             null, null, null,
-            null);
+            null, null);
     }
 
     public Optional<String> id() {
@@ -135,6 +142,10 @@ public class SubmitInteractionSession {
 
     public Optional<List<SubmitInteractionSessionAuth>> auth() {
         return Optional.ofNullable(this.auth);
+    }
+
+    public Optional<SubmitInteractionSessionError> error() {
+        return Optional.ofNullable(this.error);
     }
 
     public static Builder builder() {
@@ -202,6 +213,12 @@ public class SubmitInteractionSession {
     }
 
 
+    public SubmitInteractionSession withError(@Nullable SubmitInteractionSessionError error) {
+        this.error = error;
+        return this;
+    }
+
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -221,7 +238,8 @@ public class SubmitInteractionSession {
             Utils.enhancedDeepEquals(this.trace, other.trace) &&
             Utils.enhancedDeepEquals(this.span, other.span) &&
             Utils.enhancedDeepEquals(this.transaction, other.transaction) &&
-            Utils.enhancedDeepEquals(this.auth, other.auth);
+            Utils.enhancedDeepEquals(this.auth, other.auth) &&
+            Utils.enhancedDeepEquals(this.error, other.error);
     }
     
     @Override
@@ -230,7 +248,7 @@ public class SubmitInteractionSession {
             id, type, provider,
             user, client, device,
             trace, span, transaction,
-            auth);
+            auth, error);
     }
     
     @Override
@@ -245,7 +263,8 @@ public class SubmitInteractionSession {
                 "trace", trace,
                 "span", span,
                 "transaction", transaction,
-                "auth", auth);
+                "auth", auth,
+                "error", error);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -270,6 +289,8 @@ public class SubmitInteractionSession {
         private SubmitInteractionTransaction transaction;
 
         private List<SubmitInteractionSessionAuth> auth;
+
+        private SubmitInteractionSessionError error;
 
         private Builder() {
           // force use of static builder() method
@@ -325,12 +346,17 @@ public class SubmitInteractionSession {
             return this;
         }
 
+        public Builder error(@Nullable SubmitInteractionSessionError error) {
+            this.error = error;
+            return this;
+        }
+
         public SubmitInteractionSession build() {
             return new SubmitInteractionSession(
                 id, type, provider,
                 user, client, device,
                 trace, span, transaction,
-                auth);
+                auth, error);
         }
 
     }

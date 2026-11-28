@@ -22,6 +22,7 @@ import com.gbg.gocore.operations.FetchInteraction;
 import com.gbg.gocore.operations.SubmitInteraction;
 import com.gbg.gocore.operations.UploadInteractionAsset;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.lang.String;
@@ -67,7 +68,8 @@ public class Interactions {
      * @throws RuntimeException subclass if the API call fails
      */
     public FetchInteractionResponse fetch(@Nonnull FetchInteractionSecurity security) {
-        return fetch(security, null, null);
+        return fetch(security, null, null,
+            null);
     }
 
     /**
@@ -84,9 +86,30 @@ public class Interactions {
     public FetchInteractionResponse fetch(
             @Nonnull FetchInteractionSecurity security, @Nullable String view,
             @Nullable FetchInteractionRequestBody body) {
+        return fetch(security, view, body,
+            null);
+    }
+
+    /**
+     * Fetch current interaction
+     * 
+     * <p>Retrieves the current interaction state for a journey instance.
+     * 
+     * @param security The security details to use for authentication.
+     * @param view Response profile. Omit or 'full' for the full response (default, unchanged). 'slim' returns the compact, typed customer-facing shape. Any other value returns 400.
+     * @param body 
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public FetchInteractionResponse fetch(
+            @Nonnull FetchInteractionSecurity security, @Nullable String view,
+            @Nullable FetchInteractionRequestBody body, @Nullable Options options) {
         FetchInteractionRequest request = new FetchInteractionRequest(view, body);
         RequestOperation<FetchInteractionRequest, FetchInteractionResponse> operation
-              = new FetchInteraction.Sync(sdkConfiguration, security, _headers);
+              = new FetchInteraction.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(request));
     }
 
@@ -111,7 +134,7 @@ public class Interactions {
      * @throws RuntimeException subclass if the API call fails
      */
     public SubmitInteractionResponse submit(@Nonnull SubmitInteractionSecurity security) {
-        return submit(null, security);
+        return submit(null, security, null);
     }
 
     /**
@@ -125,8 +148,27 @@ public class Interactions {
      * @throws RuntimeException subclass if the API call fails
      */
     public SubmitInteractionResponse submit(@Nullable SubmitInteractionRequest request, @Nonnull SubmitInteractionSecurity security) {
+        return submit(request, security, null);
+    }
+
+    /**
+     * Submit interaction data
+     * 
+     * <p>Submits participant data for an interaction.
+     * 
+     * @param request The request object containing all the parameters for the API call.
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public SubmitInteractionResponse submit(
+            @Nullable SubmitInteractionRequest request, @Nonnull SubmitInteractionSecurity security,
+            @Nullable Options options) {
         RequestOperation<SubmitInteractionRequest, SubmitInteractionResponse> operation
-              = new SubmitInteraction.Sync(sdkConfiguration, security, _headers);
+              = new SubmitInteraction.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(request));
     }
 
@@ -163,8 +205,30 @@ public class Interactions {
      * @throws RuntimeException subclass if the API call fails
      */
     public UploadInteractionAssetResponse uploadAsset(@Nonnull UploadInteractionAssetSecurity security) {
+        return uploadAsset(security, null);
+    }
+
+    /**
+     * Stream an interaction asset to storage
+     * 
+     * <p>Streams a raw asset body (application/octet-stream) to storage and returns its gofs key. Identifiers
+     * are passed as X-Instance-Id, X-Interaction-Id and X-Domain-Element-Id headers. Accepts capture
+     * elements: the encrypted selfie (EncryptedSelfie/selfieImage), the plain selfie (Selfie/selfieImage),
+     * and both document sides (PrimaryDocument/side1Image, PrimaryDocument/side2Image).
+     * 
+     * <p>An element the current deployment does not accept returns 422 — submit that asset inline (base64) in
+     * the interaction submit instead.
+     * 
+     * @param security The security details to use for authentication.
+     * @param options additional options
+     * @return The response from the API call
+     * @throws RuntimeException subclass if the API call fails
+     */
+    public UploadInteractionAssetResponse uploadAsset(@Nonnull UploadInteractionAssetSecurity security, @Nullable Options options) {
         RequestlessOperation<UploadInteractionAssetResponse> operation
-            = new UploadInteractionAsset.Sync(sdkConfiguration, security, _headers);
+            = new UploadInteractionAsset.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest());
     }
 

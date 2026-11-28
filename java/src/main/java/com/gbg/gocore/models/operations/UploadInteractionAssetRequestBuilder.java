@@ -8,16 +8,26 @@ import static com.gbg.gocore.operations.Operations.RequestlessOperation;
 import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.operations.UploadInteractionAsset;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class UploadInteractionAssetRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private UploadInteractionAssetSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public UploadInteractionAssetRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public UploadInteractionAssetRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public UploadInteractionAssetRequestBuilder security(@Nonnull UploadInteractionAssetSecurity security) {
@@ -39,8 +49,11 @@ public class UploadInteractionAssetRequestBuilder {
     * @return The response from the server.
     */
     public UploadInteractionAssetResponse call() {
+        Options options = optionsBuilder.build();
         RequestlessOperation<UploadInteractionAssetResponse> operation
-            = new UploadInteractionAsset.Sync(sdkConfiguration, security, _headers);
+            = new UploadInteractionAsset.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest());
     }
 }

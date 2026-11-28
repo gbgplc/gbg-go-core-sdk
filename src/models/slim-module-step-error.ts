@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -55,15 +55,20 @@ export type SlimModuleStepError = {
 export const SlimModuleStepErrorLocation$inboundSchema: z.ZodMiniType<
   SlimModuleStepErrorLocation,
   unknown
-> = openEnums.inboundSchema(SlimModuleStepErrorLocation);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(SlimModuleStepErrorLocation)
+);
 
 /** @internal */
-export const Cause$inboundSchema: z.ZodMiniType<Cause, unknown> = z.object({
-  code: z.optional(z.string()),
-  correlationId: z.optional(z.string()),
-  moduleId: z.optional(z.string()),
-  variantId: z.optional(z.string()),
-});
+export const Cause$inboundSchema: z.ZodMiniType<Cause, unknown> =
+  /* @__PURE__ */ lazySchema$(() =>
+    z.object({
+      code: z.optional(z.string()),
+      correlationId: z.optional(z.string()),
+      moduleId: z.optional(z.string()),
+      variantId: z.optional(z.string()),
+    })
+  );
 
 export function causeFromJSON(
   jsonString: string,
@@ -79,14 +84,16 @@ export function causeFromJSON(
 export const SlimModuleStepError$inboundSchema: z.ZodMiniType<
   SlimModuleStepError,
   unknown
-> = z.object({
-  code: z.string(),
-  name: z.string(),
-  problem: z.string(),
-  action: z.string(),
-  location: z.optional(SlimModuleStepErrorLocation$inboundSchema),
-  cause: z.optional(z.lazy(() => Cause$inboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    code: z.string(),
+    name: z.string(),
+    problem: z.string(),
+    action: z.string(),
+    location: z.optional(SlimModuleStepErrorLocation$inboundSchema),
+    cause: z.optional(z.lazy(() => Cause$inboundSchema)),
+  })
+);
 
 export function slimModuleStepErrorFromJSON(
   jsonString: string,

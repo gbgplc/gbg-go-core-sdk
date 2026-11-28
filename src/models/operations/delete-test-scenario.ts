@@ -3,6 +3,8 @@
  */
 
 import * as z from "zod/v4-mini";
+import { matchesPattern as matchesPattern$ } from "../../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../../lib/schemas.js";
 
 export type DeleteTestScenarioRequest = {
   /**
@@ -25,10 +27,20 @@ export type DeleteTestScenarioRequest$Outbound = {
 export const DeleteTestScenarioRequest$outboundSchema: z.ZodMiniType<
   DeleteTestScenarioRequest$Outbound,
   DeleteTestScenarioRequest
-> = z.object({
-  journeyId: z.string(),
-  name: z.string(),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    journeyId: z.string().check(
+      z.refine(matchesPattern$("^[a-zA-Z0-9_-]{1,128}$"), {
+        message: "Value must match pattern ^[a-zA-Z0-9_-]{1,128}$",
+      }),
+    ),
+    name: z.string().check(
+      z.refine(matchesPattern$("^[a-zA-Z0-9_-]{1,64}$"), {
+        message: "Value must match pattern ^[a-zA-Z0-9_-]{1,64}$",
+      }),
+    ),
+  })
+);
 
 export function deleteTestScenarioRequestToJSON(
   deleteTestScenarioRequest: DeleteTestScenarioRequest,

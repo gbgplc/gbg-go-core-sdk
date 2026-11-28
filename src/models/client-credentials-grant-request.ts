@@ -4,6 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../lib/primitives.js";
+import { lazySchema as lazySchema$ } from "../lib/schemas.js";
 import { ClosedEnum } from "../types/enums.js";
 
 /**
@@ -37,7 +38,8 @@ export type ClientCredentialsGrantRequest = {
 };
 
 /** @internal */
-export const Scope$outboundSchema: z.ZodMiniEnum<typeof Scope> = z.enum(Scope);
+export const Scope$outboundSchema: z.ZodMiniEnum<typeof Scope> =
+  /* @__PURE__ */ lazySchema$(() => z.enum(Scope));
 
 /** @internal */
 export type ClientCredentialsGrantRequest$Outbound = {
@@ -51,20 +53,22 @@ export type ClientCredentialsGrantRequest$Outbound = {
 export const ClientCredentialsGrantRequest$outboundSchema: z.ZodMiniType<
   ClientCredentialsGrantRequest$Outbound,
   ClientCredentialsGrantRequest
-> = z.pipe(
-  z.object({
-    clientId: z.string(),
-    clientSecret: z.string(),
-    grantType: z.literal("client_credentials"),
-    scope: Scope$outboundSchema,
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      clientId: "client_id",
-      clientSecret: "client_secret",
-      grantType: "grant_type",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      clientId: z.string(),
+      clientSecret: z.string(),
+      grantType: z.literal("client_credentials"),
+      scope: Scope$outboundSchema,
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        clientId: "client_id",
+        clientSecret: "client_secret",
+        grantType: "grant_type",
+      });
+    }),
+  )
 );
 
 export function clientCredentialsGrantRequestToJSON(

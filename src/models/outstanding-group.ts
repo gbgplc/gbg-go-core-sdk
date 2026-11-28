@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 
@@ -20,11 +20,13 @@ export type OutstandingGroup = {
 export const OutstandingGroup$inboundSchema: z.ZodMiniType<
   OutstandingGroup,
   unknown
-> = z.object({
-  elementId: z.string(),
-  cardinality: z.string(),
-  refs: z.array(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    elementId: z.string(),
+    cardinality: z.string(),
+    refs: z.array(z.string()),
+  })
+);
 
 export function outstandingGroupFromJSON(
   jsonString: string,

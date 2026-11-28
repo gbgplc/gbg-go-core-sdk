@@ -1,0 +1,9 @@
+# StartJourneyAnswerError1
+
+
+## Fields
+
+| Field                                                                           | Setter Type                                                                     | Getter Type                                                                     | Required                                                                        | Description                                                                     |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `status`                                                                        | [StartJourneyStatusError](../../models/operations/StartJourneyStatusError.md)   | [StartJourneyStatusError](../../models/operations/StartJourneyStatusError.md)   | :heavy_check_mark:                                                              | N/A                                                                             |
+| `error`                                                                         | [StartJourneyAnswerError2](../../models/operations/StartJourneyAnswerError2.md) | [StartJourneyAnswerError2](../../models/operations/StartJourneyAnswerError2.md) | :heavy_check_mark:                                                              | N/A                                                                             |

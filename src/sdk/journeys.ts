@@ -19,7 +19,7 @@ export class Journeys extends ClientSDK {
    * Creates a new journey instance from a resource definition.
    */
   async start(
-    request?: operations.StartJourneyRequest | undefined,
+    request?: operations.StartJourneyRequestRequest | undefined,
     options?: RequestOptions,
   ): Promise<models.JourneyStartResponse> {
     return unwrapAsync(journeysStart(
@@ -92,7 +92,7 @@ export class Journeys extends ClientSDK {
    * Terminate journey
    *
    * @remarks
-   * Terminates an active journey instance.
+   * Terminates a journey instance. A running journey is stopped and recorded as abandoned; a completed or failed one is cleaned up. Its state is then erased, so the instanceId no longer resolves (a second terminate is a 404).
    */
   async terminate(
     request?: operations.TerminateJourneyRequest | undefined,

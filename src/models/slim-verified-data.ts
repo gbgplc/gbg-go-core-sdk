@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import { Result as SafeParseResult } from "../types/fp.js";
 import { SDKValidationError } from "./errors/sdk-validation-error.js";
 import { SlimDocument, SlimDocument$inboundSchema } from "./slim-document.js";
@@ -21,10 +21,12 @@ export type SlimVerifiedData = {
 export const SlimVerifiedData$inboundSchema: z.ZodMiniType<
   SlimVerifiedData,
   unknown
-> = z.object({
-  identity: z.optional(SlimIdentity$inboundSchema),
-  documents: z.optional(z.array(SlimDocument$inboundSchema)),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    identity: z.optional(SlimIdentity$inboundSchema),
+    documents: z.optional(z.array(SlimDocument$inboundSchema)),
+  })
+);
 
 export function slimVerifiedDataFromJSON(
   jsonString: string,

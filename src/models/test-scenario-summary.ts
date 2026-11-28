@@ -3,7 +3,7 @@
  */
 
 import * as z from "zod/v4-mini";
-import { safeParse } from "../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../lib/schemas.js";
 import * as openEnums from "../types/enums.js";
 import { OpenEnum } from "../types/enums.js";
 import { Result as SafeParseResult } from "../types/fp.js";
@@ -34,22 +34,26 @@ export type TestScenarioSummary = {
 export const TestScenarioSummaryTier$inboundSchema: z.ZodMiniType<
   TestScenarioSummaryTier,
   unknown
-> = openEnums.inboundSchema(TestScenarioSummaryTier);
+> = /* @__PURE__ */ lazySchema$(() =>
+  openEnums.inboundSchema(TestScenarioSummaryTier)
+);
 
 /** @internal */
 export const TestScenarioSummary$inboundSchema: z.ZodMiniType<
   TestScenarioSummary,
   unknown
-> = z.object({
-  name: z.string(),
-  tier: TestScenarioSummaryTier$inboundSchema,
-  editable: z.boolean(),
-  description: z.optional(z.string()),
-  lastModifiedTime: z.optional(
-    z.pipe(z.iso.datetime({ offset: true }), z.transform(v => new Date(v))),
-  ),
-  lastModifiedBy: z.optional(z.string()),
-});
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.object({
+    name: z.string(),
+    tier: TestScenarioSummaryTier$inboundSchema,
+    editable: z.boolean(),
+    description: z.optional(z.string()),
+    lastModifiedTime: z.optional(
+      z.pipe(z.iso.datetime({ offset: true }), z.transform(v => new Date(v))),
+    ),
+    lastModifiedBy: z.optional(z.string()),
+  })
+);
 
 export function testScenarioSummaryFromJSON(
   jsonString: string,

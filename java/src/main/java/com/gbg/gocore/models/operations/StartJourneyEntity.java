@@ -46,7 +46,7 @@ public class StartJourneyEntity {
 
     @JsonInclude(Include.NON_ABSENT)
     @JsonProperty("status")
-    private StartJourneyStatus status;
+    private StartJourneyStatusPrimary status;
 
 
     @JsonInclude(Include.NON_ABSENT)
@@ -131,7 +131,7 @@ public class StartJourneyEntity {
             @JsonProperty("name") @Nullable String name,
             @JsonProperty("aliases") @Nullable List<String> aliases,
             @JsonProperty("businessType") @Nullable String businessType,
-            @JsonProperty("status") @Nullable StartJourneyStatus status,
+            @JsonProperty("status") @Nullable StartJourneyStatusPrimary status,
             @JsonProperty("description") @Nullable String description,
             @JsonProperty("addresses") @Nullable List<StartJourneyAddressPrimary> addresses,
             @JsonProperty("taxIdentifiers") @Nullable List<StartJourneyTaxIdentifier> taxIdentifiers,
@@ -198,7 +198,7 @@ public class StartJourneyEntity {
         return Optional.ofNullable(this.businessType);
     }
 
-    public Optional<StartJourneyStatus> status() {
+    public Optional<StartJourneyStatusPrimary> status() {
         return Optional.ofNullable(this.status);
     }
 
@@ -301,7 +301,7 @@ public class StartJourneyEntity {
     }
 
 
-    public StartJourneyEntity withStatus(@Nullable StartJourneyStatus status) {
+    public StartJourneyEntity withStatus(@Nullable StartJourneyStatusPrimary status) {
         this.status = status;
         return this;
     }
@@ -481,7 +481,7 @@ public class StartJourneyEntity {
 
         private String businessType;
 
-        private StartJourneyStatus status;
+        private StartJourneyStatusPrimary status;
 
         private String description;
 
@@ -540,7 +540,7 @@ public class StartJourneyEntity {
             return this;
         }
 
-        public Builder status(@Nullable StartJourneyStatus status) {
+        public Builder status(@Nullable StartJourneyStatusPrimary status) {
             this.status = status;
             return this;
         }

@@ -9,18 +9,27 @@ import com.gbg.gocore.SDKConfiguration;
 import com.gbg.gocore.models.DeviceConnectRequest;
 import com.gbg.gocore.operations.DeviceConnect;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.time.Duration;
 
 public class DeviceConnectRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
     private DeviceConnectRequest request;
     private DeviceConnectSecurity security;
+    private final Options.Builder optionsBuilder;
 
     public DeviceConnectRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.optionsBuilder = Options.builder();
+    }
+
+    public DeviceConnectRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
     }
 
     public DeviceConnectRequestBuilder request(@Nullable DeviceConnectRequest request) {
@@ -50,8 +59,11 @@ public class DeviceConnectRequestBuilder {
     * @return The response from the server.
     */
     public DeviceConnectResponse call() {
+        Options options = optionsBuilder.build();
         RequestOperation<DeviceConnectRequest, DeviceConnectResponse> operation
-              = new DeviceConnect.Sync(sdkConfiguration, security, _headers);
+              = new DeviceConnect.Sync(
+                                    sdkConfiguration, security, options,
+                                    _headers);
         return operation.handleResponse(operation.doRequest(this._buildRequest()));
     }
 }

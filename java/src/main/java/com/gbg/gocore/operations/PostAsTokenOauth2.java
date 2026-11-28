@@ -22,6 +22,7 @@ import com.gbg.gocore.utils.Headers;
 import com.gbg.gocore.utils.Hook.AfterErrorContextImpl;
 import com.gbg.gocore.utils.Hook.AfterSuccessContextImpl;
 import com.gbg.gocore.utils.Hook.BeforeRequestContextImpl;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.SerializedBody;
 import com.gbg.gocore.utils.Utils.JsonShape;
 import com.gbg.gocore.utils.Utils;
@@ -34,6 +35,8 @@ import java.lang.String;
 import java.lang.Throwable;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -53,12 +56,13 @@ public class PostAsTokenOauth2 {
         final SDKConfiguration sdkConfiguration;
         final String baseUrl;
         final SecuritySource securitySource;
+        final Optional<Duration> timeout;
         final HTTPClient client;
         final Headers _headers;
 
         public Base(
                 @Nonnull SDKConfiguration sdkConfiguration, @Nullable String serverURL,
-                Headers _headers) {
+                @Nullable Options options, Headers _headers) {
             this.sdkConfiguration = sdkConfiguration;
             this._headers =_headers;
             this.baseUrl = Optional.ofNullable(serverURL)
@@ -67,6 +71,9 @@ public class PostAsTokenOauth2 {
                         POST_AS_TOKEN_OAUTH2_SERVERS[0], 
                         Map.of()));
             this.securitySource = null;
+            Optional.ofNullable(options)
+                    .ifPresent(o -> o.validate(List.of(Options.Option.TIMEOUT)));
+            this.timeout = Optional.ofNullable(options).flatMap(Options::timeout).or(sdkConfiguration::timeout);
             this.client = this.sdkConfiguration.client();
         }
 
@@ -104,7 +111,8 @@ public class PostAsTokenOauth2 {
             String url = Utils.generateURL(
                     this.baseUrl,
                     "/as/token.oauth2");
-            HTTPRequest req = new HTTPRequest(url, "POST");
+            HTTPRequest req = new HTTPRequest(url, "POST")
+                    .timeout(this.timeout);
             Object convertedRequest = Utils.convertToShape(
                     request,
                     JsonShape.DEFAULT,
@@ -128,9 +136,16 @@ public class PostAsTokenOauth2 {
         public Sync(
                 @Nonnull SDKConfiguration sdkConfiguration, @Nullable String serverURL,
                 Headers _headers) {
+            this(sdkConfiguration, serverURL,
+                    null, _headers);
+        }
+
+        public Sync(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable String serverURL,
+                @Nullable Options options, Headers _headers) {
             super(
                   sdkConfiguration, serverURL,
-                  _headers);
+                  options, _headers);
         }
 
         private HttpRequest onBuildRequest(PostAsTokenOauth2Request request) throws Exception {
@@ -210,13 +225,19 @@ public class PostAsTokenOauth2 {
     }
     public static class Async extends Base
             implements AsyncRequestOperation<PostAsTokenOauth2Request, com.gbg.gocore.models.operations.async.PostAsTokenOauth2Response> {
-
         public Async(
                 @Nonnull SDKConfiguration sdkConfiguration, @Nullable String serverURL,
                 Headers _headers) {
+            this(sdkConfiguration, serverURL,
+                    null, _headers);
+        }
+
+        public Async(
+                @Nonnull SDKConfiguration sdkConfiguration, @Nullable String serverURL,
+                @Nullable Options options, Headers _headers) {
             super(
                   sdkConfiguration, serverURL,
-                  _headers);
+                  options, _headers);
         }
 
         private CompletableFuture<HttpRequest> onBuildRequest(PostAsTokenOauth2Request request) throws Exception {

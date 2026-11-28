@@ -4,11 +4,16 @@
 package com.gbg.gocore.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.lang.Boolean;
 import java.lang.Override;
 import java.lang.String;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -17,15 +22,77 @@ public class InteractionSubmitResponse {
     @JsonProperty("status")
     private InteractionSubmitResponseStatus status;
 
+    /**
+     * Whether this submit completed the interaction. `false`: the submit was accepted but the interaction
+     * still waits for more, and the journey does not move on until it gets it. Absent when not reported.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("interactionComplete")
+    private Boolean interactionComplete;
+
+    /**
+     * With `interactionComplete: false`: the domain elements still required, as the next
+     * `/interaction/fetch` lists them in `outstanding`. Empty while the interaction waits on something
+     * other than the caller.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("outstanding")
+    private List<String> outstanding;
+
+    /**
+     * With `outstanding`: the groups of it whose members are alternatives (any one is enough), as the next
+     * `/interaction/fetch` serves them in `outstandingGroups`. Absent when there are none.
+     */
+    @JsonInclude(Include.NON_ABSENT)
+    @JsonProperty("outstandingGroups")
+    private List<OutstandingGroup> outstandingGroups;
+
     @JsonCreator
     public InteractionSubmitResponse(
-            @JsonProperty("status") @Nonnull InteractionSubmitResponseStatus status) {
+            @JsonProperty("status") @Nonnull InteractionSubmitResponseStatus status,
+            @JsonProperty("interactionComplete") @Nullable Boolean interactionComplete,
+            @JsonProperty("outstanding") @Nullable List<String> outstanding,
+            @JsonProperty("outstandingGroups") @Nullable List<OutstandingGroup> outstandingGroups) {
         this.status = Optional.ofNullable(status)
             .orElseThrow(() -> new IllegalArgumentException("status cannot be null"));
+        this.interactionComplete = interactionComplete;
+        this.outstanding = outstanding;
+        this.outstandingGroups = outstandingGroups;
+    }
+    
+    public InteractionSubmitResponse(
+            @Nonnull InteractionSubmitResponseStatus status) {
+        this(status, null, null,
+            null);
     }
 
     public InteractionSubmitResponseStatus status() {
         return this.status;
+    }
+
+    /**
+     * Whether this submit completed the interaction. `false`: the submit was accepted but the interaction
+     * still waits for more, and the journey does not move on until it gets it. Absent when not reported.
+     */
+    public Optional<Boolean> interactionComplete() {
+        return Optional.ofNullable(this.interactionComplete);
+    }
+
+    /**
+     * With `interactionComplete: false`: the domain elements still required, as the next
+     * `/interaction/fetch` lists them in `outstanding`. Empty while the interaction waits on something
+     * other than the caller.
+     */
+    public Optional<List<String>> outstanding() {
+        return Optional.ofNullable(this.outstanding);
+    }
+
+    /**
+     * With `outstanding`: the groups of it whose members are alternatives (any one is enough), as the next
+     * `/interaction/fetch` serves them in `outstandingGroups`. Absent when there are none.
+     */
+    public Optional<List<OutstandingGroup>> outstandingGroups() {
+        return Optional.ofNullable(this.outstandingGroups);
     }
 
     public static Builder builder() {
@@ -35,6 +102,37 @@ public class InteractionSubmitResponse {
 
     public InteractionSubmitResponse withStatus(@Nonnull InteractionSubmitResponseStatus status) {
         this.status = Utils.checkNotNull(status, "status");
+        return this;
+    }
+
+
+    /**
+     * Whether this submit completed the interaction. `false`: the submit was accepted but the interaction
+     * still waits for more, and the journey does not move on until it gets it. Absent when not reported.
+     */
+    public InteractionSubmitResponse withInteractionComplete(@Nullable Boolean interactionComplete) {
+        this.interactionComplete = interactionComplete;
+        return this;
+    }
+
+
+    /**
+     * With `interactionComplete: false`: the domain elements still required, as the next
+     * `/interaction/fetch` lists them in `outstanding`. Empty while the interaction waits on something
+     * other than the caller.
+     */
+    public InteractionSubmitResponse withOutstanding(@Nullable List<String> outstanding) {
+        this.outstanding = outstanding;
+        return this;
+    }
+
+
+    /**
+     * With `outstanding`: the groups of it whose members are alternatives (any one is enough), as the next
+     * `/interaction/fetch` serves them in `outstandingGroups`. Absent when there are none.
+     */
+    public InteractionSubmitResponse withOutstandingGroups(@Nullable List<OutstandingGroup> outstandingGroups) {
+        this.outstandingGroups = outstandingGroups;
         return this;
     }
 
@@ -49,25 +147,38 @@ public class InteractionSubmitResponse {
         }
         InteractionSubmitResponse other = (InteractionSubmitResponse) o;
         return 
-            Utils.enhancedDeepEquals(this.status, other.status);
+            Utils.enhancedDeepEquals(this.status, other.status) &&
+            Utils.enhancedDeepEquals(this.interactionComplete, other.interactionComplete) &&
+            Utils.enhancedDeepEquals(this.outstanding, other.outstanding) &&
+            Utils.enhancedDeepEquals(this.outstandingGroups, other.outstandingGroups);
     }
     
     @Override
     public int hashCode() {
         return Utils.enhancedHash(
-            status);
+            status, interactionComplete, outstanding,
+            outstandingGroups);
     }
     
     @Override
     public String toString() {
         return Utils.toString(InteractionSubmitResponse.class,
-                "status", status);
+                "status", status,
+                "interactionComplete", interactionComplete,
+                "outstanding", outstanding,
+                "outstandingGroups", outstandingGroups);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public final static class Builder {
 
         private InteractionSubmitResponseStatus status;
+
+        private Boolean interactionComplete;
+
+        private List<String> outstanding;
+
+        private List<OutstandingGroup> outstandingGroups;
 
         private Builder() {
           // force use of static builder() method
@@ -78,9 +189,38 @@ public class InteractionSubmitResponse {
             return this;
         }
 
+        /**
+         * Whether this submit completed the interaction. `false`: the submit was accepted but the interaction
+         * still waits for more, and the journey does not move on until it gets it. Absent when not reported.
+         */
+        public Builder interactionComplete(@Nullable Boolean interactionComplete) {
+            this.interactionComplete = interactionComplete;
+            return this;
+        }
+
+        /**
+         * With `interactionComplete: false`: the domain elements still required, as the next
+         * `/interaction/fetch` lists them in `outstanding`. Empty while the interaction waits on something
+         * other than the caller.
+         */
+        public Builder outstanding(@Nullable List<String> outstanding) {
+            this.outstanding = outstanding;
+            return this;
+        }
+
+        /**
+         * With `outstanding`: the groups of it whose members are alternatives (any one is enough), as the next
+         * `/interaction/fetch` serves them in `outstandingGroups`. Absent when there are none.
+         */
+        public Builder outstandingGroups(@Nullable List<OutstandingGroup> outstandingGroups) {
+            this.outstandingGroups = outstandingGroups;
+            return this;
+        }
+
         public InteractionSubmitResponse build() {
             return new InteractionSubmitResponse(
-                status);
+                status, interactionComplete, outstanding,
+                outstandingGroups);
         }
 
     }

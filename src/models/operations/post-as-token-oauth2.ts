@@ -4,7 +4,7 @@
 
 import * as z from "zod/v4-mini";
 import { remap as remap$ } from "../../lib/primitives.js";
-import { safeParse } from "../../lib/schemas.js";
+import { lazySchema as lazySchema$, safeParse } from "../../lib/schemas.js";
 import { Result as SafeParseResult } from "../../types/fp.js";
 import { SDKValidationError } from "../errors/sdk-validation-error.js";
 import * as models from "../index.js";
@@ -44,10 +44,12 @@ export type PostAsTokenOauth2Request$Outbound =
 export const PostAsTokenOauth2Request$outboundSchema: z.ZodMiniType<
   PostAsTokenOauth2Request$Outbound,
   PostAsTokenOauth2Request
-> = z.union([
-  models.ClientCredentialsGrantRequest$outboundSchema,
-  models.PasswordGrantRequest$outboundSchema,
-]);
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.union([
+    models.ClientCredentialsGrantRequest$outboundSchema,
+    models.PasswordGrantRequest$outboundSchema,
+  ])
+);
 
 export function postAsTokenOauth2RequestToJSON(
   postAsTokenOauth2Request: PostAsTokenOauth2Request,
@@ -61,19 +63,21 @@ export function postAsTokenOauth2RequestToJSON(
 export const PostAsTokenOauth2Response$inboundSchema: z.ZodMiniType<
   PostAsTokenOauth2Response,
   unknown
-> = z.pipe(
-  z.object({
-    access_token: z.optional(z.string()),
-    expires_in: z.optional(z.int()),
-    token_type: z.optional(z.string()),
-  }),
-  z.transform((v) => {
-    return remap$(v, {
-      "access_token": "accessToken",
-      "expires_in": "expiresIn",
-      "token_type": "tokenType",
-    });
-  }),
+> = /* @__PURE__ */ lazySchema$(() =>
+  z.pipe(
+    z.object({
+      access_token: z.optional(z.string()),
+      expires_in: z.optional(z.int()),
+      token_type: z.optional(z.string()),
+    }),
+    z.transform((v) => {
+      return remap$(v, {
+        "access_token": "accessToken",
+        "expires_in": "expiresIn",
+        "token_type": "tokenType",
+      });
+    }),
+  )
 );
 
 export function postAsTokenOauth2ResponseFromJSON(

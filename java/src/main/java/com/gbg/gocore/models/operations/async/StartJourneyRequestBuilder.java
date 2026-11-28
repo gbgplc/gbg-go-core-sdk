@@ -6,28 +6,52 @@ package com.gbg.gocore.models.operations.async;
 import static com.gbg.gocore.operations.Operations.AsyncRequestOperation;
 
 import com.gbg.gocore.SDKConfiguration;
-import com.gbg.gocore.models.operations.StartJourneyRequest;
+import com.gbg.gocore.models.operations.StartJourneyRequestBody;
+import com.gbg.gocore.models.operations.StartJourneyRequestRequest;
 import com.gbg.gocore.operations.StartJourney;
 import com.gbg.gocore.utils.Headers;
+import com.gbg.gocore.utils.Options;
 import com.gbg.gocore.utils.Utils;
 import jakarta.annotation.Nullable;
+import java.lang.String;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class StartJourneyRequestBuilder {
     private final SDKConfiguration sdkConfiguration;
     private final Headers _headers = new Headers();
-    private StartJourneyRequest request;
+    private final StartJourneyRequestRequest.Builder pojoBuilder;
+    private StartJourneyRequestRequest request;
+    private final Options.Builder optionsBuilder;
+    private boolean _setterCalled;
 
     public StartJourneyRequestBuilder(SDKConfiguration sdkConfiguration) {
         this.sdkConfiguration = sdkConfiguration;
+        this.pojoBuilder = StartJourneyRequestRequest.builder();
+        this.optionsBuilder = Options.builder();
     }
 
-    public StartJourneyRequestBuilder request(@Nullable StartJourneyRequest request) {
-        this.request = request;
+    public StartJourneyRequestBuilder xGbgScenario(@Nullable String xGbgScenario) {
+        this.pojoBuilder.xGbgScenario(xGbgScenario);
+        this._setterCalled = true;
         return this;
     }
 
-    private StartJourneyRequest _buildRequest() {
+    public StartJourneyRequestBuilder body(@Nullable StartJourneyRequestBody body) {
+        this.pojoBuilder.body(body);
+        this._setterCalled = true;
+        return this;
+    }
+
+    public StartJourneyRequestBuilder timeout(Duration timeout) {
+        this.optionsBuilder.timeout(timeout);
+        return this;
+    }
+
+    private StartJourneyRequestRequest _buildRequest() {
+        if (this._setterCalled) {
+            this.request = this.pojoBuilder.build();
+        }
         return this.request;
     }
     
@@ -44,8 +68,9 @@ public class StartJourneyRequestBuilder {
     * @return The response from the server.
     */
     public CompletableFuture<StartJourneyResponse> call() {
-        AsyncRequestOperation<StartJourneyRequest, StartJourneyResponse> operation
-              = new StartJourney.Async(sdkConfiguration, _headers);
+        Options options = optionsBuilder.build();
+        AsyncRequestOperation<StartJourneyRequestRequest, StartJourneyResponse> operation
+              = new StartJourney.Async(sdkConfiguration, options, _headers);
         return operation.doRequest(this._buildRequest())
             .thenCompose(operation::handleResponse);
     }
